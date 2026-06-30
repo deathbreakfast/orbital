@@ -16,7 +16,8 @@ fn font_asset_prefix() -> String {
     }
 }
 
-fn font_faces_css() -> String {
+/// `@font-face` rules for Orbital's default LoMT font stack.
+pub fn font_faces_css() -> String {
     let prefix = font_asset_prefix();
     format!(
         r#"

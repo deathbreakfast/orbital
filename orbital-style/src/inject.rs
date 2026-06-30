@@ -10,6 +10,21 @@ fn style_element_id(id: &str) -> String {
     format!("{STYLE_ID_PREFIX}{id}")
 }
 
+/// Returns true when style text content should be written to the DOM.
+#[cfg(feature = "hydrate")]
+pub(crate) fn should_update_style_content(current: Option<&str>, next: &str) -> bool {
+    current != Some(next)
+}
+
+#[cfg(feature = "hydrate")]
+fn upsert_style_text_content(style: &leptos::web_sys::Element, content: &str) -> bool {
+    if !should_update_style_content(style.text_content().as_deref(), content) {
+        return false;
+    }
+    style.set_text_content(Some(content));
+    true
+}
+
 #[cfg(feature = "hydrate")]
 fn ensure_style_in_head(element_id: &str, content: &str) {
     use leptos::prelude::document;
@@ -37,7 +52,7 @@ fn ensure_style_in_head(element_id: &str, content: &str) {
             style
         });
 
-    style.set_text_content(Some(content));
+    upsert_style_text_content(&style, content);
 }
 
 /// Injects a static stylesheet into `<head>` once (deduplicated by id).
@@ -102,6 +117,7 @@ pub fn inject_dynamic_style<T: Fn() -> String + Send + Sync + 'static>(id: Strin
             let element_id = style_element_id(&id);
             use leptos::prelude::document;
             use send_wrapper::SendWrapper;
+            use std::ops::Deref;
 
             let head = document().head().expect("head no exist");
             let style = head
@@ -129,7 +145,7 @@ pub fn inject_dynamic_style<T: Fn() -> String + Send + Sync + 'static>(id: Strin
             let style = SendWrapper::new(style);
             leptos::prelude::Effect::new_isomorphic(move |_| {
                 let content = f();
-                style.set_text_content(Some(&content));
+                upsert_style_text_content(style.deref(), &content);
             });
         } else {
             let _ = (id, f);
