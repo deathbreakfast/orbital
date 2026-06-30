@@ -11,6 +11,7 @@ workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+orbital = { path = "../orbital", default-features = false, features = ["hydrate"] }
 orbital-preview-app = { path = "../orbital-preview-app", default-features = false }
 leptos.workspace = true
 console_error_panic_hook.workspace = true

@@ -15,6 +15,8 @@ pub use surface::DialogSurface;
 pub use title::DialogTitle;
 pub use types::DialogDismissConfig;
 
+pub use styles::dialog_styles;
+
 pub use orbital_base_components::{DialogDismiss, OpenBind};
 
 #[cfg(feature = "preview")]

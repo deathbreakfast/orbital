@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::{ParentRoute, Route, Router, Routes};
 use leptos_router::path;
-use orbital::OrbitalFirstPaintHeadAssets;
+use orbital::{OrbitalBootLoaderHeadAssets, OrbitalBootOverlay, OrbitalFirstPaintHeadAssets};
 use orbital_style::StyleRegistry;
 
 use crate::preview::{
@@ -44,6 +44,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                     <meta charset="utf-8"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
                     <OrbitalFirstPaintHeadAssets base_path=preview_site_base().to_string() />
+                    <OrbitalBootLoaderHeadAssets />
                     <meta name="orbital-style"/>
                     <Title text="Orbital Preview"/>
                     <AutoReload options=options.clone() />
@@ -53,6 +54,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 </head>
                 <body style="margin: 0;">
                     <App />
+                    <OrbitalBootOverlay />
                 </body>
             </html>
         </StyleRegistry>

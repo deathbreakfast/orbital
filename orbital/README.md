@@ -100,9 +100,49 @@ Orbital defines spacing tokens, typography presets, elevation ramps, and surface
 ## Composition
 
 - **Shell** — [`OrbitalTemplate`] wraps apps with theme and layout primitives.
+- **Boot loader** — [`orbital_shell`] injects a WASM-free loading overlay until hydration completes (see below).
 - **Auth** — [`AuthContext`] + [`init_auth_resource`] for session state; the preview catalog uses a stub, while integrators wire a real session server function.
 - **Preview catalog** — `#[component_doc]` emits [`PreviewRegistration`] entries; run `cargo leptos watch -p orbital-preview` and browse `/orbital/{slug}` on `:3010`.
 
 Capability flags on feature crates (for example `DataTableFeatures`, `ChartFeatures`) express optional behavior — not license-tier suffixes on type names.
+
+## Boot loader
+
+While `/pkg/*.wasm` downloads and `hydrate()` runs, users see a static bootstrap overlay instead of an unstyled, non-interactive page.
+
+### Using [`orbital_shell`]
+
+[`orbital_shell`] already wires:
+
+- [`OrbitalBootLoaderHeadAssets`] — inline critical CSS and a script error listener in `<head>`
+- [`OrbitalBootOverlay`] — `#orbital-boot-overlay` in `<body>` before your app root
+
+Your WASM entrypoint **must** call [`hide_boot_loader`] immediately after hydration:
+
+```rust,ignore
+#[wasm_bindgen]
+pub fn hydrate() {
+    leptos::mount::hydrate_body(App);
+    orbital::hide_boot_loader();
+}
+```
+
+### Custom document shells
+
+If you do not use [`orbital_shell`], add the same pieces manually:
+
+1. `<OrbitalBootLoaderHeadAssets />` in `<head>` after [`OrbitalFirstPaintHeadAssets`], **before** `<HydrationScripts>`
+2. `<OrbitalBootOverlay />` in `<body>` **after** `{app_fn()}` (app root must remain the first body child for hydration)
+3. Call [`hide_boot_loader`] after `hydrate_body` in your `hydrate()` export
+
+See [`orbital-preview-app/src/routes.rs`](../orbital-preview-app/src/routes.rs) and [`orbital-preview-frontend/src/lib.rs`](../orbital-preview-frontend/src/lib.rs) for the in-repo reference implementation.
+
+### Load failures
+
+Leptos `HydrationScripts` does not catch failed JS/WASM loads. [`OrbitalBootLoaderHeadAssets`] registers inline `error` and `unhandledrejection` listeners that set `html[data-orbital-boot-state="error"]` and reveal a static error message on the overlay.
+
+Rust panics **after** WASM is running are logged via `console_error_panic_hook` only; the overlay stays visible unless you add custom panic handling.
+
+Do **not** use hydrated components such as `LoadingBar` or `ProgressBar` for this phase — they require WASM.
 
 See the [repository README](../README.md) for workspace layout, testing, and development.
