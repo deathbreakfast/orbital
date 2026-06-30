@@ -115,7 +115,7 @@ While `/pkg/*.wasm` downloads and `hydrate()` runs, users see a static bootstrap
 [`orbital_shell`] already wires:
 
 - [`OrbitalBootLoaderHeadAssets`] — inline critical CSS and a script error listener in `<head>`
-- [`OrbitalBootOverlay`] — `#orbital-boot-overlay` in `<body>` before your app root
+- [`OrbitalBootOverlay`] — `#orbital-boot-overlay` in `<body>` **after** your app root (see [Boot loader](https://unified-field-dev.github.io/orbital/boot-loader) in the preview catalog)
 
 Your WASM entrypoint **must** call [`hide_boot_loader`] immediately after hydration:
 
@@ -135,13 +135,13 @@ If you do not use [`orbital_shell`], add the same pieces manually:
 2. `<OrbitalBootOverlay />` in `<body>` **after** `{app_fn()}` (app root must remain the first body child for hydration)
 3. Call [`hide_boot_loader`] after `hydrate_body` in your `hydrate()` export
 
-See [`orbital-preview-app/src/routes.rs`](../orbital-preview-app/src/routes.rs) and [`orbital-preview-frontend/src/lib.rs`](../orbital-preview-frontend/src/lib.rs) for the in-repo reference implementation.
+See [`orbital-preview-app/src/routes.rs`](../orbital-preview-app/src/routes.rs) and [`orbital-preview-frontend/src/lib.rs`](../orbital-preview-frontend/src/lib.rs) for the in-repo reference implementation. The [Boot loader](https://unified-field-dev.github.io/orbital/boot-loader) Getting Started page in the preview catalog walks through wiring and shows static loading/error demos.
 
 ### Load failures
 
-Leptos `HydrationScripts` does not catch failed JS/WASM loads. [`OrbitalBootLoaderHeadAssets`] registers inline `error` and `unhandledrejection` listeners that set `html[data-orbital-boot-state="error"]` and reveal a static error message on the overlay.
+Leptos `HydrationScripts` does not catch failed JS/WASM loads. [`OrbitalBootLoaderHeadAssets`] registers inline `error` and `unhandledrejection` listeners that set `html[data-orbital-boot-state="error"]` and reveal a static error panel: dialog layout primitives (`DialogBody`, `DialogTitle`, `DialogContent`) and a [`MessageBar`] inside a fixed dialog surface — not the hydrated [`Dialog`] component (portal/focus trap).
 
-Rust panics **after** WASM is running are logged via `console_error_panic_hook` only; the overlay stays visible unless you add custom panic handling.
+Rust panics **after** WASM is running are logged via `console_error_panic_hook` only unless you add custom panic handling. Set a panic hook that calls [`hide_boot_loader`] first (see `orbital-preview-frontend/src/lib.rs`) so startup failures do not leave the overlay trapping the page.
 
 Do **not** use hydrated components such as `LoadingBar` or `ProgressBar` for this phase — they require WASM.
 

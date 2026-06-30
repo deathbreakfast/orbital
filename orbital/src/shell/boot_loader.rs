@@ -1,8 +1,34 @@
 //! Bootstrap loading overlay shown before WASM hydration completes.
 //!
-//! All markup and styles are SSR-safe (no WASM or hydrated Leptos components).
-//! Call [`hide_boot_loader`] from the app `hydrate()` entrypoint immediately after
-//! `leptos::mount::hydrate_body(...)`.
+//! While `/pkg/*.wasm` downloads and Leptos hydrates, users see a static full-viewport
+//! overlay instead of an unstyled, non-interactive page. All markup and styles here are
+//! **WASM-free** — do not use hydrated components such as `LoadingBar`, `ProgressBar`, or the
+//! full [`crate::components::Dialog`] (portal/focus trap) for this phase.
+//!
+//! ## Wiring
+//!
+//! 1. [`OrbitalBootLoaderHeadAssets`] in `<head>` after [`super::OrbitalFirstPaintHeadAssets`],
+//!    **before** `<HydrationScripts>`.
+//! 2. [`OrbitalBootOverlay`] in `<body>` **after** the app root. The hydrated app must remain
+//!    the first body child; fixed positioning still covers the viewport until
+//!    [`hide_boot_loader`] runs.
+//! 3. Call [`hide_boot_loader`] immediately after `leptos::mount::hydrate_body(...)` in every
+//!    app `hydrate()` export.
+//!
+//! [`orbital_shell`](crate::orbital_shell) wires (1) and (2) automatically. See
+//! `orbital-preview-app/src/routes.rs` and `orbital-preview-frontend/src/lib.rs` for the
+//! in-repo reference shell and hydrate entrypoint (including a panic hook that calls
+//! [`hide_boot_loader`] so the overlay does not trap the page after startup failures).
+//!
+//! ## Load failures
+//!
+//! [`OrbitalBootLoaderHeadAssets`] registers inline `error` and `unhandledrejection`
+//! listeners that set `html[data-orbital-boot-state="error"]` and reveal [`OrbitalBootErrorContent`]
+//! — a static dialog surface composed from [`DialogBody`], [`DialogTitle`],
+//! [`DialogContent`], and [`MessageBar`], not the hydrated [`Dialog`] component.
+//!
+//! Rust panics **after** WASM is running are logged via `console_error_panic_hook` only unless
+//! you add custom panic handling; the overlay stays visible until [`hide_boot_loader`] runs.
 
 use leptos::prelude::*;
 use orbital_core_components::feedback::dialog::dialog_styles;
@@ -163,14 +189,48 @@ pub fn OrbitalBootLoaderHeadAssets() -> impl IntoView {
     }
 }
 
-/// SSR-safe modal-style error panel using dialog layout primitives and [`MessageBar`].
+/// SSR-safe modal-style error content using dialog layout primitives and [`MessageBar`].
 ///
-/// [`Dialog`] itself requires hydration (portal/focus trap), so this panel composes
+/// [`Dialog`] itself requires hydration (portal/focus trap), so this composes
 /// [`DialogBody`], [`DialogTitle`], and [`DialogContent`] inside a static dialog surface.
+/// Used by [`OrbitalBootErrorPanel`] and the boot-loader Getting Started preview demo.
 #[component]
-fn OrbitalBootErrorPanel() -> impl IntoView {
+pub(crate) fn OrbitalBootErrorContent() -> impl IntoView {
     inject_style("orbital-dialog", dialog_styles());
 
+    view! {
+        <OrbitalThemeProvider>
+            <div
+                class="orbital-dialog-surface"
+                role="alertdialog"
+                aria-modal="true"
+                aria-label="Unable to load application"
+            >
+                <DialogBody>
+                    <DialogTitle>"Unable to load application"</DialogTitle>
+                    <DialogContent>
+                        <MessageBar
+                            intent=MessageBarIntent::Error
+                            layout=MessageBarLayout::Multiline
+                        >
+                            <MessageBarTitle>"Startup failed"</MessageBarTitle>
+                            <MessageBarBody>
+                                "The application bundle could not be downloaded or started."
+                            </MessageBarBody>
+                        </MessageBar>
+                        <Body1 block=true>
+                            "Refresh the page or try again later. If the problem persists, check your network connection."
+                        </Body1>
+                    </DialogContent>
+                </DialogBody>
+            </div>
+        </OrbitalThemeProvider>
+    }
+}
+
+/// Hidden error region toggled by the inline boot-loader script on script/WASM failures.
+#[component]
+fn OrbitalBootErrorPanel() -> impl IntoView {
     view! {
         <div
             class="orbital-boot-error"
@@ -179,32 +239,26 @@ fn OrbitalBootErrorPanel() -> impl IntoView {
             role="alert"
             aria-live="assertive"
         >
-            <OrbitalThemeProvider>
-                <div
-                    class="orbital-dialog-surface"
-                    role="alertdialog"
-                    aria-modal="true"
-                    aria-label="Unable to load application"
-                >
-                    <DialogBody>
-                        <DialogTitle>"Unable to load application"</DialogTitle>
-                        <DialogContent>
-                            <MessageBar
-                                intent=MessageBarIntent::Error
-                                layout=MessageBarLayout::Multiline
-                            >
-                                <MessageBarTitle>"Startup failed"</MessageBarTitle>
-                                <MessageBarBody>
-                                    "The application bundle could not be downloaded or started."
-                                </MessageBarBody>
-                            </MessageBar>
-                            <Body1 block=true>
-                                "Refresh the page or try again later. If the problem persists, check your network connection."
-                            </Body1>
-                        </DialogContent>
-                    </DialogBody>
-                </div>
-            </OrbitalThemeProvider>
+            <OrbitalBootErrorContent />
+        </div>
+    }
+}
+
+/// Spinner and status message panel inside [`OrbitalBootOverlay`].
+#[component]
+pub(crate) fn OrbitalBootLoadingPanel(
+    #[prop(into)] message: String,
+) -> impl IntoView {
+    view! {
+        <div class="orbital-boot-panel">
+            <div
+                class="orbital-boot-spinner"
+                data-testid="orbital-boot-spinner"
+                aria-hidden="true"
+            ></div>
+            <p class="orbital-boot-message" data-testid="orbital-boot-message">
+                {message}
+            </p>
         </div>
     }
 }
@@ -230,16 +284,7 @@ pub fn OrbitalBootOverlay(
             aria-live="polite"
             aria-busy="true"
         >
-            <div class="orbital-boot-panel">
-                <div
-                    class="orbital-boot-spinner"
-                    data-testid="orbital-boot-spinner"
-                    aria-hidden="true"
-                ></div>
-                <p class="orbital-boot-message" data-testid="orbital-boot-message">
-                    {message}
-                </p>
-            </div>
+            <OrbitalBootLoadingPanel message=message />
             <OrbitalBootErrorPanel />
         </div>
     }

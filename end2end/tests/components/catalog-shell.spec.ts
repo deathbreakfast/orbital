@@ -91,6 +91,18 @@ test.describe("preview catalog shell", () => {
     ).toHaveCount(0);
   });
 
+  test("boot loader lives under getting started section", async ({ page }) => {
+    await page.goto(previewUrl("/"));
+    await expect(page.getByTestId("preview-catalog-shell")).toBeVisible();
+    await expect(page.getByTestId("preview-catalog-nav")).toContainText("Getting Started");
+    await expect(
+      page.getByTestId("preview-catalog-nav").getByRole("link", { name: "Boot loader" }),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("preview-catalog-nav").getByRole("button", { name: "Boot loader" }),
+    ).toHaveCount(0);
+  });
+
   test("toolbar social icon buttons render in app bar", async ({ page }) => {
     await page.goto(previewUrl("/"));
     await expect(page.getByTestId("preview-catalog-shell")).toBeVisible();

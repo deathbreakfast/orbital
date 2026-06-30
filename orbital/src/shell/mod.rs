@@ -6,6 +6,7 @@ mod head_assets;
 pub use boot_loader::{
     hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay,
 };
+pub(crate) use boot_loader::{OrbitalBootErrorContent, OrbitalBootLoadingPanel};
 pub use head_assets::OrbitalFirstPaintHeadAssets;
 
 /// Compile-time base path for static assets (`LEPTOS_BASE_PATH` at build time).
