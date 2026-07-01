@@ -169,7 +169,7 @@ use crate::{
 /// ```
 ///
 /// ## Page scroll layout
-/// InfoLabel inside a bounded [`Layout`](crate::Layout) page scrollport — mirrors Chronon shell scroll behavior.
+/// InfoLabel inside a bounded [`Layout`](crate::Layout) page scrollport — mirrors bounded page scroll behavior.
 /// <!-- preview -->
 /// ```rust
 /// use crate::{

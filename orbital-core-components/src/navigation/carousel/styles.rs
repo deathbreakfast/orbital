@@ -59,8 +59,8 @@ pub fn carousel_styles() -> &'static str {
 .orbital-carousel__slide-panel--accent {
     background: linear-gradient(
         135deg,
-        var(--orb-color-palette-berry-bg) 0%,
-        var(--orb-color-family-chronon-bg-muted) 100%
+        var(--orb-color-palette-orange-bg-subtle) 0%,
+        var(--orb-color-palette-orange-bg) 100%
     );
 }
 

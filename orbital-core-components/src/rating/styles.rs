@@ -123,7 +123,7 @@ pub fn rating_styles() -> &'static str {
 }
 
 .orbital-rating-item--marigold .orbital-rating-item__icon {
-    color: var(--orb-color-palette-chronon-border-active);
+    color: var(--orb-color-palette-orange-fg-strong);
 }
 
 .orbital-rating-item--filled .orbital-rating-item__icon::before {
@@ -135,7 +135,7 @@ pub fn rating_styles() -> &'static str {
 }
 
 .orbital-rating-item--filled.orbital-rating-item--marigold .orbital-rating-item__icon::before {
-    background-color: var(--orb-color-palette-chronon-bg-muted);
+    background-color: var(--orb-color-palette-orange-bg-subtle);
 }
 "#
 }

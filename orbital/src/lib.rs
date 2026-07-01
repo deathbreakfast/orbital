@@ -90,7 +90,7 @@ pub use shell::OrbitalFirstPaintHeadAssets;
 pub use shell::{hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay};
 pub use orbital_theme::ThemeMode;
 
-/// Design tokens for marketing surfaces (`CornerRadius`, `PlatformFamilyBrand`, …).
+/// Design tokens for marketing surfaces (`CornerRadius`, `BrandTone`, …).
 pub use orbital_shell::tokens;
 
 // Note: The `server` macro cannot be re-exported through regular modules.

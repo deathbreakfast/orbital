@@ -387,16 +387,16 @@ mod tests {
 
     #[test]
     fn test_build_fn_meta_single_param() {
-        let (name, fmt) = build_fn_meta("jobs/:job_id", "chronon");
+        let (name, fmt) = build_fn_meta("jobs/:job_id", "app");
         assert_eq!(name, "jobs");
-        assert_eq!(fmt, "/chronon/jobs/{job_id}");
+        assert_eq!(fmt, "/app/jobs/{job_id}");
     }
 
     #[test]
     fn test_build_fn_meta_multi_param() {
-        let (name, fmt) = build_fn_meta("schema/:schema_name/id/:entity_id", "valence");
+        let (name, fmt) = build_fn_meta("schema/:schema_name/id/:entity_id", "api");
         assert_eq!(name, "schema_id");
-        assert_eq!(fmt, "/valence/schema/{schema_name}/id/{entity_id}");
+        assert_eq!(fmt, "/api/schema/{schema_name}/id/{entity_id}");
     }
 
     #[test]

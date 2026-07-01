@@ -1,9 +1,5 @@
 //! Emit Orbital `--orb-*` CSS custom properties (legacy token aliases sunset).
 
-use std::collections::HashMap;
-
-use crate::ramps::brand_ramp;
-
 use super::{ColorTheme, CommonTheme};
 
 fn emit_orb(css_vars: &mut String, orb: &str, value: &str) {
@@ -254,7 +250,6 @@ impl ColorTheme {
         );
 
         self.write_orb_extended_color_css_vars(css_vars);
-        self.write_family_palette_css_vars(css_vars);
     }
 
     /// Remaining semantic color tokens referenced by migrated consumers.
@@ -559,14 +554,6 @@ impl ColorTheme {
                 self.color_palette_yellow_border_1(),
             ),
             (
-                "--orb-color-palette-chronon-bg-muted",
-                self.color_palette_chronon_background_2(),
-            ),
-            (
-                "--orb-color-palette-chronon-border-active",
-                self.color_palette_chronon_border_active(),
-            ),
-            (
                 "--orb-color-palette-orange-bg-subtle",
                 self.color_palette_dark_orange_background_1(),
             ),
@@ -590,59 +577,5 @@ impl ColorTheme {
         for (orb, value) in extended {
             emit_orb(css_vars, orb, value);
         }
-    }
-
-    /// Physics-family palette ramps (`--orb-color-family-*` only).
-    pub fn write_family_palette_css_vars(&self, css_vars: &mut String) {
-        const FAMILIES: [(&str, &str); 13] = [
-            ("valence", "#4f6bed"),
-            ("gluon", "#e3008c"),
-            ("nucleus", "#5b5fc7"),
-            ("chronon", "#eaa300"),
-            ("boson", "#7160e8"),
-            ("photon", "#00b7c3"),
-            ("orbital", "#4a89dc"),
-            ("spectra", "#5c2e91"),
-            ("neutrino", "#0b6a0b"),
-            ("higgs", "#5c2d91"),
-            ("phonon", "#ff8c00"),
-            ("polaron", "#986f0b"),
-            ("magnon", "#c50f1f"),
-        ];
-
-        for (orb_family, anchor) in FAMILIES {
-            let ramp = brand_ramp(anchor);
-            emit_family_slots(css_vars, orb_family, &ramp);
-        }
-    }
-}
-
-fn emit_family_slots(css_vars: &mut String, orb_family: &str, ramp: &HashMap<i32, String>) {
-    let slot =
-        |variant: i32| -> &str { ramp.get(&variant).map(|s| s.as_str()).unwrap_or("#000000") };
-
-    let pairs = [
-        (
-            format!("--orb-color-family-{orb_family}-bg-subtle"),
-            slot(160),
-        ),
-        (
-            format!("--orb-color-family-{orb_family}-bg-muted"),
-            slot(140),
-        ),
-        (format!("--orb-color-family-{orb_family}-fg"), slot(80)),
-        (
-            format!("--orb-color-family-{orb_family}-fg-muted"),
-            slot(110),
-        ),
-        (format!("--orb-color-family-{orb_family}-border"), slot(70)),
-        (
-            format!("--orb-color-family-{orb_family}-border-active"),
-            slot(90),
-        ),
-    ];
-
-    for (orb, value) in pairs {
-        emit_orb(css_vars, &orb, value);
     }
 }

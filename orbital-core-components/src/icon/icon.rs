@@ -114,7 +114,7 @@ use turf::inline_style_sheet_values;
 ///             icon=icondata::AiStarOutlined
 ///             width="24px"
 ///             height="24px"
-///             style="opacity: 0.6; color: var(--orb-color-family-chronon-fg-muted);"
+///             style="opacity: 0.6; color: var(--orb-color-text-secondary);"
 ///         />
 ///     </div>
 /// }

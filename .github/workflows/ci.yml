@@ -46,5 +46,8 @@ jobs:
       - name: Workspace tests
         run: cargo test --workspace --lib --tests
 
+      - name: Product coupling gate
+        run: bash scripts/maintainer/product_coupling_gate.sh
+
       - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
