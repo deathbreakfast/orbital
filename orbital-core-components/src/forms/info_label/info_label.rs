@@ -167,6 +167,46 @@ use crate::{
 ///     </div>
 /// }
 /// ```
+///
+/// ## Page scroll layout
+/// InfoLabel inside a bounded [`Layout`](crate::Layout) page scrollport — mirrors Chronon shell scroll behavior.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     AppBar, AppBarDensity, AppBarLeading, AppBarMaterial, InfoLabel, InfoLabelInfo, Layout,
+///     LayoutHeader, LayoutMain, MaterialCorners, MaterialElevation, MaterialVariant, Title3,
+/// };
+/// view! {
+///     <div data-testid="info-label-page-scroll" style="height: 320px; border: 1px solid var(--orb-color-border-subtle); overflow: hidden;">
+///         <Layout overlay_header=true page_scrollport=true>
+///             <LayoutHeader slot>
+///                 <AppBar>
+///                     <AppBarMaterial variant=MaterialVariant::Solid elevation=MaterialElevation::Flat corners=MaterialCorners::Square slot />
+///                     <AppBarLeading slot>
+///                         <Title3>"Page scroll"</Title3>
+///                     </AppBarLeading>
+///                 </AppBar>
+///             </LayoutHeader>
+///             <LayoutMain slot>
+///                 <div style="display: flex; flex-direction: column; gap: 16px; min-height: 900px; padding: 16px;">
+///                     {(0..8)
+///                         .map(|i| view! { <p style="margin: 0;">{format!("Filler line {i}")}</p> })
+///                         .collect_view()}
+///                     <div data-testid="info-label-page-scroll-target">
+///                         <InfoLabel>
+///                             "Parameters"
+///                             <InfoLabelInfo slot>"JSON object passed to the script at run time."</InfoLabelInfo>
+///                         </InfoLabel>
+///                     </div>
+///                     {(0..8)
+///                         .map(|i| view! { <p style="margin: 0;">{format!("Trailing line {i}")}</p> })
+///                         .collect_view()}
+///                 </div>
+///             </LayoutMain>
+///         </Layout>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Feedback",
     preview_slug = "info-label",

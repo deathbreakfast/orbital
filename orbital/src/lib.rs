@@ -88,6 +88,7 @@ pub use preview::{collect_preview_registrations, PreviewRegistration};
 pub use services::auth_service::init_auth_resource;
 pub use shell::OrbitalFirstPaintHeadAssets;
 pub use shell::{hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay};
+pub use orbital_theme::ThemeMode;
 
 /// Design tokens for marketing surfaces (`CornerRadius`, `PlatformFamilyBrand`, …).
 pub use orbital_shell::tokens;

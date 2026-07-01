@@ -1,5 +1,8 @@
 use leptos::prelude::*;
-use orbital_core_components::{Field, Select, SelectSize};
+use orbital_base_components::{FlexAlign, FlexGap, ThemeColor};
+use orbital_core_components::{
+    Label, LabelSize, Select, SelectSize, Space, SpaceConfig, Stack, StackConfig, Text, TextSize,
+};
 
 use super::pagination_bar::DataTablePaginationBar;
 use crate::core::{use_data_table_context, DataTableTableStateProvider};
@@ -25,7 +28,11 @@ fn effective_page_size_options(options: &Option<Vec<u32>>, current: usize) -> Ve
 
 /// Footer page-size selector synced with [`DataTableTableState::page_size`].
 #[component]
-fn DataTablePageSizeSelect(state: DataTableTableState, options: Vec<u32>) -> impl IntoView {
+fn DataTablePageSizeSelect(
+    state: DataTableTableState,
+    options: Vec<u32>,
+    label: String,
+) -> impl IntoView {
     let selected_size = RwSignal::new(state.page_size.get().to_string());
 
     Effect::new(move |_| {
@@ -45,7 +52,16 @@ fn DataTablePageSizeSelect(state: DataTableTableState, options: Vec<u32>) -> imp
     });
 
     view! {
-        <Field label="Rows per page">
+        <Stack
+            config=StackConfig {
+                horizontal: true,
+                gap: FlexGap::Small,
+                align: Some(FlexAlign::Center),
+                ..Default::default()
+            }
+            class="orbital-data-table__page-size"
+        >
+            <Label size=LabelSize::Small>{label}</Label>
             <Select
                 bind=selected_size
                 attr:data-testid="data-table-page-size"
@@ -60,7 +76,7 @@ fn DataTablePageSizeSelect(state: DataTableTableState, options: Vec<u32>) -> imp
                     })
                     .collect_view()}
             </Select>
-        </Field>
+        </Stack>
     }
 }
 
@@ -96,22 +112,42 @@ pub fn DataTableFooter(
             };
             let size_options = effective_page_size_options(&page_size_options, state.page_size.get());
             let show_page_size = state.show_pagination() && !size_options.is_empty();
+            let rows_per_page_label = locale.rows_per_page.clone();
 
             view! {
                 <div class="orbital-data-table__footer" data-testid="data-table-footer">
-                    <div class="orbital-data-table__footer-start">
-                        <span aria-live="polite" data-testid="data-table-pagination-range">
-                            {label}
-                        </span>
-                        <Show when=move || show_page_size>
-                            <DataTablePageSizeSelect state=state options=size_options.clone() />
+                    <Space config=SpaceConfig {
+                        align: Some(FlexAlign::Center),
+                        ..Default::default()
+                    }>
+                        <Stack
+                            config=StackConfig {
+                                horizontal: true,
+                                gap: FlexGap::Medium,
+                                align: Some(FlexAlign::Center),
+                                ..Default::default()
+                            }
+                            class="orbital-data-table__footer-start"
+                        >
+                            <span aria-live="polite" data-testid="data-table-pagination-range">
+                                <Text size=TextSize::S200 color=ThemeColor::NeutralForeground2>
+                                    {label}
+                                </Text>
+                            </span>
+                            <Show when=move || show_page_size>
+                                <DataTablePageSizeSelect
+                                    state=state
+                                    options=size_options.clone()
+                                    label=rows_per_page_label.clone()
+                                />
+                            </Show>
+                        </Stack>
+                        <Show when=move || state.show_pagination()>
+                            <div class="orbital-data-table__footer-end">
+                                <DataTablePaginationBar state=state />
+                            </div>
                         </Show>
-                    </div>
-                    <Show when=move || state.show_pagination()>
-                        <div class="orbital-data-table__footer-end">
-                            <DataTablePaginationBar state=state />
-                        </div>
-                    </Show>
+                    </Space>
                 </div>
             }
             .into_any()

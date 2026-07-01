@@ -9,7 +9,7 @@ use crate::overlay::placement::Placement;
 use crate::overlay::portal::Portal;
 use crate::overlay::positioning::{
     positioning_panel_styles, use_anchor_position, AnchorArrow, AnchorPosition, AnchorWidth,
-    OverlayPlacementInjection, RepositionInjection,
+    OverlayPlacementInjection, RepositionInjection, UseAnchorPositionOptions,
 };
 use crate::Handler;
 use orbital_motion::MotionSlot;
@@ -45,7 +45,15 @@ where
         ensure_listener,
         remove_listener,
         ..
-    } = use_anchor_position(width, placement, auto_height, arrow, Some(anchor_id), None);
+    } = use_anchor_position(
+        width,
+        placement,
+        auto_height,
+        arrow,
+        Some(anchor_id),
+        None,
+        UseAnchorPositionOptions::default(),
+    );
 
     let placement_label = Signal::derive(move || placement_signal.get().as_str().to_string());
     provide_context(OverlayPlacementInjection { placement_label });

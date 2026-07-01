@@ -205,6 +205,35 @@ use crate::PopoverTrigger;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Inner scroll area
+/// Popover trigger inside a bounded [`ScrollArea`](crate::ScrollArea). Scrolling the scrollport after the panel opens should keep the teleported surface aligned with the trigger.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Button, PopoverTriggerType, ScrollArea};
+///
+/// const FRAME: &str = "display: block; width: 100%; height: 280px; box-sizing: border-box; border: 1px solid var(--orb-color-border-default); padding: 12px; background: var(--orb-color-surface-subtle);";
+/// view! {
+///     <div data-testid="popover-scroll-area" style="width: 100%; max-width: 560px;">
+///         <ScrollArea scroll_testid="popover-scroll-area-scrollport" style=FRAME>
+///             <div style="display: flex; flex-direction: column; gap: 12px; min-height: 720px;">
+///                 {(0..10)
+///                     .map(|i| view! { <p style="margin: 0;">{format!("Filler line {i}")}</p> })
+///                     .collect_view()}
+///                 <Popover trigger_type=PopoverTriggerType::Click>
+///                     <PopoverTrigger slot>
+///                         <Button>"Open in scroll area"</Button>
+///                     </PopoverTrigger>
+///                     <div data-testid="popover-scroll-area-content">"Anchored panel"</div>
+///                 </Popover>
+///                 {(0..10)
+///                     .map(|i| view! { <p style="margin: 0;">{format!("Trailing line {i}")}</p> })
+///                     .collect_view()}
+///             </div>
+///         </ScrollArea>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Navigation",
     preview_slug = "popover",

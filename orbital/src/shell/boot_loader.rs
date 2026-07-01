@@ -9,7 +9,7 @@ use orbital_core_components::feedback::dialog::dialog_styles;
 use orbital_core_components::feedback::progress_bar::progress_bar_styles;
 use orbital_motion::presence_styles;
 use orbital_style::inject_style;
-use orbital_theme::OrbitalThemeProvider;
+use orbital_theme::{OrbitalThemeProvider, Theme, ThemeMode};
 
 use crate::components::{DialogBody, DialogContent, DialogTitle, MessageBar, MessageBarBody, MessageBarIntent, MessageBarLayout, MessageBarTitle, Body1};
 
@@ -30,6 +30,15 @@ pub(crate) const BOOT_LOADER_CSS: &str = r#"
   font-family: var(--orb-type-family-sans, ui-sans-serif, system-ui, -apple-system, sans-serif);
   font-size: var(--orb-type-size-md, 16px);
   line-height: var(--orb-type-line-md, 20px);
+}
+
+#orbital-boot-overlay[data-orbital-boot-theme="dark"] {
+  background: color-mix(
+    in srgb,
+    var(--orb-color-text-primary, #ffffff) 28%,
+    var(--orb-color-surface-canvas, #141414)
+  );
+  color: var(--orb-color-text-primary, #ffffff);
 }
 
 html[data-orbital-hydrated="true"] #orbital-boot-overlay {
@@ -70,11 +79,28 @@ html[data-orbital-boot-state="error"] .orbital-boot-loading {
   margin-block-end: var(--orb-space-block-md, 12px);
 }
 
-.orbital-boot-progress-label {
+.orbital-boot-progress-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--orb-space-inline-md, 12px);
   margin: 0;
   color: var(--orb-color-text-secondary, #3f4345);
   font-size: var(--orb-type-size-sm, 14px);
   line-height: var(--orb-type-line-sm, 18px);
+}
+
+.orbital-boot-progress-meta__percent {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.orbital-boot-progress-meta__elapsed {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--orb-type-family-monospace, ui-monospace, monospace);
 }
 
 .orbital-boot-steps {
@@ -94,6 +120,20 @@ html[data-orbital-boot-state="error"] .orbital-boot-loading {
   color: var(--orb-color-text-secondary, #3f4345);
   font-size: var(--orb-type-size-sm, 14px);
   line-height: var(--orb-type-line-sm, 18px);
+}
+
+.orbital-boot-step__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.orbital-boot-step__duration {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--orb-type-family-monospace, ui-monospace, monospace);
+  color: var(--orb-color-text-secondary, #3f4345);
 }
 
 .orbital-boot-step__icon {
@@ -196,6 +236,10 @@ const BOOT_LOADER_SCRIPT: &str = r#"
   var wasmCompleted = {};
   var headObserver = null;
   var bootExiting = false;
+  var bootStartTime = performance.now();
+  var stepStartedAt = {};
+  var stepElapsedMs = {};
+  var timingTimer = null;
 
   window.__orbitalBootExiting = false;
 
@@ -255,6 +299,78 @@ const BOOT_LOADER_SCRIPT: &str = r#"
     return Math.min(100, Math.max(0, Math.round((completed / total) * 100)));
   }
 
+  function formatDuration(ms) {
+    if (!isFinite(ms) || ms < 0) {
+      return "—";
+    }
+    if (ms < 1000) {
+      return Math.round(ms) + "ms";
+    }
+    var totalSeconds = Math.round(ms / 1000);
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    if (minutes > 0) {
+      return minutes + "m" + seconds + "s";
+    }
+    return totalSeconds + "s";
+  }
+
+  function noteStepActive(id) {
+    if (!stepStartedAt[id]) {
+      stepStartedAt[id] = performance.now();
+    }
+  }
+
+  function noteStepComplete(id) {
+    if (stepStartedAt[id] && stepElapsedMs[id] == null) {
+      stepElapsedMs[id] = performance.now() - stepStartedAt[id];
+    }
+  }
+
+  function stepDurationText(id) {
+    var state = stepStates[id];
+    if (state === "pending") {
+      return "—";
+    }
+    if (state === "complete" && stepElapsedMs[id] != null) {
+      return formatDuration(stepElapsedMs[id]);
+    }
+    if (state === "active" && stepStartedAt[id]) {
+      return formatDuration(performance.now() - stepStartedAt[id]);
+    }
+    return "—";
+  }
+
+  function updateTimingDom() {
+    var elapsedEl = document.querySelector(
+      '[data-testid="orbital-boot-progress-elapsed"]'
+    );
+    if (elapsedEl) {
+      elapsedEl.textContent = formatDuration(performance.now() - bootStartTime);
+    }
+    for (var i = 0; i < STEP_IDS.length; i++) {
+      var id = STEP_IDS[i];
+      var row = document.querySelector('[data-step-id="' + id + '"]');
+      if (!row) continue;
+      var durationEl = row.querySelector(".orbital-boot-step__duration");
+      if (durationEl) {
+        durationEl.textContent = stepDurationText(id);
+      }
+    }
+  }
+
+  function startTimingTicker() {
+    if (timingTimer) return;
+    timingTimer = setInterval(function () {
+      if (isHydrated() || bootExiting || bootFailed) {
+        clearInterval(timingTimer);
+        timingTimer = null;
+        return;
+      }
+      updateTimingDom();
+    }, 100);
+  }
+
   function updateStepDom(id, state) {
     var row = document.querySelector('[data-step-id="' + id + '"]');
     if (!row) return;
@@ -280,6 +396,7 @@ const BOOT_LOADER_SCRIPT: &str = r#"
     if (label) {
       label.textContent = percent + "%";
     }
+    updateTimingDom();
   }
 
   function publishProgress() {
@@ -293,6 +410,11 @@ const BOOT_LOADER_SCRIPT: &str = r#"
   }
 
   function setStepState(id, state) {
+    if (state === "active") {
+      noteStepActive(id);
+    } else if (state === "complete") {
+      noteStepComplete(id);
+    }
     stepStates[id] = state;
     updateStepDom(id, state);
     publishProgress();
@@ -637,6 +759,10 @@ const BOOT_LOADER_SCRIPT: &str = r#"
 
   function finalizeDismiss() {
     if (isHydrated()) return;
+    if (timingTimer) {
+      clearInterval(timingTimer);
+      timingTimer = null;
+    }
     document.documentElement.setAttribute("data-orbital-hydrated", "true");
     window.__orbitalBootExiting = false;
     bootExiting = false;
@@ -705,6 +831,8 @@ const BOOT_LOADER_SCRIPT: &str = r#"
   };
 
   function bootInit() {
+    bootStartTime = performance.now();
+    startTimingTicker();
     window.__orbitalBootProgress = {
       percent: 0,
       currentStep: "theme",
@@ -779,15 +907,19 @@ pub fn OrbitalBootLoaderHeadAssets() -> impl IntoView {
 #[component]
 pub(crate) fn OrbitalBootLoadingPanel(
     #[prop(into)] title: String,
+    /// Light or dark token set for the static dialog surface (defaults to light).
+    #[prop(default = ThemeMode::Light)]
+    theme_mode: ThemeMode,
 ) -> impl IntoView {
     inject_style("orbital-dialog", dialog_styles());
     inject_style("orbital-progress-bar", progress_bar_styles());
 
+    let theme = RwSignal::new(Theme::for_mode(theme_mode));
     let aria_label = title.clone();
 
     view! {
         <div class="orbital-boot-loading" data-testid="orbital-boot-loading">
-            <OrbitalThemeProvider>
+            <OrbitalThemeProvider theme=theme>
                 <div
                     class="orbital-dialog-surface"
                     role="dialog"
@@ -808,12 +940,20 @@ pub(crate) fn OrbitalBootLoadingPanel(
                                 >
                                     <div class="orbital-progress-bar__bar" style="width: 0%;"></div>
                                 </div>
-                                <p
-                                    class="orbital-boot-progress-label"
-                                    data-testid="orbital-boot-progress-label"
-                                >
-                                    "0%"
-                                </p>
+                                <div class="orbital-boot-progress-meta">
+                                    <span
+                                        class="orbital-boot-progress-meta__percent"
+                                        data-testid="orbital-boot-progress-label"
+                                    >
+                                        "0%"
+                                    </span>
+                                    <span
+                                        class="orbital-boot-progress-meta__elapsed"
+                                        data-testid="orbital-boot-progress-elapsed"
+                                    >
+                                        "0ms"
+                                    </span>
+                                </div>
                             </div>
                             <ul class="orbital-boot-steps" data-testid="orbital-boot-steps">
                                 {BOOT_STEPS
@@ -831,6 +971,7 @@ pub(crate) fn OrbitalBootLoadingPanel(
                                                     aria-hidden="true"
                                                 ></span>
                                                 <span class="orbital-boot-step__label">{label}</span>
+                                                <span class="orbital-boot-step__duration">"—"</span>
                                             </li>
                                         }
                                     })
@@ -846,11 +987,17 @@ pub(crate) fn OrbitalBootLoadingPanel(
 
 /// SSR-safe error dialog content for preview demos and the boot overlay error panel.
 #[component]
-pub(crate) fn OrbitalBootErrorContent() -> impl IntoView {
+pub(crate) fn OrbitalBootErrorContent(
+    /// Light or dark token set for the static dialog surface (defaults to light).
+    #[prop(default = ThemeMode::Light)]
+    theme_mode: ThemeMode,
+) -> impl IntoView {
     inject_style("orbital-dialog", dialog_styles());
 
+    let theme = RwSignal::new(Theme::for_mode(theme_mode));
+
     view! {
-        <OrbitalThemeProvider>
+        <OrbitalThemeProvider theme=theme>
             <div
                 class="orbital-dialog-surface"
                 role="alertdialog"
@@ -884,7 +1031,9 @@ pub(crate) fn OrbitalBootErrorContent() -> impl IntoView {
 /// [`Dialog`] itself requires hydration (portal/focus trap), so this panel composes
 /// [`DialogBody`], [`DialogTitle`], and [`DialogContent`] inside a static dialog surface.
 #[component]
-fn OrbitalBootErrorPanel() -> impl IntoView {
+fn OrbitalBootErrorPanel(
+    #[prop(default = ThemeMode::Light)] theme_mode: ThemeMode,
+) -> impl IntoView {
     view! {
         <div
             class="orbital-boot-error"
@@ -893,7 +1042,7 @@ fn OrbitalBootErrorPanel() -> impl IntoView {
             role="alert"
             aria-live="assertive"
         >
-            <OrbitalBootErrorContent />
+            <OrbitalBootErrorContent theme_mode=theme_mode />
         </div>
     }
 }
@@ -908,19 +1057,24 @@ pub fn OrbitalBootOverlay(
     /// Title shown in the loading modal dialog.
     #[prop(optional, into)]
     message: Option<String>,
+    /// Light or dark appearance for the loading and error panels (defaults to light).
+    #[prop(default = ThemeMode::Light)]
+    theme_mode: ThemeMode,
 ) -> impl IntoView {
     let title = message.unwrap_or_else(|| DEFAULT_BOOT_TITLE.to_string());
+    let boot_theme = theme_mode.as_name();
 
     view! {
         <div
             id="orbital-boot-overlay"
             data-testid="orbital-boot-overlay"
+            data-orbital-boot-theme=boot_theme
             role="status"
             aria-live="polite"
             aria-busy="true"
         >
-            <OrbitalBootLoadingPanel title=title />
-            <OrbitalBootErrorPanel />
+            <OrbitalBootLoadingPanel title=title theme_mode=theme_mode />
+            <OrbitalBootErrorPanel theme_mode=theme_mode />
         </div>
     }
 }
@@ -981,7 +1135,11 @@ mod tests {
         assert!(BOOT_LOADER_CSS.contains("data-orbital-boot-exiting"));
         assert!(BOOT_LOADER_CSS.contains(".orbital-boot-step--active"));
         assert!(BOOT_LOADER_CSS.contains("prefers-reduced-motion"));
-        assert!(!BOOT_LOADER_CSS.contains(".orbital-boot-spinner"));
+        assert!(BOOT_LOADER_CSS.contains("data-orbital-boot-theme=\"dark\""));
+        assert!(BOOT_LOADER_CSS.contains(".orbital-boot-progress-meta"));
+        assert!(BOOT_LOADER_CSS.contains(".orbital-boot-step__duration"));
+        assert!(BOOT_LOADER_SCRIPT.contains("formatDuration"));
+        assert!(BOOT_LOADER_SCRIPT.contains("orbital-boot-progress-elapsed"));
     }
 
     #[test]

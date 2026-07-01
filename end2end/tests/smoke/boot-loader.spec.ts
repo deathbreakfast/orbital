@@ -33,6 +33,8 @@ test.describe("Boot loader", () => {
     expect(html).toContain('data-testid="orbital-boot-loading"');
     expect(html).toContain('data-testid="orbital-boot-progress-bar"');
     expect(html).toContain('data-testid="orbital-boot-progress-label"');
+    expect(html).toContain('data-testid="orbital-boot-progress-elapsed"');
+    expect(html).toContain('class="orbital-boot-step__duration"');
     expect(html).toContain('data-testid="orbital-boot-steps"');
     for (const stepId of STEP_IDS) {
       expect(html).toContain(`data-testid="orbital-boot-step-${stepId}"`);

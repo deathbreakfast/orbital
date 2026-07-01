@@ -87,6 +87,7 @@ where
         <AnchoredPositioner
             mount=mount
             panel_ref=panel_ref
+            dismiss_on_anchor_hidden=config.trigger_type.uses_click()
             panel=AnchoredPanel {
             show: visibility.is_show.read_only().into(),
             width: None,

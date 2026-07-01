@@ -8,6 +8,7 @@ use crate::components::{
     Title1,
 };
 use crate::shell::{OrbitalBootErrorContent, OrbitalBootLoadingPanel};
+use orbital_theme::ThemeMode;
 
 const CODE_BLOCK_STYLE: &str = "display: block; margin: 0; padding: 12px; border-radius: 8px; background: var(--orb-color-surface-subtle, #f5f5f5); color: var(--orb-color-text-primary, #232425); font-family: var(--orb-type-family-monospace, ui-monospace, monospace); font-size: 14px; line-height: 18px; white-space: pre-wrap; overflow-x: auto;";
 const FRAME_STYLE: &str = "padding: 20px;";
@@ -19,7 +20,7 @@ const SHELL_SNIPPET: &str = r#"<OrbitalFirstPaintHeadAssets />
 
 <body>
     {app_fn()}
-    <OrbitalBootOverlay />
+    <OrbitalBootOverlay theme_mode=ThemeMode::Dark />
 </body>"#;
 
 const HYDRATE_SNIPPET: &str = r#"std::panic::set_hook(Box::new(|info| {
@@ -36,7 +37,10 @@ fn BootLoaderLoadingDemo() -> impl IntoView {
         <div data-testid="boot-loader-loading-demo">
             <Material variant=MaterialVariant::Solid elevation=MaterialElevation::Resting>
                 <div style=FRAME_STYLE>
-                    <OrbitalBootLoadingPanel title="Loading application…".to_string() />
+                    <OrbitalBootLoadingPanel
+                        title="Loading application…".to_string()
+                        theme_mode=ThemeMode::Dark
+                    />
                 </div>
             </Material>
         </div>
@@ -47,7 +51,7 @@ fn BootLoaderLoadingDemo() -> impl IntoView {
 fn BootLoaderErrorDemo() -> impl IntoView {
     view! {
         <div data-testid="boot-loader-error-demo" style=ERROR_DEMO_STYLE>
-            <OrbitalBootErrorContent />
+            <OrbitalBootErrorContent theme_mode=ThemeMode::Dark />
         </div>
     }
 }
@@ -133,9 +137,11 @@ pub fn BootLoaderGuidePreview() -> impl IntoView {
 
             <Subtitle1 block=true>"Loading state"</Subtitle1>
             <Body1 block=true>
-                "A modal dialog with an overall progress bar and boot step checklist renders inside "
+                "A modal dialog with an overall progress bar, elapsed time, per-step durations, and boot step checklist renders inside "
                 <code>"#orbital-boot-overlay"</code>
-                " until hydration completes. On success, the backdrop fades out and the modal card fades with a slight scale (motion-aligned exit); "
+                " until hydration completes. Completed steps show frozen durations on the right; the active step shows live elapsed time; pending steps show "
+                <code>"—"</code>
+                ". On success, the backdrop fades out and the modal card fades with a slight scale (motion-aligned exit); "
                 <code>"prefers-reduced-motion"</code>
                 " skips the animation."
             </Body1>

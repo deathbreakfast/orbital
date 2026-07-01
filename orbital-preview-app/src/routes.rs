@@ -5,6 +5,7 @@ use leptos_router::components::{ParentRoute, Route, Router, Routes};
 use leptos_router::path;
 use orbital::{OrbitalBootLoaderHeadAssets, OrbitalBootOverlay, OrbitalFirstPaintHeadAssets};
 use orbital_style::StyleRegistry;
+use orbital_theme::ThemeMode;
 
 use crate::preview::{
     DebugBarePreviewPage, FoucSmokePage, PreviewCatalogShell, PreviewIndexPage, PreviewSlugPage,
@@ -54,7 +55,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 </head>
                 <body style="margin: 0;">
                     <App />
-                    <OrbitalBootOverlay />
+                    <OrbitalBootOverlay theme_mode=ThemeMode::Dark />
                 </body>
             </html>
         </StyleRegistry>
