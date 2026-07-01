@@ -2187,6 +2187,7 @@ dependencies = [
  "orbital-base-components",
  "orbital-core-components",
  "orbital-macros",
+ "orbital-motion",
  "orbital-paging",
  "orbital-primitives",
  "orbital-shell",

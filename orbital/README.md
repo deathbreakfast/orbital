@@ -108,13 +108,15 @@ Capability flags on feature crates (for example `DataTableFeatures`, `ChartFeatu
 
 ## Boot loader
 
-While `/pkg/*.wasm` downloads and `hydrate()` runs, users see a static bootstrap overlay instead of an unstyled, non-interactive page.
+While `/pkg/*.wasm` downloads and `hydrate()` runs, users see a static bootstrap overlay with a **loading modal** (progress bar and boot step checklist) instead of an unstyled, non-interactive page.
+
+On successful hydration, [`hide_boot_loader`] runs a motion-aligned exit: the backdrop fades out and the modal card fades with a slight scale (`PresenceMotion::fade` + `fade_scale` CSS from [`orbital-motion`](../orbital-motion)), then `data-orbital-hydrated` is set and the overlay is removed. Users with `prefers-reduced-motion: reduce` get an instant dismiss. The error path does not animate.
 
 ### Using [`orbital_shell`]
 
 [`orbital_shell`] already wires:
 
-- [`OrbitalBootLoaderHeadAssets`] — inline critical CSS and a script error listener in `<head>`
+- [`OrbitalBootLoaderHeadAssets`] — inline critical CSS, motion presence styles, boot progress script, and load error listeners in `<head>`
 - [`OrbitalBootOverlay`] — `#orbital-boot-overlay` in `<body>` **after** your app root (see [Boot loader](https://unified-field-dev.github.io/orbital/boot-loader) in the preview catalog)
 
 Your WASM entrypoint **must** call [`hide_boot_loader`] immediately after hydration:
@@ -143,6 +145,6 @@ Leptos `HydrationScripts` does not catch failed JS/WASM loads. [`OrbitalBootLoad
 
 Rust panics **after** WASM is running are logged via `console_error_panic_hook` only unless you add custom panic handling. Set a panic hook that calls [`hide_boot_loader`] first (see `orbital-preview-frontend/src/lib.rs`) so startup failures do not leave the overlay trapping the page.
 
-Do **not** use hydrated components such as `LoadingBar` or `ProgressBar` for this phase — they require WASM.
+Do **not** use hydrated components such as `LoadingBar` or the reactive `ProgressBar` component for this phase — they require WASM. The boot loader reuses progress bar and motion **CSS tokens** only; width and exit transitions are driven by vanilla JS.
 
 See the [repository README](../README.md) for workspace layout, testing, and development.

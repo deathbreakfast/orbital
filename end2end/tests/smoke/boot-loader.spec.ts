@@ -44,7 +44,10 @@ test.describe("Boot loader", () => {
     expect(head).toContain("#orbital-boot-overlay");
     expect(head).toContain("data-orbital-hydrated");
     expect(head).toContain("data-orbital-boot-loader");
+    expect(head).toContain("data-orbital-boot-motion");
+    expect(head).toContain("orbital-motion-fade-leave-active");
     expect(head).toContain("__orbitalBootProgress");
+    expect(head).toContain("__orbitalBootDismissOverlay");
   });
 
   test("B-02: boot loading modal visible during slow WASM", async ({ page }) => {
@@ -171,5 +174,32 @@ test.describe("Boot loader", () => {
     const loadingDialog = page.getByTestId("orbital-boot-loading").getByRole("dialog");
     await expect(loadingDialog).toBeVisible();
     await expect(loadingDialog).toHaveAttribute("aria-modal", "true");
+  });
+
+  test("B-09: successful hydrate plays exit transition before overlay removal", async ({
+    page,
+  }) => {
+    const reducedMotion = await page.evaluate(() =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    );
+    test.skip(reducedMotion, "Exit animation skipped when prefers-reduced-motion");
+
+    await page.goto(previewUrl("/"), { waitUntil: "commit" });
+
+    await page.waitForFunction(
+      () => {
+        const overlay = document.querySelector('[data-testid="orbital-boot-overlay"]');
+        if (!overlay) return false;
+        return (
+          overlay.hasAttribute("data-orbital-boot-exiting") ||
+          overlay.classList.contains("orbital-motion-fade-leave-active")
+        );
+      },
+      { timeout: 15_000 },
+    );
+
+    await expect(page.getByTestId("orbital-boot-overlay")).toBeHidden({ timeout: 5_000 });
+    await expect(page.locator("html")).toHaveAttribute("data-orbital-hydrated", "true");
+    await expect(page.getByTestId("preview-catalog-shell")).toBeVisible();
   });
 });

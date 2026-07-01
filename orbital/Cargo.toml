@@ -47,6 +47,7 @@ orbital-core-components = { path = "../orbital-core-components", default-feature
 orbital-theme = { path = "../orbital-theme", default-features = false }
 orbital-style = { path = "../orbital-style", default-features = false }
 orbital-paging = { path = "../orbital-paging", default-features = false, features = ["leptos"] }
+orbital-motion = { path = "../orbital-motion", default-features = false }
 
 wasm-bindgen = { workspace = true }
 js-sys = { workspace = true }

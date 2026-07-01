@@ -105,7 +105,7 @@ impl PresenceMotion {
     }
 }
 
-fn presence_styles() -> &'static str {
+pub fn presence_styles() -> &'static str {
     r#"
 .orbital-motion-fade-enter-active {
     transition: opacity var(--orbital-motion-enter-duration, 200ms)

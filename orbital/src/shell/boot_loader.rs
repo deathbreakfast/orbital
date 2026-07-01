@@ -7,6 +7,7 @@
 use leptos::prelude::*;
 use orbital_core_components::feedback::dialog::dialog_styles;
 use orbital_core_components::feedback::progress_bar::progress_bar_styles;
+use orbital_motion::presence_styles;
 use orbital_style::inject_style;
 use orbital_theme::OrbitalThemeProvider;
 
@@ -33,6 +34,10 @@ pub(crate) const BOOT_LOADER_CSS: &str = r#"
 
 html[data-orbital-hydrated="true"] #orbital-boot-overlay {
   display: none !important;
+}
+
+#orbital-boot-overlay[data-orbital-boot-exiting] {
+  pointer-events: none;
 }
 
 .orbital-boot-loading {
@@ -190,6 +195,9 @@ const BOOT_LOADER_SCRIPT: &str = r#"
   var wasmAssets = {};
   var wasmCompleted = {};
   var headObserver = null;
+  var bootExiting = false;
+
+  window.__orbitalBootExiting = false;
 
   STEP_IDS.forEach(function (id) {
     stepStates[id] = "pending";
@@ -614,6 +622,88 @@ const BOOT_LOADER_SCRIPT: &str = r#"
     headObserver.observe(document.head, { childList: true, subtree: true });
   }
 
+  function prefersReducedMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function applyMotionExitVars(el) {
+    if (!el) return;
+    el.style.setProperty("--orbital-motion-exit-duration", "200ms");
+    el.style.setProperty(
+      "--orbital-motion-exit-curve",
+      "cubic-bezier(0.33, 0, 0.67, 1)"
+    );
+  }
+
+  function finalizeDismiss() {
+    if (isHydrated()) return;
+    document.documentElement.setAttribute("data-orbital-hydrated", "true");
+    window.__orbitalBootExiting = false;
+    bootExiting = false;
+    var overlay = document.getElementById("orbital-boot-overlay");
+    if (overlay) {
+      overlay.remove();
+    }
+  }
+
+  window.__orbitalBootDismissOverlay = function () {
+    if (isHydrated() || bootExiting) return;
+    if (document.documentElement.getAttribute("data-orbital-boot-state") === "error") {
+      return;
+    }
+
+    var overlay = document.getElementById("orbital-boot-overlay");
+    if (!overlay) {
+      finalizeDismiss();
+      return;
+    }
+
+    if (prefersReducedMotion()) {
+      finalizeDismiss();
+      return;
+    }
+
+    bootExiting = true;
+    window.__orbitalBootExiting = true;
+    overlay.setAttribute("data-orbital-boot-exiting", "");
+    overlay.setAttribute("aria-busy", "false");
+
+    var dialog = overlay.querySelector(".orbital-boot-loading .orbital-dialog-surface");
+    applyMotionExitVars(overlay);
+    applyMotionExitVars(dialog);
+
+    overlay.classList.add("orbital-motion-respects-reduced");
+    overlay.classList.add("orbital-motion-fade-leave-active");
+    if (dialog) {
+      dialog.classList.add("orbital-motion-fade-scale-leave-active");
+    }
+
+    void overlay.offsetWidth;
+
+    overlay.classList.add("orbital-motion-fade-leave-to");
+    if (dialog) {
+      dialog.classList.add("orbital-motion-fade-scale-leave-to");
+    }
+
+    var finished = false;
+    function finishExit() {
+      if (finished) return;
+      finished = true;
+      overlay.removeEventListener("transitionend", onTransitionEnd);
+      clearTimeout(fallbackTimer);
+      finalizeDismiss();
+    }
+
+    function onTransitionEnd(event) {
+      if (event.target !== overlay) return;
+      if (event.propertyName !== "opacity") return;
+      finishExit();
+    }
+
+    var fallbackTimer = setTimeout(finishExit, 350);
+    overlay.addEventListener("transitionend", onTransitionEnd);
+  };
+
   function bootInit() {
     window.__orbitalBootProgress = {
       percent: 0,
@@ -675,6 +765,9 @@ pub fn OrbitalBootLoaderHeadAssets() -> impl IntoView {
     view! {
         <style data-orbital-boot-loader="">
             {BOOT_LOADER_CSS}
+        </style>
+        <style data-orbital-boot-motion="">
+            {presence_styles()}
         </style>
         <script data-orbital-boot-loader="">
             {BOOT_LOADER_SCRIPT}
@@ -834,7 +927,8 @@ pub fn OrbitalBootOverlay(
 
 /// Hides the bootstrap loading overlay after hydration completes.
 ///
-/// Sets `html[data-orbital-hydrated="true"]` and removes `#orbital-boot-overlay`.
+/// Completes the hydrate boot step, then runs the exit fade via
+/// `__orbitalBootDismissOverlay` (sets `data-orbital-hydrated` after the animation).
 /// Call immediately after `leptos::mount::hydrate_body(...)` in every app `hydrate()` entrypoint.
 #[cfg(feature = "hydrate")]
 pub fn hide_boot_loader() {
@@ -845,9 +939,6 @@ pub fn hide_boot_loader() {
     let Some(window) = window() else {
         return;
     };
-    let Some(document) = window.document() else {
-        return;
-    };
 
     if let Ok(value) = Reflect::get(&window, &JsValue::from_str("__orbitalBootCompleteStep")) {
         if let Ok(func) = value.dyn_into::<Function>() {
@@ -855,10 +946,20 @@ pub fn hide_boot_loader() {
         }
     }
 
+    if let Ok(value) = Reflect::get(&window, &JsValue::from_str("__orbitalBootDismissOverlay")) {
+        if let Ok(func) = value.dyn_into::<Function>() {
+            let _ = func.call0(&window);
+            return;
+        }
+    }
+
+    // Fallback when boot script did not load (e.g. tests without overlay).
+    let Some(document) = window.document() else {
+        return;
+    };
     if let Some(html) = document.document_element() {
         let _ = html.set_attribute("data-orbital-hydrated", "true");
     }
-
     if let Some(overlay) = document.get_element_by_id("orbital-boot-overlay") {
         let _ = overlay.remove();
     }
@@ -877,6 +978,7 @@ mod tests {
         assert!(BOOT_LOADER_CSS.contains("#orbital-boot-overlay"));
         assert!(BOOT_LOADER_CSS.contains("data-orbital-hydrated"));
         assert!(BOOT_LOADER_CSS.contains(".orbital-boot-loading"));
+        assert!(BOOT_LOADER_CSS.contains("data-orbital-boot-exiting"));
         assert!(BOOT_LOADER_CSS.contains(".orbital-boot-step--active"));
         assert!(BOOT_LOADER_CSS.contains("prefers-reduced-motion"));
         assert!(!BOOT_LOADER_CSS.contains(".orbital-boot-spinner"));
@@ -886,6 +988,10 @@ mod tests {
     fn boot_loader_script_exports_progress_hook() {
         assert!(BOOT_LOADER_SCRIPT.contains("__orbitalBootProgress"));
         assert!(BOOT_LOADER_SCRIPT.contains("__orbitalBootCompleteStep"));
+        assert!(BOOT_LOADER_SCRIPT.contains("__orbitalBootDismissOverlay"));
+        assert!(BOOT_LOADER_SCRIPT.contains("data-orbital-boot-exiting"));
+        assert!(BOOT_LOADER_SCRIPT.contains("orbital-motion-fade-leave-active"));
+        assert!(BOOT_LOADER_SCRIPT.contains("orbital-motion-fade-scale-leave-active"));
         assert!(BOOT_LOADER_SCRIPT.contains("wasm_split_manifest"));
     }
 

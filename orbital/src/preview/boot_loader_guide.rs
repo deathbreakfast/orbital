@@ -135,7 +135,9 @@ pub fn BootLoaderGuidePreview() -> impl IntoView {
             <Body1 block=true>
                 "A modal dialog with an overall progress bar and boot step checklist renders inside "
                 <code>"#orbital-boot-overlay"</code>
-                " until hydration completes."
+                " until hydration completes. On success, the backdrop fades out and the modal card fades with a slight scale (motion-aligned exit); "
+                <code>"prefers-reduced-motion"</code>
+                " skips the animation."
             </Body1>
             <BootLoaderLoadingDemo />
 
