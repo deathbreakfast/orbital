@@ -2179,6 +2179,7 @@ dependencies = [
  "icondata",
  "icondata_core",
  "inventory",
+ "js-sys",
  "leptos",
  "leptos_axum",
  "leptos_meta",

@@ -36,7 +36,7 @@ fn BootLoaderLoadingDemo() -> impl IntoView {
         <div data-testid="boot-loader-loading-demo">
             <Material variant=MaterialVariant::Solid elevation=MaterialElevation::Resting>
                 <div style=FRAME_STYLE>
-                    <OrbitalBootLoadingPanel message="Loading application…".to_string() />
+                    <OrbitalBootLoadingPanel title="Loading application…".to_string() />
                 </div>
             </Material>
         </div>
@@ -133,7 +133,7 @@ pub fn BootLoaderGuidePreview() -> impl IntoView {
 
             <Subtitle1 block=true>"Loading state"</Subtitle1>
             <Body1 block=true>
-                "Spinner and status text render inside "
+                "A modal dialog with an overall progress bar and boot step checklist renders inside "
                 <code>"#orbital-boot-overlay"</code>
                 " until hydration completes."
             </Body1>
@@ -156,11 +156,11 @@ pub fn BootLoaderGuidePreview() -> impl IntoView {
                 <Body1 block=true>
                     "Keep the boot loader WASM-free — no "
                     <code>"LoadingBar"</code>
-                    ", "
+                    ", reactive "
                     <code>"ProgressBar"</code>
                     ", or full "
                     <code>"Dialog"</code>
-                    "."
+                    ". Progress bar styling uses shared CSS tokens only; width is updated by inline JS."
                 </Body1>
                 <Body1 block=true>
                     "Place "

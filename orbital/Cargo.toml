@@ -49,6 +49,7 @@ orbital-style = { path = "../orbital-style", default-features = false }
 orbital-paging = { path = "../orbital-paging", default-features = false, features = ["leptos"] }
 
 wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
 web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "Window", "MediaQueryList", "Event", "Storage"] }
 
 [features]
