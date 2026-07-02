@@ -58,10 +58,15 @@ pub fn DataTableInfiniteScrollController(
 
     let hook = use_paged_infinite_scroll(scroll_el, page_size, refresh.into(), fetch);
 
+    let skip_initial_refresh = StoredValue::new(true);
     Effect::new(move || {
         let _ = state.sort.get();
         let _ = state.filter.get();
         let _ = state.quick_search.get();
+        if skip_initial_refresh.get_value() {
+            skip_initial_refresh.set_value(false);
+            return;
+        }
         fetch_coordinator.update(|c| c.clear_dedupe());
         refresh.update(|v| *v += 1);
         state.reset_pagination();
@@ -110,7 +115,7 @@ fn DataTableInfiniteScrollFooter(
 
     view! {
         <div class="orbital-data-table__infinite-scroll-footer">
-            <Show when=move || loading.get() && !ever_loaded.get()>
+            <Show when=move || !ever_loaded.get()>
                 <div data-testid="data-table-infinite-loading">
                     <Spinner label=locale.get_value().loading.clone() />
                 </div>

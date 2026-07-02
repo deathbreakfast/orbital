@@ -1114,7 +1114,9 @@ impl DataTableTableState {
 
         // Infinite scroll footer owns the loading spinner; avoid duplicate overlay chrome.
         if server_infinite {
-            if loading {
+            let waiting_for_first_page =
+                self.processed.get().is_empty() && self.server_total.get().is_none();
+            if loading && waiting_for_first_page {
                 return OverlayState::None;
             }
             if self.processed.get().is_empty() {

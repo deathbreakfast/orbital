@@ -65,12 +65,11 @@ pub fn DataTableListBody(state: DataTableTableState) -> impl IntoView {
                             let row_click_id_click = row_id.clone();
                             let row_click_id_key = row_id.clone();
                             view! {
-                                <Material
-                                    variant=MaterialVariant::Outlined
+                                <div
                                     class=list_card_class
-                                    attr:data-testid=testid
-                                    attr:role=if row_click_enabled { "button" } else { "" }
-                                    attr:tabindex=if row_click_enabled { "0" } else { "-1" }
+                                    data-testid=testid
+                                    role=if row_click_enabled { "button" } else { "" }
+                                    tabindex=if row_click_enabled { "0" } else { "-1" }
                                     on:click=move |ev: leptos::ev::MouseEvent| {
                                         if !row_click_enabled || click_target_is_interactive(&ev) {
                                             return;
@@ -89,43 +88,48 @@ pub fn DataTableListBody(state: DataTableTableState) -> impl IntoView {
                                         }
                                     }
                                 >
-                                    <div class="orbital-data-table__list-card-inner">
-                                        <Show when=move || state.selection_mode.get().is_some()>
-                                            <Checkbox
-                                                checked=row_checked
-                                                attr:data-testid=format!("data-table-list-select-{row_id}")
-                                                on:change={
-                                                    let select_id = select_id.clone();
-                                                    move |_| {
-                                                        state.toggle_row_selection(&select_id, false);
+                                    <Material
+                                        variant=MaterialVariant::Outlined
+                                        class="orbital-data-table__list-card-surface"
+                                    >
+                                        <div class="orbital-data-table__list-card-inner">
+                                            <Show when=move || state.selection_mode.get().is_some()>
+                                                <Checkbox
+                                                    checked=row_checked
+                                                    attr:data-testid=format!("data-table-list-select-{row_id}")
+                                                    on:change={
+                                                        let select_id = select_id.clone();
+                                                        move |_| {
+                                                            state.toggle_row_selection(&select_id, false);
+                                                        }
                                                     }
-                                                }
-                                            />
-                                        </Show>
-                                        <div class="orbital-data-table__list-card-body">
-                                            <div class="orbital-data-table__list-card-title">{title}</div>
-                                            <Show when=move || has_secondary_fields>
-                                                <div class="orbital-data-table__list-card-fields">
-                                                    {secondary_cells
-                                                        .iter()
-                                                        .map(|(header, text)| {
-                                                            view! {
-                                                                <div class="orbital-data-table__list-card-field">
-                                                                    <span class="orbital-data-table__list-card-label">
-                                                                        {header.clone()}
-                                                                    </span>
-                                                                    <span class="orbital-data-table__list-card-value">
-                                                                        {text.clone()}
-                                                                    </span>
-                                                                </div>
-                                                            }
-                                                        })
-                                                        .collect_view()}
-                                                </div>
+                                                />
                                             </Show>
+                                            <div class="orbital-data-table__list-card-body">
+                                                <div class="orbital-data-table__list-card-title">{title}</div>
+                                                <Show when=move || has_secondary_fields>
+                                                    <div class="orbital-data-table__list-card-fields">
+                                                        {secondary_cells
+                                                            .iter()
+                                                            .map(|(header, text)| {
+                                                                view! {
+                                                                    <div class="orbital-data-table__list-card-field">
+                                                                        <span class="orbital-data-table__list-card-label">
+                                                                            {header.clone()}
+                                                                        </span>
+                                                                        <span class="orbital-data-table__list-card-value">
+                                                                            {text.clone()}
+                                                                        </span>
+                                                                    </div>
+                                                                }
+                                                            })
+                                                            .collect_view()}
+                                                    </div>
+                                                </Show>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Material>
+                                    </Material>
+                                </div>
                             }
                         })
                         .collect_view()}

@@ -635,6 +635,12 @@ pub fn data_table_styles() -> &'static str {
     box-sizing: border-box;
 }
 
+.orbital-data-table__list-card-surface {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 .orbital-data-table__list-card--clickable {
     cursor: pointer;
 }

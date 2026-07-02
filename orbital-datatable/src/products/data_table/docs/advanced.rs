@@ -165,7 +165,7 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use std::collections::HashMap;
-/// use crate::{DataTable, DataTableColumnDef, DataTableEvents, DataTableFeatures, DataTableRowModel, ListViewConfig, PagingMode};
+/// use crate::{DataTable, DataTableColumnDef, DataTableEvents, DataTableFeatures, DataTableRowModel, DataTableSelectionMode, ListViewConfig, PagingMode};
 /// use leptos::prelude::*;
 /// use orbital_data::{DataRecord, DataValue};
 /// let items = RwSignal::new(vec![
@@ -190,6 +190,7 @@ use orbital_macros::component_doc;
 ///             features=DataTableFeatures::LIST_VIEW
 ///             list_view=ListViewConfig::new("name").with_secondary_fields(vec!["role".into()])
 ///             paging=PagingMode::None
+///             selection_mode=DataTableSelectionMode::Multiselect
 ///             events=events
 ///             columns=vec![
 ///                 DataTableColumnDef::new("name", "Name"),
