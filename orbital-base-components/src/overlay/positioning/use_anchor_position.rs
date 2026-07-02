@@ -17,10 +17,7 @@ use web_sys::wasm_bindgen::UnwrapThrowExt;
 use super::styles::positioning_panel_styles;
 
 fn dom_rects_intersect(a: &web_sys::DomRect, b: &web_sys::DomRect) -> bool {
-    a.left() < b.right()
-        && a.right() > b.left()
-        && a.top() < b.bottom()
-        && a.bottom() > b.top()
+    a.left() < b.right() && a.right() > b.left() && a.top() < b.bottom() && a.bottom() > b.top()
 }
 
 fn is_anchor_visible(target_rect: &web_sys::DomRect, target_node: &web_sys::Node) -> bool {
@@ -131,9 +128,7 @@ pub fn use_anchor_position(
             };
 
             if dismiss_on_anchor_hidden {
-                if let (Some(target_node), Some(on_dismiss)) =
-                    (resolve_target_node(), on_dismiss)
-                {
+                if let (Some(target_node), Some(on_dismiss)) = (resolve_target_node(), on_dismiss) {
                     if !is_anchor_visible(&target_rect, &target_node) {
                         on_dismiss.run(());
                         return;

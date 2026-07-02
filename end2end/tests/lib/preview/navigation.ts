@@ -70,6 +70,27 @@ export async function expectPreviewPageTitle(page: Page, label: string) {
   await expect(title).toHaveText(label);
 }
 
+/** Expand catalog nav folders and activate a link (keyboard avoids sidebar overlay hits). */
+export async function clickCatalogNavLink(
+  page: Page,
+  folderPath: string[],
+  linkLabel: string,
+) {
+  const nav = page.getByTestId("preview-catalog-nav");
+  for (const folder of folderPath) {
+    const folderButton = nav.getByRole("button", { name: folder, exact: true });
+    if ((await folderButton.count()) > 0) {
+      if ((await folderButton.getAttribute("aria-expanded")) !== "true") {
+        await folderButton.click();
+      }
+    }
+  }
+
+  const link = nav.getByRole("link", { name: linkLabel, exact: true });
+  await expect(link).toBeVisible();
+  await link.evaluate((el) => (el as HTMLAnchorElement).click());
+}
+
 /** Expand Scheduling nav folders and click a catalog link (client-side router nav). */
 export async function navigateSchedulingPreview(
   page: Page,

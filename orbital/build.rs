@@ -36,7 +36,15 @@ fn generate_baseline_css(workspace_root: &Path) -> String {
         let status = Command::new(env!("CARGO"))
             .current_dir(workspace_root)
             .env("CARGO_BUILD_JOBS", "1")
-            .args(["build", "-p", "orbital-theme", "--bin", "write_baseline_css", "-j", "1"])
+            .args([
+                "build",
+                "-p",
+                "orbital-theme",
+                "--bin",
+                "write_baseline_css",
+                "-j",
+                "1",
+            ])
             .status()
             .expect("build write_baseline_css");
         if !status.success() {

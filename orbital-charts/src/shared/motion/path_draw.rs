@@ -78,7 +78,6 @@ fn schedule_draw_complete(f: impl FnOnce() + 'static) {
                 16,
             );
             cb.forget();
-            return;
         }
     }
     #[cfg(not(feature = "hydrate"))]

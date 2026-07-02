@@ -25,7 +25,7 @@ pub(crate) mod components {
 pub use atom::{MotionAtom, SlideFrom};
 pub use callback::MotionElementCallback;
 pub use group::{MotionGroupContext, OrbitalPresenceGroup, OrbitalPresenceGroupItem};
-pub use presence::{OrbitalPresence, PresenceMotion, presence_styles};
+pub use presence::{presence_styles, OrbitalPresence, PresenceMotion};
 pub use reduced_motion::use_reduced_motion;
 pub use slot::{resolve_presence_motion, resolve_presence_motion_derived, MotionSlot};
 pub use tokens::{MotionCurve, MotionDuration};

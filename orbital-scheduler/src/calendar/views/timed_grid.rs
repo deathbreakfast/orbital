@@ -95,16 +95,13 @@ fn TimedDayColumn(
             if ev.button() != 0 {
                 return;
             }
-            let target = ev.target();
-            let current = ev.current_target();
-            if target != current {}
             #[cfg(feature = "hydrate")]
             {
                 let Some(ctx) = ctx.clone() else {
                     return;
                 };
                 use wasm_bindgen::JsCast;
-                if let Some(el) = current {
+                if let Some(el) = ev.current_target() {
                     if let Ok(html) = el.dyn_into::<web_sys::HtmlElement>() {
                         let rect = html.get_bounding_client_rect();
                         let ratio = if rect.height() > 0.0 {
@@ -189,7 +186,7 @@ pub fn TimedGridBody(
     view! {
         <div class="orb-scheduler-view__time-grid">
             {move || {
-                let ampm = chrome.and_then(|c| c.try_ampm_clock()).unwrap_or(true);
+                let ampm = chrome.map(|c| c.preferences.ampm.get()).unwrap_or(true);
                 let creation_enabled = ctx
                     .as_ref()
                     .map(|c| c.event_creation.get())

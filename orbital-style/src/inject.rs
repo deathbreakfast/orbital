@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 
 #[cfg(any(feature = "ssr", feature = "hydrate"))]
 const STYLE_ID_PREFIX: &str = "orbital-style-";
-#[cfg(feature = "hydrate")]
+#[cfg(all(feature = "hydrate", not(feature = "ssr")))]
 const STYLE_MARKER_SELECTOR: &str = r#"meta[name="orbital-style"]"#;
 
 #[cfg(any(feature = "ssr", feature = "hydrate"))]
@@ -11,12 +11,12 @@ fn style_element_id(id: &str) -> String {
 }
 
 /// Returns true when style text content should be written to the DOM.
-#[cfg(feature = "hydrate")]
+#[cfg(all(feature = "hydrate", not(feature = "ssr")))]
 pub(crate) fn should_update_style_content(current: Option<&str>, next: &str) -> bool {
     current != Some(next)
 }
 
-#[cfg(feature = "hydrate")]
+#[cfg(all(feature = "hydrate", not(feature = "ssr")))]
 fn upsert_style_text_content(style: &leptos::web_sys::Element, content: &str) -> bool {
     if !should_update_style_content(style.text_content().as_deref(), content) {
         return false;
@@ -25,7 +25,7 @@ fn upsert_style_text_content(style: &leptos::web_sys::Element, content: &str) ->
     true
 }
 
-#[cfg(feature = "hydrate")]
+#[cfg(all(feature = "hydrate", not(feature = "ssr")))]
 fn ensure_style_in_head(element_id: &str, content: &str) {
     use leptos::prelude::document;
 
@@ -76,7 +76,7 @@ pub fn inject_style(id: &str, content: &'static str) {
                             {content}
                         </Style>
                     };
-                } else if #[cfg(feature = "hydrate")] {
+                } else if #[cfg(all(feature = "hydrate", not(feature = "ssr")))] {
                     use super::style_registry::StyleRegistryContext;
 
                     if let Some(context) = StyleRegistryContext::use_context() {
@@ -113,7 +113,7 @@ pub fn inject_dynamic_style<T: Fn() -> String + Send + Sync + 'static>(id: Strin
                     {f()}
                 </Style>
             };
-        } else if #[cfg(feature = "hydrate")] {
+        } else if #[cfg(all(feature = "hydrate", not(feature = "ssr")))] {
             let element_id = style_element_id(&id);
             use leptos::prelude::document;
             use send_wrapper::SendWrapper;

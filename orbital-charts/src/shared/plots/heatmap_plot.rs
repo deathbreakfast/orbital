@@ -132,10 +132,10 @@ fn HeatmapCanvasLayer(
             let _ = el.set_attribute("height", &h.to_string());
             if let Ok(Some(ctx)) = canvas.get_context("2d") {
                 if let Ok(ctx) = ctx.dyn_into::<web_sys::CanvasRenderingContext2d>() {
-                    let _ = ctx.clear_rect(0.0, 0.0, w as f64, h as f64);
+                    ctx.clear_rect(0.0, 0.0, w as f64, h as f64);
                     for cell in &layouts {
                         ctx.set_fill_style_str(&cell.fill);
-                        let _ = ctx.fill_rect(cell.x, cell.y, cell.width, cell.height);
+                        ctx.fill_rect(cell.x, cell.y, cell.width, cell.height);
                     }
                 }
             }

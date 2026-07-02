@@ -6,7 +6,7 @@ use orbital_base_components::{DatetimeTimezone, OrbitalDateTime};
 use super::helpers::week_days;
 use super::timed_grid::{day_header_label, grid_columns, TimedGridBody};
 use crate::calendar::resources::SchedulerResourceHeaderCell;
-use crate::{use_scheduler_chrome, PlannedEvent, ScheduleResource};
+use crate::{use_scheduler_chrome, PlannedEvent, ScheduleResource, WeekLayoutPrefs};
 
 #[component]
 pub fn WeekViewShell(
@@ -21,7 +21,10 @@ pub fn WeekViewShell(
             {move || {
                 let tz = display_timezone.get();
                 let layout = chrome
-                    .and_then(|c| c.preferences.try_week_layout())
+                    .map(|c| WeekLayoutPrefs {
+                        week_starts_on: c.preferences.week_starts_on.get(),
+                        show_weekends: c.preferences.show_weekends.get(),
+                    })
                     .unwrap_or_default();
                 let days = week_days(visible_date.get(), tz, layout);
                 let has_resources = !resources.get().is_empty();

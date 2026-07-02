@@ -1,7 +1,7 @@
 //! Per-component style injection and SSR style collection for Orbital.
 
 mod inject;
-#[cfg(all(test, feature = "hydrate"))]
+#[cfg(all(test, feature = "hydrate", not(feature = "ssr")))]
 mod inject_tests;
 mod style_registry;
 

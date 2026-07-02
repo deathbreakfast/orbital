@@ -17,7 +17,7 @@ fn click_toolbar_trigger(testid: &str) {
     if let Some(doc) = window().document() {
         if let Ok(Some(el)) = doc.query_selector(&format!("[data-testid=\"{testid}\"]")) {
             if let Ok(btn) = el.dyn_into::<web_sys::HtmlElement>() {
-                let _ = btn.click();
+                btn.click();
             }
         }
     }

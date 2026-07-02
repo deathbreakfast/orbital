@@ -1,7 +1,8 @@
 use leptos::prelude::*;
 use orbital_base_components::{FlexAlign, FlexGap, ThemeColor};
 use orbital_core_components::{
-    Label, LabelSize, Select, SelectSize, Space, SpaceConfig, Stack, StackConfig, Text, TextSize,
+    Label, LabelSize, Select, SelectBind, SelectSize, Space, SpaceConfig, Stack, StackConfig, Text,
+    TextSize,
 };
 
 use super::pagination_bar::DataTablePaginationBar;
@@ -61,9 +62,13 @@ fn DataTablePageSizeSelect(
             }
             class="orbital-data-table__page-size"
         >
-            <Label size=LabelSize::Small>{label}</Label>
+            <Label size=LabelSize::Small html_for="data-table-page-size-select">{label}</Label>
             <Select
-                bind=selected_size
+                bind=SelectBind {
+                    value: selected_size.into(),
+                    id: "data-table-page-size-select".into(),
+                    ..Default::default()
+                }
                 attr:data-testid="data-table-page-size"
                 appearance=SelectSize::Small
             >

@@ -4,8 +4,7 @@ use leptos::prelude::*;
 use orbital_macros::component_doc;
 
 use crate::components::{
-    Body1, Flex, FlexGap, Material, MaterialElevation, MaterialVariant, Subtitle1, TextTag,
-    Title1,
+    Body1, Flex, FlexGap, Material, MaterialElevation, MaterialVariant, Subtitle1, TextTag, Title1,
 };
 use crate::shell::{OrbitalBootErrorContent, OrbitalBootLoadingPanel};
 use orbital_theme::ThemeMode;
@@ -72,7 +71,7 @@ fn BootLoaderErrorDemo() -> impl IntoView {
     section = "Getting Started",
     nav_item = true,
     preview_slug = "boot-loader",
-    preview_label = "Boot loader",
+    preview_label = "Boot loader"
 )]
 #[component]
 pub fn BootLoaderGuidePreview() -> impl IntoView {

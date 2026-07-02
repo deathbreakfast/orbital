@@ -19,9 +19,10 @@ test.describe("scheduler-calendar-preferences preview", () => {
     const menuTrigger = preview.getByTestId("scheduler-preferences-menu-trigger").getByRole("button");
     await scrollIntoPreviewView(menuTrigger);
     await menuTrigger.click({ force: true });
+    await expect(page.getByTestId("scheduler-preferences-panel")).toBeVisible();
     const showWeekends = page.getByTestId("scheduler-pref-show-weekends");
     await scrollIntoPreviewView(showWeekends);
-    await showWeekends.locator('input[role="switch"]').click({ force: true });
+    await showWeekends.getByRole("switch").click();
 
     const headers = preview.locator(".orb-scheduler-view__day-header");
     await expect(async () => {

@@ -3,9 +3,7 @@
 mod boot_loader;
 mod head_assets;
 
-pub use boot_loader::{
-    hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay,
-};
+pub use boot_loader::{hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay};
 pub(crate) use boot_loader::{OrbitalBootErrorContent, OrbitalBootLoadingPanel};
 pub use head_assets::OrbitalFirstPaintHeadAssets;
 

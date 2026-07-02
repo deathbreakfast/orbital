@@ -1,6 +1,6 @@
-mod registration;
 #[cfg(feature = "preview")]
 mod boot_loader_guide;
+mod registration;
 mod static_registrations;
 
 #[cfg(feature = "preview")]

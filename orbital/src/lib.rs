@@ -83,12 +83,12 @@ pub use context::{
     provide_auth_context, use_auth_context, use_auth_state, use_authenticated_user, AuthContext,
 };
 pub use models::auth::{AnonymousUser, AuthSession, AuthenticatedUser};
+pub use orbital_theme::ThemeMode;
 #[cfg(any(feature = "hydrate", feature = "ssr", feature = "preview"))]
 pub use preview::{collect_preview_registrations, PreviewRegistration};
 pub use services::auth_service::init_auth_resource;
 pub use shell::OrbitalFirstPaintHeadAssets;
 pub use shell::{hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay};
-pub use orbital_theme::ThemeMode;
 
 /// Design tokens for marketing surfaces (`CornerRadius`, `BrandTone`, …).
 pub use orbital_shell::tokens;

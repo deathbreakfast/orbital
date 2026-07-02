@@ -11,7 +11,10 @@ use orbital_motion::presence_styles;
 use orbital_style::inject_style;
 use orbital_theme::{OrbitalThemeProvider, Theme, ThemeMode};
 
-use crate::components::{DialogBody, DialogContent, DialogTitle, MessageBar, MessageBarBody, MessageBarIntent, MessageBarLayout, MessageBarTitle, Body1};
+use crate::components::{
+    Body1, DialogBody, DialogContent, DialogTitle, MessageBar, MessageBarBody, MessageBarIntent,
+    MessageBarLayout, MessageBarTitle,
+};
 
 pub(crate) const BOOT_LOADER_CSS: &str = r#"
 #orbital-boot-overlay {
@@ -1115,7 +1118,7 @@ pub fn hide_boot_loader() {
         let _ = html.set_attribute("data-orbital-hydrated", "true");
     }
     if let Some(overlay) = document.get_element_by_id("orbital-boot-overlay") {
-        let _ = overlay.remove();
+        overlay.remove();
     }
 }
 

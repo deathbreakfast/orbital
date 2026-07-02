@@ -1,8 +1,13 @@
 use leptos::{context::Provider, prelude::*};
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 use orbital_style::inject_dynamic_style;
 
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 use crate::baseline::should_skip_root_baseline_injection;
-use crate::context::{scoped_css, ThemeInjection};
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
+use crate::context::scoped_css;
+use crate::context::ThemeInjection;
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 use crate::fonts::inject_font_faces;
 use crate::Direction;
 use crate::Theme;
@@ -24,6 +29,7 @@ fn alloc_theme_scope_id() -> String {
     counter.0.fetch_add(1, Ordering::Relaxed).to_string()
 }
 
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 fn inject_theme_vars(
     style_mount_id: String,
     theme: RwSignal<Theme>,
@@ -51,6 +57,7 @@ pub fn OrbitalThemeProvider(
     let theme_id = alloc_theme_scope_id();
     let id = StoredValue::new(theme_id.clone());
     let style_mount_id = format!("orbital-theme-{}", id.get_value());
+    #[cfg(any(feature = "ssr", feature = "hydrate"))]
     let skip_root_baseline =
         should_skip_root_baseline_injection(&id.get_value(), &theme.get_untracked());
 
