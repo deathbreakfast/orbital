@@ -24,6 +24,7 @@ cargo check -p orbital-charts --no-default-features
 cargo check -p orbital-date-pickers --no-default-features
 cargo check -p orbital-scheduler --no-default-features
 cargo check -p orbital-tree --no-default-features
+cargo check -p orbital-history --no-default-features
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 

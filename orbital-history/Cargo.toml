@@ -1,0 +1,46 @@
+[package]
+name = "orbital-history"
+version = "0.1.1"
+edition = "2021"
+license = "MIT"
+
+[lints]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies]
+leptos.workspace = true
+bitflags = "2"
+chrono.workspace = true
+serde = { workspace = true, features = ["derive"] }
+orbital-base-components = { path = "../orbital-base-components" }
+orbital-core-components = { path = "../orbital-core-components", default-features = false }
+orbital-paging = { path = "../orbital-paging", features = ["leptos"] }
+orbital-macros = { path = "../orbital-macros" }
+orbital-style = { path = "../orbital-style" }
+orbital-theme = { path = "../orbital-theme", default-features = false }
+inventory = { version = "0.3", optional = true }
+icondata.workspace = true
+icondata_core.workspace = true
+
+[features]
+default = ["preview"]
+preview = ["dep:inventory", "orbital-core-components/preview"]
+hydrate = [
+    "leptos/hydrate",
+    "orbital-core-components/hydrate",
+    "orbital-theme/hydrate",
+    "orbital-paging/hydrate",
+    "preview",
+    "dep:inventory",
+]
+ssr = [
+    "leptos/ssr",
+    "orbital-core-components/ssr",
+    "orbital-theme/ssr",
+    "orbital-paging/ssr",
+    "preview",
+    "dep:inventory",
+]

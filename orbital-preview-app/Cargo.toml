@@ -40,6 +40,7 @@ orbital-charts = { path = "../orbital-charts", default-features = false }
 orbital-tree = { path = "../orbital-tree", default-features = false }
 orbital-scheduler = { path = "../orbital-scheduler", default-features = false }
 orbital-discussion = { path = "../orbital-discussion", default-features = false }
+orbital-history = { path = "../orbital-history", default-features = false }
 orbital-motion = { path = "../orbital-motion", default-features = false }
 component-preview-e2e = { path = "../component-preview-e2e" }
 
@@ -69,6 +70,8 @@ hydrate = [
     "orbital-scheduler/preview",
     "orbital-discussion/hydrate",
     "orbital-discussion/preview",
+    "orbital-history/hydrate",
+    "orbital-history/preview",
     "orbital-motion/hydrate",
     "orbital-motion/preview",
 ]
@@ -98,6 +101,8 @@ ssr = [
     "orbital-scheduler/preview",
     "orbital-discussion/ssr",
     "orbital-discussion/preview",
+    "orbital-history/ssr",
+    "orbital-history/preview",
     "orbital-motion/ssr",
     "orbital-motion/preview",
 ]

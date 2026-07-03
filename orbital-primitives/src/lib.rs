@@ -72,6 +72,7 @@ pub use orbital_charts::*;
 pub use orbital_datatable::*;
 pub use orbital_date_pickers::*;
 pub use orbital_discussion::*;
+pub use orbital_history::*;
 pub use orbital_scheduler::*;
 pub use orbital_tree::*;
 pub use placeholder::placeholder_label;

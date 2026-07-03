@@ -11,6 +11,7 @@ members = [
     "orbital-primitives",
     "orbital-datatable",
     "orbital-discussion",
+    "orbital-history",
     "orbital-markdown",
     "orbital-charts",
     "orbital-date-pickers",

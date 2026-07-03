@@ -2351,6 +2351,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "orbital-history"
+version = "0.1.1"
+dependencies = [
+ "bitflags",
+ "chrono",
+ "icondata",
+ "icondata_core",
+ "inventory",
+ "leptos",
+ "orbital-base-components",
+ "orbital-core-components",
+ "orbital-macros",
+ "orbital-paging",
+ "orbital-style",
+ "orbital-theme",
+ "serde",
+]
+
+[[package]]
 name = "orbital-macros"
 version = "0.1.1"
 dependencies = [
@@ -2414,6 +2433,7 @@ dependencies = [
  "orbital-datatable",
  "orbital-date-pickers",
  "orbital-discussion",
+ "orbital-history",
  "orbital-macros",
  "orbital-motion",
  "orbital-primitives",
@@ -2467,6 +2487,7 @@ dependencies = [
  "orbital-datatable",
  "orbital-date-pickers",
  "orbital-discussion",
+ "orbital-history",
  "orbital-macros",
  "orbital-scheduler",
  "orbital-theme",

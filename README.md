@@ -124,7 +124,7 @@ Specialized widgets omitted from this table: [`yew-datatable`](https://docs.rs/y
 ## Documentation
 
 - **Foundation components** — buttons, forms, navigation, overlays, tables, and layout primitives for SSR and hydration.
-- **Feature crates** — data tables, charts, date/time pickers, schedulers, trees, and discussion for product-heavy screens ([datatable](orbital-datatable/README.md), [charts](orbital-charts/README.md), [date-pickers](orbital-date-pickers/README.md), [scheduler](orbital-scheduler/README.md), [discussion](orbital-discussion/README.md)).
+- **Feature crates** — data tables, charts, date/time pickers, schedulers, trees, discussion, and history for product-heavy screens ([datatable](orbital-datatable/README.md), [charts](orbital-charts/README.md), [date-pickers](orbital-date-pickers/README.md), [scheduler](orbital-scheduler/README.md), [discussion](orbital-discussion/README.md), [history](orbital-history/README.md)).
 - **Design language** — spacing, typography, elevation, materials, brand tone, and motion via CSS variables and theme hooks ([Introduction](https://unified-field-dev.github.io/orbital/), [Theme](https://unified-field-dev.github.io/orbital/theme), [Boot loader](https://unified-field-dev.github.io/orbital/boot-loader)).
 - **Shared types** — UI-agnostic `Dataset`, paging, and datetime crates so tables, charts, and schedulers share one wire format ([details below](#shared-types)).
 - **Live preview** — ~220 interactive catalog pages with examples and Playwright coverage.
@@ -167,7 +167,7 @@ Components share a single visual and interaction vocabulary:
 | Components | `orbital-core-components` | Themed controls that consume the tokens above |
 
 - **[Introduction (live)](https://unified-field-dev.github.io/orbital/)** — principles, color, elevation, typography, motion
-- **Crate READMEs:** [datatable](orbital-datatable/README.md) · [charts](orbital-charts/README.md) · [date-pickers](orbital-date-pickers/README.md) · [scheduler](orbital-scheduler/README.md) · [discussion](orbital-discussion/README.md)
+- **Crate READMEs:** [datatable](orbital-datatable/README.md) · [charts](orbital-charts/README.md) · [date-pickers](orbital-date-pickers/README.md) · [scheduler](orbital-scheduler/README.md) · [discussion](orbital-discussion/README.md) · [history](orbital-history/README.md)
 
 Authors wrap apps in `OrbitalThemeProvider` and compose shell chrome via [`OrbitalTemplate`](orbital/README.md). Capability is expressed through feature flags on each crate (for example `DataTableFeatures`, `ChartFeatures`) — not license-tier suffixes on type names.
 
@@ -200,6 +200,7 @@ Buttons, inputs, dialogs, drawers, menus, tabs, cards, lists, avatars, paginatio
 | Scheduler | `orbital-scheduler` | Calendar and timeline views, drag-resize, resource lanes, event editing |
 | Tree | `orbital-tree` | Hierarchical navigation and selection |
 | Discussion | `orbital-discussion` | Threaded replies, composer, markdown, attachments |
+| History | `orbital-history` | Audit timeline, field diffs, custom kind renderers |
 
 ## Development
 
@@ -263,6 +264,7 @@ cargo check -p orbital-charts --no-default-features
 cargo check -p orbital-date-pickers --no-default-features
 cargo check -p orbital-scheduler --no-default-features
 cargo check -p orbital-tree --no-default-features
+cargo check -p orbital-history --no-default-features
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
