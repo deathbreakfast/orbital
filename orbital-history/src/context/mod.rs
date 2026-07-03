@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use orbital_base_components::DatetimeTimezone;
 
 use crate::types::{
     HistoryEvents, HistoryFeatures, HistoryLocale, HistoryOrientation, HistoryRenderers,
@@ -12,6 +13,8 @@ pub struct HistoryContext {
     pub orientation: HistoryOrientation,
     pub events: HistoryEvents,
     pub renderers: HistoryRenderers,
+    /// Wall-clock timezone for date-bucket boundaries (`Utc` when unset).
+    pub display_timezone: Signal<DatetimeTimezone>,
 }
 
 pub fn provide_history_context(ctx: HistoryContext) {

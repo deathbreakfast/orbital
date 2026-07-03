@@ -1016,12 +1016,7 @@ Every phase lists scope, public API added, previews/tests, and explicit out-of-s
 
 ### Optional later
 
-Phase 2 charter: [DESIGN-PHASE-2.md](DESIGN-PHASE-2.md).
-
-- Imperative handle (scroll-to-entry, refresh)
-- Dialog shell helper (only if it stays fully generic)
-- Live-update / subscription hook (note only; no protocol design here)
-- Display-timezone-aware date buckets
+Phase 2 is implemented in the crate (`HistoryHandle`, `HistoryDialog`, display-timezone date buckets, Client prepend / Server refresh). Phase 3 candidates: [DESIGN-PHASE-3.md](DESIGN-PHASE-3.md).
 
 ---
 

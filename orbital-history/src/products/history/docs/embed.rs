@@ -1,24 +1,29 @@
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 
-/// Dialog `max_height` embed vs flex-fill card.
+/// Dialog embed via [`HistoryDialog`] or `max_height` on the timeline.
 ///
 /// # Examples
 ///
-/// ## Max height embed
-/// Bounded scroll region for dialog bodies.
+/// ## History dialog
+/// Host-owned open signal wraps the timeline in a modal shell.
 /// <!-- preview -->
 /// ```rust,ignore
 /// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistorySource, HistoryTimeline};
+/// use crate::{HistoryDialog, HistorySource};
 /// use leptos::prelude::*;
+/// use orbital_core_components::{Button, ButtonAppearance};
 /// let entries = RwSignal::new(sample_entries());
+/// let open = RwSignal::new(false);
 /// view! {
 ///     <div data-testid="history-embed-preview">
-///         <HistoryTimeline
-///             data_source=HistorySource::Client(entries)
-///             max_height="240px".to_string()
-///         />
+///         <Button
+///             appearance=ButtonAppearance::Secondary
+///             on_click=Callback::new(move |_| open.set(true))
+///         >
+///             "Open history"
+///         </Button>
+///         <HistoryDialog open=open data_source=HistorySource::Client(entries) />
 ///     </div>
 /// }
 /// ```

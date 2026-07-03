@@ -2367,6 +2367,8 @@ dependencies = [
  "orbital-style",
  "orbital-theme",
  "serde",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

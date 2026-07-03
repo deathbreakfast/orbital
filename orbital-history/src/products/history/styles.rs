@@ -204,7 +204,7 @@ pub fn history_styles() -> &'static str {
 "#
 }
 
-pub fn density_modifier_class(density: Density) -> &'static str {
+pub(crate) fn density_modifier_class(density: Density) -> &'static str {
     match density {
         Density::Compact => "orbital-history--density-compact",
         Density::Spacious => "orbital-history--density-spacious",

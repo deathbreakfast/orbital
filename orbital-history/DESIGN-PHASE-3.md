@@ -1,8 +1,8 @@
 # orbital-history design — Phase 3
 
-Implementation-ready charter for work listed as **Phase 2 candidates** and related follow-ups. Phase 1 ([DESIGN.md](DESIGN.md)) covers PR1–PR9. Phase 2 ([DESIGN-PHASE-2.md](DESIGN-PHASE-2.md)) covers PR10–PR14: imperative handle, dialog shell, live-update surface, and display-timezone date buckets.
+Implementation-ready charter for work listed as Phase 2 candidates and related follow-ups. Phase 1 ([DESIGN.md](DESIGN.md)) covers the core timeline. Phase 2 is implemented in the crate: imperative handle, dialog shell, live-update patterns (Client prepend / Server refresh), and display-timezone date buckets (`live_head` was skipped).
 
-Phase 3 stacks on those public APIs. Do not start Phase 3 PRs until Phase 2 is mergeable (or land behind the same feature branch with Phase 1–2 complete first). Implementers keep the short [README](README.md) charter in sync (move items from Deferred into Scope as they ship).
+Phase 3 stacks on those public APIs. Do not start Phase 3 PRs until Phase 1–2 are mergeable (or land behind the same feature branch with Phase 1–2 complete first). Implementers keep the short [README](README.md) charter in sync (move items from Deferred into Scope as they ship).
 
 Deep API guidance lives here and, once implemented, in rustdoc / `#[component_doc]` catalog pages.
 
@@ -68,7 +68,6 @@ Phase 3 extends the Phase 1–2 crate layout only where needed:
 ```
 orbital-history/
   DESIGN.md
-  DESIGN-PHASE-2.md
   DESIGN-PHASE-3.md         # this document
   README.md
   src/

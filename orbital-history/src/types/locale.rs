@@ -199,7 +199,7 @@ pub fn resolve_history_locale(locale: Option<HistoryLocale>) -> HistoryLocale {
 }
 
 /// Signal-backed locale for reactive language toggles.
-pub fn locale_signal(
+pub fn history_locale_signal(
     initial: HistoryLocale,
 ) -> (RwSignal<HistoryLocale>, ReadSignal<HistoryLocale>) {
     let signal = RwSignal::new(initial);

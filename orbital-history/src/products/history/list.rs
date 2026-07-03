@@ -2,7 +2,7 @@ use chrono::Utc;
 use leptos::prelude::*;
 
 use crate::context::use_history_context;
-use crate::format::with_date_dividers;
+use crate::format::with_date_dividers_in_tz;
 use crate::types::{HistoryEntry, HistoryFeatures, HistoryListItem};
 
 use super::{HistoryDateDivider, HistoryEntryRow};
@@ -15,7 +15,8 @@ pub fn HistoryEntryList(entries: Signal<Vec<HistoryEntry>>) -> impl IntoView {
     let items = Memo::new(move |_| {
         let entries = entries.get();
         if ctx.features.contains(HistoryFeatures::DATE_DIVIDERS) {
-            with_date_dividers(&entries, Utc::now())
+            let tz = ctx.display_timezone.get();
+            with_date_dividers_in_tz(&entries, Utc::now(), tz)
         } else {
             entries
                 .into_iter()

@@ -1,5 +1,6 @@
 use leptos::html::Div;
 use leptos::prelude::*;
+use orbital_base_components::DatetimeTimezone;
 use orbital_core_components::ScrollArea;
 use orbital_macros::component_doc;
 use orbital_paging::{use_paged_infinite_scroll, PageRequest};
@@ -9,11 +10,12 @@ use orbital_theme::use_theme_options;
 use crate::context::{provide_history_context, HistoryContext};
 use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
-    HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryHeader,
-    HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryOrientation,
+    HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryHandle,
+    HistoryHeader, HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryOrientation,
     HistoryPageFetcher, HistoryPagingMode, HistoryRenderers, HistorySlots, HistorySource,
 };
 
+use super::scroll::{schedule_scroll_entry_into_view, scroll_container_to_top};
 use super::styles::{density_modifier_class, history_styles};
 use super::{
     HistoryDefaultEmptyView, HistoryDefaultEndView, HistoryDefaultErrorView,
@@ -22,6 +24,13 @@ use super::{
 };
 
 /// Scrollable audit timeline from a client signal or server page fetcher.
+///
+/// # Live updates
+///
+/// - **Client:** prepend or replace entries on the host `RwSignal`; the timeline reacts.
+/// - **Server:** call [`HistoryHandle::refresh`] after the host's own subscription/poll.
+///
+/// Capture the handle via [`HistoryEvents::on_handle`].
 ///
 /// # Examples
 ///
@@ -58,6 +67,8 @@ pub fn HistoryTimeline(
     #[prop(optional)] loading: Option<Signal<bool>>,
     /// Placeholder rows in the initial skeleton (default 5).
     #[prop(optional, default = 5)] skeleton_row_count: u32,
+    /// Wall-clock timezone for date-bucket boundaries. `None` uses UTC.
+    #[prop(optional)] display_timezone: Option<Signal<DatetimeTimezone>>,
     #[prop(optional)] events: HistoryEvents,
     #[prop(optional)] renderers: Option<HistoryRenderers>,
     #[prop(optional, into)] class: MaybeProp<String>,
@@ -99,6 +110,42 @@ pub fn HistoryTimeline(
     }
 
     let locale_signal = RwSignal::new(resolve_history_locale(locale));
+    let display_timezone = display_timezone
+        .unwrap_or_else(|| Signal::derive(|| DatetimeTimezone::Utc));
+
+    let scroll_el = NodeRef::<Div>::new();
+    let refresh_trigger = RwSignal::new(0u32);
+    let is_server = data_source.is_server();
+
+    let handle = HistoryHandle {
+        scroll_to_entry: Callback::new(|(id,)| {
+            schedule_scroll_entry_into_view(id);
+        }),
+        scroll_to_top: Callback::new({
+            let scroll_el = scroll_el;
+            move |_| {
+                scroll_container_to_top(scroll_el);
+            }
+        }),
+        refresh: Callback::new(move |_| {
+            if is_server {
+                refresh_trigger.update(|n| *n += 1);
+            }
+        }),
+    };
+
+    let handle_delivered = StoredValue::new(false);
+    Effect::new({
+        let events = events.clone();
+        let handle = handle.clone();
+        move |_| {
+            if handle_delivered.get_value() {
+                return;
+            }
+            handle_delivered.set_value(true);
+            events.notify_handle(handle.clone());
+        }
+    });
 
     provide_history_context(HistoryContext {
         locale: locale_signal.into(),
@@ -106,6 +153,7 @@ pub fn HistoryTimeline(
         orientation,
         events: events.clone(),
         renderers: merged_renderers,
+        display_timezone,
     });
 
     let theme_options = use_theme_options();
@@ -147,6 +195,7 @@ pub fn HistoryTimeline(
                         loading=loading
                         skeleton_row_count=skeleton_row_count
                         scroll_style=scroll_style
+                        scroll_el=scroll_el
                         empty_slot=empty_slot
                         loading_slot=loading_slot
                     />
@@ -164,6 +213,8 @@ pub fn HistoryTimeline(
                     loading=loading
                     skeleton_row_count=skeleton_row_count
                     scroll_style=scroll_style
+                    scroll_el=scroll_el
+                    refresh_trigger=refresh_trigger
                     events=events
                     empty_slot=empty_slot
                     loading_slot=loading_slot
@@ -183,6 +234,7 @@ fn HistoryClientPanel(
     loading: Option<Signal<bool>>,
     skeleton_row_count: u32,
     scroll_style: Option<String>,
+    scroll_el: NodeRef<Div>,
     empty_slot: Option<HistoryEmptyView>,
     loading_slot: Option<HistoryLoadingView>,
 ) -> impl IntoView {
@@ -208,7 +260,11 @@ fn HistoryClientPanel(
     };
 
     view! {
-        <ScrollArea class="orbital-history__scroll".to_string() style=scroll_style.unwrap_or_default()>
+        <ScrollArea
+            class="orbital-history__scroll".to_string()
+            style=scroll_style.unwrap_or_default()
+            node_ref=scroll_el
+        >
             <Show when=move || show_initial.get() fallback=|| ()>
                 {loading_view()}
             </Show>
@@ -230,6 +286,8 @@ fn HistoryServerPanel(
     loading: Option<Signal<bool>>,
     skeleton_row_count: u32,
     scroll_style: Option<String>,
+    scroll_el: NodeRef<Div>,
+    refresh_trigger: RwSignal<u32>,
     events: HistoryEvents,
     empty_slot: Option<HistoryEmptyView>,
     loading_slot: Option<HistoryLoadingView>,
@@ -237,10 +295,7 @@ fn HistoryServerPanel(
     error_slot: Option<HistoryErrorView>,
     end_slot: Option<HistoryEndView>,
 ) -> impl IntoView {
-    let scroll_el = NodeRef::<Div>::new();
-    let refresh = RwSignal::new(0u32);
     let load_error = RwSignal::new(false);
-
     let on_load_error = events.on_load_error.clone();
 
     let fetch = {
@@ -253,13 +308,8 @@ fn HistoryServerPanel(
 
     let (entries, hook_loading, ever_loaded, has_more, show_error) = match paging {
         HistoryPagingMode::InfiniteScroll => {
-            let hook = use_paged_infinite_scroll(scroll_el, page_size, refresh.into(), fetch);
-            Effect::new(move |_| {
-                // Surface fetch errors via Resource — hook stores items on success only.
-                // Track loading transitions; errors are reported if items stay empty after load.
-                let _ = hook.loading.get();
-                let _ = hook.ever_loaded.get();
-            });
+            let hook =
+                use_paged_infinite_scroll(scroll_el, page_size, refresh_trigger.into(), fetch);
             (
                 hook.items,
                 Signal::derive(move || hook.loading.get()),
@@ -275,7 +325,7 @@ fn HistoryServerPanel(
             let has_more_sig = RwSignal::new(false);
             let fetcher = fetcher.clone();
             let first_page = Resource::new(
-                || (),
+                move || refresh_trigger.get(),
                 move |_| {
                     let fetcher = fetcher.clone();
                     async move { (fetcher)(PageRequest::new(0, page_size)).await }

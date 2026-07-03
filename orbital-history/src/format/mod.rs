@@ -1,6 +1,7 @@
 //! Pure formatting helpers (no I/O).
 
 use chrono::{DateTime, Utc};
+use orbital_base_components::{DatetimeTimezone, OrbitalDateTime};
 
 use crate::types::{HistoryChange, HistoryDateBucket, HistoryEntry, HistoryListItem, HistoryLocale};
 
@@ -51,8 +52,21 @@ pub fn format_change(change: &HistoryChange, locale: &HistoryLocale) -> String {
 
 /// Assign a relative date bucket for `changed_at` relative to `now` (UTC calendar days).
 pub fn history_date_bucket(changed_at: DateTime<Utc>, now: DateTime<Utc>) -> HistoryDateBucket {
-    let today = now.date_naive();
-    let day = changed_at.date_naive();
+    history_date_bucket_in_tz(changed_at, now, DatetimeTimezone::Utc)
+}
+
+/// Assign a relative date bucket using wall-clock calendar days in `tz`.
+pub fn history_date_bucket_in_tz(
+    changed_at: DateTime<Utc>,
+    now: DateTime<Utc>,
+    tz: DatetimeTimezone,
+) -> HistoryDateBucket {
+    let today = OrbitalDateTime::from_instant(now, tz)
+        .wall_date()
+        .unwrap_or_else(|| now.date_naive());
+    let day = OrbitalDateTime::from_instant(changed_at, tz)
+        .wall_date()
+        .unwrap_or_else(|| changed_at.date_naive());
     let delta = (today - day).num_days();
     match delta {
         0 => HistoryDateBucket::Today,
@@ -63,12 +77,21 @@ pub fn history_date_bucket(changed_at: DateTime<Utc>, now: DateTime<Utc>) -> His
     }
 }
 
-/// Project entries into a list with date-bucket dividers (newest-first input).
+/// Project entries into a list with date-bucket dividers (newest-first input, UTC days).
 pub fn with_date_dividers(entries: &[HistoryEntry], now: DateTime<Utc>) -> Vec<HistoryListItem> {
+    with_date_dividers_in_tz(entries, now, DatetimeTimezone::Utc)
+}
+
+/// Project entries into a list with date-bucket dividers in `tz`.
+pub fn with_date_dividers_in_tz(
+    entries: &[HistoryEntry],
+    now: DateTime<Utc>,
+    tz: DatetimeTimezone,
+) -> Vec<HistoryListItem> {
     let mut out = Vec::with_capacity(entries.len().saturating_mul(2));
     let mut prev_bucket: Option<HistoryDateBucket> = None;
     for entry in entries {
-        let bucket = history_date_bucket(entry.changed_at, now);
+        let bucket = history_date_bucket_in_tz(entry.changed_at, now, tz);
         if prev_bucket != Some(bucket) {
             out.push(HistoryListItem::Divider(bucket));
             prev_bucket = Some(bucket);
@@ -206,5 +229,22 @@ mod tests {
             items[2],
             HistoryListItem::Divider(HistoryDateBucket::Yesterday)
         ));
+    }
+
+    #[test]
+    fn buckets_respect_fixed_offset_wall_clock() {
+        // UTC-8 (e.g. US Pacific standard).
+        let pacific = DatetimeTimezone::FixedOffset(-8 * 3600);
+        let now = ts(2026, 7, 3, 12, 0); // 04:00 Pacific on July 3
+        let evening_utc = ts(2026, 7, 3, 2, 0); // 18:00 Pacific on July 2
+
+        assert_eq!(
+            history_date_bucket(evening_utc, now),
+            HistoryDateBucket::Today
+        );
+        assert_eq!(
+            history_date_bucket_in_tz(evening_utc, now, pacific),
+            HistoryDateBucket::Yesterday
+        );
     }
 }
