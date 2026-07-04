@@ -1,7 +1,6 @@
 use std::env;
 use std::fs;
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::path::PathBuf;
 
 fn main() {
     println!("cargo:rerun-if-changed=../orbital-theme/src/baseline");
@@ -13,7 +12,7 @@ fn main() {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let workspace_root = manifest_dir.join("..");
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR"));
-    let css = generate_baseline_css(&workspace_root);
+    let css = generate_baseline_css();
 
     let out_file = out_dir.join("orbital-theme-baseline.css");
     fs::write(&out_file, &css).expect("write OUT_DIR baseline css");
@@ -30,42 +29,16 @@ fn main() {
     );
 }
 
-fn generate_baseline_css(workspace_root: &Path) -> String {
-    let bin = workspace_root.join("target/debug/write_baseline_css");
-    if !bin.exists() {
-        let status = Command::new(env!("CARGO"))
-            .current_dir(workspace_root)
-            .env("CARGO_BUILD_JOBS", "1")
-            .args([
-                "build",
-                "-p",
-                "orbital-theme",
-                "--bin",
-                "write_baseline_css",
-                "-j",
-                "1",
-            ])
-            .status()
-            .expect("build write_baseline_css");
-        if !status.success() {
-            panic!("failed to build write_baseline_css");
+fn generate_baseline_css() -> String {
+    let font_prefix = match env::var("LEPTOS_BASE_PATH") {
+        Ok(base) if !base.is_empty() => {
+            format!("{}/fonts", base.trim_end_matches('/'))
         }
-    }
+        _ => "/fonts".to_string(),
+    };
 
-    let output = Command::new(&bin)
-        .env(
-            "LEPTOS_BASE_PATH",
-            env::var("LEPTOS_BASE_PATH").unwrap_or_default(),
-        )
-        .output()
-        .expect("run write_baseline_css");
-
-    if !output.status.success() {
-        panic!(
-            "write_baseline_css failed: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
-
-    String::from_utf8(output.stdout).expect("baseline css utf8")
+    orbital_theme::default_first_paint_baseline_css_with_font_prefix(
+        orbital_theme::ROOT_THEME_SCOPE_ID,
+        &font_prefix,
+    )
 }

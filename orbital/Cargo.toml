@@ -53,6 +53,9 @@ wasm-bindgen = { workspace = true }
 js-sys = { workspace = true }
 web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "Window", "MediaQueryList", "Event", "Storage"] }
 
+[build-dependencies]
+orbital-theme = { path = "../orbital-theme", default-features = false }
+
 [features]
 default = ["preview"]
 preview = ["orbital-core-components/preview", "orbital-primitives/preview"]

@@ -7,10 +7,6 @@ license = "MIT"
 [lints]
 workspace = true
 
-[[bin]]
-name = "write_baseline_css"
-path = "src/bin/write_baseline_css.rs"
-
 [dependencies]
 leptos.workspace = true
 orbital-style = { path = "../orbital-style", default-features = false }

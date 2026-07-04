@@ -26,7 +26,7 @@ pub use injection::{
 };
 
 use crate::context::scoped_css;
-use crate::fonts::font_faces_css;
+use crate::fonts::{font_faces_css, font_faces_css_with_asset_prefix};
 use crate::Theme;
 
 /// Stable scope id for the root shell [`OrbitalThemeProvider`].
@@ -55,9 +55,33 @@ pub fn theme_baseline_css(scope_id: &str, theme: &Theme) -> String {
     out
 }
 
+/// Full first-paint baseline with an explicit font asset prefix (see
+/// [`font_faces_css_with_asset_prefix`](crate::fonts::font_faces_css_with_asset_prefix)).
+pub fn theme_baseline_css_with_font_prefix(
+    scope_id: &str,
+    theme: &Theme,
+    font_prefix: &str,
+) -> String {
+    let mut out = font_faces_css_with_asset_prefix(font_prefix);
+    out.push('\n');
+    out.push_str(&theme_scoped_vars_css(scope_id, theme));
+    out
+}
+
 /// Convenience: [`default_first_paint_theme`] baseline for the given scope id.
 pub fn default_first_paint_baseline_css(scope_id: &str) -> String {
     theme_baseline_css(scope_id, &default_first_paint_theme())
+}
+
+/// Default first-paint baseline with an explicit font asset prefix.
+///
+/// Used by `orbital`'s `build.rs` so `LEPTOS_BASE_PATH` is applied at build-script
+/// runtime rather than via a nested `cargo` invocation.
+pub fn default_first_paint_baseline_css_with_font_prefix(
+    scope_id: &str,
+    font_prefix: &str,
+) -> String {
+    theme_baseline_css_with_font_prefix(scope_id, &default_first_paint_theme(), font_prefix)
 }
 
 /// Baseline stylesheet filename (see [`BASELINE_STYLESHEET_FILENAME`]).

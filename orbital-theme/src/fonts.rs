@@ -18,9 +18,13 @@ fn font_asset_prefix() -> String {
     }
 }
 
-/// `@font-face` rules for Orbital's default LoMT font stack.
-pub fn font_faces_css() -> String {
-    let prefix = font_asset_prefix();
+/// `@font-face` rules for Orbital's default LoMT font stack with an explicit asset prefix.
+///
+/// `prefix` is the public URL directory containing font files (e.g. `/fonts` or
+/// `/orbital/fonts`). Used by `orbital`'s `build.rs` so `LEPTOS_BASE_PATH` can be
+/// applied at build-script runtime.
+pub fn font_faces_css_with_asset_prefix(prefix: &str) -> String {
+    let prefix = prefix.trim_end_matches('/');
     format!(
         r#"
 @font-face {{
@@ -64,6 +68,11 @@ pub fn font_faces_css() -> String {
 }}
 "#
     )
+}
+
+/// `@font-face` rules for Orbital's default LoMT font stack.
+pub fn font_faces_css() -> String {
+    font_faces_css_with_asset_prefix(&font_asset_prefix())
 }
 
 /// Injects `@font-face` rules for Orbital's default LoMT font stack.

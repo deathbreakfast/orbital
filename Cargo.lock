@@ -409,7 +409,7 @@ dependencies = [
 
 [[package]]
 name = "component-preview-e2e"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "icondata",
  "leptos",
@@ -2171,7 +2171,7 @@ checksum = "8c04f5d74368e4d0dfe06c45c8627c81bd7c317d52762d118fb9b3076f6420fd"
 
 [[package]]
 name = "orbital"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "axum",
  "cfg-if",
@@ -2207,7 +2207,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-base-components"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "icondata",
@@ -2229,7 +2229,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-charts"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bitflags",
  "chrono",
@@ -2253,7 +2253,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-core-components"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "icondata",
@@ -2274,7 +2274,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-data"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "serde",
@@ -2282,7 +2282,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-datatable"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bitflags",
  "chrono",
@@ -2308,7 +2308,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-date-pickers"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bitflags",
  "chrono",
@@ -2327,7 +2327,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-discussion"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ammonia",
  "bitflags",
@@ -2352,7 +2352,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -2362,7 +2362,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-markdown"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ammonia",
  "pulldown-cmark",
@@ -2371,7 +2371,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-motion"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "icondata",
  "icondata_core",
@@ -2388,7 +2388,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-paging"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "leptos",
  "leptos-use",
@@ -2399,7 +2399,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-preview-app"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "component-preview-e2e",
  "icondata",
@@ -2426,7 +2426,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-preview-frontend"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "console_error_panic_hook",
  "console_log",
@@ -2439,7 +2439,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-preview-server"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "any_spawner",
  "axum",
@@ -2455,7 +2455,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-primitives"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "icondata",
  "icondata_core",
@@ -2476,7 +2476,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-scheduler"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bitflags",
  "chrono",
@@ -2499,7 +2499,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-shell"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "icondata",
  "icondata_core",
@@ -2518,7 +2518,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-style"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cfg-if",
  "leptos",
@@ -2528,7 +2528,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-theme"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "getset",
  "leptos",
@@ -2539,7 +2539,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-tree"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "icondata_core",
  "inventory",

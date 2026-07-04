@@ -26,10 +26,12 @@ pub use baseline::{
 };
 pub use baseline::{
     baseline_asset_path, baseline_primary_font_preload_path, baseline_stylesheet_filename,
-    default_first_paint_baseline_css, default_first_paint_theme, theme_baseline_css,
+    default_first_paint_baseline_css, default_first_paint_baseline_css_with_font_prefix,
+    default_first_paint_theme, theme_baseline_css, theme_baseline_css_with_font_prefix,
     theme_scoped_vars_css, BASELINE_STYLESHEET_FILENAME, ROOT_THEME_SCOPE_ID,
 };
 pub use context::ThemeInjection;
+pub use fonts::font_faces_css_with_asset_prefix;
 pub use hooks::{
     set_brand_palette, set_density, set_elevation_scale, set_spacing_scale, set_theme_mode,
     set_typography, use_set_theme, use_theme_mode, use_theme_options, use_update_theme,
