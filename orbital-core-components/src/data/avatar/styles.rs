@@ -79,7 +79,7 @@ pub fn avatar_styles() -> &'static str {
 
 .orbital-avatar--color-plum .orbital-avatar__initials,
 .orbital-avatar--color-plum .orbital-avatar__icon {
-    background-color: var(--orb-color-family-spectra-fg);
+    background-color: var(--orb-color-brand-bg);
     color: var(--orb-color-text-on-brand);
 }
 
@@ -91,8 +91,8 @@ pub fn avatar_styles() -> &'static str {
 
 .orbital-avatar--color-marigold .orbital-avatar__initials,
 .orbital-avatar--color-marigold .orbital-avatar__icon {
-    background-color: var(--orb-color-palette-chronon-bg-muted);
-    color: var(--orb-color-palette-chronon-border-active);
+    background-color: var(--orb-color-palette-orange-bg);
+    color: var(--orb-color-palette-orange-fg-strong);
 }
 
 .orbital-avatar--color-ash .orbital-avatar__initials,

@@ -86,6 +86,27 @@ use orbital_macros::component_doc;
 /// ```
 ///
 ///
+/// ## Infinite scroll empty
+/// Server infinite scroll with an empty dataset shows overlay empty slot only.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::{DataTable, DataTableColumnDef, DataTableEmptyView, DataTableSource, PagingMode};
+/// use crate::preview::fixtures::paged_records::mock_empty_server_source;
+/// view! {
+///     <div data-testid="data-table-infinite-empty-preview">
+///         <DataTable
+///             data_source=mock_empty_server_source(8)
+///             paging=PagingMode::InfiniteScroll
+///             max_height=320.0
+///             columns=vec![DataTableColumnDef::new("name", "Name"), DataTableColumnDef::new("role", "Role")]
+///         >
+///             <DataTableEmptyView slot>"No items yet."</DataTableEmptyView>
+///         </DataTable>
+///     </div>
+/// }
+/// ```
+///
+///
 /// ## Full pagination footer
 /// Locale range label, page size selector, and Pagination control.
 /// <!-- preview -->

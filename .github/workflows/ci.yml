@@ -9,24 +9,37 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: -D warnings
+  # Faster link times on GitHub-hosted runners (full debuginfo is very slow).
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_PROFILE_TEST_DEBUG: "0"
 
 jobs:
-  check:
+  fmt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
 
       - uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: rustfmt, clippy
 
       - run: rustup target add wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v2
-
-      - name: Format check
-        run: cargo fmt --all -- --check
+        with:
+          key: build
 
       - name: L1 macro tests
         run: cargo test -p component-preview-e2e
@@ -43,8 +56,98 @@ jobs:
           cargo build -p orbital-scheduler --no-default-features
           cargo build -p orbital-tree --no-default-features
 
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - run: rustup target add wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: test
+
       - name: Workspace tests
-        run: cargo test --workspace --lib --tests
+        # Preview server/frontend have no unit tests; compiling their ssr/hydrate
+        # graphs here duplicated work already covered by the e2e job and blew the
+        # previous monolithic check job past 120 minutes.
+        run: |
+          cargo test --workspace --lib --tests \
+            --exclude orbital-preview-frontend \
+            --exclude orbital-preview-server
+
+  clippy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+
+      - run: rustup target add wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: clippy
 
       - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
+
+  coupling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Product coupling gate
+        run: bash scripts/maintainer/product_coupling_gate.sh
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - run: rustup target add wasm32-unknown-unknown
+
+      - name: Install cargo-leptos
+        run: cargo install cargo-leptos --locked --version 0.3.6
+
+      - name: Install wasm-bindgen-cli
+        run: cargo install wasm-bindgen-cli --version 0.2.126 --locked
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: e2e
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: end2end/package-lock.json
+
+      - name: Install Playwright
+        working-directory: end2end
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Build and run E2E
+        env:
+          LEPTOS_BASE_PATH: /orbital
+          LEPTOS_ENV: PROD
+          LEPTOS_OUTPUT_NAME: orbital-preview
+          ORBITAL_PREVIEW_BASE_PATH: /orbital
+          COMPONENT_PREVIEW_BASE_URL: http://127.0.0.1:3010/orbital
+        run: cargo leptos end-to-end --release --project orbital-preview

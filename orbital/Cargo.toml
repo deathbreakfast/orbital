@@ -1,6 +1,6 @@
 [package]
 name = "orbital"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "Leptos component library and design system for focused, accessible product UIs"
@@ -47,9 +47,14 @@ orbital-core-components = { path = "../orbital-core-components", default-feature
 orbital-theme = { path = "../orbital-theme", default-features = false }
 orbital-style = { path = "../orbital-style", default-features = false }
 orbital-paging = { path = "../orbital-paging", default-features = false, features = ["leptos"] }
+orbital-motion = { path = "../orbital-motion", default-features = false }
 
 wasm-bindgen = { workspace = true }
-web-sys = { version = "0.3", features = ["Window", "MediaQueryList", "Event", "Storage"] }
+js-sys = { workspace = true }
+web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "Window", "MediaQueryList", "Event", "Storage"] }
+
+[build-dependencies]
+orbital-theme = { path = "../orbital-theme", default-features = false }
 
 [features]
 default = ["preview"]

@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { openComponentPreview, previewMainScrollTop, scrollPreviewMain } from "../lib/preview/navigation";
+import {
+  clickCatalogNavLink,
+  openComponentPreview,
+  previewMainScrollTop,
+  scrollPreviewMain,
+} from "../lib/preview/navigation";
 import { getCssVariable } from "../lib/assertions/style";
 import { previewUrl } from "../helpers";
 
@@ -15,10 +20,7 @@ test.describe("preview catalog shell", () => {
     await page.goto(previewUrl("/"));
     await expect(page.getByTestId("preview-catalog-shell")).toBeVisible();
 
-    const nav = page.getByTestId("preview-catalog-nav");
-    await nav.getByRole("button", { name: "Core Components", exact: true }).click();
-    await nav.getByRole("button", { name: "Card", exact: true }).click();
-    await nav.getByRole("link", { name: "Card", exact: true }).click();
+    await clickCatalogNavLink(page, ["Core Components", "Card"], "Card");
 
     await expect(page).toHaveURL(/\/card$/);
     await openComponentPreview(page, "card");
@@ -88,6 +90,18 @@ test.describe("preview catalog shell", () => {
     ).toBeVisible();
     await expect(
       page.getByTestId("preview-catalog-nav").getByRole("button", { name: "Theme" }),
+    ).toHaveCount(0);
+  });
+
+  test("boot loader lives under getting started section", async ({ page }) => {
+    await page.goto(previewUrl("/"));
+    await expect(page.getByTestId("preview-catalog-shell")).toBeVisible();
+    await expect(page.getByTestId("preview-catalog-nav")).toContainText("Getting Started");
+    await expect(
+      page.getByTestId("preview-catalog-nav").getByRole("link", { name: "Boot loader" }),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("preview-catalog-nav").getByRole("button", { name: "Boot loader" }),
     ).toHaveCount(0);
   });
 

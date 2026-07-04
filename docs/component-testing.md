@@ -261,6 +261,19 @@ test.describe("{slug} preview", () => {
 });
 ```
 
+## App shell smoke — boot loader
+
+Bootstrap overlay behavior is covered outside the per-component preview matrix in [`boot-loader.spec.ts`](../end2end/tests/smoke/boot-loader.spec.ts). These tests hit the preview app shell (not `/orbital/{slug}`) and use Playwright route helpers from [`end2end/tests/lib/wasm-delay.ts`](../end2end/tests/lib/wasm-delay.ts):
+
+| Test | What it validates |
+|------|-------------------|
+| B-01 | SSR contract — `#orbital-boot-overlay`, head CSS, overlay after app root |
+| B-02 / B-03 | `delayWasm(8000)` — spinner visible during slow download, dismisses after hydrate |
+| B-04 | Fast path — overlay removed after hydration |
+| B-05 | `blockWasm` — error panel (`alertdialog`, MessageBar copy) |
+
+Getting Started catalog wiring for the boot-loader doc page is in [`catalog-shell.spec.ts`](../end2end/tests/components/catalog-shell.spec.ts) (nav link under **Getting Started**, alongside Theme). Open the live guide with `openComponentPreview(page, "boot-loader")`.
+
 ## Out of scope
 
 - Auto-generated Playwright from macro output

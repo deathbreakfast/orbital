@@ -10,7 +10,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: previewE2e ? 1 : process.env.CI ? 1 : undefined,
+  workers: previewE2e
+    ? Number(process.env.PLAYWRIGHT_WORKERS ?? (process.env.CI ? 4 : 1))
+    : undefined,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: process.env.COMPONENT_PREVIEW_BASE_URL ?? "http://localhost:3010",

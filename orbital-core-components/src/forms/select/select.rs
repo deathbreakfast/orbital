@@ -45,7 +45,7 @@ use crate::Icon;
 ///
 /// * Wrap in [`Field`](crate::Field) when a visible label is required
 /// * Provide `<option>` children with explicit `value` attributes
-/// * Use `default_value` when hydrating from server defaults (see setup-wizard patterns)
+/// * Use `default_value` when hydrating from server defaults (see controlled select patterns)
 ///
 /// ## Don'ts
 ///

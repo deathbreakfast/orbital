@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Preview catalog release gate — mirrors .github/workflows/preview-pages.yml E2E step.
-# Run before pushing a version tag. Do not tag until this script exits 0.
+# Optional local preview release gate (IP check, workspace build, full E2E).
+# PR CI already runs the full Playwright suite on every pull request; this script
+# is a maintainer convenience before tagging. TagPush only deploys GitHub Pages.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -36,4 +37,4 @@ export COMPONENT_PREVIEW_BASE_URL=http://127.0.0.1:3010/orbital
 cargo leptos end-to-end --release --project orbital-preview
 
 echo ""
-echo "Preview release gate passed. Safe to tag and push."
+echo "Preview release gate passed. Safe to tag and push (Pages deploy only on TagPush)."

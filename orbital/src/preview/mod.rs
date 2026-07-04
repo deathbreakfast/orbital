@@ -1,5 +1,10 @@
+#[cfg(feature = "preview")]
+mod boot_loader_guide;
 mod registration;
 mod static_registrations;
+
+#[cfg(feature = "preview")]
+pub use boot_loader_guide::BOOTLOADERGUIDEPREVIEW_PREVIEW_REGISTRATION;
 
 #[cfg(feature = "preview")]
 pub mod fixtures;

@@ -1,6 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
-import { expectFollowerPlacement, expectOverlayInViewport, expectOverlayNonZeroSize, expectNoBodyScrollbarGrowth } from "../lib/preview/overlays";
+import {
+  expectFollowerPlacement,
+  expectOverlayInViewport,
+  expectOverlayNonZeroSize,
+  expectNoBodyScrollbarGrowth,
+  expectPopoverTopAlignedWithTrigger,
+  expectPopoverDismissed,
+  scrollScrollport,
+} from "../lib/preview/overlays";
 test.describe("popover primitive preview", () => {
 
   test("PO-01: click opens popover panel content", async ({ page }) => {
@@ -117,5 +125,41 @@ test.describe("popover primitive preview", () => {
     await page.getByTestId("popover-lifecycle").scrollIntoViewIfNeeded();
     await page.getByTestId("popover-lifecycle").getByRole("button", { name: "Lifecycle" }).click();
     await expect(page.locator(".orbital-popover-surface").filter({ hasText: "Panel body" }).first()).toBeVisible();
+  });
+
+  test("PO-15: popover stays aligned when inner scroll area scrolls", async ({ page }) => {
+    await openComponentPreview(page, "popover");
+    const wrapper = page.getByTestId("popover-scroll-area");
+    await wrapper.scrollIntoViewIfNeeded();
+    await expect(wrapper).toBeVisible();
+    const scrollport = page.getByTestId("popover-scroll-area-scrollport");
+    const trigger = wrapper.getByRole("button", { name: "Open in scroll area" });
+    const content = page.getByTestId("popover-scroll-area-content");
+    const overlay = page
+      .locator(".orbital-popover-surface")
+      .filter({ has: content });
+
+    await scrollScrollport(scrollport, 140);
+    await trigger.click();
+    await expect(content).toBeVisible();
+    await expectPopoverTopAlignedWithTrigger(trigger, overlay);
+
+    await scrollScrollport(scrollport, 260);
+    await expectPopoverTopAlignedWithTrigger(trigger, overlay);
+  });
+
+  test("PO-16: popover dismisses when trigger scrolls out of scrollport", async ({ page }) => {
+    await openComponentPreview(page, "popover");
+    const wrapper = page.getByTestId("popover-scroll-area");
+    await wrapper.scrollIntoViewIfNeeded();
+    const scrollport = page.getByTestId("popover-scroll-area-scrollport");
+    const trigger = wrapper.getByRole("button", { name: "Open in scroll area" });
+    const content = page.getByTestId("popover-scroll-area-content");
+
+    await trigger.click();
+    await expect(content).toBeVisible();
+
+    await scrollScrollport(scrollport, 700);
+    await expectPopoverDismissed(content);
   });
 });

@@ -86,8 +86,6 @@ define_css_token_enum! {
     PaletteYellowForeground1 => "--orb-color-palette-yellow-fg",
     PaletteYellowForeground2 => "--orb-color-palette-yellow-fg-muted",
     PaletteYellowBorder1 => "--orb-color-palette-yellow-border",
-    PaletteChrononBackground2 => "--orb-color-palette-chronon-bg-muted",
-    PaletteChrononBorderActive => "--orb-color-palette-chronon-border-active",
     PaletteDarkOrangeBackground1 => "--orb-color-palette-orange-bg-subtle",
     PaletteDarkOrangeBackground3 => "--orb-color-palette-orange-bg",
     PaletteDarkOrangeForeground1 => "--orb-color-palette-orange-fg",

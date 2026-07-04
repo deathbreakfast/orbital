@@ -99,16 +99,21 @@ where
     F: Fn(PageRequest) -> Fut + Send + Sync + Clone + 'static,
 {
     let items = RwSignal::new(Vec::<T>::new());
-    let has_more = RwSignal::new(true);
+    let has_more = RwSignal::new(false);
     let ever_loaded = RwSignal::new(false);
     let loading = RwSignal::new(false);
     let total_count = RwSignal::new(None::<u64>);
     let next_request_offset = RwSignal::new(0u32);
 
+    let skip_initial_refresh_reset = StoredValue::new(true);
     Effect::new(move || {
         let _ = refresh.get();
+        if skip_initial_refresh_reset.get_value() {
+            skip_initial_refresh_reset.set_value(false);
+            return;
+        }
         items.set(Vec::new());
-        has_more.set(true);
+        has_more.set(false);
         ever_loaded.set(false);
         loading.set(false);
         total_count.set(None);
@@ -134,6 +139,11 @@ where
             items.set(page.items.clone());
             next_request_offset.set(page.next_request_offset.unwrap_or(page.items.len() as u32));
         }
+    });
+
+    #[cfg(not(feature = "hydrate"))]
+    Effect::new(move || {
+        loading.set(first_page.get().is_none());
     });
 
     #[cfg(feature = "hydrate")]
@@ -173,7 +183,7 @@ where
             );
 
         Effect::new(move || {
-            loading.set(hook_loading.get());
+            loading.set(first_page.get().is_none() || hook_loading.get());
         });
     }
 

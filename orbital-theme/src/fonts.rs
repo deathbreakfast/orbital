@@ -4,8 +4,10 @@
 //! to site root by cargo-leptos). Override families via [`TypographyOverrides`](crate::TypographyOverrides)
 //! if your deployment serves fonts from a different path.
 
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 use std::sync::OnceLock;
 
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 use orbital_style::inject_style;
 
 /// Public URL prefix for self-hosted fonts (respects `LEPTOS_BASE_PATH` at compile time).
@@ -16,8 +18,13 @@ fn font_asset_prefix() -> String {
     }
 }
 
-fn font_faces_css() -> String {
-    let prefix = font_asset_prefix();
+/// `@font-face` rules for Orbital's default LoMT font stack with an explicit asset prefix.
+///
+/// `prefix` is the public URL directory containing font files (e.g. `/fonts` or
+/// `/orbital/fonts`). Used by `orbital`'s `build.rs` so `LEPTOS_BASE_PATH` can be
+/// applied at build-script runtime.
+pub fn font_faces_css_with_asset_prefix(prefix: &str) -> String {
+    let prefix = prefix.trim_end_matches('/');
     format!(
         r#"
 @font-face {{
@@ -63,9 +70,15 @@ fn font_faces_css() -> String {
     )
 }
 
+/// `@font-face` rules for Orbital's default LoMT font stack.
+pub fn font_faces_css() -> String {
+    font_faces_css_with_asset_prefix(&font_asset_prefix())
+}
+
 /// Injects `@font-face` rules for Orbital's default LoMT font stack.
 ///
 /// Call once from [`OrbitalThemeProvider`](crate::OrbitalThemeProvider).
+#[cfg(any(feature = "ssr", feature = "hydrate"))]
 pub fn inject_font_faces() {
     static CSS: OnceLock<&'static str> = OnceLock::new();
     let css = CSS.get_or_init(|| Box::leak(font_faces_css().into_boxed_str()));

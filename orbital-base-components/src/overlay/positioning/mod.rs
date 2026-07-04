@@ -21,7 +21,10 @@ use crate::Handler;
 
 pub use resolve_external_anchor::resolve_external_anchor;
 pub use styles::positioning_panel_styles;
-pub use types::{AnchorArrow, AnchorPosition, AnchorWidth, AnchoredPanel, RepositionInjection};
+pub use types::{
+    AnchorArrow, AnchorPosition, AnchorWidth, AnchoredPanel, RepositionInjection,
+    UseAnchorPositionOptions,
+};
 pub use use_anchor_position::use_anchor_position;
 
 /// Dynamic placement from the anchor-position hook, exposed to overlay surfaces.
@@ -36,6 +39,7 @@ pub fn AnchoredPositioner<T, FT>(
     #[prop(optional, into)] on_css_transition_after_leave: Option<Handler>,
     #[prop(default = None)] mount: Option<NodeRef<html::Div>>,
     #[prop(optional)] panel_ref: Option<NodeRef<html::Div>>,
+    #[prop(default = false)] dismiss_on_anchor_hidden: bool,
     panel: AnchoredPanel<FT>,
     children: TypedChildren<T>,
 ) -> impl IntoView
@@ -79,6 +83,11 @@ where
         arrow,
         None,
         panel_ref,
+        UseAnchorPositionOptions {
+            mount_ref: mount.clone(),
+            dismiss_on_anchor_hidden,
+            on_dismiss: overlay_dismiss.map(|d| d.close),
+        },
     );
 
     let placement_label = Signal::derive(move || placement.get().as_str().to_string());

@@ -69,3 +69,14 @@ pub struct AnchorPosition {
     pub ensure_listener: Arc<dyn Fn() + Send>,
     pub remove_listener: Arc<dyn Fn() + Send>,
 }
+
+/// Optional positioning behavior for [`use_anchor_position`].
+#[derive(Default)]
+pub struct UseAnchorPositionOptions {
+    /// When set, panel coordinates are relative to this mount element.
+    pub mount_ref: Option<NodeRef<html::Div>>,
+    /// Dismiss the overlay when the anchor no longer intersects its scrollport.
+    pub dismiss_on_anchor_hidden: bool,
+    /// Called to close the overlay (typically [`OverlayDismiss::close`]).
+    pub on_dismiss: Option<Callback<()>>,
+}

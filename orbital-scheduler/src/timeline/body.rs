@@ -90,9 +90,7 @@ pub fn SchedulerTimelineBody(
 
     let body_layout = move || {
         let rows = resource_rows.get();
-        let ampm = chrome
-            .and_then(|c| c.preferences.try_ampm_clock())
-            .unwrap_or(true);
+        let ampm = chrome.map(|c| c.preferences.ampm.get()).unwrap_or(true);
         compute_body_layout(
             &rows,
             visible_date.get(),

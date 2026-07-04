@@ -75,17 +75,22 @@ pub mod preview;
 pub mod routes;
 /// High-level service helpers used by Orbital apps.
 pub mod services;
+/// Document shell helpers ([`OrbitalFirstPaintHeadAssets`], base path utilities).
+pub mod shell;
 
 // Re-export auth context helpers for downstream crates.
 pub use context::{
     provide_auth_context, use_auth_context, use_auth_state, use_authenticated_user, AuthContext,
 };
 pub use models::auth::{AnonymousUser, AuthSession, AuthenticatedUser};
+pub use orbital_theme::ThemeMode;
 #[cfg(any(feature = "hydrate", feature = "ssr", feature = "preview"))]
 pub use preview::{collect_preview_registrations, PreviewRegistration};
 pub use services::auth_service::init_auth_resource;
+pub use shell::OrbitalFirstPaintHeadAssets;
+pub use shell::{hide_boot_loader, OrbitalBootLoaderHeadAssets, OrbitalBootOverlay};
 
-/// Design tokens for marketing surfaces (`CornerRadius`, `PlatformFamilyBrand`, …).
+/// Design tokens for marketing surfaces (`CornerRadius`, `BrandTone`, …).
 pub use orbital_shell::tokens;
 
 // Note: The `server` macro cannot be re-exported through regular modules.
@@ -95,7 +100,25 @@ pub use orbital_shell::tokens;
 ///
 /// Wraps the entire app with HTML structure, meta tags, and styling.
 ///
-/// This is the canonical SSR document wrapper for Orbital apps. It injects Leptos hydration/autoreload scripts and the root stylesheet.
+/// This is the canonical SSR document wrapper for Orbital apps. It injects:
+///
+/// - first-paint theme baseline CSS ([`OrbitalFirstPaintHeadAssets`]) with design tokens and fonts,
+/// - a bootstrap loading overlay ([`OrbitalBootOverlay`]) visible until hydration completes,
+/// - Leptos hydration/autoreload scripts,
+/// - app-owned `/main.css` overrides.
+///
+/// ## Boot loader
+///
+/// The shell renders [`OrbitalBootLoaderHeadAssets`] and [`OrbitalBootOverlay`] automatically.
+/// Your WASM `hydrate()` entrypoint **must** call [`hide_boot_loader`] immediately after
+/// `leptos::mount::hydrate_body(...)`.
+///
+/// ## Static assets
+///
+/// Build the `orbital` crate before `cargo leptos watch` so `build.rs` generates
+/// `public/orbital-theme-baseline.css`. Point cargo-leptos `assets-dir` at `public/`
+/// (or copy the file into your app static root). Font files must live under `public/fonts/`.
+/// Regenerate when `LEPTOS_BASE_PATH` changes.
 pub fn orbital_shell<F, IV>(options: LeptosOptions, app_fn: F) -> impl IntoView
 where
     F: Fn() -> IV + Send + 'static,
@@ -110,6 +133,8 @@ where
                 <head>
                     <meta charset="utf-8"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                    <OrbitalFirstPaintHeadAssets />
+                    <OrbitalBootLoaderHeadAssets />
                     <meta name="orbital-style"/>
                     <Title text="Welcome to Leptos" />
                     <AutoReload options=options.clone() />
@@ -120,6 +145,7 @@ where
                 </head>
                 <body style="margin: 0;">
                     {app_fn()}
+                    <OrbitalBootOverlay />
                 </body>
             </html>
         </StyleRegistry>

@@ -1,6 +1,45 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { documentScrollHeight } from "./navigation";
+
+/** Set scrollTop on a scrollport and dispatch a scroll event (for inner ScrollArea repros). */
+export async function scrollScrollport(scrollport: Locator, scrollTop: number) {
+  await scrollport.evaluate((el, top) => {
+    el.scrollTop = top;
+    el.dispatchEvent(new Event("scroll", { bubbles: true }));
+  }, scrollTop);
+}
+
+/** Assert a popover panel was dismissed (hidden or removed from DOM). */
+export async function expectPopoverDismissed(content: Locator) {
+  await expect(content).toBeHidden({ timeout: 10_000 });
+}
+
+/**
+ * Assert a top-placed popover panel stays horizontally centered and vertically
+ * adjacent to its trigger. Tight tolerance catches anchor drift after scroll.
+ */
+export async function expectPopoverTopAlignedWithTrigger(
+  trigger: Locator,
+  overlay: Locator,
+  tolerancePx = 16,
+) {
+  await expect(trigger).toBeVisible({ timeout: 10_000 });
+  await expect(overlay).toBeVisible({ timeout: 10_000 });
+
+  const triggerBox = await trigger.boundingBox();
+  const overlayBox = await overlay.boundingBox();
+  expect(triggerBox).not.toBeNull();
+  expect(overlayBox).not.toBeNull();
+
+  const triggerCenterX = triggerBox!.x + triggerBox!.width / 2;
+  const overlayCenterX = overlayBox!.x + overlayBox!.width / 2;
+  expect(Math.abs(triggerCenterX - overlayCenterX)).toBeLessThanOrEqual(tolerancePx);
+
+  const verticalGap = triggerBox!.y - (overlayBox!.y + overlayBox!.height);
+  expect(verticalGap).toBeGreaterThanOrEqual(-4);
+  expect(verticalGap).toBeLessThanOrEqual(tolerancePx);
+}
 
 /** Click a menu trigger inside a preview wrapper (menu surface is teleported). */
 export async function clickMenuTriggerInPreview(

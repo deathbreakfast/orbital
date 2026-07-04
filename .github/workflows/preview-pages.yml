@@ -29,7 +29,6 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-          components: rustfmt, clippy
 
       - name: Add wasm32 target
         run: rustup target add wasm32-unknown-unknown
@@ -38,7 +37,7 @@ jobs:
         run: cargo install cargo-leptos --locked --version 0.3.6
 
       - name: Install wasm-bindgen-cli
-        run: cargo install wasm-bindgen-cli --version 0.2.108 --locked
+        run: cargo install wasm-bindgen-cli --version 0.2.126 --locked
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
@@ -46,27 +45,13 @@ jobs:
           workspaces: .
           key: preview-pages-${{ github.ref_name }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-          cache-dependency-path: end2end/package-lock.json
-
-      - name: Install Playwright
-        working-directory: end2end
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
-
-      - name: Build and run E2E
+      - name: Build preview (release)
         env:
           LEPTOS_BASE_PATH: /orbital
           LEPTOS_ENV: PROD
           LEPTOS_OUTPUT_NAME: orbital-preview
           ORBITAL_PREVIEW_BASE_PATH: /orbital
-          COMPONENT_PREVIEW_BASE_URL: http://127.0.0.1:3010/orbital
-        run: cargo leptos end-to-end --release --project orbital-preview
+        run: cargo leptos build --release --project orbital-preview
 
       - name: Static export
         env:

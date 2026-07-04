@@ -16,7 +16,7 @@ mod shape;
 mod stroke_width;
 mod surface_tag;
 
-pub use brand_tone::{BrandTone, PlatformFamilyBrand};
+pub use brand_tone::BrandTone;
 pub use corner_radius::CornerRadius;
 pub use elevation::Elevation;
 pub use glow::GlowIntensity;

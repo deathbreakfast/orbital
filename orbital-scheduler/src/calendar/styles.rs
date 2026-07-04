@@ -161,6 +161,9 @@ pub fn scheduler_calendar_styles() -> &'static str {
 }
 
 .orb-scheduler-view__day-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: var(--orb-space-inline-xs, 0.25rem) var(--orb-space-inline-sm, 0.5rem);
     font-size: var(--orb-font-size-sm, 0.8125rem);
     font-weight: 600;
@@ -175,8 +178,9 @@ pub fn scheduler_calendar_styles() -> &'static str {
     color: var(--orb-color-text-secondary, #6b7280);
     border-bottom: 1px solid var(--orb-color-border-subtle, #e5e7eb);
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .orb-scheduler-view__cell-events {

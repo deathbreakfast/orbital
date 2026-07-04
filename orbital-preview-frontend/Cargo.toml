@@ -1,6 +1,6 @@
 [package]
 name = "orbital-preview-frontend"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 
@@ -11,6 +11,7 @@ workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+orbital = { path = "../orbital", default-features = false, features = ["hydrate"] }
 orbital-preview-app = { path = "../orbital-preview-app", default-features = false }
 leptos.workspace = true
 console_error_panic_hook.workspace = true

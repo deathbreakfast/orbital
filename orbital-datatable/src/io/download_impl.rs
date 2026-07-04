@@ -31,7 +31,7 @@ pub fn download_bytes(filename: &str, bytes: &[u8], mime: &str) {
         if let Ok(anchor) = anchor.dyn_into::<HtmlAnchorElement>() {
             anchor.set_href(&url);
             anchor.set_download(filename);
-            let _ = anchor.click();
+            anchor.click();
         }
     }
     let _ = Url::revoke_object_url(&url);

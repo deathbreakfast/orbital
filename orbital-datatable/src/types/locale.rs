@@ -15,6 +15,8 @@ pub struct DataTableLocale {
     pub footer_rows: String,
     /// Paged footer range format. Placeholders: `{from}`, `{to}`, `{total}`.
     pub pagination_range: String,
+    /// Page-size selector label in the footer.
+    pub rows_per_page: String,
     /// Shown when the dataset has no rows at all.
     pub no_rows: String,
     /// Shown when filters/search yield zero rows.
@@ -32,6 +34,7 @@ impl Default for DataTableLocale {
         Self {
             footer_rows: "{count} rows".to_string(),
             pagination_range: "{from}–{to} of {total}".to_string(),
+            rows_per_page: "Rows per page".to_string(),
             no_rows: "No rows".to_string(),
             no_results: "No rows match your filters.".to_string(),
             loading: "Loading".to_string(),

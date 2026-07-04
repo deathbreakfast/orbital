@@ -123,7 +123,6 @@ fn animate_sweep(signal: RwSignal<f64>, duration: MotionDuration) {
             }
         }
         tick(signal, &mut step, steps, step_ms);
-        return;
     }
 
     #[cfg(not(feature = "hydrate"))]
