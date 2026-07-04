@@ -13,6 +13,8 @@ pub struct HistoryLocale {
     pub title: String,
     pub system_actor: String,
     pub empty: String,
+    /// Empty state when a filter is active but no entries match.
+    pub no_matches: String,
     /// Accessible label for the initial-load skeleton region.
     pub loading: String,
     /// Footer label while loading additional pages (incremental).
@@ -53,6 +55,7 @@ impl HistoryLocale {
             title: "History".into(),
             system_actor: "System".into(),
             empty: "No history yet".into(),
+            no_matches: "No matching history".into(),
             loading: "Loading history".into(),
             loading_more: "Loading more".into(),
             error: "Failed to load history".into(),
@@ -86,6 +89,7 @@ impl HistoryLocale {
             title: "Historique".into(),
             system_actor: "Système".into(),
             empty: "Aucun historique".into(),
+            no_matches: "Aucun historique correspondant".into(),
             loading: "Chargement de l'historique".into(),
             loading_more: "Chargement".into(),
             error: "Échec du chargement de l'historique".into(),
@@ -178,8 +182,8 @@ impl HistoryLocale {
         rt.years_ago.replace("{n}", &years.to_string())
     }
 
-    pub fn format_compact_time(&self, at: DateTime<Utc>) -> String {
-        format_unix(at.timestamp(), self.time_format, DatetimeTimezone::Utc)
+    pub fn format_compact_time(&self, at: DateTime<Utc>, tz: DatetimeTimezone) -> String {
+        format_unix(at.timestamp(), self.time_format, tz)
     }
 
     pub fn date_bucket_label(&self, bucket: HistoryDateBucket) -> &str {

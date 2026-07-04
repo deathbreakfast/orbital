@@ -8,6 +8,8 @@ bitflags::bitflags! {
         const DATE_DIVIDERS = 1 << 1;
         /// Make the entry row activatable and fire `HistoryEvents::on_entry_click`.
         const ENTRY_CLICK = 1 << 2;
+        /// Allow client-side newest/oldest sort (Client source only; default off).
+        const CLIENT_SORT = 1 << 3;
     }
 }
 

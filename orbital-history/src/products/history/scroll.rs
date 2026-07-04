@@ -42,3 +42,20 @@ pub fn scroll_container_to_top(scroll_el: NodeRef<Div>) {
 
 #[cfg(not(feature = "hydrate"))]
 pub fn scroll_container_to_top(_scroll_el: NodeRef<Div>) {}
+
+/// Whether an entry with `entry_id` is currently in the DOM.
+#[cfg(feature = "hydrate")]
+pub fn entry_in_dom(entry_id: &str) -> bool {
+    let document = document();
+    let selector = format!("[data-history-entry-id=\"{entry_id}\"]");
+    document
+        .query_selector(&selector)
+        .ok()
+        .flatten()
+        .is_some()
+}
+
+#[cfg(not(feature = "hydrate"))]
+pub fn entry_in_dom(_entry_id: &str) -> bool {
+    false
+}

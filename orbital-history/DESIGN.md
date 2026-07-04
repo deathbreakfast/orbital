@@ -1016,7 +1016,7 @@ Every phase lists scope, public API added, previews/tests, and explicit out-of-s
 
 ### Optional later
 
-Phase 2 is implemented in the crate (`HistoryHandle`, `HistoryDialog`, display-timezone date buckets, Client prepend / Server refresh). Phase 3 candidates: [DESIGN-PHASE-3.md](DESIGN-PHASE-3.md).
+Phase 2 and Phase 3 are implemented in the crate (`HistoryHandle`, `HistoryDialog`, display-timezone buckets and timestamps, filter, `CLIENT_SORT`, `Paged` mode, `scroll_to_entry_or_load`).
 
 ---
 

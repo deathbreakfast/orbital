@@ -232,6 +232,15 @@ mod tests {
     }
 
     #[test]
+    fn compact_time_respects_timezone() {
+        let locale = HistoryLocale::english();
+        let at = ts(2026, 7, 3, 18, 0);
+        let utc = locale.format_compact_time(at, DatetimeTimezone::Utc);
+        let west = locale.format_compact_time(at, DatetimeTimezone::FixedOffset(-8 * 3600));
+        assert_ne!(utc, west);
+    }
+
+    #[test]
     fn buckets_respect_fixed_offset_wall_clock() {
         // UTC-8 (e.g. US Pacific standard).
         let pacific = DatetimeTimezone::FixedOffset(-8 * 3600);

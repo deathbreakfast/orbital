@@ -20,6 +20,21 @@ pub fn HistoryDefaultEmptyView() -> impl IntoView {
     }
 }
 
+/// Empty state when a filter is active but nothing matches.
+#[component]
+pub fn HistoryDefaultNoMatchesView() -> impl IntoView {
+    let ctx = use_history_context();
+    let text = Memo::new(move |_| ctx.locale.get().no_matches.clone());
+
+    view! {
+        <div class="orbital-history__overlay" data-testid="history-no-matches-default">
+            <MessageBar intent=MessageBarIntent::Info>
+                <MessageBarBody>{move || text.get()}</MessageBarBody>
+            </MessageBar>
+        </div>
+    }
+}
+
 /// Default error-state message.
 #[component]
 pub fn HistoryDefaultErrorView() -> impl IntoView {

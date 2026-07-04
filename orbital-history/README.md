@@ -21,17 +21,9 @@ Local `http://127.0.0.1:3010/orbital/history-timeline` (with `cargo leptos watch
 
 ## Scope
 
-**In scope:** scrollable audit timeline from a client signal or server page fetcher; default field-diff / created / deleted formatting; custom per-entry / per-`kind` / change-line renderers; vertical and horizontal orientations; empty / loading / error / end-of-list states; relative date-bucket dividers (optional display timezone); multi-field change card; imperative handle (`scroll_to_entry`, `scroll_to_top`, Server `refresh`); `HistoryDialog` shell; Client prepend / Server refresh live-update patterns.
+**In scope:** scrollable audit timeline from a client signal or server page fetcher; default field-diff / created / deleted formatting; custom per-entry / per-`kind` / change-line renderers; vertical and horizontal orientations; empty / loading / error / end-of-list / no-matches states; relative date-bucket dividers and compact timestamps with optional display timezone; multi-field change card; imperative handle (`scroll_to_entry`, `scroll_to_entry_or_load`, `scroll_to_top`, Server `refresh`, `set_filter`, `set_sort`, `go_to_page`); `HistoryDialog` shell; Client prepend / Server refresh live-update patterns; loaded-entry filter; Client sort (`CLIENT_SORT`); Server paged mode with page footer.
 
-**Out of scope:** backend, database, privacy, or persistence; product-app or non-Orbital platform dependencies; realtime / live-update protocols; rich-text editing; client-side re-sorting (hosts pre-sort newest-first).
-
-## Deferred
-
-- Paged mode + page bar
-- Client sort (`CLIENT_SORT`)
-- Filter / search of loaded entries
-- Load-until-found scroll (`scroll_to_entry_or_load`)
-- Timestamp display timezone (buckets already support display timezone)
+**Out of scope:** backend, database, privacy, or persistence; product-app or non-Orbital platform dependencies; realtime / live-update protocols; rich-text editing; server-side search/sort protocols.
 
 ## Docs
 

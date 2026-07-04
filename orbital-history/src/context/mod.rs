@@ -2,7 +2,8 @@ use leptos::prelude::*;
 use orbital_base_components::DatetimeTimezone;
 
 use crate::types::{
-    HistoryEvents, HistoryFeatures, HistoryLocale, HistoryOrientation, HistoryRenderers,
+    HistoryEvents, HistoryFeatures, HistoryFilter, HistoryLocale, HistoryOrientation,
+    HistoryRenderers, HistorySort,
 };
 
 /// Shared timeline context for leaf components.
@@ -13,8 +14,12 @@ pub struct HistoryContext {
     pub orientation: HistoryOrientation,
     pub events: HistoryEvents,
     pub renderers: HistoryRenderers,
-    /// Wall-clock timezone for date-bucket boundaries (`Utc` when unset).
+    /// Wall-clock timezone for date-bucket boundaries and compact timestamps.
     pub display_timezone: Signal<DatetimeTimezone>,
+    pub filter: Signal<HistoryFilter>,
+    pub sort: Signal<HistorySort>,
+    /// Whether the active data source is Client (enables `CLIENT_SORT`).
+    pub is_client: bool,
 }
 
 pub fn provide_history_context(ctx: HistoryContext) {

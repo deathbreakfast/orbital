@@ -36,6 +36,9 @@ pub enum HistoryPagingMode {
     InfiniteScroll,
     /// Client: render all. Server: single first-page fetch only.
     None,
+    /// Server: one page at a time with footer page controls.
+    /// Client: render all (same as [`None`]).
+    Paged,
 }
 
 impl HistorySource {

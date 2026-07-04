@@ -16,7 +16,8 @@ pub fn HistoryTimestamp(
     let ctx = use_history_context();
     let label = Memo::new(move |_| {
         let locale = ctx.locale.get();
-        locale.format_compact_time(at)
+        let tz = ctx.display_timezone.get();
+        locale.format_compact_time(at, tz)
     });
     let iso = at.to_rfc3339();
     let _ = now;
