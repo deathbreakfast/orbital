@@ -97,7 +97,7 @@ pub fn HistoryMarkdownBody(
                         let _ = (&ev, &events);
                     }
                 }
-                on:mouseover=move |_ev| {
+                on:mouseover=move |ev| {
                     #[cfg(feature = "hydrate")]
                     {
                         use wasm_bindgen::JsCast;
@@ -128,7 +128,7 @@ pub fn HistoryMarkdownBody(
                         }
                     }
                 }
-                on:mouseout=move |_ev| {
+                on:mouseout=move |ev| {
                     #[cfg(feature = "hydrate")]
                     {
                         use wasm_bindgen::JsCast;

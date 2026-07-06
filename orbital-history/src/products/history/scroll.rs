@@ -82,16 +82,16 @@ pub fn attach_scroll_top_listener(scroll_el: NodeRef<Div>, scroll_top: RwSignal<
         let Some(el) = scroll_el.get() else {
             return;
         };
+        let scroll_el = scroll_el;
         let scroll_top = scroll_top;
         let listener = Closure::<dyn Fn(ev::Event)>::new(move |_ev: ev::Event| {
-            scroll_top.set(el.scroll_top() as f64);
+            if let Some(el) = scroll_el.get() {
+                scroll_top.set(el.scroll_top() as f64);
+            }
         });
         el.add_event_listener_with_callback("scroll", listener.as_ref().unchecked_ref())
             .ok();
-        on_cleanup(move || {
-            el.remove_event_listener_with_callback("scroll", listener.as_ref().unchecked_ref())
-                .ok();
-        });
+        listener.forget();
     });
 }
 

@@ -119,3 +119,4 @@ end2end-dir = "end2end"
 reactive_graph = { path = "vendor/reactive_graph" }
 proc-macro-error2 = { path = "vendor/proc_macro_error2" }
 proc-macro-error-attr2 = { path = "vendor/proc_macro_error_attr2" }
+leptos = { path = "vendor/leptos" }
