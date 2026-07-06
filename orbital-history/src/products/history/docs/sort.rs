@@ -45,6 +45,26 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Built-in sort chrome
+/// `SORT_CHROME` adds a newest/oldest toggle when `CLIENT_SORT` is enabled.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::bucket_span_entries;
+/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(bucket_span_entries());
+/// view! {
+///     <div data-testid="history-sort-chrome-preview" style="height: 360px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled()
+///                 | HistoryFeatures::CLIENT_SORT
+///                 | HistoryFeatures::SORT_CHROME
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-sort",

@@ -45,4 +45,6 @@ pub enum HistoryChange {
     FieldDiffs { fields: Vec<HistoryFieldDiff> },
     /// Plain summary when no structured change applies; often paired with a custom renderer.
     Custom { summary: String },
+    /// Markdown body (rendered when [`HistoryFeatures::MARKDOWN_BODIES`] is enabled).
+    Markdown { body: String },
 }

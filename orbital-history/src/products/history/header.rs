@@ -3,6 +3,8 @@ use orbital_core_components::Subtitle1;
 
 use crate::context::use_history_context;
 
+use super::chrome::HistoryDefaultToolbar;
+
 /// Default title header for the timeline.
 #[component]
 pub fn HistoryDefaultHeader() -> impl IntoView {
@@ -12,6 +14,7 @@ pub fn HistoryDefaultHeader() -> impl IntoView {
     view! {
         <div class="orbital-history__header" data-testid="history-default-header">
             <Subtitle1>{move || title.get()}</Subtitle1>
+            <HistoryDefaultToolbar />
         </div>
     }
 }

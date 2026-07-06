@@ -3,22 +3,26 @@ use leptos::prelude::*;
 use orbital_base_components::DatetimeTimezone;
 use orbital_core_components::ScrollArea;
 use orbital_macros::component_doc;
-use orbital_paging::{use_paged_infinite_scroll, PageRequest};
+use orbital_paging::{use_paged_infinite_scroll, Page, PageRequest};
 use orbital_style::inject_style;
 use orbital_theme::use_theme_options;
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
 use crate::context::{provide_history_context, use_history_context, HistoryContext};
 use crate::products::history::list::project_entries;
 use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
-    HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFilter,
-    HistoryHandle, HistoryHeader, HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale,
-    HistoryOrientation, HistoryPageFetcher, HistoryPagingMode, HistoryRenderers, HistorySlots,
-    HistorySort, HistorySource,
+    HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFetchParams,
+    HistoryFilter, HistoryHandle, HistoryHeader, HistoryLoadingMoreView, HistoryLoadingView,
+    HistoryLocale, HistoryOrientation, HistoryPageFetcher, HistoryPagingMode, HistoryRenderers,
+    HistorySlots, HistorySort, HistorySource,
 };
 
 use super::scroll::{
-    entry_in_dom, schedule_scroll_entry_into_view, scroll_container_to_top,
+    attach_scroll_top_listener, entry_in_dom, schedule_scroll_entry_into_view,
+    scroll_container_to_top,
 };
 use super::styles::{density_modifier_class, history_styles};
 use super::{
@@ -36,6 +40,8 @@ struct InfiniteScrollState {
     loading: RwSignal<bool>,
     fetcher: HistoryPageFetcher,
     page_size: u32,
+    filter: Signal<HistoryFilter>,
+    sort: Signal<HistorySort>,
 }
 
 /// Scrollable audit timeline from a client signal or server page fetcher.
@@ -90,6 +96,8 @@ pub fn HistoryTimeline(
     #[prop(optional)] sort: Option<Signal<HistorySort>>,
     /// Max additional pages to fetch during `scroll_to_entry_or_load` (default 20).
     #[prop(optional, default = 20)] max_scroll_load_pages: u32,
+    /// Page size for Client + [`HistoryPagingMode::Paged`] windowing (default 20).
+    #[prop(optional, default = 20)] client_page_size: u32,
     #[prop(optional)] events: HistoryEvents,
     #[prop(optional)] renderers: Option<HistoryRenderers>,
     #[prop(optional, into)] class: MaybeProp<String>,
@@ -143,13 +151,17 @@ pub fn HistoryTimeline(
     let sort_signal: Signal<HistorySort> = sort.unwrap_or_else(|| internal_sort.into());
 
     let scroll_el = NodeRef::<Div>::new();
+    let scroll_top = RwSignal::new(0.0);
+    attach_scroll_top_listener(scroll_el, scroll_top);
     let refresh_trigger = RwSignal::new(0u32);
+    let server_query_gen = RwSignal::new(0u32);
     // 1-based page for Pagination UI / Paged mode.
     let page_ui = RwSignal::new(1usize);
     let page_count = RwSignal::new(1usize);
     let is_server = data_source.is_server();
     let is_client = !is_server;
-    let is_paged = is_server && paging == HistoryPagingMode::Paged;
+    let is_paged_server = is_server && paging == HistoryPagingMode::Paged;
+    let is_paged_client = is_client && paging == HistoryPagingMode::Paged;
     let is_infinite = is_server && paging == HistoryPagingMode::InfiniteScroll;
 
     let infinite_state: StoredValue<Option<InfiniteScrollState>> = StoredValue::new(None);
@@ -161,64 +173,115 @@ pub fn HistoryTimeline(
         }),
         scroll_to_entry_or_load: Callback::new({
             let infinite_state = infinite_state;
+            let page_ui = page_ui;
+            let page_count = page_count;
             move |(id,): (String,)| {
-                if entry_in_dom(&id) || !is_infinite {
+                if entry_in_dom(&id) {
                     schedule_scroll_entry_into_view(id.clone());
                     return;
                 }
-                let Some(state) = infinite_state.get_value() else {
-                    schedule_scroll_entry_into_view(id);
-                    return;
-                };
-                let gen = {
-                    let next = hunt_generation.get_untracked().saturating_add(1);
-                    hunt_generation.set(next);
-                    next
-                };
-                let max_pages = max_scroll_load_pages;
-                leptos::task::spawn_local(async move {
-                    let mut pages_loaded = 0u32;
-                    loop {
-                        if hunt_generation.get_untracked() != gen {
-                            return;
-                        }
-                        if state.items.get_untracked().iter().any(|e| e.id == id)
-                            || entry_in_dom(&id)
-                        {
-                            schedule_scroll_entry_into_view(id.clone());
-                            return;
-                        }
-                        if !state.has_more.get_untracked() || pages_loaded >= max_pages {
-                            return;
-                        }
-                        state.loading.set(true);
-                        let offset = state.next_offset.get_untracked();
-                        let result =
-                            (state.fetcher)(PageRequest::new(offset, state.page_size)).await;
-                        if hunt_generation.get_untracked() != gen {
-                            state.loading.set(false);
-                            return;
-                        }
-                        match result {
-                            Ok(page) => {
-                                let len = page.items.len() as u32;
-                                state.items.update(|v| v.extend(page.items));
-                                state.has_more.set(page.has_more);
-                                state.next_offset.set(
-                                    page.next_request_offset
-                                        .unwrap_or(offset.saturating_add(len)),
-                                );
-                                pages_loaded += 1;
-                                state.loading.set(false);
-                            }
-                            Err(_) => {
-                                state.loading.set(false);
-                                state.has_more.set(false);
+                if is_infinite {
+                    let Some(state) = infinite_state.get_value() else {
+                        schedule_scroll_entry_into_view(id);
+                        return;
+                    };
+                    let gen = {
+                        let next = hunt_generation.get_untracked().saturating_add(1);
+                        hunt_generation.set(next);
+                        next
+                    };
+                    let max_pages = max_scroll_load_pages;
+                    leptos::task::spawn_local(async move {
+                        let mut pages_loaded = 0u32;
+                        loop {
+                            if hunt_generation.get_untracked() != gen {
                                 return;
                             }
+                            if state.items.get_untracked().iter().any(|e| e.id == id)
+                                || entry_in_dom(&id)
+                            {
+                                schedule_scroll_entry_into_view(id.clone());
+                                return;
+                            }
+                            if !state.has_more.get_untracked() || pages_loaded >= max_pages {
+                                return;
+                            }
+                            state.loading.set(true);
+                            let offset = state.next_offset.get_untracked();
+                            let result = (state.fetcher)(HistoryFetchParams::new(
+                                PageRequest::new(offset, state.page_size),
+                                state.filter.get_untracked(),
+                                state.sort.get_untracked(),
+                            ))
+                            .await;
+                            if hunt_generation.get_untracked() != gen {
+                                state.loading.set(false);
+                                return;
+                            }
+                            match result {
+                                Ok(page) => {
+                                    let len = page.items.len() as u32;
+                                    state.items.update(|v| v.extend(page.items));
+                                    state.has_more.set(page.has_more);
+                                    state.next_offset.set(
+                                        page.next_request_offset
+                                            .unwrap_or(offset.saturating_add(len)),
+                                    );
+                                    pages_loaded += 1;
+                                    state.loading.set(false);
+                                }
+                                Err(_) => {
+                                    state.loading.set(false);
+                                    state.has_more.set(false);
+                                    return;
+                                }
+                            }
                         }
-                    }
-                });
+                    });
+                    return;
+                }
+                if is_paged_server {
+                    let gen = {
+                        let next = hunt_generation.get_untracked().saturating_add(1);
+                        hunt_generation.set(next);
+                        next
+                    };
+                    let max_pages = max_scroll_load_pages;
+                    leptos::task::spawn_local(async move {
+                        for _ in 0..max_pages {
+                            if hunt_generation.get_untracked() != gen {
+                                return;
+                            }
+                            if entry_in_dom(&id) {
+                                schedule_scroll_entry_into_view(id.clone());
+                                return;
+                            }
+                            let current = page_ui.get_untracked();
+                            let count = page_count.get_untracked().max(1);
+                            if current >= count {
+                                return;
+                            }
+                            page_ui.set(current.saturating_add(1));
+                            for _ in 0..40 {
+                                if hunt_generation.get_untracked() != gen {
+                                    return;
+                                }
+                                if entry_in_dom(&id) {
+                                    schedule_scroll_entry_into_view(id.clone());
+                                    return;
+                                }
+                                #[cfg(feature = "hydrate")]
+                                {
+                                    gloo_timers::future::TimeoutFuture::new(50).await;
+                                }
+                                #[cfg(not(feature = "hydrate"))]
+                                break;
+                            }
+                        }
+                    });
+                    return;
+                }
+                schedule_scroll_entry_into_view(id);
             }
         }),
         scroll_to_top: Callback::new({
@@ -229,7 +292,7 @@ pub fn HistoryTimeline(
         }),
         refresh: Callback::new(move |_| {
             if is_server {
-                if is_paged {
+                if is_paged_server {
                     page_ui.set(1);
                 }
                 refresh_trigger.update(|n| *n += 1);
@@ -246,7 +309,7 @@ pub fn HistoryTimeline(
             }
         }),
         go_to_page: Callback::new(move |(page_0,): (usize,)| {
-            if !is_paged {
+            if !is_paged_server && !is_paged_client {
                 return;
             }
             let count = page_count.get_untracked().max(1);
@@ -278,6 +341,34 @@ pub fn HistoryTimeline(
         filter: filter_signal,
         sort: sort_signal,
         is_client,
+        set_filter: handle.set_filter.clone(),
+        set_sort: handle.set_sort.clone(),
+        scroll_top: scroll_top.into(),
+    });
+
+    Effect::new({
+        let skip_initial = StoredValue::new(true);
+        move |_| {
+            if !is_server {
+                return;
+            }
+            if !(features.contains(HistoryFeatures::SERVER_FILTER)
+                || features.contains(HistoryFeatures::SERVER_SORT))
+            {
+                return;
+            }
+            let _ = filter_signal.get();
+            let _ = sort_signal.get();
+            if skip_initial.get_value() {
+                skip_initial.set_value(false);
+                return;
+            }
+            server_query_gen.update(|n| *n += 1);
+            if is_paged_server {
+                page_ui.set(1);
+            }
+            refresh_trigger.update(|n| *n += 1);
+        }
     });
 
     let theme_options = use_theme_options();
@@ -316,6 +407,10 @@ pub fn HistoryTimeline(
                     {header_view()}
                     <HistoryClientPanel
                         entries=entries
+                        paging=paging
+                        client_page_size=client_page_size
+                        page_ui=page_ui
+                        page_count=page_count
                         loading=loading
                         skeleton_row_count=skeleton_row_count
                         scroll_style=scroll_style
@@ -334,6 +429,10 @@ pub fn HistoryTimeline(
                     fetcher=fetcher
                     page_size=page_size
                     paging=paging
+                    features=features
+                    filter_signal=filter_signal
+                    sort_signal=sort_signal
+                    server_query_gen=server_query_gen
                     loading=loading
                     skeleton_row_count=skeleton_row_count
                     scroll_style=scroll_style
@@ -358,6 +457,10 @@ pub fn HistoryTimeline(
 #[component]
 fn HistoryClientPanel(
     entries: Signal<Vec<HistoryEntry>>,
+    paging: HistoryPagingMode,
+    client_page_size: u32,
+    page_ui: RwSignal<usize>,
+    page_count: RwSignal<usize>,
     loading: Option<Signal<bool>>,
     skeleton_row_count: u32,
     scroll_style: Option<String>,
@@ -366,9 +469,13 @@ fn HistoryClientPanel(
     loading_slot: Option<HistoryLoadingView>,
 ) -> impl IntoView {
     let ctx = use_history_context();
+    let is_paged = paging == HistoryPagingMode::Paged;
+    let page_size = client_page_size.max(1) as usize;
+
     let is_loading = Memo::new(move |_| loading.map(|s| s.get()).unwrap_or(false));
     let source_empty = Memo::new(move |_| entries.get().is_empty());
-    let projected = Memo::new(move |_| {
+
+    let projected_all = Memo::new(move |_| {
         project_entries(
             &entries.get(),
             true,
@@ -378,17 +485,42 @@ fn HistoryClientPanel(
             &ctx.locale.get(),
         )
     });
-    let projected_empty = Memo::new(move |_| projected.get().is_empty());
+
+    Effect::new({
+        move |_| {
+            if !is_paged {
+                return;
+            }
+            let total = projected_all.get().len();
+            let pages = total.div_ceil(page_size).max(1);
+            page_count.set(pages);
+            if page_ui.get_untracked() > pages {
+                page_ui.set(pages);
+            }
+        }
+    });
+
+    let windowed = Memo::new(move |_| {
+        let all = projected_all.get();
+        if !is_paged {
+            return all;
+        }
+        let p0 = page_ui.get().saturating_sub(1);
+        let start = p0 * page_size;
+        all.into_iter().skip(start).take(page_size).collect()
+    });
+
+    let projected_empty = Memo::new(move |_| windowed.get().is_empty());
     let filter_active = Memo::new(move |_| ctx.filter.get().is_active());
 
     let show_initial = Memo::new(move |_| is_loading.get() && source_empty.get());
-    let show_empty = Memo::new(move |_| {
-        !is_loading.get() && source_empty.get()
-    });
+    let show_empty = Memo::new(move |_| !is_loading.get() && source_empty.get());
     let show_no_matches = Memo::new(move |_| {
         !is_loading.get() && !source_empty.get() && projected_empty.get() && filter_active.get()
     });
     let show_list = Memo::new(move |_| !projected_empty.get());
+
+    let display_entries = Signal::derive(move || windowed.get());
 
     let loading_view = move || {
         if let Some(slot) = &loading_slot {
@@ -407,24 +539,32 @@ fn HistoryClientPanel(
     };
 
     view! {
-        <ScrollArea
-            class="orbital-history__scroll".to_string()
-            style=scroll_style.unwrap_or_default()
-            node_ref=scroll_el
-        >
-            <Show when=move || show_initial.get() fallback=|| ()>
-                {loading_view()}
+        <div class="orbital-history__client-panel" style="display:flex;flex-direction:column;min-height:0;flex:1;">
+            <ScrollArea
+                class="orbital-history__scroll".to_string()
+                style=scroll_style.unwrap_or_default()
+                node_ref=scroll_el
+            >
+                <Show when=move || show_initial.get() fallback=|| ()>
+                    {loading_view()}
+                </Show>
+                <Show when=move || show_empty.get() fallback=|| ()>
+                    {empty_view()}
+                </Show>
+                <Show when=move || show_no_matches.get() fallback=|| ()>
+                    <HistoryDefaultNoMatchesView />
+                </Show>
+                <Show when=move || show_list.get() fallback=|| ()>
+                    <HistoryEntryList entries=display_entries pre_projected=true />
+                </Show>
+            </ScrollArea>
+            <Show when=move || is_paged fallback=|| ()>
+                <HistoryDefaultPagination
+                    page=page_ui
+                    page_count=Signal::derive(move || page_count.get())
+                />
             </Show>
-            <Show when=move || show_empty.get() fallback=|| ()>
-                {empty_view()}
-            </Show>
-            <Show when=move || show_no_matches.get() fallback=|| ()>
-                <HistoryDefaultNoMatchesView />
-            </Show>
-            <Show when=move || show_list.get() fallback=|| ()>
-                <HistoryEntryList entries=entries />
-            </Show>
-        </ScrollArea>
+        </div>
     }
 }
 
@@ -433,6 +573,10 @@ fn HistoryServerPanel(
     fetcher: HistoryPageFetcher,
     page_size: u32,
     paging: HistoryPagingMode,
+    features: HistoryFeatures,
+    filter_signal: Signal<HistoryFilter>,
+    sort_signal: Signal<HistorySort>,
+    server_query_gen: RwSignal<u32>,
     loading: Option<Signal<bool>>,
     skeleton_row_count: u32,
     scroll_style: Option<String>,
@@ -452,13 +596,25 @@ fn HistoryServerPanel(
     let load_error = RwSignal::new(false);
     let on_load_error = events.on_load_error.clone();
 
-    let fetch = {
+    let wrap_fetch = {
         let fetcher = fetcher.clone();
         move |req: PageRequest| {
             let fetcher = fetcher.clone();
-            async move { (fetcher)(req).await }
+            let filter = if features.contains(HistoryFeatures::SERVER_FILTER) {
+                filter_signal.get_untracked()
+            } else {
+                HistoryFilter::default()
+            };
+            let sort = if features.contains(HistoryFeatures::SERVER_SORT) {
+                sort_signal.get_untracked()
+            } else {
+                HistorySort::NewestFirst
+            };
+            async move { (fetcher)(HistoryFetchParams::new(req, filter, sort)).await }
         }
     };
+
+    let fetch = wrap_fetch.clone();
 
     let (entries, hook_loading, ever_loaded, has_more, show_error, show_pagination) = match paging {
         HistoryPagingMode::InfiniteScroll => {
@@ -469,8 +625,26 @@ fn HistoryServerPanel(
                 has_more: hook.has_more,
                 next_offset: hook.next_request_offset,
                 loading: hook.loading,
-                fetcher: fetcher.clone(),
+                fetcher: {
+                    let fetcher = fetcher.clone();
+                    Arc::new(move |params: HistoryFetchParams| {
+                        let fetcher = fetcher.clone();
+                        Box::pin((fetcher)(params))
+                            as Pin<
+                                Box<
+                                    dyn Future<
+                                            Output = Result<
+                                                Page<HistoryEntry>,
+                                                ServerFnError,
+                                            >,
+                                        > + Send,
+                                >,
+                            >
+                    })
+                },
                 page_size,
+                filter: filter_signal,
+                sort: sort_signal,
             }));
             (
                 hook.items,
@@ -488,10 +662,27 @@ fn HistoryServerPanel(
             let has_more_sig = RwSignal::new(false);
             let fetcher = fetcher.clone();
             let first_page = Resource::new(
-                move || refresh_trigger.get(),
+                move || (refresh_trigger.get(), server_query_gen.get()),
                 move |_| {
                     let fetcher = fetcher.clone();
-                    async move { (fetcher)(PageRequest::new(0, page_size)).await }
+                    let filter = if features.contains(HistoryFeatures::SERVER_FILTER) {
+                        filter_signal.get_untracked()
+                    } else {
+                        HistoryFilter::default()
+                    };
+                    let sort = if features.contains(HistoryFeatures::SERVER_SORT) {
+                        sort_signal.get_untracked()
+                    } else {
+                        HistorySort::NewestFirst
+                    };
+                    async move {
+                        (fetcher)(HistoryFetchParams::new(
+                            PageRequest::new(0, page_size),
+                            filter,
+                            sort,
+                        ))
+                        .await
+                    }
                 },
             );
             Effect::new(move |_| {
@@ -529,12 +720,29 @@ fn HistoryServerPanel(
             let has_more_sig = RwSignal::new(false);
             let fetcher = fetcher.clone();
             let page_resource = Resource::new(
-                move || (refresh_trigger.get(), page_ui.get()),
-                move |(_, page_1)| {
+                move || (refresh_trigger.get(), page_ui.get(), server_query_gen.get()),
+                move |(_, page_1, _)| {
                     let fetcher = fetcher.clone();
                     let page_0 = page_1.saturating_sub(1) as u32;
                     let offset = page_0.saturating_mul(page_size);
-                    async move { (fetcher)(PageRequest::new(offset, page_size)).await }
+                    let filter = if features.contains(HistoryFeatures::SERVER_FILTER) {
+                        filter_signal.get_untracked()
+                    } else {
+                        HistoryFilter::default()
+                    };
+                    let sort = if features.contains(HistoryFeatures::SERVER_SORT) {
+                        sort_signal.get_untracked()
+                    } else {
+                        HistorySort::NewestFirst
+                    };
+                    async move {
+                        (fetcher)(HistoryFetchParams::new(
+                            PageRequest::new(offset, page_size),
+                            filter,
+                            sort,
+                        ))
+                        .await
+                    }
                 },
             );
             Effect::new(move |_| {

@@ -20,6 +20,12 @@ pub struct HistoryContext {
     pub sort: Signal<HistorySort>,
     /// Whether the active data source is Client (enables `CLIENT_SORT`).
     pub is_client: bool,
+    /// Update the active filter (respects controlled mode).
+    pub set_filter: Callback<(HistoryFilter,), ()>,
+    /// Update the active sort (Client + `CLIENT_SORT` only).
+    pub set_sort: Callback<(HistorySort,), ()>,
+    /// Scroll offset of the list container (for virtualization).
+    pub scroll_top: Signal<f64>,
 }
 
 pub fn provide_history_context(ctx: HistoryContext) {

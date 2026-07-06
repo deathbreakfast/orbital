@@ -5,16 +5,28 @@ use std::sync::Arc;
 use leptos::prelude::*;
 use orbital_paging::{Page, PageRequest};
 
-use super::HistoryEntry;
+use super::{HistoryEntry, HistoryFetchParams};
 
 /// Async fetcher for server-driven history pages.
 pub type HistoryPageFetcher = Arc<
     dyn Fn(
-            PageRequest,
+            HistoryFetchParams,
         ) -> Pin<Box<dyn Future<Output = Result<Page<HistoryEntry>, ServerFnError>> + Send>>
         + Send
         + Sync,
 >;
+
+/// Wrap a legacy `PageRequest`-only fetcher (ignores filter / sort).
+pub fn page_fetcher<F, Fut>(f: F) -> HistoryPageFetcher
+where
+    F: Fn(PageRequest) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<Page<HistoryEntry>, ServerFnError>> + Send + 'static,
+{
+    Arc::new(move |params: HistoryFetchParams| {
+        Box::pin(f(params.page))
+            as Pin<Box<dyn Future<Output = Result<Page<HistoryEntry>, ServerFnError>> + Send>>
+    })
+}
 
 /// Data source: in-memory list or server page fetcher.
 #[derive(Clone)]

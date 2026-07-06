@@ -1016,7 +1016,23 @@ Every phase lists scope, public API added, previews/tests, and explicit out-of-s
 
 ### Optional later
 
-Phase 2 and Phase 3 are implemented in the crate (`HistoryHandle`, `HistoryDialog`, display-timezone buckets and timestamps, filter, `CLIENT_SORT`, `Paged` mode, `scroll_to_entry_or_load`).
+Phases 2–4 are implemented in the crate. Remaining candidates:
+
+- Realtime transport (WS/SSE) inside Orbital
+- Rich-text editing (history remains read-oriented)
+
+### Phase 4 (implemented)
+
+| PR | Feature |
+| --- | --- |
+| PR20 | `FILTER_CHROME` — built-in search input |
+| PR21 | `SORT_CHROME` — built-in newest/oldest toggle |
+| PR22 | `SERVER_FILTER` + `HistoryFetchParams` |
+| PR23 | `SERVER_SORT` on fetcher |
+| PR24 | Client `Paged` in-memory windowing |
+| PR25 | `scroll_to_entry_or_load` across Server `Paged` pages |
+| PR26 | `VIRTUALIZE` long lists |
+| PR27 | `MARKDOWN_BODIES` + `HistoryChange::Markdown` |
 
 ---
 

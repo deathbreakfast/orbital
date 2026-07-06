@@ -38,6 +38,25 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Client paged window
+/// Large client lists can use `Paged` with in-memory windowing.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::large_client_entries;
+/// use crate::{HistoryPagingMode, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(large_client_entries());
+/// view! {
+///     <div data-testid="history-client-paged-preview" style="height: 400px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             paging=HistoryPagingMode::Paged
+///             client_page_size=10
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-paged",

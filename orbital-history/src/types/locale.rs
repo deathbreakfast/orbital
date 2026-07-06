@@ -32,6 +32,14 @@ pub struct HistoryLocale {
     pub date_bucket_last_30_days: String,
     pub date_bucket_older: String,
     pub relative_time: HistoryRelativeTimeLocale,
+    /// Placeholder for the default filter search input.
+    pub filter_placeholder: String,
+    /// Accessible label for the default filter input.
+    pub filter_aria_label: String,
+    /// Sort toggle: newest-first label.
+    pub sort_newest: String,
+    /// Sort toggle: oldest-first label.
+    pub sort_oldest: String,
     /// Compact absolute time format preference.
     pub time_format: DatetimeFormat,
 }
@@ -79,6 +87,10 @@ impl HistoryLocale {
                 months_ago: "{n}mo ago".into(),
                 years_ago: "{n}y ago".into(),
             },
+            filter_placeholder: "Search history".into(),
+            filter_aria_label: "Filter history".into(),
+            sort_newest: "Newest first".into(),
+            sort_oldest: "Oldest first".into(),
             time_format: DatetimeFormat::Time12,
         }
     }
@@ -113,6 +125,10 @@ impl HistoryLocale {
                 months_ago: "il y a {n} mois".into(),
                 years_ago: "il y a {n} an".into(),
             },
+            filter_placeholder: "Rechercher".into(),
+            filter_aria_label: "Filtrer l'historique".into(),
+            sort_newest: "Plus récent".into(),
+            sort_oldest: "Plus ancien".into(),
             time_format: DatetimeFormat::Time24,
         }
     }

@@ -59,3 +59,30 @@ pub fn entry_in_dom(entry_id: &str) -> bool {
 pub fn entry_in_dom(_entry_id: &str) -> bool {
     false
 }
+
+/// Track scroll offset on the timeline scrollport (for virtualization).
+#[cfg(feature = "hydrate")]
+pub fn attach_scroll_top_listener(scroll_el: NodeRef<Div>, scroll_top: RwSignal<f64>) {
+    use leptos::ev;
+    use wasm_bindgen::closure::Closure;
+    use wasm_bindgen::JsCast;
+
+    Effect::new(move |_| {
+        let Some(el) = scroll_el.get() else {
+            return;
+        };
+        let scroll_top = scroll_top;
+        let listener = Closure::<dyn Fn(ev::Event)>::new(move |_ev: ev::Event| {
+            scroll_top.set(el.scroll_top() as f64);
+        });
+        el.add_event_listener_with_callback("scroll", listener.as_ref().unchecked_ref())
+            .ok();
+        on_cleanup(move || {
+            el.remove_event_listener_with_callback("scroll", listener.as_ref().unchecked_ref())
+                .ok();
+        });
+    });
+}
+
+#[cfg(not(feature = "hydrate"))]
+pub fn attach_scroll_top_listener(_scroll_el: NodeRef<Div>, _scroll_top: RwSignal<f64>) {}

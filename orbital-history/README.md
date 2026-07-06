@@ -21,9 +21,9 @@ Local `http://127.0.0.1:3010/orbital/history-timeline` (with `cargo leptos watch
 
 ## Scope
 
-**In scope:** scrollable audit timeline from a client signal or server page fetcher; default field-diff / created / deleted formatting; custom per-entry / per-`kind` / change-line renderers; vertical and horizontal orientations; empty / loading / error / end-of-list / no-matches states; relative date-bucket dividers and compact timestamps with optional display timezone; multi-field change card; imperative handle (`scroll_to_entry`, `scroll_to_entry_or_load`, `scroll_to_top`, Server `refresh`, `set_filter`, `set_sort`, `go_to_page`); `HistoryDialog` shell; Client prepend / Server refresh live-update patterns; loaded-entry filter; Client sort (`CLIENT_SORT`); Server paged mode with page footer.
+**In scope:** scrollable audit timeline from a client signal or server page fetcher; default field-diff / created / deleted formatting; custom per-entry / per-`kind` / change-line renderers; vertical and horizontal orientations; empty / loading / error / end-of-list / no-matches states; relative date-bucket dividers and compact timestamps with optional display timezone; multi-field change card; imperative handle (`scroll_to_entry`, `scroll_to_entry_or_load`, `scroll_to_top`, Server `refresh`, `set_filter`, `set_sort`, `go_to_page`); `HistoryDialog` shell; Client prepend / Server refresh live-update patterns; loaded-entry filter; Client sort (`CLIENT_SORT`); Server paged mode with page footer; optional built-in filter/sort chrome (`FILTER_CHROME`, `SORT_CHROME`); server-side filter/sort fetch protocol (`SERVER_FILTER`, `SERVER_SORT` via `HistoryFetchParams`); Client paged windowing; paged `scroll_to_entry_or_load`; virtualized long lists (`VIRTUALIZE`); read-only markdown change bodies (`MARKDOWN_BODIES`, `HistoryChange::Markdown`).
 
-**Out of scope:** backend, database, privacy, or persistence; product-app or non-Orbital platform dependencies; realtime / live-update protocols; rich-text editing; server-side search/sort protocols.
+**Out of scope:** backend, database, privacy, or persistence; product-app or non-Orbital platform dependencies; realtime / live-update transport protocols.
 
 ## Docs
 

@@ -1,5 +1,9 @@
 //! Pure formatting helpers (no I/O).
 
+mod markdown;
+
+pub use markdown::render_history_markdown;
+
 use chrono::{DateTime, Utc};
 use orbital_base_components::{DatetimeTimezone, OrbitalDateTime};
 
@@ -47,6 +51,7 @@ pub fn format_change(change: &HistoryChange, locale: &HistoryLocale) -> String {
         HistoryChange::Custom { summary } => {
             truncate_display_value(summary, DEFAULT_TRUNCATE_LEN)
         }
+        HistoryChange::Markdown { body } => truncate_display_value(body, DEFAULT_TRUNCATE_LEN),
     }
 }
 

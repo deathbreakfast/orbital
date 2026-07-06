@@ -1,5 +1,9 @@
 //! Pure list projection (sort / filter).
 
+mod viewport;
+
+pub use viewport::*;
+
 use crate::format::format_change;
 use crate::types::{
     HistoryActor, HistoryEntry, HistoryFilter, HistoryLocale, HistorySort,

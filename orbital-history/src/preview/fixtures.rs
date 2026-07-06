@@ -4,10 +4,12 @@ use std::sync::Arc;
 
 use chrono::{Duration, Utc};
 use leptos::prelude::*;
-use orbital_paging::{Page, PageRequest};
+use orbital_paging::Page;
 
+use crate::engine::apply_filter;
 use crate::types::{
-    HistoryActor, HistoryChange, HistoryEntry, HistoryFieldDiff, HistoryPageFetcher,
+    HistoryActor, HistoryChange, HistoryEntry, HistoryFetchParams, HistoryFieldDiff,
+    HistoryLocale, HistoryPageFetcher, HistorySort,
 };
 
 /// Small newest-first field-diff list for client previews.
@@ -161,10 +163,16 @@ fn all_fixture_pages() -> Vec<HistoryEntry> {
     entries
 }
 
-async fn mock_paged_history(request: PageRequest) -> Result<Page<HistoryEntry>, ServerFnError> {
-    let all = all_fixture_pages();
-    let offset = request.offset as usize;
-    let limit = request.limit as usize;
+async fn mock_paged_history(params: HistoryFetchParams) -> Result<Page<HistoryEntry>, ServerFnError> {
+    let mut all = all_fixture_pages();
+    if params.sort == HistorySort::OldestFirst {
+        all.reverse();
+    }
+    let locale = HistoryLocale::english();
+    all = apply_filter(&all, &params.filter, &locale);
+
+    let offset = params.page.offset as usize;
+    let limit = params.page.limit as usize;
     let slice: Vec<_> = all.iter().skip(offset).take(limit).cloned().collect();
     let next = offset + slice.len();
     let has_more = next < all.len();
@@ -178,8 +186,43 @@ async fn mock_paged_history(request: PageRequest) -> Result<Page<HistoryEntry>, 
 
 /// Mock page fetcher that pages fixture data (newest-first).
 pub fn mock_page_fetcher() -> HistoryPageFetcher {
-    Arc::new(|request: PageRequest| {
-        Box::pin(mock_paged_history(request))
+    Arc::new(|params: HistoryFetchParams| {
+        Box::pin(mock_paged_history(params))
             as Pin<Box<dyn Future<Output = Result<Page<HistoryEntry>, ServerFnError>> + Send>>
     })
+}
+
+/// Many entries for virtualization previews.
+pub fn large_client_entries() -> Vec<HistoryEntry> {
+    let now = Utc::now();
+    (0..80)
+        .map(|i| HistoryEntry {
+            id: format!("large-{i}"),
+            kind: "field_diff".into(),
+            changed_at: now - Duration::minutes(i),
+            actor: HistoryActor::System,
+            change: HistoryChange::FieldDiff {
+                field: "n".into(),
+                old_value: format!("{i}"),
+                new_value: format!("{}", i + 1),
+            },
+        })
+        .collect()
+}
+
+/// Markdown body sample entry.
+pub fn markdown_entry() -> HistoryEntry {
+    HistoryEntry {
+        id: "md-body".into(),
+        kind: "comment".into(),
+        changed_at: Utc::now(),
+        actor: HistoryActor::User {
+            id: "u1".into(),
+            display_name: "Jordan Lee".into(),
+            href: None,
+        },
+        change: HistoryChange::Markdown {
+            body: "**Updated** the [design doc](https://example.com)".into(),
+        },
+    }
 }

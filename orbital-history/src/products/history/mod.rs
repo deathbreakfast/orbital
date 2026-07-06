@@ -4,6 +4,7 @@ pub(crate) mod docs;
 mod actor;
 mod change_card;
 mod change_line;
+mod chrome;
 mod date_divider;
 mod dialog;
 mod entry_row;
@@ -20,6 +21,7 @@ mod timestamp;
 pub use actor::HistoryActorLabel;
 pub use change_card::HistoryChangeCard;
 pub use change_line::HistoryChangeLine;
+pub use chrome::{HistoryDefaultFilterChrome, HistoryDefaultSortChrome, HistoryDefaultToolbar};
 pub use date_divider::HistoryDateDivider;
 pub use dialog::HistoryDialog;
 pub use entry_row::HistoryEntryRow;
@@ -41,16 +43,19 @@ pub use timestamp::HistoryTimestamp;
 pub use docs::{
     HistoryDataSourceDoc, HistoryDateDividersDoc, HistoryEmbedDoc, HistoryFilterDoc,
     HistoryHandleDoc, HistoryLiveUpdateDoc, HistoryLoadingDoc, HistoryLocalizationDoc,
-    HistoryMultiDiffDoc, HistoryOrientationDoc, HistoryPagedDoc, HistoryRefreshDoc,
-    HistoryRenderersDoc, HistoryScrollLoadDoc, HistorySlotsDoc, HistorySortDoc,
-    HistoryTimezoneBucketsDoc, HistoryTimezoneDisplayDoc,
+    HistoryMarkdownDoc, HistoryMultiDiffDoc, HistoryOrientationDoc, HistoryPagedDoc,
+    HistoryRefreshDoc, HistoryRenderersDoc, HistoryScrollLoadDoc, HistoryServerFilterDoc,
+    HistorySlotsDoc, HistorySortDoc, HistoryTimezoneBucketsDoc, HistoryTimezoneDisplayDoc,
+    HistoryVirtualizedDoc,
     HISTORYDATASOURCEDOC_PREVIEW_REGISTRATION, HISTORYDATEDIVIDERSDOC_PREVIEW_REGISTRATION,
     HISTORYEMBEDDOC_PREVIEW_REGISTRATION, HISTORYFILTERDOC_PREVIEW_REGISTRATION,
     HISTORYHANDLEDOC_PREVIEW_REGISTRATION, HISTORYLIVEUPDATEDOC_PREVIEW_REGISTRATION,
     HISTORYLOADINGDOC_PREVIEW_REGISTRATION, HISTORYLOCALIZATIONDOC_PREVIEW_REGISTRATION,
-    HISTORYMULTIDIFFDOC_PREVIEW_REGISTRATION, HISTORYORIENTATIONDOC_PREVIEW_REGISTRATION,
-    HISTORYPAGEDDOC_PREVIEW_REGISTRATION, HISTORYREFRESHDOC_PREVIEW_REGISTRATION,
-    HISTORYRENDERERSDOC_PREVIEW_REGISTRATION, HISTORYSCROLLLOADDOC_PREVIEW_REGISTRATION,
+    HISTORYMARKDOWNDOC_PREVIEW_REGISTRATION, HISTORYMULTIDIFFDOC_PREVIEW_REGISTRATION,
+    HISTORYORIENTATIONDOC_PREVIEW_REGISTRATION, HISTORYPAGEDDOC_PREVIEW_REGISTRATION,
+    HISTORYREFRESHDOC_PREVIEW_REGISTRATION, HISTORYRENDERERSDOC_PREVIEW_REGISTRATION,
+    HISTORYSCROLLLOADDOC_PREVIEW_REGISTRATION, HISTORYSERVERFILTERDOC_PREVIEW_REGISTRATION,
     HISTORYSLOTSDOC_PREVIEW_REGISTRATION, HISTORYSORTDOC_PREVIEW_REGISTRATION,
     HISTORYTIMEZONEBUCKETSDOC_PREVIEW_REGISTRATION, HISTORYTIMEZONEDISPLAYDOC_PREVIEW_REGISTRATION,
+    HISTORYVIRTUALIZEDDOC_PREVIEW_REGISTRATION,
 };
