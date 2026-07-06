@@ -20,6 +20,16 @@ test.describe("history preview", () => {
     await expect(preview.locator("[data-history-entry-id='2']")).toHaveCount(0);
   });
 
+  test("filter advanced chips toggle kind", async ({ page }) => {
+    await openComponentPreview(page, "history-filter", "history-filter-advanced-preview");
+    const preview = page.getByTestId("history-filter-advanced-preview");
+    await expect(preview.getByTestId("history-filter-chrome")).toBeVisible({ timeout: 30_000 });
+
+    const kindChip = preview.getByRole("button", { name: "comment" });
+    await kindChip.click();
+    await expect(preview.locator("[data-history-entry-id='1']")).toBeVisible();
+  });
+
   test("sort chrome toggles entry order", async ({ page }) => {
     await openComponentPreview(page, "history-sort", "history-sort-chrome-preview");
     const preview = page.getByTestId("history-sort-chrome-preview");
@@ -49,5 +59,49 @@ test.describe("history preview", () => {
 
     await preview.getByRole("button", { name: "Push live entry" }).click();
     await expect(preview.locator("[data-history-entry-id^='live-']")).toBeVisible();
+  });
+
+  test("live scroll policy scrolls to top on push", async ({ page }) => {
+    await openComponentPreview(page, "history-live-update", "history-live-scroll-preview");
+    const preview = page.getByTestId("history-live-scroll-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+
+    const scroll = preview.locator(".orbital-history__scroll");
+    await scroll.evaluate((el) => {
+      el.scrollTop = 200;
+    });
+    await preview.getByRole("button", { name: "Push live entry (auto scroll)" }).click();
+    await expect
+      .poll(async () => scroll.evaluate((el) => el.scrollTop))
+      .toBeLessThan(10);
+  });
+
+  test("unread watermark highlights newer entries", async ({ page }) => {
+    await openComponentPreview(page, "history-handle", "history-unread-preview");
+    const preview = page.getByTestId("history-unread-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    await expect(preview.locator(".orbital-history__entry--unread").first()).toBeVisible();
+  });
+
+  test("diff highlight styles new values", async ({ page }) => {
+    await openComponentPreview(page, "history-multi-diff", "history-diff-highlight-preview");
+    const preview = page.getByTestId("history-diff-highlight-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    await expect(preview.locator(".orbital-history__diff-new").first()).toBeVisible();
+  });
+
+  test("state export button does not panic", async ({ page }) => {
+    await openComponentPreview(page, "history-handle", "history-state-preview");
+    const preview = page.getByTestId("history-state-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    await preview.getByRole("button", { name: "Export" }).click();
+    await expect(preview.getByTestId("history-entry-list")).toBeVisible();
+  });
+
+  test("markdown citation refs render history anchors", async ({ page }) => {
+    await openComponentPreview(page, "history-markdown", "history-markdown-citations-preview");
+    const preview = page.getByTestId("history-markdown-citations-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    await expect(preview.locator(".orbital-history__citation-ref").first()).toBeVisible();
   });
 });

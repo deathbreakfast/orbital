@@ -1,9 +1,13 @@
-//! Pure list projection (sort / filter / live merge).
+//! Pure list projection (sort / filter / live merge / unread).
 
 mod live_head;
+mod row_heights;
+mod unread;
 mod viewport;
 
 pub use live_head::*;
+pub use row_heights::*;
+pub use unread::*;
 pub use viewport::*;
 
 use crate::format::format_change;

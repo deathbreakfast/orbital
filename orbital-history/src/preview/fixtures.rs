@@ -8,7 +8,7 @@ use orbital_paging::Page;
 
 use crate::engine::apply_filter;
 use crate::types::{
-    HistoryActor, HistoryChange, HistoryEntry, HistoryFetchParams, HistoryFieldDiff,
+    HistoryActor, HistoryChange, HistoryCitation, HistoryEntry, HistoryFetchParams, HistoryFieldDiff,
     HistoryLocale, HistoryPageFetcher, HistorySort,
 };
 
@@ -210,6 +210,27 @@ pub fn large_client_entries() -> Vec<HistoryEntry> {
         .collect()
 }
 
+/// Markdown body with citation refs.
+pub fn markdown_citation_entry() -> HistoryEntry {
+    HistoryEntry {
+        id: "md-cite".into(),
+        kind: "comment".into(),
+        changed_at: Utc::now(),
+        actor: HistoryActor::User {
+            id: "u1".into(),
+            display_name: "Jordan Lee".into(),
+            href: None,
+        },
+        change: HistoryChange::Markdown {
+            body: "See [^audit-1] for the audit trail.".into(),
+            citations: vec![HistoryCitation {
+                id: "audit-1".into(),
+                display_index: 1,
+            }],
+        },
+    }
+}
+
 /// Markdown body sample entry.
 pub fn markdown_entry() -> HistoryEntry {
     HistoryEntry {
@@ -223,6 +244,7 @@ pub fn markdown_entry() -> HistoryEntry {
         },
         change: HistoryChange::Markdown {
             body: "**Updated** the [design doc](https://example.com)".into(),
+            citations: vec![],
         },
     }
 }

@@ -4,14 +4,15 @@ use leptos::prelude::*;
 
 use crate::context::use_history_context;
 use crate::engine::{
-    apply_filter, apply_sort, compute_history_viewport, DEFAULT_HISTORY_ROW_OVERSCAN,
+    apply_filter, apply_sort, compute_history_viewport, compute_variable_viewport,
+    insert_unread_divider, list_item_cache_key, list_item_heights, DEFAULT_HISTORY_ROW_OVERSCAN,
     HISTORY_VIRTUALIZE_THRESHOLD,
 };
 use crate::format::with_date_dividers_in_tz;
 use crate::types::{HistoryEntry, HistoryFeatures, HistoryListItem};
 
 use super::resize::use_scrollport_height;
-use super::{HistoryDateDivider, HistoryEntryRow};
+use super::{HistoryDateDivider, HistoryEntryRow, HistoryUnreadDivider};
 
 /// Render a list of history entries with optional sort, filter, date dividers, and virtualization.
 #[component]
@@ -49,11 +50,34 @@ pub fn HistoryEntryList(
                 list = apply_filter(&list, &ctx.filter.get(), &locale);
             }
         }
-        if ctx.features.contains(HistoryFeatures::DATE_DIVIDERS) {
+
+        let items = if ctx.features.contains(HistoryFeatures::DATE_DIVIDERS) {
             let tz = ctx.display_timezone.get();
             with_date_dividers_in_tz(&list, Utc::now(), tz)
         } else {
             list.into_iter().map(HistoryListItem::Entry).collect()
+        };
+
+        if let Some(wm) = ctx.read_watermark.get() {
+            insert_unread_divider(
+                items,
+                wm,
+                ctx.features.contains(HistoryFeatures::UNREAD_HIGHLIGHT),
+            )
+        } else {
+            items
+        }
+    });
+
+    Effect::new({
+        let list_layout_keys = ctx.list_layout_keys;
+        move |_| {
+            let keys: Vec<_> = entry_items
+                .get()
+                .iter()
+                .map(list_item_cache_key)
+                .collect();
+            list_layout_keys.set(keys);
         }
     });
 
@@ -63,11 +87,26 @@ pub fn HistoryEntryList(
     });
 
     let row_height = ctx.virtual_row_height;
+    let variable_height = Memo::new(move |_| {
+        ctx.features.contains(HistoryFeatures::VARIABLE_ROW_HEIGHT) && virtualize.get()
+    });
 
     let viewport = Memo::new(move |_| {
         let items = entry_items.get();
         if !virtualize.get() {
             return (items, 0.0, 0.0);
+        }
+        if variable_height.get() {
+            let cache = ctx.row_height_cache.get();
+            let heights = list_item_heights(&items, &cache, row_height);
+            let vp = compute_variable_viewport(
+                ctx.scroll_top.get(),
+                viewport_height.get(),
+                &heights,
+                DEFAULT_HISTORY_ROW_OVERSCAN,
+            );
+            let slice = items[vp.start..vp.end].to_vec();
+            return (slice, vp.padding_top_px, vp.padding_bottom_px);
         }
         let vp = compute_history_viewport(
             ctx.scroll_top.get(),
@@ -91,13 +130,14 @@ pub fn HistoryEntryList(
             </Show>
             <For
                 each=move || viewport.with(|(items, _, _)| items.clone())
-                key=|item| match item {
-                    HistoryListItem::Divider(b) => format!("divider-{b:?}"),
-                    HistoryListItem::Entry(e) => e.id.clone(),
-                }
+                key=|item| list_item_cache_key(item)
                 children=move |item| match item {
                     HistoryListItem::Divider(bucket) => view! {
                         <HistoryDateDivider bucket=bucket />
+                    }
+                    .into_any(),
+                    HistoryListItem::UnreadDivider => view! {
+                        <HistoryUnreadDivider />
                     }
                     .into_any(),
                     HistoryListItem::Entry(entry) => view! {

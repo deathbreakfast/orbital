@@ -2,6 +2,8 @@ use leptos::prelude::*;
 
 use super::{HistoryEntry, HistoryFilter, HistorySerializedState, HistorySort};
 
+use chrono::{DateTime, Utc};
+
 /// Imperative handle for programmatic [`HistoryTimeline`](crate::HistoryTimeline) actions.
 ///
 /// Delivered once on mount via [`HistoryEvents::on_handle`](crate::HistoryEvents::on_handle).
@@ -35,4 +37,8 @@ pub struct HistoryHandle {
     pub export_state: Callback<(), HistorySerializedState>,
     /// Restore a previously exported snapshot.
     pub restore_state: Callback<(HistorySerializedState,), ()>,
+    /// Set the read watermark for unread highlighting (uncontrolled mode only).
+    pub set_read_watermark: Callback<(DateTime<Utc>,), ()>,
+    /// Mark all currently loaded entries as read (`Utc::now()` watermark).
+    pub mark_all_read: Callback<(), ()>,
 }

@@ -1,10 +1,13 @@
 use leptos::prelude::*;
 use orbital_base_components::DatetimeTimezone;
 
+use crate::engine::HistoryRowHeightCache;
 use crate::types::{
     HistoryEvents, HistoryFeatures, HistoryFilter, HistoryFilterActorOption, HistoryLocale,
     HistoryOrientation, HistoryRenderers, HistorySort,
 };
+
+use chrono::{DateTime, Utc};
 
 /// Shared timeline context for leaf components.
 #[derive(Clone)]
@@ -38,6 +41,12 @@ pub struct HistoryContext {
     pub page_count: Option<Signal<usize>>,
     /// Jump to a 0-based page index when paged mode is active.
     pub go_to_page: Option<Callback<(usize,), ()>>,
+    /// Read watermark for unread highlighting.
+    pub read_watermark: Signal<Option<DateTime<Utc>>>,
+    /// Measured row heights for variable-height virtualization.
+    pub row_height_cache: HistoryRowHeightCache,
+    /// Layout keys for the projected list (entries + dividers).
+    pub list_layout_keys: RwSignal<Vec<String>>,
 }
 
 pub fn provide_history_context(ctx: HistoryContext) {

@@ -208,6 +208,33 @@ pub fn history_styles() -> &'static str {
     white-space: nowrap;
 }
 
+.orbital-history__unread-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--orb-space-inline-sm);
+    padding-block: var(--orb-space-block-xs);
+    color: var(--orb-color-accent, var(--orb-color-foreground-2));
+}
+
+.orbital-history__unread-divider-line {
+    flex: 1 1 auto;
+}
+
+.orbital-history__unread-divider-label {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.orbital-history__entry--unread .orbital-history__spine-marker {
+    background: var(--orb-color-accent, currentColor);
+    box-shadow: 0 0 0 2px var(--orb-color-background-1, transparent);
+}
+
+.orbital-history__entry--unread .orbital-history__body {
+    font-weight: 500;
+}
+
 .orbital-history__overlay {
     padding: var(--orb-space-block-md) var(--orb-space-inline-md);
 }

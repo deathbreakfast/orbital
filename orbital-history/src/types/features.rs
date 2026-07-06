@@ -24,6 +24,12 @@ bitflags::bitflags! {
         const MARKDOWN_BODIES = 1 << 9;
         /// Visual old/new highlighting for field diff values (default off).
         const DIFF_HIGHLIGHT = 1 << 10;
+        /// Highlight entries newer than the read watermark (default off).
+        const UNREAD_HIGHLIGHT = 1 << 11;
+        /// Resolve `[^id]` citation refs in markdown bodies (default off).
+        const MARKDOWN_CITATIONS = 1 << 12;
+        /// Measure row heights for virtualized lists (requires `VIRTUALIZE`; default off).
+        const VARIABLE_ROW_HEIGHT = 1 << 13;
     }
 }
 

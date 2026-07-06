@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use super::{HistoryFilter, HistorySort};
@@ -11,6 +12,9 @@ pub struct HistorySerializedState {
     pub page: Option<usize>,
     /// Scroll offset of the list container (px).
     pub scroll_top: Option<f64>,
+    /// Entries at or before this instant are considered read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub read_watermark: Option<DateTime<Utc>>,
 }
 
 #[cfg(test)]
@@ -29,6 +33,7 @@ mod tests {
             sort: HistorySort::OldestFirst,
             page: Some(2),
             scroll_top: Some(120.0),
+            read_watermark: None,
         };
         let json = serde_json::to_string(&state).expect("serialize");
         let restored: HistorySerializedState = serde_json::from_str(&json).expect("deserialize");

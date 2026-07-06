@@ -21,6 +21,26 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Markdown citation refs
+/// `[^id]` refs resolve to history-prefixed anchors when `MARKDOWN_CITATIONS` is enabled.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::markdown_citation_entry;
+/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(vec![markdown_citation_entry()]);
+/// view! {
+///     <div data-testid="history-markdown-citations-preview" style="height: 240px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled()
+///                 | HistoryFeatures::MARKDOWN_BODIES
+///                 | HistoryFeatures::MARKDOWN_CITATIONS
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-markdown",

@@ -46,5 +46,9 @@ pub enum HistoryChange {
     /// Plain summary when no structured change applies; often paired with a custom renderer.
     Custom { summary: String },
     /// Markdown body (rendered when [`HistoryFeatures::MARKDOWN_BODIES`] is enabled).
-    Markdown { body: String },
+    Markdown {
+        body: String,
+        #[serde(default)]
+        citations: Vec<super::HistoryCitation>,
+    },
 }

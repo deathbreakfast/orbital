@@ -44,7 +44,7 @@ pub fn render_to_html(
     }
 
     if options.enable_citation_refs {
-        html = replace_citation_refs(&html, ctx.citations);
+        html = replace_citation_refs(&html, ctx.citations, options.citation_style);
     }
 
     html
@@ -53,6 +53,7 @@ pub fn render_to_html(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::CitationLinkStyle;
 
     #[test]
     fn bold_renders() {
@@ -79,6 +80,7 @@ mod tests {
             &OrbitalMarkdownOptions {
                 enable_citation_refs: true,
                 enable_images: false,
+                citation_style: CitationLinkStyle::discussion(),
             },
             &ctx,
         );

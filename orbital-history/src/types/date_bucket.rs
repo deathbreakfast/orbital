@@ -10,9 +10,10 @@ pub enum HistoryDateBucket {
     Older,
 }
 
-/// Projected list item: section divider or entry.
+/// Projected list item: section divider, unread divider, or entry.
 #[derive(Clone, Debug, PartialEq)]
 pub enum HistoryListItem {
     Divider(HistoryDateBucket),
+    UnreadDivider,
     Entry(HistoryEntry),
 }

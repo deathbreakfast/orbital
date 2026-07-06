@@ -46,6 +46,50 @@ pub fn compute_history_viewport(
     }
 }
 
+/// Compute a visible window for variable-height list items.
+pub fn compute_variable_viewport(
+    scroll_top: f64,
+    viewport_height: f64,
+    heights: &[f64],
+    overscan: usize,
+) -> HistoryRowViewport {
+    let item_count = heights.len();
+    if item_count == 0 {
+        return HistoryRowViewport {
+            start: 0,
+            end: 0,
+            padding_top_px: 0.0,
+            padding_bottom_px: 0.0,
+        };
+    }
+
+    let mut cumulative = 0.0;
+    let mut start = 0usize;
+    while start < item_count && cumulative + heights[start] <= scroll_top {
+        cumulative += heights[start];
+        start += 1;
+    }
+    start = start.saturating_sub(overscan);
+
+    let padding_top: f64 = heights.iter().take(start).sum();
+    let mut end = start;
+    let mut visible = 0.0;
+    while end < item_count && visible < viewport_height {
+        visible += heights[end];
+        end += 1;
+    }
+    end = (end + overscan).min(item_count);
+
+    let padding_bottom: f64 = heights.iter().skip(end).sum();
+
+    HistoryRowViewport {
+        start,
+        end,
+        padding_top_px: padding_top,
+        padding_bottom_px: padding_bottom,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -58,10 +102,11 @@ mod tests {
     }
 
     #[test]
-    fn window_at_top() {
-        let vp = compute_history_viewport(0.0, 400.0, 100, 72.0, 2);
-        assert_eq!(vp.start, 0);
-        assert!(vp.end > 0);
-        assert_eq!(vp.padding_top_px, 0.0);
+    fn variable_window_with_known_heights() {
+        let heights = vec![40.0, 120.0, 80.0, 60.0];
+        let vp = compute_variable_viewport(50.0, 100.0, &heights, 0);
+        assert_eq!(vp.start, 1);
+        assert_eq!(vp.padding_top_px, 40.0);
+        assert!(vp.end > vp.start);
     }
 }

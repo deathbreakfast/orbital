@@ -51,7 +51,7 @@ pub fn format_change(change: &HistoryChange, locale: &HistoryLocale) -> String {
         HistoryChange::Custom { summary } => {
             truncate_display_value(summary, DEFAULT_TRUNCATE_LEN)
         }
-        HistoryChange::Markdown { body } => truncate_display_value(body, DEFAULT_TRUNCATE_LEN),
+        HistoryChange::Markdown { body, .. } => truncate_display_value(body, DEFAULT_TRUNCATE_LEN),
     }
 }
 

@@ -18,12 +18,14 @@ mod skeleton;
 mod styles;
 mod timeline;
 mod timestamp;
+mod unread_divider;
 
 pub use actor::HistoryActorLabel;
 pub use change_card::HistoryChangeCard;
 pub use change_line::HistoryChangeLine;
 pub use chrome::{HistoryDefaultFilterChrome, HistoryDefaultSortChrome, HistoryDefaultToolbar};
 pub use date_divider::HistoryDateDivider;
+pub use unread_divider::HistoryUnreadDivider;
 pub use dialog::HistoryDialog;
 pub use entry_row::HistoryEntryRow;
 pub use header::HistoryDefaultHeader;

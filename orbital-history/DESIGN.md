@@ -1016,14 +1016,25 @@ Every phase lists scope, public API added, previews/tests, and explicit out-of-s
 
 ### Optional later
 
-Phases 2–5 are implemented in the crate. Remaining candidates:
+Phases 2–6 are implemented in the crate. Remaining candidates:
 
 - Realtime transport (WS/SSE) inside Orbital
 - Rich-text editing (history remains read-oriented)
-- Unread markers / read receipts on timeline
-- Auto-scroll policy when `live_head` prepends
-- Citation/@ refs inside markdown history bodies
-- Variable-height virtual rows (full dynamic measurement)
+- `@` mention syntax in markdown (requires `orbital-markdown` extension)
+- Image attachments in markdown bodies (discussion parity)
+- Grouped/collapsed entries by actor or kind
+- CSV/JSON export of visible entries (datatable-style)
+
+### Phase 6 (implemented)
+
+| PR | Feature |
+| --- | --- |
+| PR36 | `HistoryLiveScrollPolicy` on `live_head` / `prepend_live` |
+| PR37 | `read_watermark`, `UNREAD_HIGHLIGHT`, handle + serialized state |
+| PR38 | `HistoryCitation` on Markdown change, history citation anchors, `on_citation_click` |
+| PR39 | Variable-height virtualization (`VARIABLE_ROW_HEIGHT`) |
+| PR40 | `HistoryDialog` passthrough for Phase 5/6 timeline props |
+| PR41 | Playwright E2E expansion (`history.spec.ts`) |
 
 ### Phase 5 (implemented)
 

@@ -95,6 +95,43 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Unread watermark
+/// Entries newer than the watermark render with unread styling when `UNREAD_HIGHLIGHT` is enabled.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::sample_entries;
+/// use crate::{HistoryEvents, HistoryFeatures, HistoryHandle, HistorySource, HistoryTimeline};
+/// use chrono::Utc;
+/// use leptos::prelude::*;
+/// use orbital_core_components::{Button, ButtonAppearance};
+/// let entries = RwSignal::new(sample_entries());
+/// let watermark = RwSignal::new(Some(Utc::now() - chrono::Duration::hours(2)));
+/// let handle = RwSignal::new(None::<HistoryHandle>);
+/// view! {
+///     <div data-testid="history-unread-preview" style="height: 360px; display: flex; flex-direction: column; gap: 8px;">
+///         <Button
+///             appearance=ButtonAppearance::Secondary
+///             on_click=Callback::new(move |_| {
+///                 if let Some(h) = handle.get() {
+///                     h.mark_all_read.run(());
+///                 }
+///             })
+///         >
+///             "Mark all read"
+///         </Button>
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled() | HistoryFeatures::UNREAD_HIGHLIGHT
+///             read_watermark=Signal::derive(move || watermark.get())
+///             events=HistoryEvents {
+///                 on_handle: Some(Callback::new(move |h| handle.set(Some(h)))),
+///                 ..Default::default()
+///             }
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-handle",

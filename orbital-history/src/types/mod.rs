@@ -1,3 +1,4 @@
+mod citation;
 mod date_bucket;
 mod entry;
 mod events;
@@ -5,6 +6,7 @@ mod features;
 mod fetch;
 mod filter;
 mod handle;
+mod live_scroll;
 mod locale;
 mod orientation;
 mod renderers;
@@ -13,6 +15,7 @@ mod sort;
 mod source;
 mod state;
 
+pub use citation::*;
 pub use date_bucket::*;
 pub use entry::*;
 pub use events::*;
@@ -20,6 +23,7 @@ pub use features::*;
 pub use fetch::*;
 pub use filter::*;
 pub use handle::*;
+pub use live_scroll::*;
 pub use locale::*;
 pub use orientation::*;
 pub use renderers::*;

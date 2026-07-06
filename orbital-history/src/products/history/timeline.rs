@@ -10,16 +10,20 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
+use chrono::Utc;
+
 use crate::context::{provide_history_context, use_history_context, HistoryContext};
-use crate::engine::{merge_live_head, DEFAULT_HISTORY_ROW_HEIGHT_PX};
+use crate::engine::{
+    merge_live_head, scroll_offset_for_index, DEFAULT_HISTORY_ROW_HEIGHT_PX, HistoryRowHeightCache,
+};
 use crate::products::history::list::project_entries;
 use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
     HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFetchParams,
-    HistoryFilter, HistoryFilterActorOption, HistoryHandle, HistoryHeader, HistoryLoadingMoreView,
-    HistoryLoadingView, HistoryLocale, HistoryOrientation, HistoryPageFetcher, HistoryPagingMode,
-    HistoryPaginationView, HistoryRenderers, HistorySerializedState, HistorySlots, HistorySort,
-    HistorySource,
+    HistoryFilter, HistoryFilterActorOption, HistoryHandle, HistoryHeader, HistoryLiveScrollPolicy,
+    HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryOrientation, HistoryPageFetcher,
+    HistoryPagingMode, HistoryPaginationView, HistoryRenderers, HistorySerializedState, HistorySlots,
+    HistorySort, HistorySource,
 };
 
 use super::scroll::{
@@ -113,6 +117,12 @@ pub fn HistoryTimeline(
     /// Estimated row height for virtualized lists (default 72).
     #[prop(optional, default = DEFAULT_HISTORY_ROW_HEIGHT_PX as u32)]
     virtual_row_height: u32,
+    /// Scroll behavior when Server live entries merge (default preserve offset).
+    #[prop(optional, default = HistoryLiveScrollPolicy::Preserve)]
+    live_scroll_policy: HistoryLiveScrollPolicy,
+    /// Entries newer than this instant render as unread when `UNREAD_HIGHLIGHT` is enabled.
+    #[prop(optional)]
+    read_watermark: Option<Signal<Option<chrono::DateTime<Utc>>>>,
     #[prop(optional)] events: HistoryEvents,
     #[prop(optional)] renderers: Option<HistoryRenderers>,
     #[prop(optional, into)] class: MaybeProp<String>,
@@ -173,12 +183,19 @@ pub fn HistoryTimeline(
     let live_head_signal: Signal<Vec<HistoryEntry>> = live_head
         .unwrap_or_else(|| Signal::derive(move || internal_live_head.get()).into());
 
+    let read_watermark_controlled = read_watermark.is_some();
+    let internal_read_watermark = RwSignal::new(None::<chrono::DateTime<Utc>>);
+    let read_watermark_signal: Signal<Option<chrono::DateTime<Utc>>> = read_watermark
+        .unwrap_or_else(|| Signal::derive(move || internal_read_watermark.get()).into());
+
     let filter_kind_options: Signal<Vec<String>> = filter_kinds
         .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
     let filter_actor_options: Signal<Vec<HistoryFilterActorOption>> = filter_actors
         .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
 
     let row_height = virtual_row_height.max(1) as f64;
+    let row_height_cache: HistoryRowHeightCache = RwSignal::new(std::collections::HashMap::new());
+    let list_layout_keys = RwSignal::new(Vec::<String>::new());
     let is_paged = paging == HistoryPagingMode::Paged;
     let merged_entry_ids = RwSignal::new(Vec::<String>::new());
     let pending_scroll_restore = RwSignal::new(None::<f64>);
@@ -204,9 +221,26 @@ pub fn HistoryTimeline(
         scroll_to_entry: Callback::new({
             let scroll_el = scroll_el;
             let merged_entry_ids = merged_entry_ids;
+            let list_layout_keys = list_layout_keys;
+            let row_height_cache = row_height_cache;
+            let row_height = row_height;
+            let features = features;
             move |(id,): (String,)| {
                 if features.contains(HistoryFeatures::VIRTUALIZE) && !entry_in_dom(&id) {
-                    if let Some(idx) = merged_entry_ids
+                    let keys = list_layout_keys.get_untracked();
+                    if let Some(idx) = keys.iter().position(|k| k == &id) {
+                        let offset = if features.contains(HistoryFeatures::VARIABLE_ROW_HEIGHT) {
+                            let cache = row_height_cache.get_untracked();
+                            let heights: Vec<f64> = keys
+                                .iter()
+                                .map(|k| cache.get(k).copied().unwrap_or(row_height))
+                                .collect();
+                            scroll_offset_for_index(&heights, idx)
+                        } else {
+                            idx as f64 * row_height
+                        };
+                        scroll_container_to_offset(scroll_el, offset);
+                    } else if let Some(idx) = merged_entry_ids
                         .get_untracked()
                         .iter()
                         .position(|x| x == &id)
@@ -385,6 +419,7 @@ pub fn HistoryTimeline(
                 sort: sort_signal.get_untracked(),
                 page: is_paged.then(|| page_ui.get_untracked()),
                 scroll_top: Some(scroll_top.get_untracked()),
+                read_watermark: read_watermark_signal.get_untracked(),
             }
         }),
         restore_state: Callback::new({
@@ -394,6 +429,9 @@ pub fn HistoryTimeline(
                 }
                 if is_client && !sort_controlled {
                     internal_sort.set(state.sort);
+                }
+                if !read_watermark_controlled {
+                    internal_read_watermark.set(state.read_watermark);
                 }
                 if is_paged {
                     if let Some(page) = state.page {
@@ -406,6 +444,16 @@ pub fn HistoryTimeline(
                 if let Some(top) = state.scroll_top {
                     pending_scroll_restore.set(Some(top));
                 }
+            }
+        }),
+        set_read_watermark: Callback::new(move |(wm,): (chrono::DateTime<Utc>,)| {
+            if !read_watermark_controlled {
+                internal_read_watermark.set(Some(wm));
+            }
+        }),
+        mark_all_read: Callback::new(move |_| {
+            if !read_watermark_controlled {
+                internal_read_watermark.set(Some(Utc::now()));
             }
         }),
     };
@@ -439,6 +487,9 @@ pub fn HistoryTimeline(
         filter_kind_options,
         filter_actor_options,
         virtual_row_height: row_height,
+        read_watermark: read_watermark_signal,
+        row_height_cache,
+        list_layout_keys,
         page: is_paged.then(|| Signal::derive(move || page_ui.get()).into()),
         page_count: is_paged.then(|| Signal::derive(move || page_count.get()).into()),
         go_to_page: is_paged.then(|| handle.go_to_page.clone()),
@@ -552,6 +603,8 @@ pub fn HistoryTimeline(
                     page_count=page_count
                     infinite_state=infinite_state
                     live_head_signal=live_head_signal
+                    live_scroll_policy=live_scroll_policy
+                    scroll_top=scroll_top
                     events=events
                     empty_slot=empty_slot
                     loading_slot=loading_slot
@@ -727,6 +780,8 @@ fn HistoryServerPanel(
     page_count: RwSignal<usize>,
     infinite_state: StoredValue<Option<InfiniteScrollState>>,
     live_head_signal: Signal<Vec<HistoryEntry>>,
+    live_scroll_policy: HistoryLiveScrollPolicy,
+    scroll_top: RwSignal<f64>,
     events: HistoryEvents,
     empty_slot: Option<HistoryEmptyView>,
     loading_slot: Option<HistoryLoadingView>,
@@ -1047,6 +1102,32 @@ fn HistoryServerPanel(
             .into_any()
         }
     };
+
+    let prev_live_len = StoredValue::new(0usize);
+    Effect::new({
+        let scroll_el = scroll_el;
+        move |_| {
+            let live = live_head_signal.get();
+            let prev = prev_live_len.get_value();
+            if live.len() > prev
+                && live_scroll_policy.should_scroll_on_live_update(scroll_top.get_untracked())
+            {
+                match live_scroll_policy {
+                    HistoryLiveScrollPolicy::ScrollToTop
+                    | HistoryLiveScrollPolicy::ScrollIfNearTop { .. } => {
+                        scroll_container_to_top(scroll_el);
+                    }
+                    HistoryLiveScrollPolicy::ScrollToFirstNew => {
+                        if let Some(entry) = live.first() {
+                            schedule_scroll_entry_into_view(entry.id.clone());
+                        }
+                    }
+                    HistoryLiveScrollPolicy::Preserve => {}
+                }
+            }
+            prev_live_len.set_value(live.len());
+        }
+    });
 
     view! {
         <div class="orbital-history__server-panel" style="display:flex;flex-direction:column;min-height:0;flex:1;">

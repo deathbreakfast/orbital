@@ -42,6 +42,8 @@ pub struct HistoryLocale {
     pub sort_oldest: String,
     /// Compact absolute time format preference.
     pub time_format: DatetimeFormat,
+    /// Label for the unread section divider.
+    pub unread_divider_label: String,
 }
 
 /// Relative time formatting strings.
@@ -92,6 +94,7 @@ impl HistoryLocale {
             sort_newest: "Newest first".into(),
             sort_oldest: "Oldest first".into(),
             time_format: DatetimeFormat::Time12,
+            unread_divider_label: "New".into(),
         }
     }
 
@@ -130,6 +133,7 @@ impl HistoryLocale {
             sort_newest: "Plus récent".into(),
             sort_oldest: "Plus ancien".into(),
             time_format: DatetimeFormat::Time24,
+            unread_divider_label: "Nouveau".into(),
         }
     }
 
