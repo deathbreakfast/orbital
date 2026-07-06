@@ -29,6 +29,17 @@ pub fn schedule_scroll_entry_into_view(entry_id: String) {
     });
 }
 
+/// Set scroll offset on the timeline scrollport (for virtualized lists).
+#[cfg(feature = "hydrate")]
+pub fn scroll_container_to_offset(scroll_el: NodeRef<Div>, offset_px: f64) {
+    if let Some(el) = scroll_el.get_untracked() {
+        el.set_scroll_top(offset_px.max(0.0) as i32);
+    }
+}
+
+#[cfg(not(feature = "hydrate"))]
+pub fn scroll_container_to_offset(_scroll_el: NodeRef<Div>, _offset_px: f64) {}
+
 #[cfg(not(feature = "hydrate"))]
 pub fn schedule_scroll_entry_into_view(_entry_id: String) {}
 

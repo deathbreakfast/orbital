@@ -26,7 +26,9 @@ inventory = { version = "0.3", optional = true }
 icondata.workspace = true
 icondata_core.workspace = true
 wasm-bindgen = { workspace = true, optional = true }
-web-sys = { workspace = true, optional = true, features = ["HtmlElement"] }
+js-sys = { workspace = true, optional = true }
+send_wrapper = { version = "0.6", optional = true }
+web-sys = { workspace = true, optional = true, features = ["Element", "HtmlElement", "ResizeObserver", "ResizeObserverEntry", "DomRect"] }
 gloo-timers = { version = "0.3", optional = true }
 
 [features]
@@ -40,6 +42,8 @@ hydrate = [
     "preview",
     "dep:inventory",
   "dep:wasm-bindgen",
+  "dep:js-sys",
+  "dep:send_wrapper",
   "dep:web-sys",
   "dep:gloo-timers",
 ]

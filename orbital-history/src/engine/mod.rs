@@ -1,7 +1,9 @@
-//! Pure list projection (sort / filter).
+//! Pure list projection (sort / filter / live merge).
 
+mod live_head;
 mod viewport;
 
+pub use live_head::*;
 pub use viewport::*;
 
 use crate::format::format_change;
@@ -115,6 +117,44 @@ mod tests {
             &HistoryFilter {
                 query: "jordan".into(),
                 ..Default::default()
+            },
+            &locale,
+        );
+        assert_eq!(filtered.len(), 1);
+        assert_eq!(filtered[0].id, "1");
+    }
+
+    #[test]
+    fn filter_by_kinds_and_actor_ids() {
+        let locale = HistoryLocale::english();
+        let entries = vec![
+            entry(
+                "1",
+                "field_diff",
+                HistoryActor::User {
+                    id: "u1".into(),
+                    display_name: "Jordan Lee".into(),
+                    href: None,
+                },
+                HistoryChange::Created,
+            ),
+            entry(
+                "2",
+                "comment",
+                HistoryActor::User {
+                    id: "u2".into(),
+                    display_name: "Sam Rivera".into(),
+                    href: None,
+                },
+                HistoryChange::Created,
+            ),
+        ];
+        let filtered = apply_filter(
+            &entries,
+            &HistoryFilter {
+                query: String::new(),
+                kinds: Some(vec!["field_diff".into()]),
+                actor_ids: Some(vec!["u1".into()]),
             },
             &locale,
         );

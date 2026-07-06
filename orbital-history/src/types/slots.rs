@@ -13,6 +13,7 @@ pub struct HistorySlots {
     pub loading_more: Option<HistoryLoadingMoreView>,
     pub error: Option<HistoryErrorView>,
     pub end: Option<HistoryEndView>,
+    pub pagination: Option<HistoryPaginationView>,
     pub entry_slot: Option<HistoryEntrySlot>,
     pub change_slot: Option<HistoryChangeSlot>,
 }
@@ -26,6 +27,7 @@ impl HistorySlots {
         loading_more: Option<HistoryLoadingMoreView>,
         error: Option<HistoryErrorView>,
         end: Option<HistoryEndView>,
+        pagination: Option<HistoryPaginationView>,
         entry_slot: Option<HistoryEntrySlot>,
         change_slot: Option<HistoryChangeSlot>,
     ) -> Self {
@@ -36,6 +38,7 @@ impl HistorySlots {
             loading_more,
             error,
             end,
+            pagination,
             entry_slot,
             change_slot,
         }
@@ -81,6 +84,12 @@ pub struct HistoryErrorView {
 /// Custom end-of-list region.
 #[slot]
 pub struct HistoryEndView {
+    pub(crate) children: ChildrenFn,
+}
+
+/// Custom pagination footer (Server or Client + `Paged`).
+#[slot]
+pub struct HistoryPaginationView {
     pub(crate) children: ChildrenFn,
 }
 

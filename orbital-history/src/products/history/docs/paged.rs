@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 
-/// Server paged mode with footer page controls.
+/// Server paged mode with footer page controls and optional pagination slot.
 ///
 /// # Examples
 ///
@@ -38,6 +38,9 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Custom pagination slot
+/// Override the default footer via the `history_pagination_view` slot; read page state from [`HistoryContext`](crate::context::HistoryContext).
 ///
 /// ## Client paged window
 /// Large client lists can use `Paged` with in-memory windowing.

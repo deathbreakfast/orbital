@@ -11,6 +11,7 @@ mod renderers;
 mod slots;
 mod sort;
 mod source;
+mod state;
 
 pub use date_bucket::*;
 pub use entry::*;
@@ -25,3 +26,4 @@ pub use renderers::*;
 pub use slots::*;
 pub use sort::*;
 pub use source::*;
+pub use state::*;

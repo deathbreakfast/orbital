@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 
-/// Live updates without a transport protocol: Client prepend and Server refresh.
+/// Live updates without a transport protocol: Client prepend, Server `live_head`, and `prepend_live`.
 ///
 /// # Examples
 ///
@@ -10,8 +10,7 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
-/// use chrono::Utc;
+/// use crate::{HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
 /// let entries = RwSignal::new(sample_entries());
@@ -22,8 +21,49 @@ use orbital_macros::component_doc;
 ///             appearance=ButtonAppearance::Secondary
 ///             on_click=Callback::new(move |_| {
 ///                 entries.update(|list| {
+///                     list.insert(0, sample_entries()[0].clone());
+///                 });
+///                 if let Some(h) = handle.get() {
+///                     h.scroll_to_top.run(());
+///                 }
+///             })
+///         >
+///             "Prepend entry"
+///         </Button>
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             events=HistoryEvents {
+///                 on_handle: Some(Callback::new(move |h| handle.set(Some(h)))),
+///                 ..Default::default()
+///             }
+///         />
+///     </div>
+/// }
+/// ```
+///
+/// ## Server live_head merge
+/// Host pushes newest rows via `live_head` without refetching pages.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::{mock_page_fetcher, sample_entries};
+/// use crate::{HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
+/// use chrono::Utc;
+/// use leptos::prelude::*;
+/// use orbital_core_components::{Button, ButtonAppearance};
+/// let fetcher = mock_page_fetcher();
+/// let live = RwSignal::new(Vec::<HistoryEntry>::new());
+/// let handle = RwSignal::new(None::<HistoryHandle>);
+/// let counter = RwSignal::new(0usize);
+/// view! {
+///     <div data-testid="history-live-head-preview" style="height: 400px; display: flex; flex-direction: column; gap: 8px;">
+///         <Button
+///             appearance=ButtonAppearance::Secondary
+///             on_click=Callback::new(move |_| {
+///                 let n = counter.get().saturating_add(1);
+///                 counter.set(n);
+///                 live.update(|list| {
 ///                     list.insert(0, HistoryEntry {
-///                         id: format!("live-{}", list.len()),
+///                         id: format!("live-{n}"),
 ///                         kind: "created".into(),
 ///                         changed_at: Utc::now(),
 ///                         actor: HistoryActor::System,
@@ -35,10 +75,11 @@ use orbital_macros::component_doc;
 ///                 }
 ///             })
 ///         >
-///             "Prepend entry"
+///             "Push live entry"
 ///         </Button>
 ///         <HistoryTimeline
-///             data_source=HistorySource::Client(entries)
+///             data_source=HistorySource::Server { fetcher, page_size: 5 }
+///             live_head=Signal::derive(move || live.get())
 ///             events=HistoryEvents {
 ///                 on_handle: Some(Callback::new(move |h| handle.set(Some(h)))),
 ///                 ..Default::default()

@@ -1,5 +1,14 @@
+use serde::{Deserialize, Serialize};
+
+/// One selectable actor for filter chrome (`id` + display label).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HistoryFilterActorOption {
+    pub id: String,
+    pub label: String,
+}
+
 /// Client-side filter over currently loaded history entries.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HistoryFilter {
     /// Case-insensitive substring match against actor display name, kind, and change summary.
     pub query: String,

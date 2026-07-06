@@ -59,6 +59,26 @@ pub fn history_styles() -> &'static str {
 .orbital-history__filter-chrome {
     flex: 1 1 12rem;
     min-width: 10rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--orb-space-block-xs);
+}
+
+.orbital-history__filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--orb-space-inline-xs);
+}
+
+.orbital-history__diff-old {
+    text-decoration: line-through;
+    color: var(--orb-color-foreground-muted, inherit);
+    opacity: 0.75;
+}
+
+.orbital-history__diff-new {
+    color: var(--orb-color-foreground-accent, inherit);
+    font-weight: 600;
 }
 
 .orbital-history__markdown p {

@@ -4,6 +4,91 @@ use orbital_core_components::{Button, ButtonAppearance, Input, InputAppearance, 
 use crate::context::use_history_context;
 use crate::types::{HistoryFeatures, HistorySort};
 
+#[component]
+fn HistoryFilterKindChip(kind: String) -> impl IntoView {
+    let ctx = use_history_context();
+    let kind_for_active = kind.clone();
+    let kind_for_click = kind.clone();
+    let label = Memo::new(move |_| kind.clone());
+    let is_active = Memo::new(move |_| {
+        ctx.filter
+            .get()
+            .kinds
+            .as_ref()
+            .is_some_and(|kinds| kinds.iter().any(|k| k == &kind_for_active))
+    });
+    let appearance =
+        Memo::new(move |_| {
+            if is_active.get() {
+                ButtonAppearance::Primary
+            } else {
+                ButtonAppearance::Secondary
+            }
+        });
+
+    view! {
+        <Button
+            appearance=Signal::derive(move || appearance.get())
+            on:click=move |_| {
+                let mut f = ctx.filter.get_untracked();
+                let mut kinds = f.kinds.take().unwrap_or_default();
+                if is_active.get_untracked() {
+                    kinds.retain(|k| k != &kind_for_click);
+                } else {
+                    kinds.push(kind_for_click.clone());
+                }
+                f.kinds = if kinds.is_empty() { None } else { Some(kinds) };
+                ctx.set_filter.run((f,));
+            }
+            attr:aria-pressed=move || is_active.get().to_string()
+        >
+            {move || label.get()}
+        </Button>
+    }
+}
+
+#[component]
+fn HistoryFilterActorChip(id: String, label: String) -> impl IntoView {
+    let ctx = use_history_context();
+    let id_for_active = id.clone();
+    let display = Memo::new(move |_| label.clone());
+    let is_active = Memo::new(move |_| {
+        ctx.filter
+            .get()
+            .actor_ids
+            .as_ref()
+            .is_some_and(|actors| actors.iter().any(|a| a == &id_for_active))
+    });
+    let appearance =
+        Memo::new(move |_| {
+            if is_active.get() {
+                ButtonAppearance::Primary
+            } else {
+                ButtonAppearance::Secondary
+            }
+        });
+
+    view! {
+        <Button
+            appearance=Signal::derive(move || appearance.get())
+            on:click=move |_| {
+                let mut f = ctx.filter.get_untracked();
+                let mut ids = f.actor_ids.take().unwrap_or_default();
+                if is_active.get_untracked() {
+                    ids.retain(|a| a != &id);
+                } else {
+                    ids.push(id.clone());
+                }
+                f.actor_ids = if ids.is_empty() { None } else { Some(ids) };
+                ctx.set_filter.run((f,));
+            }
+            attr:aria-pressed=move || is_active.get().to_string()
+        >
+            {move || display.get()}
+        </Button>
+    }
+}
+
 /// Default search input bound to the active filter (requires [`HistoryFeatures::FILTER_CHROME`]).
 #[component]
 pub fn HistoryDefaultFilterChrome() -> impl IntoView {
@@ -35,6 +120,8 @@ pub fn HistoryDefaultFilterChrome() -> impl IntoView {
 
     let placeholder = Memo::new(move |_| ctx.locale.get().filter_placeholder.clone());
     let aria = Memo::new(move |_| ctx.locale.get().filter_aria_label.clone());
+    let kind_options = Memo::new(move |_| ctx.filter_kind_options.get());
+    let actor_options = Memo::new(move |_| ctx.filter_actor_options.get());
 
     view! {
         <div class="orbital-history__filter-chrome" data-testid="history-filter-chrome">
@@ -46,6 +133,26 @@ pub fn HistoryDefaultFilterChrome() -> impl IntoView {
                 }
                 attr:aria-label=move || aria.get()
             />
+            <Show when=move || !kind_options.get().is_empty() fallback=|| ()>
+                <div class="orbital-history__filter-chips" data-testid="history-filter-kinds" role="group">
+                    <For
+                        each=move || kind_options.get()
+                        key=|kind| kind.clone()
+                        children=move |kind| view! { <HistoryFilterKindChip kind=kind /> }
+                    />
+                </div>
+            </Show>
+            <Show when=move || !actor_options.get().is_empty() fallback=|| ()>
+                <div class="orbital-history__filter-chips" data-testid="history-filter-actors" role="group">
+                    <For
+                        each=move || actor_options.get()
+                        key=|actor| actor.id.clone()
+                        children=move |actor| view! {
+                            <HistoryFilterActorChip id=actor.id label=actor.label />
+                        }
+                    />
+                </div>
+            </Show>
         </div>
     }
 }

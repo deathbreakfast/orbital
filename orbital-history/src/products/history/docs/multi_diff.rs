@@ -19,6 +19,24 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Diff highlighting
+/// Enable `DIFF_HIGHLIGHT` for styled old/new values.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::multi_diff_entries;
+/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(multi_diff_entries());
+/// view! {
+///     <div data-testid="history-diff-highlight-preview" style="height: 240px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled() | HistoryFeatures::DIFF_HIGHLIGHT
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-multi-diff",

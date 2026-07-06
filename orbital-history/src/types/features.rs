@@ -22,6 +22,8 @@ bitflags::bitflags! {
         const VIRTUALIZE = 1 << 8;
         /// Render `Custom` summaries and markdown change bodies as HTML (default off).
         const MARKDOWN_BODIES = 1 << 9;
+        /// Visual old/new highlighting for field diff values (default off).
+        const DIFF_HIGHLIGHT = 1 << 10;
     }
 }
 

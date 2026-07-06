@@ -151,6 +151,30 @@ impl HistoryLocale {
             .replace("{new}", &new)
     }
 
+    /// Split a field-diff template into segments for highlighted rendering.
+    pub fn field_diff_segments(
+        &self,
+        field: &str,
+        old: &str,
+        new: &str,
+    ) -> (String, String, String, String) {
+        let old = truncate_display_value(old, DEFAULT_TRUNCATE_LEN);
+        let new = truncate_display_value(new, DEFAULT_TRUNCATE_LEN);
+        let with_field = self.field_diff_template.replace("{field}", field);
+        let Some((before_old, rest)) = with_field.split_once("{old}") else {
+            return (with_field, old, String::new(), new);
+        };
+        let Some((middle, _)) = rest.split_once("{new}") else {
+            return (before_old.to_string(), old, String::new(), new);
+        };
+        (
+            before_old.to_string(),
+            old,
+            middle.to_string(),
+            new,
+        )
+    }
+
     pub fn format_field_diffs_header(&self, n: usize) -> String {
         self.field_diffs_header_template
             .replace("{n}", &n.to_string())

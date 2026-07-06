@@ -1016,10 +1016,26 @@ Every phase lists scope, public API added, previews/tests, and explicit out-of-s
 
 ### Optional later
 
-Phases 2–4 are implemented in the crate. Remaining candidates:
+Phases 2–5 are implemented in the crate. Remaining candidates:
 
 - Realtime transport (WS/SSE) inside Orbital
 - Rich-text editing (history remains read-oriented)
+- Unread markers / read receipts on timeline
+- Auto-scroll policy when `live_head` prepends
+- Citation/@ refs inside markdown history bodies
+- Variable-height virtual rows (full dynamic measurement)
+
+### Phase 5 (implemented)
+
+| PR | Feature |
+| --- | --- |
+| PR28 | `live_head` merge + `HistoryHandle::prepend_live` |
+| PR29 | Filter chrome kind/actor chips (`filter_kinds`, `filter_actors`) |
+| PR30 | `HistoryPaginationView` slot |
+| PR31 | Virtualization polish (ResizeObserver viewport, `virtual_row_height`) |
+| PR32 | `HistorySerializedState` + `export_state` / `restore_state` |
+| PR33 | `DIFF_HIGHLIGHT` field diff styling |
+| PR34 | Playwright E2E (`history.spec.ts`) |
 
 ### Phase 4 (implemented)
 

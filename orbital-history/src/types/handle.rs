@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use super::{HistoryFilter, HistorySort};
+use super::{HistoryEntry, HistoryFilter, HistorySerializedState, HistorySort};
 
 /// Imperative handle for programmatic [`HistoryTimeline`](crate::HistoryTimeline) actions.
 ///
@@ -9,7 +9,8 @@ use super::{HistoryFilter, HistorySort};
 /// # Live updates
 ///
 /// - **Client:** prepend or replace entries on the host `RwSignal`; `refresh` is a no-op.
-/// - **Server:** call [`Self::refresh`] after the host's own subscription/poll succeeds.
+/// - **Server:** call [`Self::refresh`] after the host's own subscription/poll succeeds, or
+///   [`Self::prepend_live`] / the `live_head` prop to merge newest rows without a full refetch.
 #[derive(Clone)]
 pub struct HistoryHandle {
     /// Scroll so the entry with the given `id` is visible.
@@ -28,4 +29,10 @@ pub struct HistoryHandle {
     pub set_sort: Callback<(HistorySort,), ()>,
     /// Jump to a 0-based page index (Server + `Paged` only). Clamped; no-op otherwise.
     pub go_to_page: Callback<(usize,), ()>,
+    /// Prepend entries above fetched Server pages (uncontrolled `live_head` only).
+    pub prepend_live: Callback<(Vec<HistoryEntry>,), ()>,
+    /// Capture filter, sort, page, and scroll position for persistence.
+    pub export_state: Callback<(), HistorySerializedState>,
+    /// Restore a previously exported snapshot.
+    pub restore_state: Callback<(HistorySerializedState,), ()>,
 }

@@ -11,18 +11,20 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use crate::context::{provide_history_context, use_history_context, HistoryContext};
+use crate::engine::{merge_live_head, DEFAULT_HISTORY_ROW_HEIGHT_PX};
 use crate::products::history::list::project_entries;
 use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
     HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFetchParams,
-    HistoryFilter, HistoryHandle, HistoryHeader, HistoryLoadingMoreView, HistoryLoadingView,
-    HistoryLocale, HistoryOrientation, HistoryPageFetcher, HistoryPagingMode, HistoryRenderers,
-    HistorySlots, HistorySort, HistorySource,
+    HistoryFilter, HistoryFilterActorOption, HistoryHandle, HistoryHeader, HistoryLoadingMoreView,
+    HistoryLoadingView, HistoryLocale, HistoryOrientation, HistoryPageFetcher, HistoryPagingMode,
+    HistoryPaginationView, HistoryRenderers, HistorySerializedState, HistorySlots, HistorySort,
+    HistorySource,
 };
 
 use super::scroll::{
     attach_scroll_top_listener, entry_in_dom, schedule_scroll_entry_into_view,
-    scroll_container_to_top,
+    scroll_container_to_offset, scroll_container_to_top,
 };
 use super::styles::{density_modifier_class, history_styles};
 use super::{
@@ -49,7 +51,8 @@ struct InfiniteScrollState {
 /// # Live updates
 ///
 /// - **Client:** prepend or replace entries on the host `RwSignal`; the timeline reacts.
-/// - **Server:** call [`HistoryHandle::refresh`] after the host's own subscription/poll.
+/// - **Server:** call [`HistoryHandle::refresh`] after the host's own subscription/poll, or pass
+///   `live_head` / call [`HistoryHandle::prepend_live`] to merge newest rows without a full refetch.
 ///
 /// Capture the handle via [`HistoryEvents::on_handle`].
 ///
@@ -98,6 +101,18 @@ pub fn HistoryTimeline(
     #[prop(optional, default = 20)] max_scroll_load_pages: u32,
     /// Page size for Client + [`HistoryPagingMode::Paged`] windowing (default 20).
     #[prop(optional, default = 20)] client_page_size: u32,
+    /// Newest entries from live events, merged above Server pages (deduped by `id`). Ignored for Client source.
+    #[prop(optional)]
+    live_head: Option<Signal<Vec<HistoryEntry>>>,
+    /// Kind options for built-in filter chrome chips.
+    #[prop(optional)]
+    filter_kinds: Option<Signal<Vec<String>>>,
+    /// Actor options for built-in filter chrome chips.
+    #[prop(optional)]
+    filter_actors: Option<Signal<Vec<HistoryFilterActorOption>>>,
+    /// Estimated row height for virtualized lists (default 72).
+    #[prop(optional, default = DEFAULT_HISTORY_ROW_HEIGHT_PX as u32)]
+    virtual_row_height: u32,
     #[prop(optional)] events: HistoryEvents,
     #[prop(optional)] renderers: Option<HistoryRenderers>,
     #[prop(optional, into)] class: MaybeProp<String>,
@@ -107,6 +122,7 @@ pub fn HistoryTimeline(
     #[prop(optional)] history_loading_more_view: Option<HistoryLoadingMoreView>,
     #[prop(optional)] history_error_view: Option<HistoryErrorView>,
     #[prop(optional)] history_end_view: Option<HistoryEndView>,
+    #[prop(optional)] history_pagination_view: Option<HistoryPaginationView>,
     #[prop(optional)] history_entry_slot: Option<HistoryEntrySlot>,
     #[prop(optional)] history_change_slot: Option<HistoryChangeSlot>,
 ) -> impl IntoView {
@@ -119,10 +135,12 @@ pub fn HistoryTimeline(
         history_loading_more_view,
         history_error_view,
         history_end_view,
+        history_pagination_view,
         history_entry_slot,
         history_change_slot,
     );
 
+    let pagination_render = StoredValue::new(slots.pagination.map(|slot| slot.children));
     let header_slot = slots.header;
     let empty_slot = slots.empty;
     let loading_slot = slots.loading;
@@ -150,6 +168,21 @@ pub fn HistoryTimeline(
     let internal_sort = RwSignal::new(HistorySort::NewestFirst);
     let sort_signal: Signal<HistorySort> = sort.unwrap_or_else(|| internal_sort.into());
 
+    let live_head_controlled = live_head.is_some();
+    let internal_live_head = RwSignal::new(Vec::<HistoryEntry>::new());
+    let live_head_signal: Signal<Vec<HistoryEntry>> = live_head
+        .unwrap_or_else(|| Signal::derive(move || internal_live_head.get()).into());
+
+    let filter_kind_options: Signal<Vec<String>> = filter_kinds
+        .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
+    let filter_actor_options: Signal<Vec<HistoryFilterActorOption>> = filter_actors
+        .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
+
+    let row_height = virtual_row_height.max(1) as f64;
+    let is_paged = paging == HistoryPagingMode::Paged;
+    let merged_entry_ids = RwSignal::new(Vec::<String>::new());
+    let pending_scroll_restore = RwSignal::new(None::<f64>);
+
     let scroll_el = NodeRef::<Div>::new();
     let scroll_top = RwSignal::new(0.0);
     attach_scroll_top_listener(scroll_el, scroll_top);
@@ -168,15 +201,33 @@ pub fn HistoryTimeline(
     let hunt_generation = RwSignal::new(0u32);
 
     let handle = HistoryHandle {
-        scroll_to_entry: Callback::new(|(id,): (String,)| {
-            schedule_scroll_entry_into_view(id);
+        scroll_to_entry: Callback::new({
+            let scroll_el = scroll_el;
+            let merged_entry_ids = merged_entry_ids;
+            move |(id,): (String,)| {
+                if features.contains(HistoryFeatures::VIRTUALIZE) && !entry_in_dom(&id) {
+                    if let Some(idx) = merged_entry_ids
+                        .get_untracked()
+                        .iter()
+                        .position(|x| x == &id)
+                    {
+                        scroll_container_to_offset(scroll_el, idx as f64 * row_height);
+                    }
+                }
+                schedule_scroll_entry_into_view(id);
+            }
         }),
         scroll_to_entry_or_load: Callback::new({
             let infinite_state = infinite_state;
             let page_ui = page_ui;
             let page_count = page_count;
+            let live_head_signal = live_head_signal;
             move |(id,): (String,)| {
                 if entry_in_dom(&id) {
+                    schedule_scroll_entry_into_view(id.clone());
+                    return;
+                }
+                if live_head_signal.get_untracked().iter().any(|e| e.id == id) {
                     schedule_scroll_entry_into_view(id.clone());
                     return;
                 }
@@ -316,6 +367,47 @@ pub fn HistoryTimeline(
             let clamped = page_0.min(count.saturating_sub(1));
             page_ui.set(clamped.saturating_add(1));
         }),
+        prepend_live: Callback::new(move |(entries,): (Vec<HistoryEntry>,)| {
+            if is_server && !live_head_controlled {
+                internal_live_head.update(|list| {
+                    for entry in entries {
+                        if list.iter().any(|e| e.id == entry.id) {
+                            continue;
+                        }
+                        list.insert(0, entry);
+                    }
+                });
+            }
+        }),
+        export_state: Callback::new({
+            move |_| HistorySerializedState {
+                filter: filter_signal.get_untracked(),
+                sort: sort_signal.get_untracked(),
+                page: is_paged.then(|| page_ui.get_untracked()),
+                scroll_top: Some(scroll_top.get_untracked()),
+            }
+        }),
+        restore_state: Callback::new({
+            move |(state,): (HistorySerializedState,)| {
+                if !filter_controlled {
+                    internal_filter.set(state.filter);
+                }
+                if is_client && !sort_controlled {
+                    internal_sort.set(state.sort);
+                }
+                if is_paged {
+                    if let Some(page) = state.page {
+                        page_ui.set(page.max(1));
+                    }
+                }
+                if is_server {
+                    refresh_trigger.update(|n| *n += 1);
+                }
+                if let Some(top) = state.scroll_top {
+                    pending_scroll_restore.set(Some(top));
+                }
+            }
+        }),
     };
 
     let handle_delivered = StoredValue::new(false);
@@ -344,6 +436,22 @@ pub fn HistoryTimeline(
         set_filter: handle.set_filter.clone(),
         set_sort: handle.set_sort.clone(),
         scroll_top: scroll_top.into(),
+        filter_kind_options,
+        filter_actor_options,
+        virtual_row_height: row_height,
+        page: is_paged.then(|| Signal::derive(move || page_ui.get()).into()),
+        page_count: is_paged.then(|| Signal::derive(move || page_count.get()).into()),
+        go_to_page: is_paged.then(|| handle.go_to_page.clone()),
+    });
+
+    Effect::new({
+        let scroll_el = scroll_el;
+        move |_| {
+            if let Some(top) = pending_scroll_restore.get() {
+                scroll_container_to_offset(scroll_el, top);
+                pending_scroll_restore.set(None);
+            }
+        }
     });
 
     Effect::new({
@@ -417,6 +525,8 @@ pub fn HistoryTimeline(
                         scroll_el=scroll_el
                         empty_slot=empty_slot
                         loading_slot=loading_slot
+                        pagination_render=pagination_render
+                        merged_entry_ids=merged_entry_ids
                     />
                 </div>
             }
@@ -441,12 +551,15 @@ pub fn HistoryTimeline(
                     page_ui=page_ui
                     page_count=page_count
                     infinite_state=infinite_state
+                    live_head_signal=live_head_signal
                     events=events
                     empty_slot=empty_slot
                     loading_slot=loading_slot
                     loading_more_slot=loading_more_slot
                     error_slot=error_slot
                     end_slot=end_slot
+                    pagination_render=pagination_render
+                    merged_entry_ids=merged_entry_ids
                 />
             </div>
         }
@@ -467,6 +580,8 @@ fn HistoryClientPanel(
     scroll_el: NodeRef<Div>,
     empty_slot: Option<HistoryEmptyView>,
     loading_slot: Option<HistoryLoadingView>,
+    pagination_render: StoredValue<Option<ChildrenFn>>,
+    merged_entry_ids: RwSignal<Vec<String>>,
 ) -> impl IntoView {
     let ctx = use_history_context();
     let is_paged = paging == HistoryPagingMode::Paged;
@@ -522,6 +637,31 @@ fn HistoryClientPanel(
 
     let display_entries = Signal::derive(move || windowed.get());
 
+    Effect::new({
+        move |_| {
+            let ids: Vec<_> = display_entries
+                .get()
+                .iter()
+                .map(|entry| entry.id.clone())
+                .collect();
+            merged_entry_ids.set(ids);
+        }
+    });
+
+    let pagination_view = move || {
+        if let Some(render) = pagination_render.get_value().as_ref() {
+            render().into_any()
+        } else {
+            view! {
+                <HistoryDefaultPagination
+                    page=page_ui
+                    page_count=Signal::derive(move || page_count.get())
+                />
+            }
+            .into_any()
+        }
+    };
+
     let loading_view = move || {
         if let Some(slot) = &loading_slot {
             (slot.children)().into_any()
@@ -555,14 +695,15 @@ fn HistoryClientPanel(
                     <HistoryDefaultNoMatchesView />
                 </Show>
                 <Show when=move || show_list.get() fallback=|| ()>
-                    <HistoryEntryList entries=display_entries pre_projected=true />
+                    <HistoryEntryList
+                        entries=display_entries
+                        pre_projected=true
+                        scrollport=scroll_el
+                    />
                 </Show>
             </ScrollArea>
             <Show when=move || is_paged fallback=|| ()>
-                <HistoryDefaultPagination
-                    page=page_ui
-                    page_count=Signal::derive(move || page_count.get())
-                />
+                {pagination_view()}
             </Show>
         </div>
     }
@@ -585,12 +726,15 @@ fn HistoryServerPanel(
     page_ui: RwSignal<usize>,
     page_count: RwSignal<usize>,
     infinite_state: StoredValue<Option<InfiniteScrollState>>,
+    live_head_signal: Signal<Vec<HistoryEntry>>,
     events: HistoryEvents,
     empty_slot: Option<HistoryEmptyView>,
     loading_slot: Option<HistoryLoadingView>,
     loading_more_slot: Option<HistoryLoadingMoreView>,
     error_slot: Option<HistoryErrorView>,
     end_slot: Option<HistoryEndView>,
+    pagination_render: StoredValue<Option<ChildrenFn>>,
+    merged_entry_ids: RwSignal<Vec<String>>,
 ) -> impl IntoView {
     let ctx = use_history_context();
     let load_error = RwSignal::new(false);
@@ -795,16 +939,32 @@ fn HistoryServerPanel(
     });
 
     let entry_signal = Signal::derive(move || entries.get());
-    let source_empty = Memo::new(move |_| entry_signal.get().is_empty());
+    let merged_signal =
+        Signal::derive(move || merge_live_head(&entries.get(), &live_head_signal.get()));
+    let source_has_data = Memo::new(move |_| {
+        !entry_signal.get().is_empty() || !live_head_signal.get().is_empty()
+    });
+    let source_empty = Memo::new(move |_| !source_has_data.get());
     let projected = Memo::new(move |_| {
         project_entries(
-            &entry_signal.get(),
+            &merged_signal.get(),
             false,
             ctx.features,
             ctx.sort.get(),
             &ctx.filter.get(),
             &ctx.locale.get(),
         )
+    });
+
+    Effect::new({
+        move |_| {
+            let ids: Vec<_> = merged_signal
+                .get()
+                .iter()
+                .map(|entry| entry.id.clone())
+                .collect();
+            merged_entry_ids.set(ids);
+        }
     });
     let projected_empty = Memo::new(move |_| projected.get().is_empty());
     let filter_active = Memo::new(move |_| ctx.filter.get().is_active());
@@ -824,7 +984,7 @@ fn HistoryServerPanel(
     });
     let show_no_matches = Memo::new(move |_| {
         !is_loading.get()
-            && !source_empty.get()
+            && source_has_data.get()
             && projected_empty.get()
             && filter_active.get()
             && !show_error.get()
@@ -874,6 +1034,20 @@ fn HistoryServerPanel(
         }
     };
 
+    let pagination_view = move || {
+        if let Some(render) = pagination_render.get_value().as_ref() {
+            render().into_any()
+        } else {
+            view! {
+                <HistoryDefaultPagination
+                    page=page_ui
+                    page_count=Signal::derive(move || page_count.get())
+                />
+            }
+            .into_any()
+        }
+    };
+
     view! {
         <div class="orbital-history__server-panel" style="display:flex;flex-direction:column;min-height:0;flex:1;">
             <ScrollArea
@@ -894,7 +1068,7 @@ fn HistoryServerPanel(
                     <HistoryDefaultNoMatchesView />
                 </Show>
                 <Show when=move || show_list.get() fallback=|| ()>
-                    <HistoryEntryList entries=entry_signal />
+                    <HistoryEntryList entries=merged_signal scrollport=scroll_el />
                 </Show>
                 <Show when=move || show_incremental.get() fallback=|| ()>
                     {loading_more_view()}
@@ -904,10 +1078,7 @@ fn HistoryServerPanel(
                 </Show>
             </ScrollArea>
             <Show when=move || show_pagination fallback=|| ()>
-                <HistoryDefaultPagination
-                    page=page_ui
-                    page_count=Signal::derive(move || page_count.get())
-                />
+                {pagination_view()}
             </Show>
         </div>
     }

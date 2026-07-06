@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 
-/// Filter loaded entries via a controlled `filter` signal.
+/// Filter loaded entries via a controlled `filter` signal or built-in chrome.
 ///
 /// # Examples
 ///
@@ -45,6 +45,31 @@ use orbital_macros::component_doc;
 ///         <HistoryTimeline
 ///             data_source=HistorySource::Client(entries)
 ///             features=HistoryFeatures::default_enabled() | HistoryFeatures::FILTER_CHROME
+///         />
+///     </div>
+/// }
+/// ```
+///
+/// ## Kind and actor filter chips
+/// Built-in chrome with `filter_kinds` and `filter_actors` props.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::multi_kind_entries;
+/// use crate::{HistoryFeatures, HistoryFilterActorOption, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(multi_kind_entries());
+/// let kinds = Signal::derive(|| vec!["field_diff".into(), "created".into(), "comment".into()]);
+/// let actors = Signal::derive(|| vec![
+///     HistoryFilterActorOption { id: "u1".into(), label: "Jordan Lee".into() },
+///     HistoryFilterActorOption { id: "u2".into(), label: "Sam Rivera".into() },
+/// ]);
+/// view! {
+///     <div data-testid="history-filter-advanced-preview" style="height: 420px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled() | HistoryFeatures::FILTER_CHROME
+///             filter_kinds=kinds
+///             filter_actors=actors
 ///         />
 ///     </div>
 /// }

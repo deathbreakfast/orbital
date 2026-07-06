@@ -1,14 +1,16 @@
 use chrono::Utc;
+use leptos::html::Div;
 use leptos::prelude::*;
 
 use crate::context::use_history_context;
 use crate::engine::{
-    apply_filter, apply_sort, compute_history_viewport, DEFAULT_HISTORY_ROW_HEIGHT_PX,
-    DEFAULT_HISTORY_ROW_OVERSCAN, HISTORY_VIRTUALIZE_THRESHOLD,
+    apply_filter, apply_sort, compute_history_viewport, DEFAULT_HISTORY_ROW_OVERSCAN,
+    HISTORY_VIRTUALIZE_THRESHOLD,
 };
 use crate::format::with_date_dividers_in_tz;
 use crate::types::{HistoryEntry, HistoryFeatures, HistoryListItem};
 
+use super::resize::use_scrollport_height;
 use super::{HistoryDateDivider, HistoryEntryRow};
 
 /// Render a list of history entries with optional sort, filter, date dividers, and virtualization.
@@ -18,8 +20,21 @@ pub fn HistoryEntryList(
     /// When true, `entries` are already sort/filter projected (e.g. client paged window).
     #[prop(optional, default = false)]
     pre_projected: bool,
+    /// Scrollport element for measured viewport height when virtualized.
+    #[prop(optional)]
+    scrollport: Option<NodeRef<Div>>,
 ) -> impl IntoView {
     let ctx = use_history_context();
+    let has_scrollport = scrollport.is_some();
+    let measure_ref = scrollport.unwrap_or_else(NodeRef::new);
+    let measured_height = use_scrollport_height(measure_ref, 400.0);
+    let viewport_height = Memo::new(move |_| {
+        if has_scrollport {
+            measured_height.get()
+        } else {
+            400.0
+        }
+    });
 
     let entry_items = Memo::new(move |_| {
         let mut list = entries.get();
@@ -47,6 +62,8 @@ pub fn HistoryEntryList(
             && entry_items.get().len() >= HISTORY_VIRTUALIZE_THRESHOLD
     });
 
+    let row_height = ctx.virtual_row_height;
+
     let viewport = Memo::new(move |_| {
         let items = entry_items.get();
         if !virtualize.get() {
@@ -54,9 +71,9 @@ pub fn HistoryEntryList(
         }
         let vp = compute_history_viewport(
             ctx.scroll_top.get(),
-            400.0,
+            viewport_height.get(),
             items.len(),
-            DEFAULT_HISTORY_ROW_HEIGHT_PX,
+            row_height,
             DEFAULT_HISTORY_ROW_OVERSCAN,
         );
         let slice = items[vp.start..vp.end].to_vec();

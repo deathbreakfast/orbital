@@ -12,6 +12,7 @@ mod header;
 mod list;
 mod overlays;
 mod pagination;
+mod resize;
 mod scroll;
 mod skeleton;
 mod styles;
