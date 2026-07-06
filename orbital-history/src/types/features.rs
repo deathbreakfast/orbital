@@ -30,6 +30,12 @@ bitflags::bitflags! {
         const MARKDOWN_CITATIONS = 1 << 12;
         /// Measure row heights for virtualized lists (requires `VIRTUALIZE`; default off).
         const VARIABLE_ROW_HEIGHT = 1 << 13;
+        /// Resolve `@[label](id)` mention refs in markdown bodies (default off).
+        const MARKDOWN_MENTIONS = 1 << 14;
+        /// Render inline markdown images with attachment dedup (default off).
+        const MARKDOWN_IMAGES = 1 << 15;
+        /// Collapse consecutive entries by actor or kind (default off).
+        const GROUP_COLLAPSE = 1 << 16;
     }
 }
 

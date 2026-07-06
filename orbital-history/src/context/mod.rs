@@ -1,10 +1,12 @@
 use leptos::prelude::*;
 use orbital_base_components::DatetimeTimezone;
 
+use std::collections::HashSet;
+
 use crate::engine::HistoryRowHeightCache;
 use crate::types::{
-    HistoryEvents, HistoryFeatures, HistoryFilter, HistoryFilterActorOption, HistoryLocale,
-    HistoryOrientation, HistoryRenderers, HistorySort,
+    HistoryEvents, HistoryFeatures, HistoryFilter, HistoryFilterActorOption, HistoryGroupBy,
+    HistoryLocale, HistoryOrientation, HistoryRenderers, HistorySort,
 };
 
 use chrono::{DateTime, Utc};
@@ -47,6 +49,12 @@ pub struct HistoryContext {
     pub row_height_cache: HistoryRowHeightCache,
     /// Layout keys for the projected list (entries + dividers).
     pub list_layout_keys: RwSignal<Vec<String>>,
+    /// Active grouping mode when `GROUP_COLLAPSE` is enabled.
+    pub group_by: Signal<HistoryGroupBy>,
+    /// Expanded group keys for collapse UI.
+    pub expanded_groups: RwSignal<HashSet<String>>,
+    /// Toggle a group header expanded/collapsed.
+    pub toggle_group: Callback<(String,), ()>,
 }
 
 pub fn provide_history_context(ctx: HistoryContext) {

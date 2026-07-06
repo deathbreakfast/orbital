@@ -55,6 +55,7 @@ pub fn HistoryDialog(
     #[prop(optional)] history_pagination_view: Option<crate::types::HistoryPaginationView>,
     #[prop(optional)] history_entry_slot: Option<crate::types::HistoryEntrySlot>,
     #[prop(optional)] history_change_slot: Option<crate::types::HistoryChangeSlot>,
+    #[prop(optional)] group_by: Option<Signal<crate::types::HistoryGroupBy>>,
 ) -> impl IntoView {
     let resolved_locale = resolve_history_locale(locale);
     let title_text = title.unwrap_or_else(|| resolved_locale.title.clone());
@@ -101,6 +102,7 @@ pub fn HistoryDialog(
                                 history_pagination_view,
                                 history_entry_slot,
                                 history_change_slot,
+                                group_by,
                             })}
                         </DialogContent>
                     </DialogBody>

@@ -235,6 +235,63 @@ pub fn history_styles() -> &'static str {
     font-weight: 500;
 }
 
+.orbital-history__markdown-surface {
+    position: relative;
+}
+
+.orbital-history__mention-ref {
+    color: var(--orb-color-accent, var(--orb-color-brand));
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.orbital-history__mention-ref:hover {
+    text-decoration: underline;
+}
+
+.orbital-history__mention-popover {
+    position: fixed;
+    z-index: 20;
+    padding: var(--orb-space-block-sm) var(--orb-space-inline-sm);
+    border: 1px solid var(--orb-color-border-subtle);
+    border-radius: var(--orb-radius-md, 4px);
+    background: var(--orb-color-background-1, #fff);
+    box-shadow: var(--orb-shadow-4, 0 4px 16px rgba(0, 0, 0, 0.12));
+    pointer-events: none;
+}
+
+.orbital-history__markdown .orbital-markdown__image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-block: var(--orb-space-block-xs);
+    border-radius: var(--orb-radius-md, 4px);
+}
+
+.orbital-history__group-header {
+    list-style: none;
+    padding-block: var(--orb-space-block-xs);
+}
+
+.orbital-history__group-header-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--orb-space-inline-sm);
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.orbital-history__group-chevron {
+    width: 1rem;
+    text-align: center;
+}
+
+.orbital-history__group-count {
+    color: var(--orb-color-foreground-3);
+    font-size: 0.875rem;
+}
+
 .orbital-history__overlay {
     padding: var(--orb-space-block-md) var(--orb-space-inline-md);
 }

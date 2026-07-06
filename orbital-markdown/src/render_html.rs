@@ -1,6 +1,7 @@
 use pulldown_cmark::{html, Options, Parser};
 
 use crate::citations::{replace_citation_refs, strip_duplicate_images, CitationRef};
+use crate::mentions::{prepare_mention_markdown, replace_mention_links};
 use crate::options::OrbitalMarkdownOptions;
 use crate::sanitize::sanitize_html;
 
@@ -21,11 +22,15 @@ pub fn render_to_html(
         return String::new();
     }
 
-    let source = if options.enable_images {
+    let mut source = if options.enable_images {
         strip_duplicate_images(markdown, ctx.attachment_urls)
     } else {
         markdown.to_string()
     };
+
+    if options.enable_mention_refs {
+        source = prepare_mention_markdown(&source);
+    }
 
     let mut parse_options = Options::empty();
     parse_options.insert(Options::ENABLE_STRIKETHROUGH);
@@ -34,7 +39,12 @@ pub fn render_to_html(
     let mut html_output = String::new();
     html::push_html(&mut html_output, parser);
 
-    let mut html = sanitize_html(&html_output, options.enable_images);
+    let mut html = html_output;
+    if options.enable_mention_refs {
+        html = replace_mention_links(&html, options.mention_style);
+    }
+
+    html = sanitize_html(&html, options.enable_images);
 
     if options.enable_images {
         html = html.replace(
@@ -79,11 +89,30 @@ mod tests {
             "See [^cit-1] here.",
             &OrbitalMarkdownOptions {
                 enable_citation_refs: true,
+                enable_mention_refs: false,
                 enable_images: false,
                 citation_style: CitationLinkStyle::discussion(),
+                mention_style: Default::default(),
             },
             &ctx,
         );
         assert!(html.contains("discussion-citation-ref-cit-1"));
+    }
+
+    #[test]
+    fn mention_ref_in_body() {
+        let html = render_to_html(
+            "Hi @[Jordan Lee](u1)!",
+            &OrbitalMarkdownOptions {
+                enable_citation_refs: false,
+                enable_mention_refs: true,
+                enable_images: false,
+                citation_style: CitationLinkStyle::history(),
+                mention_style: crate::MentionLinkStyle::history(),
+            },
+            &RenderContext::default(),
+        );
+        assert!(html.contains("data-mention-id=\"u1\""));
+        assert!(html.contains("orbital-history__mention-ref"));
     }
 }

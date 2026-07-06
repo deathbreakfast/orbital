@@ -8,8 +8,9 @@ use orbital_paging::Page;
 
 use crate::engine::apply_filter;
 use crate::types::{
-    HistoryActor, HistoryChange, HistoryCitation, HistoryEntry, HistoryFetchParams, HistoryFieldDiff,
-    HistoryLocale, HistoryPageFetcher, HistorySort,
+    HistoryActor, HistoryAttachment, HistoryChange, HistoryCitation, HistoryEntry,
+    HistoryFetchParams, HistoryFieldDiff, HistoryLocale, HistoryMention, HistoryPageFetcher,
+    HistorySort,
 };
 
 /// Small newest-first field-diff list for client previews.
@@ -227,8 +228,77 @@ pub fn markdown_citation_entry() -> HistoryEntry {
                 id: "audit-1".into(),
                 display_index: 1,
             }],
+            mentions: vec![],
+            attachments: vec![],
         },
     }
+}
+
+/// Markdown body with `@[label](id)` mention refs.
+pub fn markdown_mention_entry() -> HistoryEntry {
+    HistoryEntry {
+        id: "md-mention".into(),
+        kind: "comment".into(),
+        changed_at: Utc::now(),
+        actor: HistoryActor::User {
+            id: "u1".into(),
+            display_name: "Jordan Lee".into(),
+            href: None,
+        },
+        change: HistoryChange::Markdown {
+            body: "Assigned to @[Jordan Lee](u1) for review.".into(),
+            citations: vec![],
+            mentions: vec![HistoryMention {
+                id: "u1".into(),
+                display_name: "Jordan Lee".into(),
+                avatar_src: None,
+                subtitle: Some("Engineer".into()),
+            }],
+            attachments: vec![],
+        },
+    }
+}
+
+/// Markdown body with inline image attachment.
+pub fn markdown_image_entry() -> HistoryEntry {
+    HistoryEntry {
+        id: "md-image".into(),
+        kind: "comment".into(),
+        changed_at: Utc::now(),
+        actor: HistoryActor::User {
+            id: "u1".into(),
+            display_name: "Jordan Lee".into(),
+            href: None,
+        },
+        change: HistoryChange::Markdown {
+            body: "Uploaded ![screenshot](https://example.com/screenshot.png)".into(),
+            citations: vec![],
+            mentions: vec![],
+            attachments: vec![HistoryAttachment {
+                url: "https://example.com/screenshot.png".into(),
+                name: Some("screenshot.png".into()),
+                mime: Some("image/png".into()),
+            }],
+        },
+    }
+}
+
+/// Entries with consecutive same actor for group-collapse previews.
+pub fn grouped_actor_entries() -> Vec<HistoryEntry> {
+    let now = Utc::now();
+    (0..4)
+        .map(|i| HistoryEntry {
+            id: format!("group-a-{i}"),
+            kind: if i % 2 == 0 { "comment".into() } else { "updated".into() },
+            changed_at: now - Duration::minutes(i),
+            actor: HistoryActor::User {
+                id: "u1".into(),
+                display_name: "Jordan Lee".into(),
+                href: None,
+            },
+            change: HistoryChange::Created,
+        })
+        .collect()
 }
 
 /// Markdown body sample entry.
@@ -245,6 +315,8 @@ pub fn markdown_entry() -> HistoryEntry {
         change: HistoryChange::Markdown {
             body: "**Updated** the [design doc](https://example.com)".into(),
             citations: vec![],
+            mentions: vec![],
+            attachments: vec![],
         },
     }
 }

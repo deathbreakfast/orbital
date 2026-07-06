@@ -104,4 +104,39 @@ test.describe("history preview", () => {
     await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
     await expect(preview.locator(".orbital-history__citation-ref").first()).toBeVisible();
   });
+
+  test("markdown mention refs render and show persona on hover", async ({ page }) => {
+    await openComponentPreview(page, "history-markdown", "history-markdown-mentions-preview");
+    const preview = page.getByTestId("history-markdown-mentions-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+
+    const mention = preview.locator(".orbital-history__mention-ref").first();
+    await expect(mention).toBeVisible();
+    await mention.hover();
+    await expect(preview.locator(".orbital-history__mention-popover")).toBeVisible();
+  });
+
+  test("markdown image attachments render inline images", async ({ page }) => {
+    await openComponentPreview(page, "history-markdown", "history-markdown-images-preview");
+    const preview = page.getByTestId("history-markdown-images-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    await expect(preview.locator("img.orbital-markdown__image").first()).toBeVisible();
+  });
+
+  test("group collapse toggles consecutive entries", async ({ page }) => {
+    await openComponentPreview(page, "history-grouping", "history-grouping-preview");
+    const preview = page.getByTestId("history-grouping-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+
+    const header = preview.getByTestId("history-group-header").first();
+    await expect(header).toBeVisible();
+    await expect(header).toHaveAttribute("aria-expanded", "false");
+
+    const groupedEntries = preview.locator("[data-history-entry-id^='group-a-']");
+    await expect(groupedEntries).toHaveCount(0);
+
+    await header.locator("button").click();
+    await expect(header).toHaveAttribute("aria-expanded", "true");
+    await expect(groupedEntries.first()).toBeVisible();
+  });
 });

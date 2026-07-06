@@ -15,9 +15,9 @@ pub fn list_item_cache_key(item: &crate::types::HistoryListItem) -> String {
         HistoryListItem::Entry(entry) => entry.id.clone(),
         HistoryListItem::Divider(bucket) => format!("divider-{bucket:?}"),
         HistoryListItem::UnreadDivider => "unread-divider".into(),
+        HistoryListItem::GroupHeader { key, .. } => format!("group-{key}"),
     }
 }
-
 /// Resolve heights for each list item, using cache or fallback estimate.
 pub fn list_item_heights(
     items: &[crate::types::HistoryListItem],

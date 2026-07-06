@@ -12,6 +12,8 @@ pub struct HistoryEvents {
     pub on_handle: Option<Callback<HistoryHandle, ()>>,
     /// Fired when a markdown citation ref anchor is activated.
     pub on_citation_click: Option<Callback<String, ()>>,
+    /// Fired when a markdown mention anchor is activated (click).
+    pub on_mention_click: Option<Callback<String, ()>>,
 }
 
 impl HistoryEvents {

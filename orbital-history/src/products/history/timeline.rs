@@ -6,6 +6,7 @@ use orbital_macros::component_doc;
 use orbital_paging::{use_paged_infinite_scroll, Page, PageRequest};
 use orbital_style::inject_style;
 use orbital_theme::use_theme_options;
+use std::collections::HashSet;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -20,7 +21,7 @@ use crate::products::history::list::project_entries;
 use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
     HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFetchParams,
-    HistoryFilter, HistoryFilterActorOption, HistoryHandle, HistoryHeader, HistoryLiveScrollPolicy,
+    HistoryFilter, HistoryFilterActorOption, HistoryGroupBy, HistoryHandle, HistoryHeader, HistoryLiveScrollPolicy,
     HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryOrientation, HistoryPageFetcher,
     HistoryPagingMode, HistoryPaginationView, HistoryRenderers, HistorySerializedState, HistorySlots,
     HistorySort, HistorySource,
@@ -123,6 +124,9 @@ pub fn HistoryTimeline(
     /// Entries newer than this instant render as unread when `UNREAD_HIGHLIGHT` is enabled.
     #[prop(optional)]
     read_watermark: Option<Signal<Option<chrono::DateTime<Utc>>>>,
+    /// Group consecutive entries by actor or kind when `GROUP_COLLAPSE` is enabled.
+    #[prop(optional)]
+    group_by: Option<Signal<HistoryGroupBy>>,
     #[prop(optional)] events: HistoryEvents,
     #[prop(optional)] renderers: Option<HistoryRenderers>,
     #[prop(optional, into)] class: MaybeProp<String>,
@@ -187,6 +191,22 @@ pub fn HistoryTimeline(
     let internal_read_watermark = RwSignal::new(None::<chrono::DateTime<Utc>>);
     let read_watermark_signal: Signal<Option<chrono::DateTime<Utc>>> = read_watermark
         .unwrap_or_else(|| Signal::derive(move || internal_read_watermark.get()).into());
+
+    let group_by_signal: Signal<HistoryGroupBy> = group_by
+        .unwrap_or_else(|| Signal::derive(|| HistoryGroupBy::None).into());
+    let expanded_groups = RwSignal::new(HashSet::<String>::new());
+    let toggle_group = Callback::new({
+        let expanded_groups = expanded_groups;
+        move |(key,): (String,)| {
+            expanded_groups.update(|set| {
+                if set.contains(&key) {
+                    set.remove(&key);
+                } else {
+                    set.insert(key);
+                }
+            });
+        }
+    });
 
     let filter_kind_options: Signal<Vec<String>> = filter_kinds
         .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
@@ -456,6 +476,35 @@ pub fn HistoryTimeline(
                 internal_read_watermark.set(Some(Utc::now()));
             }
         }),
+        expand_group: Callback::new({
+            let expanded_groups = expanded_groups;
+            move |(key,): (String,)| {
+                expanded_groups.update(|set| {
+                    set.insert(key);
+                });
+            }
+        }),
+        collapse_group: Callback::new({
+            let expanded_groups = expanded_groups;
+            move |(key,): (String,)| {
+                expanded_groups.update(|set| {
+                    set.remove(&key);
+                });
+            }
+        }),
+        expand_all_groups: Callback::new({
+            let expanded_groups = expanded_groups;
+            let list_layout_keys = list_layout_keys;
+            move |_| {
+                expanded_groups.update(|set| {
+                    for key in list_layout_keys.get_untracked() {
+                        if let Some(group_key) = key.strip_prefix("group-") {
+                            set.insert(group_key.to_string());
+                        }
+                    }
+                });
+            }
+        }),
     };
 
     let handle_delivered = StoredValue::new(false);
@@ -490,6 +539,9 @@ pub fn HistoryTimeline(
         read_watermark: read_watermark_signal,
         row_height_cache,
         list_layout_keys,
+        group_by: group_by_signal,
+        expanded_groups,
+        toggle_group,
         page: is_paged.then(|| Signal::derive(move || page_ui.get()).into()),
         page_count: is_paged.then(|| Signal::derive(move || page_count.get()).into()),
         go_to_page: is_paged.then(|| handle.go_to_page.clone()),

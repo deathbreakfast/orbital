@@ -10,10 +10,17 @@ pub enum HistoryDateBucket {
     Older,
 }
 
-/// Projected list item: section divider, unread divider, or entry.
+/// Projected list item: section divider, unread divider, group header, or entry.
 #[derive(Clone, Debug, PartialEq)]
 pub enum HistoryListItem {
     Divider(HistoryDateBucket),
     UnreadDivider,
+    GroupHeader {
+        key: String,
+        label: String,
+        child_count: usize,
+        group_by: super::HistoryGroupBy,
+        changed_at: chrono::DateTime<chrono::Utc>,
+    },
     Entry(HistoryEntry),
 }

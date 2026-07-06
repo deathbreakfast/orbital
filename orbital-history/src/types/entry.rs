@@ -50,5 +50,41 @@ pub enum HistoryChange {
         body: String,
         #[serde(default)]
         citations: Vec<super::HistoryCitation>,
+        #[serde(default)]
+        mentions: Vec<super::HistoryMention>,
+        #[serde(default)]
+        attachments: Vec<super::HistoryAttachment>,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::{HistoryAttachment, HistoryCitation, HistoryMention};
+
+    #[test]
+    fn markdown_change_round_trip_with_mentions_and_attachments() {
+        use leptos::serde_json;
+        let change = HistoryChange::Markdown {
+            body: "Hi @[Jordan](u1)".into(),
+            citations: vec![HistoryCitation {
+                id: "c1".into(),
+                display_index: 1,
+            }],
+            mentions: vec![HistoryMention {
+                id: "u1".into(),
+                display_name: "Jordan".into(),
+                avatar_src: None,
+                subtitle: Some("Engineer".into()),
+            }],
+            attachments: vec![HistoryAttachment {
+                url: "https://example.com/a.png".into(),
+                name: Some("a.png".into()),
+                mime: Some("image/png".into()),
+            }],
+        };
+        let json = serde_json::to_string(&change).expect("serialize");
+        let restored: HistoryChange = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(change, restored);
+    }
 }

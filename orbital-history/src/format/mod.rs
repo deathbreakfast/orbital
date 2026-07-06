@@ -2,7 +2,7 @@
 
 mod markdown;
 
-pub use markdown::render_history_markdown;
+pub use markdown::{render_history_markdown, HistoryMarkdownRenderOptions};
 
 use chrono::{DateTime, Utc};
 use orbital_base_components::{DatetimeTimezone, OrbitalDateTime};
@@ -102,6 +102,35 @@ pub fn with_date_dividers_in_tz(
             prev_bucket = Some(bucket);
         }
         out.push(HistoryListItem::Entry(entry.clone()));
+    }
+    out
+}
+
+fn list_item_changed_at(item: &HistoryListItem) -> Option<DateTime<Utc>> {
+    match item {
+        HistoryListItem::Entry(entry) => Some(entry.changed_at),
+        HistoryListItem::GroupHeader { changed_at, .. } => Some(*changed_at),
+        _ => None,
+    }
+}
+
+/// Insert date-bucket dividers into a projected list (entries and group headers).
+pub fn with_date_dividers_on_list_items(
+    items: Vec<HistoryListItem>,
+    now: DateTime<Utc>,
+    tz: DatetimeTimezone,
+) -> Vec<HistoryListItem> {
+    let mut out = Vec::with_capacity(items.len().saturating_mul(2));
+    let mut prev_bucket: Option<HistoryDateBucket> = None;
+    for item in items {
+        if let Some(changed_at) = list_item_changed_at(&item) {
+            let bucket = history_date_bucket_in_tz(changed_at, now, tz);
+            if prev_bucket != Some(bucket) {
+                out.push(HistoryListItem::Divider(bucket));
+                prev_bucket = Some(bucket);
+            }
+        }
+        out.push(item);
     }
     out
 }

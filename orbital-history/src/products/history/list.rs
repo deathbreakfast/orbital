@@ -5,14 +5,16 @@ use leptos::prelude::*;
 use crate::context::use_history_context;
 use crate::engine::{
     apply_filter, apply_sort, compute_history_viewport, compute_variable_viewport,
-    insert_unread_divider, list_item_cache_key, list_item_heights, DEFAULT_HISTORY_ROW_OVERSCAN,
-    HISTORY_VIRTUALIZE_THRESHOLD,
+    insert_unread_divider, list_item_cache_key, list_item_heights, project_entry_groups,
+    DEFAULT_HISTORY_ROW_OVERSCAN, HISTORY_VIRTUALIZE_THRESHOLD,
 };
-use crate::format::with_date_dividers_in_tz;
-use crate::types::{HistoryEntry, HistoryFeatures, HistoryListItem};
+use crate::format::{with_date_dividers_on_list_items, with_date_dividers_in_tz};
+use crate::types::{HistoryEntry, HistoryFeatures, HistoryGroupBy, HistoryListItem};
 
 use super::resize::use_scrollport_height;
-use super::{HistoryDateDivider, HistoryEntryRow, HistoryUnreadDivider};
+use super::{
+    HistoryDateDivider, HistoryEntryRow, HistoryGroupHeader, HistoryUnreadDivider,
+};
 
 /// Render a list of history entries with optional sort, filter, date dividers, and virtualization.
 #[component]
@@ -51,12 +53,26 @@ pub fn HistoryEntryList(
             }
         }
 
-        let items = if ctx.features.contains(HistoryFeatures::DATE_DIVIDERS) {
+        let group_by = if ctx.features.contains(HistoryFeatures::GROUP_COLLAPSE) {
+            ctx.group_by.get()
+        } else {
+            HistoryGroupBy::None
+        };
+
+        let mut items = if group_by != HistoryGroupBy::None {
+            project_entry_groups(&list, group_by, &ctx.expanded_groups.get())
+        } else if ctx.features.contains(HistoryFeatures::DATE_DIVIDERS) {
             let tz = ctx.display_timezone.get();
             with_date_dividers_in_tz(&list, Utc::now(), tz)
         } else {
             list.into_iter().map(HistoryListItem::Entry).collect()
         };
+
+        if group_by != HistoryGroupBy::None && ctx.features.contains(HistoryFeatures::DATE_DIVIDERS)
+        {
+            let tz = ctx.display_timezone.get();
+            items = with_date_dividers_on_list_items(items, Utc::now(), tz);
+        }
 
         if let Some(wm) = ctx.read_watermark.get() {
             insert_unread_divider(
@@ -138,6 +154,21 @@ pub fn HistoryEntryList(
                     .into_any(),
                     HistoryListItem::UnreadDivider => view! {
                         <HistoryUnreadDivider />
+                    }
+                    .into_any(),
+                    HistoryListItem::GroupHeader {
+                        key,
+                        label,
+                        child_count,
+                        group_by,
+                        ..
+                    } => view! {
+                        <HistoryGroupHeader
+                            key=key
+                            label=label
+                            child_count=child_count
+                            group_by=group_by
+                        />
                     }
                     .into_any(),
                     HistoryListItem::Entry(entry) => view! {

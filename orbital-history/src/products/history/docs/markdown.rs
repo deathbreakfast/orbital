@@ -23,7 +23,6 @@ use orbital_macros::component_doc;
 /// ```
 ///
 /// ## Markdown citation refs
-/// `[^id]` refs resolve to history-prefixed anchors when `MARKDOWN_CITATIONS` is enabled.
 /// <!-- preview -->
 /// ```rust,ignore
 /// use crate::preview::fixtures::markdown_citation_entry;
@@ -37,6 +36,45 @@ use orbital_macros::component_doc;
 ///             features=HistoryFeatures::default_enabled()
 ///                 | HistoryFeatures::MARKDOWN_BODIES
 ///                 | HistoryFeatures::MARKDOWN_CITATIONS
+///         />
+///     </div>
+/// }
+/// ```
+///
+/// ## Markdown mention refs
+/// `@[Display Name](user-id)` with Persona hover card when `MARKDOWN_MENTIONS` is enabled.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::markdown_mention_entry;
+/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(vec![markdown_mention_entry()]);
+/// view! {
+///     <div data-testid="history-markdown-mentions-preview" style="height: 240px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled()
+///                 | HistoryFeatures::MARKDOWN_BODIES
+///                 | HistoryFeatures::MARKDOWN_MENTIONS
+///         />
+///     </div>
+/// }
+/// ```
+///
+/// ## Markdown image attachments
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::preview::fixtures::markdown_image_entry;
+/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(vec![markdown_image_entry()]);
+/// view! {
+///     <div data-testid="history-markdown-images-preview" style="height: 280px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled()
+///                 | HistoryFeatures::MARKDOWN_BODIES
+///                 | HistoryFeatures::MARKDOWN_IMAGES
 ///         />
 ///     </div>
 /// }

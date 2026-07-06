@@ -441,6 +441,12 @@ pub struct HistoryEvents {
     pub on_actor_click: Option<Callback<HistoryActor, ()>>,
     pub on_entry_click: Option<Callback<HistoryEntry, ()>>,
     pub on_load_error: Option<Callback<ServerFnError, ()>>,
+    /// Receives imperative [`HistoryHandle`] callbacks once on mount.
+    pub on_handle: Option<Callback<HistoryHandle, ()>>,
+    /// Fired when a markdown citation ref anchor is activated.
+    pub on_citation_click: Option<Callback<String, ()>>,
+    /// Fired when a markdown mention ref anchor is activated (hover shows Persona card).
+    pub on_mention_click: Option<Callback<String, ()>>,
 }
 ```
 
@@ -1016,14 +1022,22 @@ Every phase lists scope, public API added, previews/tests, and explicit out-of-s
 
 ### Optional later
 
-Phases 2–6 are implemented in the crate. Remaining candidates:
+Phases 2–7 are implemented in the crate. Remaining candidates:
 
-- Realtime transport (WS/SSE) inside Orbital
+- Host-side transport helper crate (outside Orbital; timeline hooks are documented)
 - Rich-text editing (history remains read-oriented)
-- `@` mention syntax in markdown (requires `orbital-markdown` extension)
-- Image attachments in markdown bodies (discussion parity)
-- Grouped/collapsed entries by actor or kind
 - CSV/JSON export of visible entries (datatable-style)
+- Discussion `@` mention parity in composer (history is read-only; host inserts markdown)
+
+### Phase 7 (implemented)
+
+| PR | Feature |
+| --- | --- |
+| PR43 | Live-update host integration docs (`live_transport` catalog; hooks only, no in-crate WS/SSE) |
+| PR44 | `@[Name](id)` mentions via `orbital-markdown`, `HistoryMention`, Persona hover popover, `MARKDOWN_MENTIONS`, `on_mention_click` |
+| PR45 | `HistoryAttachment` on Markdown change, `MARKDOWN_IMAGES`, attachment image dedup/render parity |
+| PR46 | Configurable `group_by` actor \| kind, `GROUP_COLLAPSE`, group header UI, handle expand/collapse |
+| PR47 | Playwright E2E (mentions, images, grouping) + README/DESIGN sync |
 
 ### Phase 6 (implemented)
 

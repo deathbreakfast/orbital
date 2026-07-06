@@ -41,4 +41,10 @@ pub struct HistoryHandle {
     pub set_read_watermark: Callback<(DateTime<Utc>,), ()>,
     /// Mark all currently loaded entries as read (`Utc::now()` watermark).
     pub mark_all_read: Callback<(), ()>,
+    /// Expand a collapsed entry group by key.
+    pub expand_group: Callback<(String,), ()>,
+    /// Collapse an expanded entry group by key.
+    pub collapse_group: Callback<(String,), ()>,
+    /// Expand all collapsed groups.
+    pub expand_all_groups: Callback<(), ()>,
 }

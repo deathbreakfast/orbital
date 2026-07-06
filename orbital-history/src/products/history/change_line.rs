@@ -2,8 +2,10 @@ use leptos::prelude::*;
 use orbital_core_components::Body1;
 
 use crate::context::use_history_context;
-use crate::format::{format_change, render_history_markdown};
+use crate::format::format_change;
 use crate::types::{HistoryChange, HistoryFeatures};
+
+use super::HistoryMarkdownBody;
 
 /// Highlighted field diff line when [`HistoryFeatures::DIFF_HIGHLIGHT`] is enabled.
 #[component]
@@ -37,8 +39,6 @@ pub fn HistoryChangeLine(change: HistoryChange) -> impl IntoView {
         Memo::new(move |_| ctx.features.contains(HistoryFeatures::MARKDOWN_BODIES));
     let diff_highlight =
         Memo::new(move |_| ctx.features.contains(HistoryFeatures::DIFF_HIGHLIGHT));
-    let citations_enabled =
-        Memo::new(move |_| ctx.features.contains(HistoryFeatures::MARKDOWN_CITATIONS));
 
     view! {
         {move || {
@@ -58,64 +58,29 @@ pub fn HistoryChangeLine(change: HistoryChange) -> impl IntoView {
                     }
                     .into_any()
                 }
-                HistoryChange::Markdown { body, citations } if markdown_enabled.get() => {
-                    let cite_list = if citations_enabled.get() {
-                        citations.clone()
-                    } else {
-                        vec![]
-                    };
-                    let html = render_history_markdown(body, &cite_list);
-                    let citation_events = ctx.events.clone();
+                HistoryChange::Markdown {
+                    body,
+                    citations,
+                    mentions,
+                    attachments,
+                } if markdown_enabled.get() => {
                     view! {
-                        <div
-                            class="orbital-history__change orbital-history__markdown"
-                            inner_html=html
-                            on:click=move |ev| {
-                                #[cfg(feature = "hydrate")]
-                                {
-                                    let citation_cb = citation_events.on_citation_click.clone();
-                                    use wasm_bindgen::JsCast;
-                                    if let Some(target) = ev.target() {
-                                        if let Ok(element) = target.dyn_into::<web_sys::Element>() {
-                                            let anchor = if element
-                                                .class_list()
-                                                .contains("orbital-history__citation-ref")
-                                            {
-                                                Some(element)
-                                            } else {
-                                                element
-                                                    .closest(".orbital-history__citation-ref")
-                                                    .ok()
-                                                    .flatten()
-                                            };
-                                            if let Some(anchor) = anchor {
-                                                ev.prevent_default();
-                                                if let Some(id) =
-                                                    anchor.get_attribute("data-citation-id")
-                                                {
-                                                    if let Some(cb) = &citation_cb {
-                                                        cb.run(id);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                #[cfg(not(feature = "hydrate"))]
-                                {
-                                    let _ = (&ev, &citation_events);
-                                }
-                            }
+                        <HistoryMarkdownBody
+                            body=body.clone()
+                            citations=citations.clone()
+                            mentions=mentions.clone()
+                            attachments=attachments.clone()
                         />
                     }
                     .into_any()
                 }
                 HistoryChange::Custom { summary } if markdown_enabled.get() => {
-                    let html = render_history_markdown(summary, &[]);
                     view! {
-                        <div
-                            class="orbital-history__change orbital-history__markdown"
-                            inner_html=html
+                        <HistoryMarkdownBody
+                            body=summary.clone()
+                            citations=vec![]
+                            mentions=vec![]
+                            attachments=vec![]
                         />
                     }
                     .into_any()
