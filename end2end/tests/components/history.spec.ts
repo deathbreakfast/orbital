@@ -83,6 +83,16 @@ test.describe("history preview", () => {
     await expect(preview.locator(".orbital-history__entry--unread").first()).toBeVisible();
   });
 
+  test("mark all read clears unread divider", async ({ page }) => {
+    await openComponentPreview(page, "history-handle", "history-unread-preview");
+    const preview = page.getByTestId("history-unread-preview");
+    await expect(preview.getByTestId("history-unread-divider")).toBeVisible({ timeout: 30_000 });
+
+    await preview.getByRole("button", { name: "Mark all read" }).click();
+    await expect(preview.getByTestId("history-unread-divider")).toHaveCount(0);
+    await expect(preview.locator(".orbital-history__entry--unread")).toHaveCount(0);
+  });
+
   test("diff highlight styles new values", async ({ page }) => {
     await openComponentPreview(page, "history-multi-diff", "history-diff-highlight-preview");
     const preview = page.getByTestId("history-diff-highlight-preview");
@@ -113,7 +123,9 @@ test.describe("history preview", () => {
     const mention = preview.locator(".orbital-history__mention-ref").first();
     await expect(mention).toBeVisible();
     await mention.hover();
-    await expect(preview.locator(".orbital-history__mention-popover")).toBeVisible();
+    await expect(
+      page.locator(".orbital-history__mention-popover-anchor .orbital-popover-body"),
+    ).toBeVisible();
   });
 
   test("markdown image attachments render inline images", async ({ page }) => {
@@ -128,15 +140,15 @@ test.describe("history preview", () => {
     const preview = page.getByTestId("history-grouping-preview");
     await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
 
-    const header = preview.getByTestId("history-group-header").first();
-    await expect(header).toBeVisible();
-    await expect(header).toHaveAttribute("aria-expanded", "false");
+    const jordanHeader = preview.getByRole("button", { name: /Jordan Lee.*3 actor/i });
+    await expect(jordanHeader).toBeVisible();
+    await expect(jordanHeader).toHaveAttribute("aria-expanded", "false");
 
     const groupedEntries = preview.locator("[data-history-entry-id^='group-a-']");
     await expect(groupedEntries).toHaveCount(0);
 
-    await header.locator("button").click();
-    await expect(header).toHaveAttribute("aria-expanded", "true");
-    await expect(groupedEntries.first()).toBeVisible();
+    await jordanHeader.click();
+    await expect(jordanHeader).toHaveAttribute("aria-expanded", "true");
+    await expect(preview.locator("[data-history-entry-id='group-a-0']")).toBeVisible();
   });
 });

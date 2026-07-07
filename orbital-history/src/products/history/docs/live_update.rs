@@ -9,11 +9,66 @@ use orbital_macros::component_doc;
 /// Host mutates the signal; optional `scroll_to_top` via the handle.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
-/// let entries = RwSignal::new(sample_entries());
+/// let now = Utc::now();
+/// let prepend_entry = HistoryEntry {
+///     id: "live-prepend".into(),
+///     kind: "field_diff".into(),
+///     changed_at: now,
+///     actor: HistoryActor::User {
+///         id: "u1".into(),
+///         display_name: "Jordan Lee".into(),
+///         href: Some("/users/u1".into()),
+///     },
+///     change: HistoryChange::FieldDiff {
+///         field: "name".into(),
+///         old_value: "Acme".into(),
+///         new_value: "Acme Corp".into(),
+///     },
+/// };
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// view! {
 ///     <div data-testid="history-live-update-preview" style="height: 360px; display: flex; flex-direction: column; gap: 8px;">
@@ -21,7 +76,7 @@ use orbital_macros::component_doc;
 ///             appearance=ButtonAppearance::Secondary
 ///             on_click=Callback::new(move |_| {
 ///                 entries.update(|list| {
-///                     list.insert(0, sample_entries()[0].clone());
+///                     list.insert(0, prepend_entry.clone());
 ///                 });
 ///                 if let Some(h) = handle.get() {
 ///                     h.scroll_to_top.run(());
@@ -45,11 +100,40 @@ use orbital_macros::component_doc;
 /// Host pushes newest rows via `live_head` without refetching pages.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::{mock_page_fetcher, sample_entries};
-/// use crate::{HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
-/// use chrono::Utc;
+/// use chrono::{Duration, Utc};
+/// use crate::preview::fixtures::mock_page_fetcher;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
+/// let now = Utc::now();
+/// // Representative newest-first rows (mock fetcher pages through an extended set like this):
+/// let _fixture = vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ];
 /// let fetcher = mock_page_fetcher();
 /// let live = RwSignal::new(Vec::<HistoryEntry>::new());
 /// let handle = RwSignal::new(None::<HistoryHandle>);
@@ -93,11 +177,40 @@ use orbital_macros::component_doc;
 /// `ScrollToTop` auto-scrolls when `live_head` grows (no manual handle call).
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::{mock_page_fetcher, sample_entries};
-/// use crate::{HistoryActor, HistoryChange, HistoryEntry, HistoryLiveScrollPolicy, HistorySource, HistoryTimeline};
-/// use chrono::Utc;
+/// use chrono::{Duration, Utc};
+/// use crate::preview::fixtures::mock_page_fetcher;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryLiveScrollPolicy, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
+/// let now = Utc::now();
+/// // Representative newest-first rows (mock fetcher pages through an extended set like this):
+/// let _fixture = vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ];
 /// let fetcher = mock_page_fetcher();
 /// let live = RwSignal::new(Vec::<HistoryEntry>::new());
 /// let counter = RwSignal::new(0usize);

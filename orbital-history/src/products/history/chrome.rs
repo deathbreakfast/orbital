@@ -1,5 +1,7 @@
 use leptos::prelude::*;
-use orbital_core_components::{Button, ButtonAppearance, Input, InputAppearance, InputBind};
+use orbital_core_components::{
+    Button, ButtonAppearance, SearchBox, SearchBoxAppearance, SearchBoxBind,
+};
 
 use crate::context::use_history_context;
 use crate::types::{HistoryFeatures, HistorySort};
@@ -125,9 +127,9 @@ pub fn HistoryDefaultFilterChrome() -> impl IntoView {
 
     view! {
         <div class="orbital-history__filter-chrome" data-testid="history-filter-chrome">
-            <Input
-                bind=InputBind::from(query)
-                appearance=InputAppearance {
+            <SearchBox
+                bind=SearchBoxBind::from(query)
+                appearance=SearchBoxAppearance {
                     placeholder: MaybeProp::from(placeholder.get_untracked()),
                     ..Default::default()
                 }

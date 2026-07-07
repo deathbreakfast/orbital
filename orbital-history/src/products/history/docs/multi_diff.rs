@@ -9,10 +9,37 @@ use orbital_macros::component_doc;
 /// One entry with multiple field changes renders as a card.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::multi_diff_entries;
-/// use crate::{HistorySource, HistoryTimeline};
+/// use chrono::Utc;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFieldDiff, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(multi_diff_entries());
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "md-1".into(),
+///         kind: "field_diffs".into(),
+///         changed_at: Utc::now(),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiffs {
+///             fields: vec![
+///                 HistoryFieldDiff {
+///                     field: "status".into(),
+///                     old_value: "open".into(),
+///                     new_value: "closed".into(),
+///                 },
+///                 HistoryFieldDiff {
+///                     field: "owner".into(),
+///                     old_value: "A".into(),
+///                     new_value: "B".into(),
+///                 },
+///             ],
+///         },
+///     },
+/// ]);
 /// view! {
 ///     <div data-testid="history-multi-diff-preview" style="height: 240px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline data_source=HistorySource::Client(entries) />
@@ -24,10 +51,38 @@ use orbital_macros::component_doc;
 /// Enable `DIFF_HIGHLIGHT` for styled old/new values.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::multi_diff_entries;
-/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use chrono::Utc;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFeatures, HistoryFieldDiff, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(multi_diff_entries());
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "md-1".into(),
+///         kind: "field_diffs".into(),
+///         changed_at: Utc::now(),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiffs {
+///             fields: vec![
+///                 HistoryFieldDiff {
+///                     field: "status".into(),
+///                     old_value: "open".into(),
+///                     new_value: "closed".into(),
+///                 },
+///                 HistoryFieldDiff {
+///                     field: "owner".into(),
+///                     old_value: "A".into(),
+///                     new_value: "B".into(),
+///                 },
+///             ],
+///         },
+///     },
+/// ]);
 /// view! {
 ///     <div data-testid="history-diff-highlight-preview" style="height: 240px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline

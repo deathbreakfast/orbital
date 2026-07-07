@@ -9,11 +9,51 @@ use orbital_macros::component_doc;
 /// Capture [`HistoryHandle`] via `on_handle` and jump to a known id.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
-/// let entries = RwSignal::new(sample_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// view! {
 ///     <div data-testid="history-handle-preview" style="height: 360px; display: flex; flex-direction: column; gap: 8px;">
@@ -54,11 +94,51 @@ use orbital_macros::component_doc;
 /// Persist filter, sort, page, and scroll position for deep links.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistoryEvents, HistoryHandle, HistorySerializedState, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle,
+///     HistorySerializedState, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
-/// let entries = RwSignal::new(sample_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// let saved = RwSignal::new(None::<HistorySerializedState>);
 /// view! {
@@ -100,13 +180,52 @@ use orbital_macros::component_doc;
 /// Entries newer than the watermark render with unread styling when `UNREAD_HIGHLIGHT` is enabled.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistoryEvents, HistoryFeatures, HistoryHandle, HistorySource, HistoryTimeline};
-/// use chrono::Utc;
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryFeatures, HistoryHandle,
+///     HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
-/// let entries = RwSignal::new(sample_entries());
-/// let watermark = RwSignal::new(Some(Utc::now() - chrono::Duration::hours(2)));
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
+/// let watermark = RwSignal::new(Some(Utc::now() - Duration::hours(2)));
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// view! {
 ///     <div data-testid="history-unread-preview" style="height: 360px; display: flex; flex-direction: column; gap: 8px;">
@@ -123,7 +242,7 @@ use orbital_macros::component_doc;
 ///         <HistoryTimeline
 ///             data_source=HistorySource::Client(entries)
 ///             features=HistoryFeatures::default_enabled() | HistoryFeatures::UNREAD_HIGHLIGHT
-///             read_watermark=Signal::derive(move || watermark.get())
+///             read_watermark=watermark
 ///             events=HistoryEvents {
 ///                 on_handle: Some(Callback::new(move |h| handle.set(Some(h)))),
 ///                 ..Default::default()

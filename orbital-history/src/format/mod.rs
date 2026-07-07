@@ -266,6 +266,19 @@ mod tests {
     }
 
     #[test]
+    fn history_timestamp_includes_date_outside_today() {
+        let locale = HistoryLocale::english();
+        let now = ts(2026, 7, 7, 12, 0);
+        let today = ts(2026, 7, 7, 9, 30);
+        let yesterday = ts(2026, 7, 6, 9, 30);
+        let today_label = locale.format_history_timestamp(today, now, DatetimeTimezone::Utc);
+        let yesterday_label =
+            locale.format_history_timestamp(yesterday, now, DatetimeTimezone::Utc);
+        assert_eq!(today_label, "09:30 AM");
+        assert_eq!(yesterday_label, "Jul 06, 2026, 09:30 AM");
+    }
+
+    #[test]
     fn compact_time_respects_timezone() {
         let locale = HistoryLocale::english();
         let at = ts(2026, 7, 3, 18, 0);

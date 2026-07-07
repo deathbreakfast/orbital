@@ -1,22 +1,21 @@
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 
-/// Compact timestamps follow `display_timezone`.
+/// Natural timeline (default) and compact inline sentence layout.
 ///
 /// # Examples
 ///
-/// ## Fixed-offset display
-/// Visible times use a Pacific-style fixed offset.
+/// ## Natural and compact
+/// Side-by-side layouts: spine timeline vs dense single-line entries.
 /// <!-- preview -->
 /// ```rust,ignore
 /// use chrono::{Duration, Utc};
 /// use crate::{
-///     HistoryActor, HistoryChange, HistoryEntry, HistorySource, HistoryTimeline,
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryLayout, HistorySource, HistoryTimeline,
 /// };
 /// use leptos::prelude::*;
-/// use orbital_base_components::DatetimeTimezone;
 /// let now = Utc::now();
-/// let entries = RwSignal::new(vec![
+/// let sample = vec![
 ///     HistoryEntry {
 ///         id: "1".into(),
 ///         kind: "field_diff".into(),
@@ -52,23 +51,30 @@ use orbital_macros::component_doc;
 ///             label: "Draft note".into(),
 ///         },
 ///     },
-/// ]);
+/// ];
+/// let entries_natural = RwSignal::new(sample.clone());
+/// let entries_compact = RwSignal::new(sample);
 /// view! {
-///     <div data-testid="history-timezone-display-preview" style="height: 360px; display: flex; flex-direction: column;">
-///         <HistoryTimeline
-///             data_source=HistorySource::Client(entries)
-///             display_timezone=Signal::from(DatetimeTimezone::FixedOffset(-8 * 3600))
-///         />
+///     <div data-testid="history-layout-preview" style="display: flex; gap: 16px; height: 360px;">
+///         <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+///             <HistoryTimeline data_source=HistorySource::Client(entries_natural) />
+///         </div>
+///         <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+///             <HistoryTimeline
+///                 data_source=HistorySource::Client(entries_compact)
+///                 layout=HistoryLayout::Compact
+///             />
+///         </div>
 ///     </div>
 /// }
 /// ```
 #[component_doc(
     category = "History",
-    preview_slug = "history-timezone-display",
-    preview_label = "Timezone display",
-    preview_icon = icondata::LuClock,
+    preview_slug = "history-layout",
+    preview_label = "Layout",
+    preview_icon = icondata::LuColumns,
 )]
 #[component]
-pub fn HistoryTimezoneDisplayDoc() -> impl IntoView {
+pub fn HistoryLayoutDoc() -> impl IntoView {
     view! { () }
 }

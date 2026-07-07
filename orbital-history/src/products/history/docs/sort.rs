@@ -9,11 +9,51 @@ use orbital_macros::component_doc;
 /// Imperative `set_sort` flips newest/oldest order.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::bucket_span_entries;
-/// use crate::{HistoryEvents, HistoryFeatures, HistoryHandle, HistorySort, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryFeatures, HistoryHandle,
+///     HistorySort, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
-/// let entries = RwSignal::new(bucket_span_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "b1".into(),
+///         kind: "created".into(),
+///         changed_at: now,
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b3".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(4),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b4".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(12),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b5".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(40),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ]);
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// let newest = RwSignal::new(true);
 /// view! {
@@ -50,10 +90,49 @@ use orbital_macros::component_doc;
 /// `SORT_CHROME` adds a newest/oldest toggle when `CLIENT_SORT` is enabled.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::bucket_span_entries;
-/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFeatures, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(bucket_span_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "b1".into(),
+///         kind: "created".into(),
+///         changed_at: now,
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b3".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(4),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b4".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(12),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b5".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(40),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ]);
 /// view! {
 ///     <div data-testid="history-sort-chrome-preview" style="height: 360px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline

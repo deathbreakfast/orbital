@@ -17,10 +17,10 @@ pub fn HistoryTimestamp(
     let label = Memo::new(move |_| {
         let locale = ctx.locale.get();
         let tz = ctx.display_timezone.get();
-        locale.format_compact_time(at, tz)
+        let now = now.unwrap_or_else(Utc::now);
+        locale.format_history_timestamp(at, now, tz)
     });
     let iso = at.to_rfc3339();
-    let _ = now;
 
     view! {
         <Caption1 class="orbital-history__timestamp".to_string()>

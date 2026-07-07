@@ -9,10 +9,51 @@ use orbital_macros::component_doc;
 /// Page controls load one page at a time.
 /// <!-- preview -->
 /// ```rust,ignore
+/// use chrono::{Duration, Utc};
 /// use crate::preview::fixtures::mock_page_fetcher;
-/// use crate::{HistoryEvents, HistoryHandle, HistoryPagingMode, HistorySource, HistoryTimeline};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistoryPagingMode,
+///     HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
+/// let now = Utc::now();
+/// // Representative newest-first rows (mock fetcher pages through an extended set like this):
+/// let _fixture = vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "page-0".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(30),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::FieldDiff {
+///             field: "counter".into(),
+///             old_value: "0".into(),
+///             new_value: "1".into(),
+///         },
+///     },
+/// ];
 /// let fetcher = mock_page_fetcher();
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// view! {
@@ -46,10 +87,27 @@ use orbital_macros::component_doc;
 /// Large client lists can use `Paged` with in-memory windowing.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::large_client_entries;
-/// use crate::{HistoryPagingMode, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryPagingMode, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(large_client_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(
+///     (0..80)
+///         .map(|i| HistoryEntry {
+///             id: format!("large-{i}"),
+///             kind: "field_diff".into(),
+///             changed_at: now - Duration::minutes(i),
+///             actor: HistoryActor::System,
+///             change: HistoryChange::FieldDiff {
+///                 field: "n".into(),
+///                 old_value: format!("{i}"),
+///                 new_value: format!("{}", i + 1),
+///             },
+///         })
+///         .collect::<Vec<_>>(),
+/// );
 /// view! {
 ///     <div data-testid="history-client-paged-preview" style="height: 400px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline

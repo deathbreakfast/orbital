@@ -6,11 +6,10 @@ use chrono::{Duration, Utc};
 use leptos::prelude::*;
 use orbital_paging::Page;
 
-use crate::engine::apply_filter;
+use crate::engine::{apply_filter, apply_sort};
 use crate::types::{
     HistoryActor, HistoryAttachment, HistoryChange, HistoryCitation, HistoryEntry,
     HistoryFetchParams, HistoryFieldDiff, HistoryLocale, HistoryMention, HistoryPageFetcher,
-    HistorySort,
 };
 
 /// Small newest-first field-diff list for client previews.
@@ -165,10 +164,7 @@ fn all_fixture_pages() -> Vec<HistoryEntry> {
 }
 
 async fn mock_paged_history(params: HistoryFetchParams) -> Result<Page<HistoryEntry>, ServerFnError> {
-    let mut all = all_fixture_pages();
-    if params.sort == HistorySort::OldestFirst {
-        all.reverse();
-    }
+    let mut all = apply_sort(&all_fixture_pages(), params.sort);
     let locale = HistoryLocale::english();
     all = apply_filter(&all, &params.filter, &locale);
 
@@ -251,7 +247,7 @@ pub fn markdown_mention_entry() -> HistoryEntry {
             mentions: vec![HistoryMention {
                 id: "u1".into(),
                 display_name: "Jordan Lee".into(),
-                avatar_src: None,
+                avatar_src: Some("https://i.pravatar.cc/150?img=12".into()),
                 subtitle: Some("Engineer".into()),
             }],
             attachments: vec![],
@@ -271,13 +267,13 @@ pub fn markdown_image_entry() -> HistoryEntry {
             href: None,
         },
         change: HistoryChange::Markdown {
-            body: "Uploaded ![screenshot](https://example.com/screenshot.png)".into(),
+            body: "Uploaded ![screenshot](https://picsum.photos/seed/orbital-history-screenshot/640/360)".into(),
             citations: vec![],
             mentions: vec![],
             attachments: vec![HistoryAttachment {
-                url: "https://example.com/screenshot.png".into(),
-                name: Some("screenshot.png".into()),
-                mime: Some("image/png".into()),
+                url: "https://picsum.photos/seed/orbital-history-screenshot/640/360".into(),
+                name: Some("screenshot.jpg".into()),
+                mime: Some("image/jpeg".into()),
             }],
         },
     }

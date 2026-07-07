@@ -9,20 +9,74 @@ use orbital_macros::component_doc;
 /// Typing filters actor names, kinds, and change summaries.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::multi_kind_entries;
-/// use crate::{HistoryFilter, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFilter, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(multi_kind_entries());
+/// use orbital_core_components::{SearchBox, SearchBoxAppearance};
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "comment-1".into(),
+///         kind: "comment".into(),
+///         changed_at: now,
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Custom {
+///             summary: "Left a comment".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// let filter = RwSignal::new(HistoryFilter::default());
+/// let query = RwSignal::new(String::new());
+/// Effect::new(move |_| {
+///     let q = query.get();
+///     filter.update(|f| f.query = q);
+/// });
 /// view! {
 ///     <div data-testid="history-filter-preview" style="height: 360px; display: flex; flex-direction: column; gap: 8px;">
-///         <input
-///             prop:value=move || filter.get().query
-///             on:input=move |ev| {
-///                 let q = event_target_value(&ev);
-///                 filter.update(|f| f.query = q);
-///             }
-///             placeholder="Filter history"
+///         <SearchBox
+///             bind=query
+///             appearance=SearchBoxAppearance::with_placeholder("Filter history")
 ///         />
 ///         <HistoryTimeline
 ///             data_source=HistorySource::Client(entries)
@@ -36,10 +90,62 @@ use orbital_macros::component_doc;
 /// Opt-in search input via `FILTER_CHROME`.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::multi_kind_entries;
-/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFeatures, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(multi_kind_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "comment-1".into(),
+///         kind: "comment".into(),
+///         changed_at: now,
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Custom {
+///             summary: "Left a comment".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// view! {
 ///     <div data-testid="history-filter-chrome-preview" style="height: 360px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline
@@ -54,10 +160,63 @@ use orbital_macros::component_doc;
 /// Built-in chrome with `filter_kinds` and `filter_actors` props.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::multi_kind_entries;
-/// use crate::{HistoryFeatures, HistoryFilterActorOption, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFeatures, HistoryFilterActorOption,
+///     HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(multi_kind_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "comment-1".into(),
+///         kind: "comment".into(),
+///         changed_at: now,
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Custom {
+///             summary: "Left a comment".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// let kinds = Signal::derive(|| vec!["field_diff".into(), "created".into(), "comment".into()]);
 /// let actors = Signal::derive(|| vec![
 ///     HistoryFilterActorOption { id: "u1".into(), label: "Jordan Lee".into() },

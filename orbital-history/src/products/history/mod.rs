@@ -10,6 +10,7 @@ mod dialog;
 mod entry_row;
 mod group_header;
 mod header;
+mod kind_entry_row;
 mod list;
 mod markdown_body;
 mod overlays;
@@ -32,6 +33,7 @@ pub use dialog::HistoryDialog;
 pub use entry_row::HistoryEntryRow;
 pub use group_header::HistoryGroupHeader;
 pub use header::HistoryDefaultHeader;
+pub use kind_entry_row::HistoryKindEntryRow;
 pub use list::HistoryEntryList;
 pub use markdown_body::HistoryMarkdownBody;
 pub use overlays::{
@@ -50,7 +52,7 @@ pub use timestamp::HistoryTimestamp;
 pub use docs::{
     HistoryDataSourceDoc, HistoryDateDividersDoc, HistoryEmbedDoc, HistoryFilterDoc,
     HistoryHandleDoc, HistoryGroupingDoc, HistoryLiveTransportDoc, HistoryLiveUpdateDoc, HistoryLoadingDoc, HistoryLocalizationDoc,
-    HistoryMarkdownDoc, HistoryMultiDiffDoc, HistoryOrientationDoc, HistoryPagedDoc,
+    HistoryMarkdownDoc, HistoryMultiDiffDoc, HistoryLayoutDoc, HistoryPagedDoc,
     HistoryRefreshDoc, HistoryRenderersDoc, HistoryScrollLoadDoc, HistoryServerFilterDoc,
     HistorySlotsDoc, HistorySortDoc, HistoryTimezoneBucketsDoc, HistoryTimezoneDisplayDoc,
     HistoryVirtualizedDoc,
@@ -60,7 +62,7 @@ pub use docs::{
     HISTORYLIVETRANSPORTDOC_PREVIEW_REGISTRATION, HISTORYLIVEUPDATEDOC_PREVIEW_REGISTRATION,
     HISTORYLOADINGDOC_PREVIEW_REGISTRATION, HISTORYLOCALIZATIONDOC_PREVIEW_REGISTRATION,
     HISTORYMARKDOWNDOC_PREVIEW_REGISTRATION, HISTORYMULTIDIFFDOC_PREVIEW_REGISTRATION,
-    HISTORYORIENTATIONDOC_PREVIEW_REGISTRATION, HISTORYPAGEDDOC_PREVIEW_REGISTRATION,
+    HISTORYLAYOUTDOC_PREVIEW_REGISTRATION, HISTORYPAGEDDOC_PREVIEW_REGISTRATION,
     HISTORYREFRESHDOC_PREVIEW_REGISTRATION, HISTORYRENDERERSDOC_PREVIEW_REGISTRATION,
     HISTORYSCROLLLOADDOC_PREVIEW_REGISTRATION, HISTORYSERVERFILTERDOC_PREVIEW_REGISTRATION,
     HISTORYSLOTSDOC_PREVIEW_REGISTRATION, HISTORYSORTDOC_PREVIEW_REGISTRATION,

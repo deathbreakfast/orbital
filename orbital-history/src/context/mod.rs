@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use crate::engine::HistoryRowHeightCache;
 use crate::types::{
     HistoryEvents, HistoryFeatures, HistoryFilter, HistoryFilterActorOption, HistoryGroupBy,
-    HistoryLocale, HistoryOrientation, HistoryRenderers, HistorySort,
+    HistoryLocale, HistoryLayout, HistoryRenderers, HistorySort,
 };
 
 use chrono::{DateTime, Utc};
@@ -16,7 +16,7 @@ use chrono::{DateTime, Utc};
 pub struct HistoryContext {
     pub locale: Signal<HistoryLocale>,
     pub features: HistoryFeatures,
-    pub orientation: HistoryOrientation,
+    pub layout: HistoryLayout,
     pub events: HistoryEvents,
     pub renderers: HistoryRenderers,
     /// Wall-clock timezone for date-bucket boundaries and compact timestamps.

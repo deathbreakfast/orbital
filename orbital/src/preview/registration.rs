@@ -76,6 +76,7 @@ pub fn section_default_collapsed(section: &str) -> bool {
     matches!(
         section,
         "Motion" | "Foundation" | "Charts" | "Data Table" | "Tree" | "Scheduling" | "Discussion"
+            | "History"
     )
 }
 
@@ -220,6 +221,7 @@ mod tests {
     fn section_default_collapsed_includes_data_table_and_discussion() {
         assert!(section_default_collapsed("Data Table"));
         assert!(section_default_collapsed("Discussion"));
+        assert!(section_default_collapsed("History"));
         assert!(!section_default_collapsed("Core Components"));
     }
 

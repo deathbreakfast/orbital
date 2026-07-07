@@ -6,24 +6,87 @@ use orbital_macros::component_doc;
 /// # Examples
 ///
 /// ## Custom comment kind
-/// `kind_views` overrides the `comment` row; other kinds use defaults.
+/// `kind_views` overrides the full `comment` row. Use [`HistoryKindEntryRow`] to keep the
+/// default timestamp and actor chrome while customizing the change body.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::multi_kind_entries;
-/// use crate::{HistoryEntryView, HistoryRenderers, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use orbital_core_components::Body1;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEntryView, HistoryKindEntryRow,
+///     HistoryRenderContext, HistoryRenderers, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use std::collections::HashMap;
 /// use std::sync::Arc;
-/// let entries = RwSignal::new(multi_kind_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "comment-1".into(),
+///         kind: "comment".into(),
+///         changed_at: now,
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Custom {
+///             summary: "Please review the updated contract terms before Friday.".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// let mut kind_views = HashMap::new();
 /// kind_views.insert(
 ///     "comment".into(),
-///     Arc::new(|ctx: crate::HistoryRenderContext| {
-///         let summary = ctx.entry.id.clone();
+///     Arc::new(|ctx: HistoryRenderContext| {
+///         let entry = ctx.entry.clone();
+///         let summary = match &entry.change {
+///             HistoryChange::Custom { summary } => summary.clone(),
+///             _ => String::new(),
+///         };
 ///         Some(view! {
-///             <li data-testid="history-custom-comment" style="padding: 8px; list-style: none;">
-///                 {format!("Comment entry {summary}")}
-///             </li>
+///             <HistoryKindEntryRow entry=entry>
+///                 <div data-testid="history-custom-comment">
+///                     <Body1 class="orbital-history__comment-body".to_string()>
+///                         {summary}
+///                     </Body1>
+///                 </div>
+///             </HistoryKindEntryRow>
 ///         }.into_any())
 ///     }) as HistoryEntryView,
 /// );

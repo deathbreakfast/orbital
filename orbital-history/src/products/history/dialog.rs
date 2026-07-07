@@ -7,7 +7,7 @@ use orbital_core_components::{
 use crate::engine::DEFAULT_HISTORY_ROW_HEIGHT_PX;
 use crate::types::{
     resolve_history_locale, HistoryEvents, HistoryFeatures, HistoryFilter,
-    HistoryFilterActorOption, HistoryLiveScrollPolicy, HistoryLocale, HistoryOrientation,
+    HistoryFilterActorOption, HistoryLiveScrollPolicy, HistoryLocale, HistoryLayout,
     HistoryPagingMode, HistoryRenderers, HistorySort, HistorySource,
 };
 
@@ -26,7 +26,7 @@ pub fn HistoryDialog(
     #[prop(optional)] title: Option<String>,
     /// Default `"360px"` — matches dialog embed guidance.
     #[prop(optional, default = "360px".to_string())] max_height: String,
-    #[prop(optional, default = HistoryOrientation::Vertical)] orientation: HistoryOrientation,
+    #[prop(optional, default = HistoryLayout::Natural)] layout: HistoryLayout,
     #[prop(optional, default = HistoryFeatures::default_enabled())] features: HistoryFeatures,
     #[prop(optional)] locale: Option<HistoryLocale>,
     #[prop(optional, default = HistoryPagingMode::InfiniteScroll)] paging: HistoryPagingMode,
@@ -41,7 +41,7 @@ pub fn HistoryDialog(
     #[prop(optional)] filter_kinds: Option<Signal<Vec<String>>>,
     #[prop(optional)] filter_actors: Option<Signal<Vec<HistoryFilterActorOption>>>,
     #[prop(optional, default = HistoryLiveScrollPolicy::Preserve)] live_scroll_policy: HistoryLiveScrollPolicy,
-    #[prop(optional)] read_watermark: Option<Signal<Option<chrono::DateTime<chrono::Utc>>>>,
+    #[prop(optional)] read_watermark: Option<RwSignal<Option<chrono::DateTime<chrono::Utc>>>>,
     #[prop(optional, default = DEFAULT_HISTORY_ROW_HEIGHT_PX as u32)] virtual_row_height: u32,
     #[prop(optional, default = HistoryEvents::default())] events: HistoryEvents,
     #[prop(optional)] renderers: Option<HistoryRenderers>,
@@ -72,7 +72,7 @@ pub fn HistoryDialog(
                         <DialogContent>
                             {HistoryTimeline(HistoryTimelineProps {
                                 data_source,
-                                orientation,
+                                layout,
                                 features,
                                 locale: Some(resolved_locale),
                                 max_height: Some(max_height),

@@ -1,5 +1,6 @@
 use leptos::prelude::*;
-use orbital_core_components::Link;
+use orbital_core_components::{link_styles, Link};
+use orbital_style::inject_style;
 use std::sync::Arc;
 
 use crate::{
@@ -15,6 +16,8 @@ use super::super::parts::{
 /// Reply body with part dispatch and optional markdown rendering.
 #[component]
 pub fn DiscussionReplyBody(reply: DiscussionReply, features: DiscussionFeatures) -> impl IntoView {
+    inject_style("orbital-link", link_styles());
+
     let ctx = use_discussion();
     let markdown_enabled = features.contains(DiscussionFeatures::MARKDOWN);
     let custom_parts = features.contains(DiscussionFeatures::CUSTOM_PARTS);

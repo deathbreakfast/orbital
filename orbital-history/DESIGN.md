@@ -33,7 +33,7 @@ Apps need to show **what changed, when, and by whom** on a detail page, in a sid
 - A host can render a scrollable audit timeline from either an in-memory signal or a `PageFetcher` without importing app-specific types into Orbital
 - Default field-diff, created, and deleted rows look product-ready with locale-overridable templates
 - Custom per-entry / per-`kind` / change-line renderers fall through to defaults when they return `None`
-- Vertical (default) and Horizontal orientations are both fully implemented
+- Natural (default) and Compact entry layouts are both fully implemented
 - Empty, loading (initial skeleton vs incremental spinner), error, and end-of-list states have defaults and override slots
 - Relative date-bucket dividers (not per-day) are available and default-on
 - Each delivery PR is independently demoable in the Orbital component preview app when it adds UI
@@ -69,7 +69,7 @@ orbital-history/
       slots.rs              # #[slot] chrome + renderer slots
       renderers.rs          # HistoryRenderers, HistoryRenderContext
       events.rs             # HistoryEvents
-      orientation.rs        # HistoryOrientation
+      layout.rs             # HistoryLayout
       date_bucket.rs        # HistoryDateBucket, HistoryListItem (PR8)
     format/
       mod.rs                # format_change, truncate_display_value, history_date_bucket
@@ -335,16 +335,16 @@ Bucket rules and list projection are specified in [§6 Formatting rules](#6-form
 
 ## 4. API surface
 
-### Orientation
+### Layout
 
 ```rust
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub enum HistoryOrientation {
-    /// Timeline spine / marker. Default — best for panels, drawers, dialogs, and mobile.
+pub enum HistoryLayout {
+    /// Timeline spine with stacked timestamp, actor, and change (default).
     #[default]
-    Vertical,
-    /// Timestamp rail on the start edge. Opt-in for wide detail cards.
-    Horizontal,
+    Natural,
+    /// Dense inline sentence: actor + change + time on one line.
+    Compact,
 }
 ```
 
@@ -464,7 +464,7 @@ use leptos::prelude::*;
 #[derive(Clone, Debug)]
 pub struct HistoryRenderContext {
     pub entry: HistoryEntry,
-    pub orientation: HistoryOrientation,
+    pub layout: HistoryLayout,
     pub locale: HistoryLocale,
 }
 
@@ -528,8 +528,8 @@ Internal aggregator: `HistorySlots::from_slot_props(...)`, `HistoryRenderers::fr
 #[component]
 pub fn HistoryTimeline(
     data_source: HistorySource,
-    #[prop(optional, default = HistoryOrientation::Vertical)]
-    orientation: HistoryOrientation,
+    #[prop(optional, default = HistoryLayout::Natural)]
+    layout: HistoryLayout,
     #[prop(optional, default = HistoryFeatures::default_enabled())]
     features: HistoryFeatures,
     #[prop(optional)]
@@ -649,14 +649,14 @@ view! {
 
 Return `None` from a kind renderer to fall through to the default row for that entry.
 
-#### 5. Orientations
+#### 5. Layout modes
 
 ```rust,ignore
-// Default: Vertical
+// Default: natural timeline spine
 <HistoryTimeline data_source=source />
 
-// Wide detail card
-<HistoryTimeline data_source=source orientation=HistoryOrientation::Horizontal />
+// Dense inline sentences
+<HistoryTimeline data_source=source layout=HistoryLayout::Compact />
 ```
 
 #### 6. Dialog vs detail card
@@ -692,7 +692,7 @@ Server source does not need `loading` unless the host wants to override the hook
 
 ## 5. Layout & visual design
 
-### Vertical (default)
+### Natural (default)
 
 ```
   •  3:42 PM
@@ -701,29 +701,25 @@ Server source does not need `loading` unless the host wants to override the hook
 ```
 
 - Spine marker + vertical connector using `var(--orb-color-border-subtle)`
-- Timestamp beside or above the marker: `Caption1`, neutral foreground
+- Timestamp above actor: `Caption1`, neutral foreground
 - Actor: `Body1Strong`; change line: `Body1`
 - Best default for drawers, side panels, dialogs, and mobile
 
-### Horizontal
+### Compact
 
 ```
-| 3:42 PM | Jordan Lee
-|         | changed name from "A" to "B"
-|---------- (stroke separator)
+Jordan Lee changed name from "A" to "B" at 3:42 PM
 ```
 
-- Fixed-width timestamp rail: `--orbital-history-time-rail-width`
-- Body column stacks actor then change
-- Row separators: `var(--orb-color-border-subtle)`
-- Gap rhythm: `--orb-space-block-xs` (4px token step)
-- Opt-in for wide detail cards
+- Single inline sentence: actor + change + localized `" at "` prefix + timestamp
+- No spine column; tighter row padding
+- Opt-in for dense feeds and narrow panels
 
 ### Initial-load skeleton
 
 Same chrome as real rows, with `SkeletonItem` bars instead of text. Default `skeleton_row_count` is **5**.
 
-**Vertical (default):**
+**Natural (default):**
 
 ```
   •  [====]     ← timestamp bar
@@ -735,14 +731,12 @@ Same chrome as real rows, with `SkeletonItem` bars instead of text. Default `ske
   …
 ```
 
-**Horizontal:**
+**Compact:**
 
 ```
-| [====] | [========]
-|        | [==============]
-|----------
-| [====] | [========]
-|        | [==============]
+[==============================================]  ← full-width sentence bar
+[==============================================]
+…
 ```
 
 Incremental loading does **not** use this shell. It renders a compact footer row (`orbital-history__loading-more`) with `Spinner` below the existing entries.
@@ -784,10 +778,10 @@ When `DATE_DIVIDERS` is enabled, insert `HistoryDateDivider` on **bucket transit
 
 | Host | Guidance |
 | --- | --- |
-| Detail-page card | Flex-fill parent; consider `Horizontal` when the card is wide |
+| Detail-page card | Flex-fill parent; consider `Compact` when space is tight |
 | Tab panel | Flex-fill (`min-height: 0` on ancestors) |
 | Dialog body | `max_height` (e.g. `"360px"`) + internal `ScrollArea` |
-| Drawer | Default `Vertical` |
+| Drawer | Default `Natural` |
 
 No dialog shell helper in v1.
 
@@ -919,7 +913,7 @@ Structural slots (header, empty, initial loading, loading-more, error, end) **re
 | Slug | Focus |
 | --- | --- |
 | `history-timeline` | Root product, default vertical |
-| `history-orientation` | Vertical vs Horizontal |
+| `history-layout` | Natural vs Compact |
 | `history-data-source` | Client vs Server / infinite scroll |
 | `history-loading` | Initial skeleton vs incremental footer spinner (PR5; polish in PR8 if needed) |
 | `history-slots` | Empty / loading / loading-more / error / end / header |
@@ -1083,7 +1077,7 @@ None remaining for implementers.
 
 ### Resolved decisions
 
-- **Orientations:** Both ship (PR3 leaves + PR4 timeline). **`HistoryOrientation::Vertical` is the default**; `Horizontal` is opt-in for wide layouts.
+- **Layout:** Both ship (PR3 leaves + PR4 timeline). **`HistoryLayout::Natural` is the default**; `Compact` is opt-in for dense inline rows.
 - **Date dividers:** Ship in PR8 behind `HistoryFeatures::DATE_DIVIDERS` (**default on**). Use **relative buckets** (Today → Yesterday → Last 7 days → Last 30 days → Older), not per-calendar-day dividers, so a long audit log shows at most a handful of section headers.
 - **Time type:** `DateTime<Utc>` on `HistoryEntry` for paging serde; format with base-components helpers.
 - **Sort:** Host pre-sorts newest-first; timeline does not re-sort in v1.

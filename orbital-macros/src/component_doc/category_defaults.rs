@@ -44,6 +44,9 @@ pub fn default_section_from_path(
     if path.contains("orbital-discussion/") {
         return "Discussion".to_string();
     }
+    if path.contains("orbital-history/") {
+        return "History".to_string();
+    }
     if path.contains("orbital-charts/") {
         return "Charts".to_string();
     }
@@ -104,6 +107,7 @@ pub fn default_section_priority(section: &str, nav_item: bool, explicit: Option<
         "Tree" => 7,
         "Scheduling" => 8,
         "Discussion" => 9,
+        "History" => 10,
         // Legacy alias during migration
         "Core" => 2,
         _ => 100,
@@ -153,6 +157,7 @@ pub fn default_group(category: &str, slug: &str, explicit: Option<&str>) -> Stri
         "Data Table" => data_table_group(slug),
         "Scheduling" => scheduling_group(slug),
         "Discussion" => discussion_group(slug),
+        "History" => history_group(slug),
         "Motion" => motion_group(slug),
         _ => String::new(),
     }
@@ -364,6 +369,27 @@ fn discussion_group(slug: &str) -> String {
     }
 }
 
+fn history_group(slug: &str) -> String {
+    match slug {
+        "history-data-source" | "history-paged" | "history-scroll-load" | "history-server-filter" => {
+            "Data source".to_string()
+        }
+        "history-live-update" | "history-live-transport" => "Live updates".to_string(),
+        "history-filter" | "history-sort" => "Filter & sort".to_string(),
+        "history-markdown" | "history-multi-diff" | "history-grouping" => "Change bodies".to_string(),
+        "history-handle" | "history-refresh" => "Handle".to_string(),
+        "history-layout"
+        | "history-date-dividers"
+        | "history-timezone-buckets"
+        | "history-timezone-display"
+        | "history-localization" => "Layout".to_string(),
+        "history-slots" | "history-renderers" | "history-embed" => "Customization".to_string(),
+        "history-virtualized" => "Performance".to_string(),
+        "history-loading" => "States".to_string(),
+        _ => String::new(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -395,6 +421,19 @@ mod tests {
                 false
             ),
             "Tree"
+        );
+    }
+
+    #[test]
+    fn default_section_from_path_history() {
+        assert_eq!(
+            default_section_from_path(
+                "orbital-history/src/products/history/timeline.rs",
+                "History",
+                None,
+                false
+            ),
+            "History"
         );
     }
 

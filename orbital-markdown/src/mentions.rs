@@ -1,5 +1,6 @@
 use regex::Regex;
 
+use crate::links::ORBITAL_LINK_INLINE_CLASS;
 use crate::mention_style::MentionLinkStyle;
 
 /// Mention id + display label for `@[label](id)` resolution.
@@ -38,8 +39,9 @@ pub fn replace_mention_links(html: &str, style: MentionLinkStyle) -> String {
         let id = caps.get(1).map(|m| m.as_str()).unwrap_or("");
         let label = caps.get(2).map(|m| m.as_str()).unwrap_or("");
         format!(
-            r##"<a href="#mention-{id}" class="{class}" data-mention-id="{id}">{label}</a>"##,
+            r##"<a href="#mention-{id}" class="{class} {link_class}" data-mention-id="{id}">{label}</a>"##,
             class = style.anchor_class,
+            link_class = ORBITAL_LINK_INLINE_CLASS,
             id = id,
             label = label,
         )
@@ -59,5 +61,6 @@ mod tests {
         let out = replace_mention_links(&html, MentionLinkStyle::history());
         assert!(out.contains("data-mention-id=\"u1\""));
         assert!(out.contains("orbital-history__mention-ref"));
+        assert!(out.contains("orbital-link orbital-link--inline"));
     }
 }

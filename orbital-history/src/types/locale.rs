@@ -1,11 +1,11 @@
 //! User-facing locale strings and format helpers for history chrome.
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, FixedOffset, Local, TimeZone, Utc};
 use leptos::prelude::*;
 use orbital_base_components::{format_unix, DatetimeFormat, DatetimeTimezone};
 
 use super::HistoryDateBucket;
-use crate::format::{truncate_display_value, DEFAULT_TRUNCATE_LEN};
+use crate::format::{history_date_bucket_in_tz, truncate_display_value, DEFAULT_TRUNCATE_LEN};
 
 /// User-facing strings and format templates for the history timeline.
 #[derive(Clone, Debug, PartialEq)]
@@ -42,6 +42,8 @@ pub struct HistoryLocale {
     pub sort_oldest: String,
     /// Compact absolute time format preference.
     pub time_format: DatetimeFormat,
+    /// Prefix before the timestamp in compact layout (e.g. `" at "`).
+    pub compact_entry_at_prefix: String,
     /// Label for the unread section divider.
     pub unread_divider_label: String,
 }
@@ -94,6 +96,7 @@ impl HistoryLocale {
             sort_newest: "Newest first".into(),
             sort_oldest: "Oldest first".into(),
             time_format: DatetimeFormat::Time12,
+            compact_entry_at_prefix: " at ".into(),
             unread_divider_label: "New".into(),
         }
     }
@@ -133,6 +136,7 @@ impl HistoryLocale {
             sort_newest: "Plus récent".into(),
             sort_oldest: "Plus ancien".into(),
             time_format: DatetimeFormat::Time24,
+            compact_entry_at_prefix: " à ".into(),
             unread_divider_label: "Nouveau".into(),
         }
     }
@@ -230,6 +234,22 @@ impl HistoryLocale {
         format_unix(at.timestamp(), self.time_format, tz)
     }
 
+    /// Compact timestamp for a history row: time-only for today, date + time for older entries.
+    pub fn format_history_timestamp(
+        &self,
+        at: DateTime<Utc>,
+        now: DateTime<Utc>,
+        tz: DatetimeTimezone,
+    ) -> String {
+        let bucket = history_date_bucket_in_tz(at, now, tz);
+        let time = format_unix(at.timestamp(), self.time_format, tz);
+        if bucket == HistoryDateBucket::Today {
+            return time;
+        }
+        let date = format_short_calendar_date(at.timestamp(), tz);
+        format!("{date}, {time}")
+    }
+
     pub fn date_bucket_label(&self, bucket: HistoryDateBucket) -> &str {
         match bucket {
             HistoryDateBucket::Today => &self.date_bucket_today,
@@ -238,6 +258,26 @@ impl HistoryLocale {
             HistoryDateBucket::Last30Days => &self.date_bucket_last_30_days,
             HistoryDateBucket::Older => &self.date_bucket_older,
         }
+    }
+}
+
+fn format_short_calendar_date(secs: i64, tz: DatetimeTimezone) -> String {
+    const PATTERN: &str = "%b %d, %Y";
+    match tz {
+        DatetimeTimezone::Local => Local
+            .timestamp_opt(secs, 0)
+            .single()
+            .map(|dt| dt.format(PATTERN).to_string())
+            .unwrap_or_default(),
+        DatetimeTimezone::Utc => Utc
+            .timestamp_opt(secs, 0)
+            .single()
+            .map(|dt| dt.format(PATTERN).to_string())
+            .unwrap_or_default(),
+        DatetimeTimezone::FixedOffset(offset_secs) => FixedOffset::east_opt(offset_secs)
+            .and_then(|offset| offset.timestamp_opt(secs, 0).single())
+            .map(|dt| dt.format(PATTERN).to_string())
+            .unwrap_or_default(),
     }
 }
 

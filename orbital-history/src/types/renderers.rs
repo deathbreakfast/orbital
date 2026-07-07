@@ -3,14 +3,14 @@ use std::sync::Arc;
 
 use leptos::prelude::*;
 
-use super::{HistoryEntry, HistoryOrientation};
+use super::{HistoryEntry, HistoryLayout};
 use crate::types::HistoryLocale;
 
 /// Context passed to history render callbacks.
 #[derive(Clone)]
 pub struct HistoryRenderContext {
     pub entry: HistoryEntry,
-    pub orientation: HistoryOrientation,
+    pub layout: HistoryLayout,
     pub locale: HistoryLocale,
 }
 

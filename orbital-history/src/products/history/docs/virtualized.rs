@@ -8,10 +8,27 @@ use orbital_macros::component_doc;
 /// ## Virtualized client list
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::large_client_entries;
-/// use crate::{HistoryFeatures, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryFeatures, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(large_client_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(
+///     (0..80)
+///         .map(|i| HistoryEntry {
+///             id: format!("large-{i}"),
+///             kind: "field_diff".into(),
+///             changed_at: now - Duration::minutes(i),
+///             actor: HistoryActor::System,
+///             change: HistoryChange::FieldDiff {
+///                 field: "n".into(),
+///                 old_value: format!("{i}"),
+///                 new_value: format!("{}", i + 1),
+///             },
+///         })
+///         .collect::<Vec<_>>(),
+/// );
 /// view! {
 ///     <div data-testid="history-virtualized-preview" style="height: 320px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline

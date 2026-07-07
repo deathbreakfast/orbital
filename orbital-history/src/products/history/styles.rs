@@ -111,13 +111,39 @@ pub fn history_styles() -> &'static str {
     padding-inline: var(--orbital-history-row-padding-inline);
 }
 
-.orbital-history__entry--vertical {
+.orbital-history__entry--natural {
     gap: var(--orb-space-inline-sm);
 }
 
-.orbital-history__entry--horizontal {
-    gap: var(--orb-space-inline-md);
-    border-bottom: 1px solid var(--orb-color-border-subtle);
+.orbital-history__entry--compact {
+    gap: 0;
+}
+
+.orbital-history__body--compact {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.orbital-history__compact-line {
+    margin: 0;
+    min-width: 0;
+    color: var(--orb-color-foreground-1);
+}
+
+.orbital-history__compact-line .orbital-history__actor--inline,
+.orbital-history__compact-line .orbital-history__change,
+.orbital-history__compact-line .orbital-history__compact-at,
+.orbital-history__compact-line .orbital-history__timestamp {
+    display: inline;
+}
+
+.orbital-history__compact-line .orbital-history__change {
+    color: var(--orb-color-foreground-2);
+}
+
+.orbital-history__compact-line .orbital-history__timestamp {
+    color: var(--orb-color-foreground-3);
+    white-space: nowrap;
 }
 
 .orbital-history__entry--clickable {
@@ -239,25 +265,9 @@ pub fn history_styles() -> &'static str {
     position: relative;
 }
 
-.orbital-history__mention-ref {
-    color: var(--orb-color-accent, var(--orb-color-brand));
-    text-decoration: none;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.orbital-history__mention-ref:hover {
-    text-decoration: underline;
-}
-
-.orbital-history__mention-popover {
+.orbital-history__mention-popover-anchor {
     position: fixed;
-    z-index: 20;
-    padding: var(--orb-space-block-sm) var(--orb-space-inline-sm);
-    border: 1px solid var(--orb-color-border-subtle);
-    border-radius: var(--orb-radius-md, 4px);
-    background: var(--orb-color-background-1, #fff);
-    box-shadow: var(--orb-shadow-4, 0 4px 16px rgba(0, 0, 0, 0.12));
+    z-index: 2000;
     pointer-events: none;
 }
 
@@ -324,8 +334,13 @@ pub fn history_styles() -> &'static str {
     padding-block: var(--orbital-history-row-padding-block);
 }
 
-.orbital-history__skeleton-row--horizontal {
-    gap: var(--orb-space-inline-md);
+.orbital-history__skeleton-row--compact {
+    padding-block: var(--orb-space-block-xs);
+}
+
+.orbital-history__skeleton-bars--compact {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .orbital-history__skeleton-bars {

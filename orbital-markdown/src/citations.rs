@@ -1,6 +1,7 @@
 use regex::Regex;
 
 use crate::citation_style::CitationLinkStyle;
+use crate::links::ORBITAL_LINK_INLINE_CLASS;
 
 /// Citation id + 1-based display index for ref resolution.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -28,8 +29,9 @@ pub fn replace_citation_refs(
         let row_anchor = format!("{}{}", style.row_anchor_prefix, citation.id);
         let ref_id = format!("{}{}", style.ref_id_prefix, citation.id);
         let replacement = format!(
-            r##"<sup class="{class}"><a href="#{row_anchor}" id="{ref_id}" data-citation-id="{id}">{index}</a></sup>"##,
+            r##"<sup class="{class}"><a href="#{row_anchor}" id="{ref_id}" class="{link_class}" data-citation-id="{id}">{index}</a></sup>"##,
             class = style.anchor_class,
+            link_class = ORBITAL_LINK_INLINE_CLASS,
             row_anchor = row_anchor,
             ref_id = ref_id,
             id = citation.id,
@@ -85,5 +87,6 @@ mod tests {
         assert!(out.contains("history-citation-row-audit-1"));
         assert!(out.contains("history-citation-ref-audit-1"));
         assert!(out.contains("orbital-history__citation-ref"));
+        assert!(out.contains("orbital-link orbital-link--inline"));
     }
 }

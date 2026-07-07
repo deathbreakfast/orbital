@@ -13,7 +13,8 @@ use std::sync::Arc;
 
 use chrono::Utc;
 
-use crate::context::{provide_history_context, use_history_context, HistoryContext};
+use crate::context::{use_history_context, HistoryContext};
+use leptos::context::Provider;
 use crate::engine::{
     merge_live_head, scroll_offset_for_index, DEFAULT_HISTORY_ROW_HEIGHT_PX, HistoryRowHeightCache,
 };
@@ -22,7 +23,7 @@ use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
     HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFetchParams,
     HistoryFilter, HistoryFilterActorOption, HistoryGroupBy, HistoryHandle, HistoryHeader, HistoryLiveScrollPolicy,
-    HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryOrientation, HistoryPageFetcher,
+    HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryLayout, HistoryPageFetcher,
     HistoryPagingMode, HistoryPaginationView, HistoryRenderers, HistorySerializedState, HistorySlots,
     HistorySort, HistorySource,
 };
@@ -64,13 +65,52 @@ struct InfiniteScrollState {
 /// # Examples
 ///
 /// ## Client signal list
-/// Newest-first field-diff entries in the default vertical orientation.
+/// Newest-first field-diff entries in the default natural layout.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::sample_entries;
-/// use crate::{HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistorySource, HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(sample_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: Some("/users/u1".into()),
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "3".into(),
+///         kind: "deleted".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::User {
+///             id: "u2".into(),
+///             display_name: "Sam Rivera".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Deleted {
+///             label: "Draft note".into(),
+///         },
+///     },
+/// ]);
 /// view! {
 ///     <div data-testid="history-timeline-preview" style="height: 360px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline data_source=HistorySource::Client(entries) />
@@ -86,7 +126,7 @@ struct InfiniteScrollState {
 #[component]
 pub fn HistoryTimeline(
     data_source: HistorySource,
-    #[prop(optional, default = HistoryOrientation::Vertical)] orientation: HistoryOrientation,
+    #[prop(optional, default = HistoryLayout::Natural)] layout: HistoryLayout,
     #[prop(optional, default = HistoryFeatures::default_enabled())] features: HistoryFeatures,
     #[prop(optional)] locale: Option<HistoryLocale>,
     /// e.g. Some("320px"). None = flex-fill (`min-height: 0`) in parent.
@@ -123,7 +163,7 @@ pub fn HistoryTimeline(
     live_scroll_policy: HistoryLiveScrollPolicy,
     /// Entries newer than this instant render as unread when `UNREAD_HIGHLIGHT` is enabled.
     #[prop(optional)]
-    read_watermark: Option<Signal<Option<chrono::DateTime<Utc>>>>,
+    read_watermark: Option<RwSignal<Option<chrono::DateTime<Utc>>>>,
     /// Group consecutive entries by actor or kind when `GROUP_COLLAPSE` is enabled.
     #[prop(optional)]
     group_by: Option<Signal<HistoryGroupBy>>,
@@ -187,10 +227,12 @@ pub fn HistoryTimeline(
     let live_head_signal: Signal<Vec<HistoryEntry>> = live_head
         .unwrap_or_else(|| Signal::derive(move || internal_live_head.get()).into());
 
-    let read_watermark_controlled = read_watermark.is_some();
+    let read_watermark_rw = read_watermark;
     let internal_read_watermark = RwSignal::new(None::<chrono::DateTime<Utc>>);
-    let read_watermark_signal: Signal<Option<chrono::DateTime<Utc>>> = read_watermark
-        .unwrap_or_else(|| Signal::derive(move || internal_read_watermark.get()).into());
+    let read_watermark_signal: Signal<Option<chrono::DateTime<Utc>>> = match read_watermark_rw {
+        Some(rw) => Signal::derive(move || rw.get()),
+        None => Signal::derive(move || internal_read_watermark.get()),
+    };
 
     let group_by_signal: Signal<HistoryGroupBy> = group_by
         .unwrap_or_else(|| Signal::derive(|| HistoryGroupBy::None).into());
@@ -450,7 +492,9 @@ pub fn HistoryTimeline(
                 if is_client && !sort_controlled {
                     internal_sort.set(state.sort);
                 }
-                if !read_watermark_controlled {
+                if let Some(rw) = read_watermark_rw {
+                    rw.set(state.read_watermark);
+                } else {
                     internal_read_watermark.set(state.read_watermark);
                 }
                 if is_paged {
@@ -467,13 +511,18 @@ pub fn HistoryTimeline(
             }
         }),
         set_read_watermark: Callback::new(move |(wm,): (chrono::DateTime<Utc>,)| {
-            if !read_watermark_controlled {
+            if let Some(rw) = read_watermark_rw {
+                rw.set(Some(wm));
+            } else {
                 internal_read_watermark.set(Some(wm));
             }
         }),
         mark_all_read: Callback::new(move |_| {
-            if !read_watermark_controlled {
-                internal_read_watermark.set(Some(Utc::now()));
+            let now = Some(Utc::now());
+            if let Some(rw) = read_watermark_rw {
+                rw.set(now);
+            } else {
+                internal_read_watermark.set(now);
             }
         }),
         expand_group: Callback::new({
@@ -520,10 +569,10 @@ pub fn HistoryTimeline(
         }
     });
 
-    provide_history_context(HistoryContext {
+    let history_ctx = HistoryContext {
         locale: locale_signal.into(),
         features,
-        orientation,
+        layout,
         events: events.clone(),
         renderers: merged_renderers,
         display_timezone,
@@ -545,7 +594,7 @@ pub fn HistoryTimeline(
         page: is_paged.then(|| Signal::derive(move || page_ui.get()).into()),
         page_count: is_paged.then(|| Signal::derive(move || page_count.get()).into()),
         go_to_page: is_paged.then(|| handle.go_to_page.clone()),
-    });
+    };
 
     Effect::new({
         let scroll_el = scroll_el;
@@ -614,31 +663,34 @@ pub fn HistoryTimeline(
         HistorySource::Client(items) => {
             let entries = Signal::derive(move || items.get());
             view! {
-                <div class=move || root_class.get() data-orbital-history data-testid="history-timeline">
-                    {header_view()}
-                    <HistoryClientPanel
-                        entries=entries
-                        paging=paging
-                        client_page_size=client_page_size
-                        page_ui=page_ui
-                        page_count=page_count
-                        loading=loading
-                        skeleton_row_count=skeleton_row_count
-                        scroll_style=scroll_style
-                        scroll_el=scroll_el
-                        empty_slot=empty_slot
-                        loading_slot=loading_slot
-                        pagination_render=pagination_render
-                        merged_entry_ids=merged_entry_ids
-                    />
-                </div>
+                <Provider value=history_ctx>
+                    <div class=move || root_class.get() data-orbital-history data-testid="history-timeline">
+                        {header_view()}
+                        <HistoryClientPanel
+                            entries=entries
+                            paging=paging
+                            client_page_size=client_page_size
+                            page_ui=page_ui
+                            page_count=page_count
+                            loading=loading
+                            skeleton_row_count=skeleton_row_count
+                            scroll_style=scroll_style
+                            scroll_el=scroll_el
+                            empty_slot=empty_slot
+                            loading_slot=loading_slot
+                            pagination_render=pagination_render
+                            merged_entry_ids=merged_entry_ids
+                        />
+                    </div>
+                </Provider>
             }
             .into_any()
         }
         HistorySource::Server { fetcher, page_size } => view! {
-            <div class=move || root_class.get() data-orbital-history data-testid="history-timeline">
-                {header_view()}
-                <HistoryServerPanel
+            <Provider value=history_ctx>
+                <div class=move || root_class.get() data-orbital-history data-testid="history-timeline">
+                    {header_view()}
+                    <HistoryServerPanel
                     fetcher=fetcher
                     page_size=page_size
                     paging=paging
@@ -666,7 +718,8 @@ pub fn HistoryTimeline(
                     pagination_render=pagination_render
                     merged_entry_ids=merged_entry_ids
                 />
-            </div>
+                </div>
+            </Provider>
         }
         .into_any(),
     }

@@ -2,6 +2,7 @@
 
 mod citation_style;
 mod citations;
+mod links;
 mod mention_style;
 mod mentions;
 mod options;
@@ -12,5 +13,6 @@ pub use citation_style::CitationLinkStyle;
 pub use citations::CitationRef;
 pub use mention_style::MentionLinkStyle;
 pub use mentions::MentionRef;
+pub use links::{style_markdown_links, ORBITAL_LINK_INLINE_CLASS};
 pub use options::OrbitalMarkdownOptions;
 pub use render_html::{render_to_html, RenderContext};

@@ -103,6 +103,18 @@ mod tests {
     }
 
     #[test]
+    fn unresolved_citation_ref_passthrough() {
+        let html = render_history_markdown(
+            "See [^audit-1] for the audit trail.",
+            &[],
+            &[],
+            &[],
+            HistoryMarkdownRenderOptions::default(),
+        );
+        assert!(html.contains("[^audit-1]"));
+    }
+
+    #[test]
     fn history_citation_anchors() {
         let citations = vec![HistoryCitation {
             id: "audit-1".into(),
@@ -119,6 +131,7 @@ mod tests {
             },
         );
         assert!(html.contains("history-citation-ref-audit-1"));
+        assert!(html.contains("orbital-link orbital-link--inline"));
     }
 
     #[test]
@@ -135,6 +148,20 @@ mod tests {
         );
         assert!(html.contains("data-mention-id=\"u1\""));
         assert!(html.contains("orbital-history__mention-ref"));
+        assert!(html.contains("orbital-link orbital-link--inline"));
+    }
+
+    #[test]
+    fn history_markdown_link_uses_orbital_link() {
+        let html = render_history_markdown(
+            "Updated the [design doc](https://example.com).",
+            &[],
+            &[],
+            &[],
+            HistoryMarkdownRenderOptions::default(),
+        );
+        assert!(html.contains("orbital-link orbital-link--inline"));
+        assert!(html.contains("design doc"));
     }
 
     #[test]

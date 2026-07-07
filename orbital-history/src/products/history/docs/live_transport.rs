@@ -20,9 +20,39 @@ use orbital_macros::component_doc;
 /// Host runs an `Effect` with its own interval/fetch; maps results into `live_head`.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::{mock_page_fetcher, sample_entries};
-/// use crate::{HistoryLiveScrollPolicy, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::preview::fixtures::mock_page_fetcher;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryLiveScrollPolicy, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
+/// let now = Utc::now();
+/// // Representative newest-first rows (mock fetcher pages through an extended set like this):
+/// let _fixture = vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ];
 /// let fetcher = mock_page_fetcher();
 /// let live = RwSignal::new(Vec::new());
 /// // Host transport (outside Orbital) would update `live` on each message.
@@ -41,10 +71,55 @@ use orbital_macros::component_doc;
 /// After `on_handle`, call `prepend_live` for incremental rows or `refresh` for full reload.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::{mock_page_fetcher, sample_entries};
-/// use crate::{HistoryEvents, HistoryHandle, HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::preview::fixtures::mock_page_fetcher;
+/// use crate::{
+///     HistoryActor, HistoryChange, HistoryEntry, HistoryEvents, HistoryHandle, HistorySource,
+///     HistoryTimeline,
+/// };
 /// use leptos::prelude::*;
 /// use orbital_core_components::{Button, ButtonAppearance};
+/// let now = Utc::now();
+/// // Representative newest-first rows (mock fetcher pages through an extended set like this):
+/// let _fixture = vec![
+///     HistoryEntry {
+///         id: "1".into(),
+///         kind: "field_diff".into(),
+///         changed_at: now - Duration::minutes(15),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::FieldDiff {
+///             field: "name".into(),
+///             old_value: "Acme".into(),
+///             new_value: "Acme Corp".into(),
+///         },
+///     },
+///     HistoryEntry {
+///         id: "2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::hours(3),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ];
+/// let prepend_entry = HistoryEntry {
+///     id: "live-prepend".into(),
+///     kind: "field_diff".into(),
+///     changed_at: now,
+///     actor: HistoryActor::User {
+///         id: "u1".into(),
+///         display_name: "Jordan Lee".into(),
+///         href: Some("/users/u1".into()),
+///     },
+///     change: HistoryChange::FieldDiff {
+///         field: "name".into(),
+///         old_value: "Acme".into(),
+///         new_value: "Acme Corp".into(),
+///     },
+/// };
 /// let fetcher = mock_page_fetcher();
 /// let handle = RwSignal::new(None::<HistoryHandle>);
 /// view! {
@@ -53,7 +128,7 @@ use orbital_macros::component_doc;
 ///             appearance=ButtonAppearance::Secondary
 ///             on_click=Callback::new(move |_| {
 ///                 if let Some(h) = handle.get() {
-///                     h.prepend_live.run((vec![sample_entries()[0].clone()],));
+///                     h.prepend_live.run((vec![prepend_entry.clone()],));
 ///                 }
 ///             })
 ///         >

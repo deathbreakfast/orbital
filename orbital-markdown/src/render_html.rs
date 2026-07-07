@@ -1,6 +1,7 @@
 use pulldown_cmark::{html, Options, Parser};
 
 use crate::citations::{replace_citation_refs, strip_duplicate_images, CitationRef};
+use crate::links::style_markdown_links;
 use crate::mentions::{prepare_mention_markdown, replace_mention_links};
 use crate::options::OrbitalMarkdownOptions;
 use crate::sanitize::sanitize_html;
@@ -57,7 +58,7 @@ pub fn render_to_html(
         html = replace_citation_refs(&html, ctx.citations, options.citation_style);
     }
 
-    html
+    style_markdown_links(&html)
 }
 
 #[cfg(test)]
@@ -97,6 +98,18 @@ mod tests {
             &ctx,
         );
         assert!(html.contains("discussion-citation-ref-cit-1"));
+        assert!(html.contains("orbital-link orbital-link--inline"));
+    }
+
+    #[test]
+    fn markdown_link_uses_orbital_link_classes() {
+        let html = render_to_html(
+            "See [design doc](https://example.com).",
+            &OrbitalMarkdownOptions::default(),
+            &RenderContext::default(),
+        );
+        assert!(html.contains("orbital-link orbital-link--inline"));
+        assert!(html.contains("design doc"));
     }
 
     #[test]
@@ -114,5 +127,6 @@ mod tests {
         );
         assert!(html.contains("data-mention-id=\"u1\""));
         assert!(html.contains("orbital-history__mention-ref"));
+        assert!(html.contains("orbital-link orbital-link--inline"));
     }
 }

@@ -9,10 +9,47 @@ use orbital_macros::component_doc;
 /// Entries spanning multiple relative buckets show section headers.
 /// <!-- preview -->
 /// ```rust,ignore
-/// use crate::preview::fixtures::bucket_span_entries;
-/// use crate::{HistorySource, HistoryTimeline};
+/// use chrono::{Duration, Utc};
+/// use crate::{HistoryActor, HistoryChange, HistoryEntry, HistorySource, HistoryTimeline};
 /// use leptos::prelude::*;
-/// let entries = RwSignal::new(bucket_span_entries());
+/// let now = Utc::now();
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "b1".into(),
+///         kind: "created".into(),
+///         changed_at: now,
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b2".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(1),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b3".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(4),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b4".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(12),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+///     HistoryEntry {
+///         id: "b5".into(),
+///         kind: "created".into(),
+///         changed_at: now - Duration::days(40),
+///         actor: HistoryActor::System,
+///         change: HistoryChange::Created,
+///     },
+/// ]);
 /// view! {
 ///     <div data-testid="history-date-dividers-preview" style="height: 360px; display: flex; flex-direction: column;">
 ///         <HistoryTimeline data_source=HistorySource::Client(entries) />
