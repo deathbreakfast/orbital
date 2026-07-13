@@ -8,13 +8,11 @@ use crate::engine::{
     insert_unread_divider, list_item_cache_key, list_item_heights, project_entry_groups,
     DEFAULT_HISTORY_ROW_OVERSCAN, HISTORY_VIRTUALIZE_THRESHOLD,
 };
-use crate::format::{with_date_dividers_on_list_items, with_date_dividers_in_tz};
+use crate::format::{with_date_dividers_in_tz, with_date_dividers_on_list_items};
 use crate::types::{HistoryEntry, HistoryFeatures, HistoryGroupBy, HistoryListItem};
 
 use super::resize::use_scrollport_height;
-use super::{
-    HistoryDateDivider, HistoryEntryRow, HistoryGroupHeader, HistoryUnreadDivider,
-};
+use super::{HistoryDateDivider, HistoryEntryRow, HistoryGroupHeader, HistoryUnreadDivider};
 
 /// Render a list of history entries with optional sort, filter, date dividers, and virtualization.
 #[component]
@@ -29,7 +27,7 @@ pub fn HistoryEntryList(
 ) -> impl IntoView {
     let ctx = use_history_context();
     let has_scrollport = scrollport.is_some();
-    let measure_ref = scrollport.unwrap_or_else(NodeRef::new);
+    let measure_ref = scrollport.unwrap_or_default();
     let measured_height = use_scrollport_height(measure_ref, 400.0);
     let viewport_height = Memo::new(move |_| {
         if has_scrollport {
@@ -88,11 +86,7 @@ pub fn HistoryEntryList(
     Effect::new({
         let list_layout_keys = ctx.list_layout_keys;
         move |_| {
-            let keys: Vec<_> = entry_items
-                .get()
-                .iter()
-                .map(list_item_cache_key)
-                .collect();
+            let keys: Vec<_> = entry_items.get().iter().map(list_item_cache_key).collect();
             list_layout_keys.set(keys);
         }
     });

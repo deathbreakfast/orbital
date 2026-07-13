@@ -1,7 +1,7 @@
 use crate::{CitationLinkStyle, MentionLinkStyle};
 
 /// Feature flags for markdown rendering.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct OrbitalMarkdownOptions {
     /// Resolve `[^id]` citation reference syntax to superscript links.
     pub enable_citation_refs: bool,
@@ -13,18 +13,6 @@ pub struct OrbitalMarkdownOptions {
     pub citation_style: CitationLinkStyle,
     /// Anchor template for mention links.
     pub mention_style: MentionLinkStyle,
-}
-
-impl Default for OrbitalMarkdownOptions {
-    fn default() -> Self {
-        Self {
-            enable_citation_refs: false,
-            enable_mention_refs: false,
-            enable_images: false,
-            citation_style: CitationLinkStyle::default(),
-            mention_style: MentionLinkStyle::default(),
-        }
-    }
 }
 
 impl OrbitalMarkdownOptions {

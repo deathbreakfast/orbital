@@ -59,11 +59,7 @@ pub fn scroll_container_to_top(_scroll_el: NodeRef<Div>) {}
 pub fn entry_in_dom(entry_id: &str) -> bool {
     let document = document();
     let selector = format!("[data-history-entry-id=\"{entry_id}\"]");
-    document
-        .query_selector(&selector)
-        .ok()
-        .flatten()
-        .is_some()
+    document.query_selector(&selector).ok().flatten().is_some()
 }
 
 #[cfg(not(feature = "hydrate"))]

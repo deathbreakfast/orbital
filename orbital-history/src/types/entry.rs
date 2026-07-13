@@ -36,15 +36,21 @@ pub struct HistoryFieldDiff {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HistoryChange {
     Created,
-    Deleted { label: String },
+    Deleted {
+        label: String,
+    },
     FieldDiff {
         field: String,
         old_value: String,
         new_value: String,
     },
-    FieldDiffs { fields: Vec<HistoryFieldDiff> },
+    FieldDiffs {
+        fields: Vec<HistoryFieldDiff>,
+    },
     /// Plain summary when no structured change applies; often paired with a custom renderer.
-    Custom { summary: String },
+    Custom {
+        summary: String,
+    },
     /// Markdown body (rendered when [`HistoryFeatures::MARKDOWN_BODIES`] is enabled).
     Markdown {
         body: String,

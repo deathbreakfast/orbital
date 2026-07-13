@@ -15,9 +15,16 @@ pub fn sanitize_html(html: &str, allow_images: bool) -> String {
     let mut tag_attrs: HashMap<&str, HashSet<&str>> = HashMap::from([
         (
             "a",
-            ["href", "target", "id", "class", "data-citation-id", "data-mention-id"]
-                .into_iter()
-                .collect(),
+            [
+                "href",
+                "target",
+                "id",
+                "class",
+                "data-citation-id",
+                "data-mention-id",
+            ]
+            .into_iter()
+            .collect(),
         ),
         ("code", ["class"].into_iter().collect()),
         ("pre", ["class"].into_iter().collect()),

@@ -33,7 +33,11 @@ pub fn project_entry_groups(
     expanded: &HashSet<String>,
 ) -> Vec<HistoryListItem> {
     if group_by == HistoryGroupBy::None || entries.is_empty() {
-        return entries.iter().cloned().map(HistoryListItem::Entry).collect();
+        return entries
+            .iter()
+            .cloned()
+            .map(HistoryListItem::Entry)
+            .collect();
     }
 
     let mut out = Vec::new();
@@ -107,7 +111,10 @@ mod tests {
         ];
         let items = project_entry_groups(&entries, HistoryGroupBy::Actor, &HashSet::new());
         assert_eq!(items.len(), 2);
-        assert!(matches!(items[0], HistoryListItem::GroupHeader { child_count: 2, .. }));
+        assert!(matches!(
+            items[0],
+            HistoryListItem::GroupHeader { child_count: 2, .. }
+        ));
         assert!(matches!(items[1], HistoryListItem::Entry(_)));
     }
 

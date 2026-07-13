@@ -19,14 +19,13 @@ fn HistoryFilterKindChip(kind: String) -> impl IntoView {
             .as_ref()
             .is_some_and(|kinds| kinds.iter().any(|k| k == &kind_for_active))
     });
-    let appearance =
-        Memo::new(move |_| {
-            if is_active.get() {
-                ButtonAppearance::Primary
-            } else {
-                ButtonAppearance::Secondary
-            }
-        });
+    let appearance = Memo::new(move |_| {
+        if is_active.get() {
+            ButtonAppearance::Primary
+        } else {
+            ButtonAppearance::Secondary
+        }
+    });
 
     view! {
         <Button
@@ -61,14 +60,13 @@ fn HistoryFilterActorChip(id: String, label: String) -> impl IntoView {
             .as_ref()
             .is_some_and(|actors| actors.iter().any(|a| a == &id_for_active))
     });
-    let appearance =
-        Memo::new(move |_| {
-            if is_active.get() {
-                ButtonAppearance::Primary
-            } else {
-                ButtonAppearance::Secondary
-            }
-        });
+    let appearance = Memo::new(move |_| {
+        if is_active.get() {
+            ButtonAppearance::Primary
+        } else {
+            ButtonAppearance::Secondary
+        }
+    });
 
     view! {
         <Button

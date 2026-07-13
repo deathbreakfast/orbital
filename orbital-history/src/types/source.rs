@@ -11,7 +11,8 @@ use super::{HistoryEntry, HistoryFetchParams};
 pub type HistoryPageFetcher = Arc<
     dyn Fn(
             HistoryFetchParams,
-        ) -> Pin<Box<dyn Future<Output = Result<Page<HistoryEntry>, ServerFnError>> + Send>>
+        )
+            -> Pin<Box<dyn Future<Output = Result<Page<HistoryEntry>, ServerFnError>> + Send>>
         + Send
         + Sync,
 >;

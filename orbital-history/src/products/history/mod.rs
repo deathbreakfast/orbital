@@ -28,7 +28,6 @@ pub use change_card::HistoryChangeCard;
 pub use change_line::HistoryChangeLine;
 pub use chrome::{HistoryDefaultFilterChrome, HistoryDefaultSortChrome, HistoryDefaultToolbar};
 pub use date_divider::HistoryDateDivider;
-pub use unread_divider::HistoryUnreadDivider;
 pub use dialog::HistoryDialog;
 pub use entry_row::HistoryEntryRow;
 pub use group_header::HistoryGroupHeader;
@@ -47,22 +46,23 @@ pub use timeline::HistoryTimeline;
 #[cfg(feature = "preview")]
 pub use timeline::HISTORYTIMELINE_PREVIEW_REGISTRATION;
 pub use timestamp::HistoryTimestamp;
+pub use unread_divider::HistoryUnreadDivider;
 
 #[cfg(feature = "preview")]
 pub use docs::{
     HistoryDataSourceDoc, HistoryDateDividersDoc, HistoryEmbedDoc, HistoryFilterDoc,
-    HistoryHandleDoc, HistoryGroupingDoc, HistoryLiveTransportDoc, HistoryLiveUpdateDoc, HistoryLoadingDoc, HistoryLocalizationDoc,
-    HistoryMarkdownDoc, HistoryMultiDiffDoc, HistoryLayoutDoc, HistoryPagedDoc,
-    HistoryRefreshDoc, HistoryRenderersDoc, HistoryScrollLoadDoc, HistoryServerFilterDoc,
-    HistorySlotsDoc, HistorySortDoc, HistoryTimezoneBucketsDoc, HistoryTimezoneDisplayDoc,
-    HistoryVirtualizedDoc,
+    HistoryGroupingDoc, HistoryHandleDoc, HistoryLayoutDoc, HistoryLiveTransportDoc,
+    HistoryLiveUpdateDoc, HistoryLoadingDoc, HistoryLocalizationDoc, HistoryMarkdownDoc,
+    HistoryMultiDiffDoc, HistoryPagedDoc, HistoryRefreshDoc, HistoryRenderersDoc,
+    HistoryScrollLoadDoc, HistoryServerFilterDoc, HistorySlotsDoc, HistorySortDoc,
+    HistoryTimezoneBucketsDoc, HistoryTimezoneDisplayDoc, HistoryVirtualizedDoc,
     HISTORYDATASOURCEDOC_PREVIEW_REGISTRATION, HISTORYDATEDIVIDERSDOC_PREVIEW_REGISTRATION,
     HISTORYEMBEDDOC_PREVIEW_REGISTRATION, HISTORYFILTERDOC_PREVIEW_REGISTRATION,
-    HISTORYHANDLEDOC_PREVIEW_REGISTRATION, HISTORYGROUPINGDOC_PREVIEW_REGISTRATION,
-    HISTORYLIVETRANSPORTDOC_PREVIEW_REGISTRATION, HISTORYLIVEUPDATEDOC_PREVIEW_REGISTRATION,
-    HISTORYLOADINGDOC_PREVIEW_REGISTRATION, HISTORYLOCALIZATIONDOC_PREVIEW_REGISTRATION,
-    HISTORYMARKDOWNDOC_PREVIEW_REGISTRATION, HISTORYMULTIDIFFDOC_PREVIEW_REGISTRATION,
-    HISTORYLAYOUTDOC_PREVIEW_REGISTRATION, HISTORYPAGEDDOC_PREVIEW_REGISTRATION,
+    HISTORYGROUPINGDOC_PREVIEW_REGISTRATION, HISTORYHANDLEDOC_PREVIEW_REGISTRATION,
+    HISTORYLAYOUTDOC_PREVIEW_REGISTRATION, HISTORYLIVETRANSPORTDOC_PREVIEW_REGISTRATION,
+    HISTORYLIVEUPDATEDOC_PREVIEW_REGISTRATION, HISTORYLOADINGDOC_PREVIEW_REGISTRATION,
+    HISTORYLOCALIZATIONDOC_PREVIEW_REGISTRATION, HISTORYMARKDOWNDOC_PREVIEW_REGISTRATION,
+    HISTORYMULTIDIFFDOC_PREVIEW_REGISTRATION, HISTORYPAGEDDOC_PREVIEW_REGISTRATION,
     HISTORYREFRESHDOC_PREVIEW_REGISTRATION, HISTORYRENDERERSDOC_PREVIEW_REGISTRATION,
     HISTORYSCROLLLOADDOC_PREVIEW_REGISTRATION, HISTORYSERVERFILTERDOC_PREVIEW_REGISTRATION,
     HISTORYSLOTSDOC_PREVIEW_REGISTRATION, HISTORYSORTDOC_PREVIEW_REGISTRATION,

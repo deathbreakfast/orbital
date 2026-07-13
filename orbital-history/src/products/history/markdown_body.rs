@@ -61,7 +61,9 @@ pub fn HistoryMarkdownBody(
 
     let active_mention = RwSignal::new(None::<(HistoryMention, f64, f64)>);
     let markdown_ref = NodeRef::<Div>::new();
+    #[cfg(feature = "hydrate")]
     let mentions_store = StoredValue::new(mentions.clone());
+    #[cfg(feature = "hydrate")]
     let features_store = StoredValue::new(features);
 
     #[cfg(feature = "hydrate")]

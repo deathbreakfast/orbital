@@ -28,12 +28,12 @@ pub fn HistoryGroupHeader(
             class="orbital-history__group-header"
             role="listitem"
             data-testid="history-group-header"
-            aria-expanded=move || expanded.get()
         >
             <Button
                 appearance=ButtonAppearance::Subtle
                 class="orbital-history__group-header-button".to_string()
                 on_click=Callback::new(move |_| toggle.run((key_for_toggle.clone(),)))
+                attr:aria-expanded=move || expanded.get().to_string()
             >
                 <span class="orbital-history__group-chevron" aria-hidden="true">
                     {move || if expanded.get() { "▼" } else { "▶" }}

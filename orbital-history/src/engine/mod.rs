@@ -13,9 +13,7 @@ pub use unread::*;
 pub use viewport::*;
 
 use crate::format::format_change;
-use crate::types::{
-    HistoryActor, HistoryEntry, HistoryFilter, HistoryLocale, HistorySort,
-};
+use crate::types::{HistoryActor, HistoryEntry, HistoryFilter, HistoryLocale, HistorySort};
 
 /// Sort entries by `changed_at` (stable by `id` on ties).
 pub fn apply_sort(entries: &[HistoryEntry], sort: HistorySort) -> Vec<HistoryEntry> {

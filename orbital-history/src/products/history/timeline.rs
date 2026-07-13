@@ -14,19 +14,19 @@ use std::sync::Arc;
 use chrono::Utc;
 
 use crate::context::{use_history_context, HistoryContext};
-use leptos::context::Provider;
 use crate::engine::{
-    merge_live_head, scroll_offset_for_index, DEFAULT_HISTORY_ROW_HEIGHT_PX, HistoryRowHeightCache,
+    merge_live_head, scroll_offset_for_index, HistoryRowHeightCache, DEFAULT_HISTORY_ROW_HEIGHT_PX,
 };
 use crate::products::history::list::project_entries;
 use crate::types::{
     resolve_history_locale, HistoryChangeSlot, HistoryEmptyView, HistoryEndView, HistoryEntry,
     HistoryEntrySlot, HistoryErrorView, HistoryEvents, HistoryFeatures, HistoryFetchParams,
-    HistoryFilter, HistoryFilterActorOption, HistoryGroupBy, HistoryHandle, HistoryHeader, HistoryLiveScrollPolicy,
-    HistoryLoadingMoreView, HistoryLoadingView, HistoryLocale, HistoryLayout, HistoryPageFetcher,
-    HistoryPagingMode, HistoryPaginationView, HistoryRenderers, HistorySerializedState, HistorySlots,
-    HistorySort, HistorySource,
+    HistoryFilter, HistoryFilterActorOption, HistoryGroupBy, HistoryHandle, HistoryHeader,
+    HistoryLayout, HistoryLiveScrollPolicy, HistoryLoadingMoreView, HistoryLoadingView,
+    HistoryLocale, HistoryPageFetcher, HistoryPaginationView, HistoryPagingMode, HistoryRenderers,
+    HistorySerializedState, HistorySlots, HistorySort, HistorySource,
 };
+use leptos::context::Provider;
 
 use super::scroll::{
     attach_scroll_top_listener, entry_in_dom, schedule_scroll_entry_into_view,
@@ -34,9 +34,9 @@ use super::scroll::{
 };
 use super::styles::{density_modifier_class, history_styles};
 use super::{
-    HistoryDefaultEmptyView, HistoryDefaultEndView, HistoryDefaultErrorView,
-    HistoryDefaultHeader, HistoryDefaultLoadingMoreView, HistoryDefaultNoMatchesView,
-    HistoryDefaultPagination, HistoryEntryList, HistoryTimelineSkeleton,
+    HistoryDefaultEmptyView, HistoryDefaultEndView, HistoryDefaultErrorView, HistoryDefaultHeader,
+    HistoryDefaultLoadingMoreView, HistoryDefaultNoMatchesView, HistoryDefaultPagination,
+    HistoryEntryList, HistoryTimelineSkeleton,
 };
 
 /// Shared InfiniteScroll state for handle hunt / refresh coordination.
@@ -130,22 +130,30 @@ pub fn HistoryTimeline(
     #[prop(optional, default = HistoryFeatures::default_enabled())] features: HistoryFeatures,
     #[prop(optional)] locale: Option<HistoryLocale>,
     /// e.g. Some("320px"). None = flex-fill (`min-height: 0`) in parent.
-    #[prop(optional)] max_height: Option<String>,
+    #[prop(optional)]
+    max_height: Option<String>,
     #[prop(optional, default = HistoryPagingMode::InfiniteScroll)] paging: HistoryPagingMode,
     /// Host override for loading. When `None`, Server derives from the paging hook.
-    #[prop(optional)] loading: Option<Signal<bool>>,
+    #[prop(optional)]
+    loading: Option<Signal<bool>>,
     /// Placeholder rows in the initial skeleton (default 5).
-    #[prop(optional, default = 5)] skeleton_row_count: u32,
+    #[prop(optional, default = 5)]
+    skeleton_row_count: u32,
     /// Wall-clock timezone for date-bucket boundaries and compact timestamps. `None` uses UTC.
-    #[prop(optional)] display_timezone: Option<Signal<DatetimeTimezone>>,
+    #[prop(optional)]
+    display_timezone: Option<Signal<DatetimeTimezone>>,
     /// Controlled filter. When omitted, use [`HistoryHandle::set_filter`].
-    #[prop(optional)] filter: Option<Signal<HistoryFilter>>,
+    #[prop(optional)]
+    filter: Option<Signal<HistoryFilter>>,
     /// Controlled sort (Client + `CLIENT_SORT`). When omitted, use [`HistoryHandle::set_sort`].
-    #[prop(optional)] sort: Option<Signal<HistorySort>>,
+    #[prop(optional)]
+    sort: Option<Signal<HistorySort>>,
     /// Max additional pages to fetch during `scroll_to_entry_or_load` (default 20).
-    #[prop(optional, default = 20)] max_scroll_load_pages: u32,
+    #[prop(optional, default = 20)]
+    max_scroll_load_pages: u32,
     /// Page size for Client + [`HistoryPagingMode::Paged`] windowing (default 20).
-    #[prop(optional, default = 20)] client_page_size: u32,
+    #[prop(optional, default = 20)]
+    client_page_size: u32,
     /// Newest entries from live events, merged above Server pages (deduped by `id`). Ignored for Client source.
     #[prop(optional)]
     live_head: Option<Signal<Vec<HistoryEntry>>>,
@@ -224,8 +232,8 @@ pub fn HistoryTimeline(
 
     let live_head_controlled = live_head.is_some();
     let internal_live_head = RwSignal::new(Vec::<HistoryEntry>::new());
-    let live_head_signal: Signal<Vec<HistoryEntry>> = live_head
-        .unwrap_or_else(|| Signal::derive(move || internal_live_head.get()).into());
+    let live_head_signal: Signal<Vec<HistoryEntry>> =
+        live_head.unwrap_or_else(|| Signal::derive(move || internal_live_head.get()));
 
     let read_watermark_rw = read_watermark;
     let internal_read_watermark = RwSignal::new(None::<chrono::DateTime<Utc>>);
@@ -234,8 +242,8 @@ pub fn HistoryTimeline(
         None => Signal::derive(move || internal_read_watermark.get()),
     };
 
-    let group_by_signal: Signal<HistoryGroupBy> = group_by
-        .unwrap_or_else(|| Signal::derive(|| HistoryGroupBy::None).into());
+    let group_by_signal: Signal<HistoryGroupBy> =
+        group_by.unwrap_or_else(|| Signal::derive(|| HistoryGroupBy::None));
     let expanded_groups = RwSignal::new(HashSet::<String>::new());
     let toggle_group = Callback::new({
         let expanded_groups = expanded_groups;
@@ -250,10 +258,10 @@ pub fn HistoryTimeline(
         }
     });
 
-    let filter_kind_options: Signal<Vec<String>> = filter_kinds
-        .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
-    let filter_actor_options: Signal<Vec<HistoryFilterActorOption>> = filter_actors
-        .unwrap_or_else(|| Signal::derive(|| Vec::new()).into());
+    let filter_kind_options: Signal<Vec<String>> =
+        filter_kinds.unwrap_or_else(|| Signal::derive(Vec::new));
+    let filter_actor_options: Signal<Vec<HistoryFilterActorOption>> =
+        filter_actors.unwrap_or_else(|| Signal::derive(Vec::new));
 
     let row_height = virtual_row_height.max(1) as f64;
     let row_height_cache: HistoryRowHeightCache = RwSignal::new(std::collections::HashMap::new());
@@ -591,8 +599,8 @@ pub fn HistoryTimeline(
         group_by: group_by_signal,
         expanded_groups,
         toggle_group,
-        page: is_paged.then(|| Signal::derive(move || page_ui.get()).into()),
-        page_count: is_paged.then(|| Signal::derive(move || page_count.get()).into()),
+        page: is_paged.then(|| Signal::derive(move || page_ui.get())),
+        page_count: is_paged.then(|| Signal::derive(move || page_count.get())),
         go_to_page: is_paged.then(|| handle.go_to_page.clone()),
     };
 
@@ -936,12 +944,8 @@ fn HistoryServerPanel(
                         Box::pin((fetcher)(params))
                             as Pin<
                                 Box<
-                                    dyn Future<
-                                            Output = Result<
-                                                Page<HistoryEntry>,
-                                                ServerFnError,
-                                            >,
-                                        > + Send,
+                                    dyn Future<Output = Result<Page<HistoryEntry>, ServerFnError>>
+                                        + Send,
                                 >,
                             >
                     })
@@ -1101,9 +1105,8 @@ fn HistoryServerPanel(
     let entry_signal = Signal::derive(move || entries.get());
     let merged_signal =
         Signal::derive(move || merge_live_head(&entries.get(), &live_head_signal.get()));
-    let source_has_data = Memo::new(move |_| {
-        !entry_signal.get().is_empty() || !live_head_signal.get().is_empty()
-    });
+    let source_has_data =
+        Memo::new(move |_| !entry_signal.get().is_empty() || !live_head_signal.get().is_empty());
     let source_empty = Memo::new(move |_| !source_has_data.get());
     let projected = Memo::new(move |_| {
         project_entries(
@@ -1129,12 +1132,10 @@ fn HistoryServerPanel(
     let projected_empty = Memo::new(move |_| projected.get().is_empty());
     let filter_active = Memo::new(move |_| ctx.filter.get().is_active());
 
-    let show_initial = Memo::new(move |_| {
-        is_loading.get() && source_empty.get() && !ever_loaded.get()
-    });
-    let show_incremental = Memo::new(move |_| {
-        is_loading.get() && (ever_loaded.get() || !source_empty.get())
-    });
+    let show_initial =
+        Memo::new(move |_| is_loading.get() && source_empty.get() && !ever_loaded.get());
+    let show_incremental =
+        Memo::new(move |_| is_loading.get() && (ever_loaded.get() || !source_empty.get()));
     let show_empty = Memo::new(move |_| {
         !is_loading.get()
             && source_empty.get()

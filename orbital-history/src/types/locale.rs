@@ -175,12 +175,7 @@ impl HistoryLocale {
         let Some((middle, _)) = rest.split_once("{new}") else {
             return (before_old.to_string(), old, String::new(), new);
         };
-        (
-            before_old.to_string(),
-            old,
-            middle.to_string(),
-            new,
-        )
+        (before_old.to_string(), old, middle.to_string(), new)
     }
 
     pub fn format_field_diffs_header(&self, n: usize) -> String {

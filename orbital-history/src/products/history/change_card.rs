@@ -5,18 +5,18 @@ use crate::context::use_history_context;
 use crate::types::{HistoryFeatures, HistoryFieldDiff};
 
 #[component]
-fn HistoryFieldDiffCardRow(
-    field: String,
-    old_value: String,
-    new_value: String,
-) -> impl IntoView {
+fn HistoryFieldDiffCardRow(field: String, old_value: String, new_value: String) -> impl IntoView {
     let ctx = use_history_context();
     let highlight = Memo::new(move |_| ctx.features.contains(HistoryFeatures::DIFF_HIGHLIGHT));
     let plain = Memo::new({
         let field = field.clone();
         let old_value = old_value.clone();
         let new_value = new_value.clone();
-        move |_| ctx.locale.get().format_field_diff(&field, &old_value, &new_value)
+        move |_| {
+            ctx.locale
+                .get()
+                .format_field_diff(&field, &old_value, &new_value)
+        }
     });
     let segments = Memo::new(move |_| {
         ctx.locale

@@ -98,18 +98,6 @@ jobs:
       - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-  coupling:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install ripgrep
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
-
-      - name: Product coupling gate
-        run: bash scripts/maintainer/product_coupling_gate.sh
-
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 120

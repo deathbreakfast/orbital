@@ -248,7 +248,7 @@ cd end2end && npm test
 ./scripts/maintainer/preview_release_gate.sh
 ```
 
-Scans tracked release surface (`ip_release_gate.sh`), then runs full release-mode E2E (~1–2 hours). PR CI runs lean checks only; tag deploy runs the full gate via [`.github/workflows/preview-pages.yml`](.github/workflows/preview-pages.yml). Maintainers: see [CONTRIBUTING.md — Publishing preview](CONTRIBUTING.md#publishing-preview).
+Runs a workspace build (deny warnings) then full release-mode E2E (~1–2 hours). PR CI already runs the Playwright suite; this is a maintainer convenience before tagging. Tag deploy publishes via [`.github/workflows/preview-pages.yml`](.github/workflows/preview-pages.yml). Maintainers: see [CONTRIBUTING.md — Publishing preview](CONTRIBUTING.md#publishing-preview).
 
 ## Verify
 

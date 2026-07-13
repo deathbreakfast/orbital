@@ -41,7 +41,11 @@ pub fn with_unread_divider(
     show_divider: bool,
 ) -> Vec<HistoryListItem> {
     if !show_divider {
-        return entries.iter().cloned().map(HistoryListItem::Entry).collect();
+        return entries
+            .iter()
+            .cloned()
+            .map(HistoryListItem::Entry)
+            .collect();
     }
 
     let mut out = Vec::with_capacity(entries.len() + 1);

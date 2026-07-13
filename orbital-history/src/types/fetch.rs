@@ -12,10 +12,6 @@ pub struct HistoryFetchParams {
 
 impl HistoryFetchParams {
     pub fn new(page: PageRequest, filter: HistoryFilter, sort: HistorySort) -> Self {
-        Self {
-            page,
-            filter,
-            sort,
-        }
+        Self { page, filter, sort }
     }
 }

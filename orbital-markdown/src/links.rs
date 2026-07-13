@@ -62,7 +62,8 @@ mod tests {
 
     #[test]
     fn styles_plain_markdown_link() {
-        let html = r#"<p>See <a href="https://example.com" rel="noopener noreferrer">design doc</a>.</p>"#;
+        let html =
+            r#"<p>See <a href="https://example.com" rel="noopener noreferrer">design doc</a>.</p>"#;
         let out = style_markdown_links(html);
         assert!(out.contains(r#"class="orbital-link orbital-link--inline""#));
         assert!(out.contains(r#"href="https://example.com""#));

@@ -371,12 +371,15 @@ fn discussion_group(slug: &str) -> String {
 
 fn history_group(slug: &str) -> String {
     match slug {
-        "history-data-source" | "history-paged" | "history-scroll-load" | "history-server-filter" => {
-            "Data source".to_string()
-        }
+        "history-data-source"
+        | "history-paged"
+        | "history-scroll-load"
+        | "history-server-filter" => "Data source".to_string(),
         "history-live-update" | "history-live-transport" => "Live updates".to_string(),
         "history-filter" | "history-sort" => "Filter & sort".to_string(),
-        "history-markdown" | "history-multi-diff" | "history-grouping" => "Change bodies".to_string(),
+        "history-markdown" | "history-multi-diff" | "history-grouping" => {
+            "Change bodies".to_string()
+        }
         "history-handle" | "history-refresh" => "Handle".to_string(),
         "history-layout"
         | "history-date-dividers"

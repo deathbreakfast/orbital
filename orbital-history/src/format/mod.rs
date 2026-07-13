@@ -7,7 +7,9 @@ pub use markdown::{render_history_markdown, HistoryMarkdownRenderOptions};
 use chrono::{DateTime, Utc};
 use orbital_base_components::{DatetimeTimezone, OrbitalDateTime};
 
-use crate::types::{HistoryChange, HistoryDateBucket, HistoryEntry, HistoryListItem, HistoryLocale};
+use crate::types::{
+    HistoryChange, HistoryDateBucket, HistoryEntry, HistoryListItem, HistoryLocale,
+};
 
 /// Default max display length for substituted values.
 pub const DEFAULT_TRUNCATE_LEN: usize = 80;
@@ -48,9 +50,7 @@ pub fn format_change(change: &HistoryChange, locale: &HistoryLocale) -> String {
                 .collect();
             format!("{header}: {}", lines.join("; "))
         }
-        HistoryChange::Custom { summary } => {
-            truncate_display_value(summary, DEFAULT_TRUNCATE_LEN)
-        }
+        HistoryChange::Custom { summary } => truncate_display_value(summary, DEFAULT_TRUNCATE_LEN),
         HistoryChange::Markdown { body, .. } => truncate_display_value(body, DEFAULT_TRUNCATE_LEN),
     }
 }

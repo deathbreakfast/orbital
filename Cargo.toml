@@ -54,10 +54,10 @@ incremental = true
 opt-level = 1
 
 [workspace.dependencies]
-leptos = { version = "0.8.5", default-features = false, features = ["nightly"] }
-leptos_meta = { version = "0.8.5" }
-leptos_router = { version = "0.8.5", features = ["nightly"] }
-leptos_axum = { version = "0.8.5" }
+leptos = { version = "0.8.20", default-features = false, features = ["nightly"] }
+leptos_meta = { version = "0.8.6" }
+leptos_router = { version = "0.8.14", features = ["nightly"] }
+leptos_axum = { version = "0.8.10" }
 leptos-use = { version = "0.18", default-features = false }
 codee = { version = "0.3", default-features = false }
 chrono = { version = "0.4", default-features = false, features = ["clock", "std", "wasmbind"] }
@@ -112,11 +112,3 @@ lib-default-features = false
 # `npm test` in end2end/ (COMPONENT_PREVIEW_E2E=1 + Playwright baseURL :3010).
 end2end-cmd = "npm test"
 end2end-dir = "end2end"
-
-# Patched reactive_graph silences spurious SSR/hydrate "outside a reactive tracking context"
-# warnings (see vendor/reactive_graph/src/lib.rs log_warning). Real reactivity: end2end/smoke/reactivity-canary.spec.ts
-[patch.crates-io]
-reactive_graph = { path = "vendor/reactive_graph" }
-proc-macro-error2 = { path = "vendor/proc_macro_error2" }
-proc-macro-error-attr2 = { path = "vendor/proc_macro_error_attr2" }
-leptos = { path = "vendor/leptos" }

@@ -9,11 +9,7 @@ use super::HistoryMarkdownBody;
 
 /// Highlighted field diff line when [`HistoryFeatures::DIFF_HIGHLIGHT`] is enabled.
 #[component]
-fn HistoryFieldDiffHighlight(
-    field: String,
-    old_value: String,
-    new_value: String,
-) -> impl IntoView {
+fn HistoryFieldDiffHighlight(field: String, old_value: String, new_value: String) -> impl IntoView {
     let ctx = use_history_context();
     let segments = Memo::new(move |_| {
         ctx.locale
@@ -37,8 +33,7 @@ pub fn HistoryChangeLine(change: HistoryChange) -> impl IntoView {
     let ctx = use_history_context();
     let markdown_enabled =
         Memo::new(move |_| ctx.features.contains(HistoryFeatures::MARKDOWN_BODIES));
-    let diff_highlight =
-        Memo::new(move |_| ctx.features.contains(HistoryFeatures::DIFF_HIGHLIGHT));
+    let diff_highlight = Memo::new(move |_| ctx.features.contains(HistoryFeatures::DIFF_HIGHLIGHT));
 
     view! {
         {move || {

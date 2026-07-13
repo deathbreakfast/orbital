@@ -9,7 +9,9 @@ use crate::types::{
     HistoryChange, HistoryEntry, HistoryFeatures, HistoryLayout, HistoryRenderContext,
 };
 
-use super::{HistoryActorLabel, HistoryChangeCard, HistoryChangeLine, HistoryMarkdownBody, HistoryTimestamp};
+use super::{
+    HistoryActorLabel, HistoryChangeCard, HistoryChangeLine, HistoryMarkdownBody, HistoryTimestamp,
+};
 
 /// One history entry row (natural timeline or compact sentence layout).
 #[component]
@@ -160,15 +162,19 @@ fn compact_markdown_tail(change: &HistoryChange) -> AnyView {
             />
         }
         .into_any(),
-        HistoryChange::Custom { summary } if ctx.features.contains(HistoryFeatures::MARKDOWN_BODIES) => view! {
-            <HistoryMarkdownBody
-                body=summary.clone()
-                citations=vec![]
-                mentions=vec![]
-                attachments=vec![]
-            />
+        HistoryChange::Custom { summary }
+            if ctx.features.contains(HistoryFeatures::MARKDOWN_BODIES) =>
+        {
+            view! {
+                <HistoryMarkdownBody
+                    body=summary.clone()
+                    citations=vec![]
+                    mentions=vec![]
+                    attachments=vec![]
+                />
+            }
+            .into_any()
         }
-        .into_any(),
         _ => ().into_any(),
     }
 }

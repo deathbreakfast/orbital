@@ -42,13 +42,13 @@ pub use text::*;
 pub use button::{Button, ButtonAppearance, ButtonRef, ButtonShape, ButtonSize, ButtonType};
 pub use code::Code;
 pub use data::{
-    Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout, AvatarGroupSize,
-    AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, Image,
-    ImageConfig, ImageFit, ImageShape, Link, link_styles, List, ListItem, ListNavigationMode, ListSelectionMode,
-    Persona, PersonaConfig, PersonaPrimaryText, PersonaQuaternaryText, PersonaSecondaryText,
-    PersonaSize, PersonaTertiaryText, PersonaTextAlignment, PersonaTextPosition, Table, TableBody,
-    TableCell, TableCellLayout, TableCellLayoutConfig, TableHeader, TableHeaderCell,
-    TableHeaderCellConfig, TableRow,
+    link_styles, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
+    AvatarGroupSize, AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,
+    Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListNavigationMode,
+    ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText, PersonaQuaternaryText,
+    PersonaSecondaryText, PersonaSize, PersonaTertiaryText, PersonaTextAlignment,
+    PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout, TableCellLayoutConfig,
+    TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
 };
 pub use divider::Divider;
 pub use extensions::ThemeDensityStepper;

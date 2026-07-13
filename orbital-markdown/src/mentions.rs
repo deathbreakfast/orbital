@@ -57,7 +57,7 @@ mod tests {
     fn prepares_and_replaces_mention_links() {
         let md = prepare_mention_markdown("Hi @[Jordan Lee](u1)!");
         assert!(md.contains("mention-ref:u1"));
-        let html = format!("<p>Hi <a href=\"mention-ref:u1\">@Jordan Lee</a>!</p>");
+        let html = "<p>Hi <a href=\"mention-ref:u1\">@Jordan Lee</a>!</p>".to_string();
         let out = replace_mention_links(&html, MentionLinkStyle::history());
         assert!(out.contains("data-mention-id=\"u1\""));
         assert!(out.contains("orbital-history__mention-ref"));

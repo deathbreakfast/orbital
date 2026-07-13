@@ -75,7 +75,13 @@ pub fn section_group_cmp(a: &SectionGroup, b: &SectionGroup) -> Ordering {
 pub fn section_default_collapsed(section: &str) -> bool {
     matches!(
         section,
-        "Motion" | "Foundation" | "Charts" | "Data Table" | "Tree" | "Scheduling" | "Discussion"
+        "Motion"
+            | "Foundation"
+            | "Charts"
+            | "Data Table"
+            | "Tree"
+            | "Scheduling"
+            | "Discussion"
             | "History"
     )
 }

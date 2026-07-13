@@ -27,7 +27,8 @@ test.describe("history preview", () => {
 
     const kindChip = preview.getByRole("button", { name: "comment" });
     await kindChip.click();
-    await expect(preview.locator("[data-history-entry-id='1']")).toBeVisible();
+    await expect(preview.locator("[data-history-entry-id='comment-1']")).toBeVisible();
+    await expect(preview.locator("[data-history-entry-id='1']")).toHaveCount(0);
   });
 
   test("sort chrome toggles entry order", async ({ page }) => {
@@ -144,8 +145,9 @@ test.describe("history preview", () => {
     await expect(jordanHeader).toBeVisible();
     await expect(jordanHeader).toHaveAttribute("aria-expanded", "false");
 
-    const groupedEntries = preview.locator("[data-history-entry-id^='group-a-']");
-    await expect(groupedEntries).toHaveCount(0);
+    await expect(preview.locator("[data-history-entry-id='group-a-0']")).toHaveCount(0);
+    await expect(preview.locator("[data-history-entry-id='group-a-1']")).toHaveCount(0);
+    await expect(preview.locator("[data-history-entry-id='group-a-2']")).toHaveCount(0);
 
     await jordanHeader.click();
     await expect(jordanHeader).toHaveAttribute("aria-expanded", "true");

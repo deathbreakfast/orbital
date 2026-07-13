@@ -163,7 +163,9 @@ fn all_fixture_pages() -> Vec<HistoryEntry> {
     entries
 }
 
-async fn mock_paged_history(params: HistoryFetchParams) -> Result<Page<HistoryEntry>, ServerFnError> {
+async fn mock_paged_history(
+    params: HistoryFetchParams,
+) -> Result<Page<HistoryEntry>, ServerFnError> {
     let mut all = apply_sort(&all_fixture_pages(), params.sort);
     let locale = HistoryLocale::english();
     all = apply_filter(&all, &params.filter, &locale);
@@ -285,7 +287,11 @@ pub fn grouped_actor_entries() -> Vec<HistoryEntry> {
     (0..4)
         .map(|i| HistoryEntry {
             id: format!("group-a-{i}"),
-            kind: if i % 2 == 0 { "comment".into() } else { "updated".into() },
+            kind: if i % 2 == 0 {
+                "comment".into()
+            } else {
+                "updated".into()
+            },
             changed_at: now - Duration::minutes(i),
             actor: HistoryActor::User {
                 id: "u1".into(),

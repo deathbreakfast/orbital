@@ -40,7 +40,11 @@ pub fn scroll_offset_for_index(heights: &[f64], index: usize) -> f64 {
 
 /// Attach a ResizeObserver to a row element and publish its height.
 #[cfg(feature = "hydrate")]
-pub fn attach_row_height_observer(node_ref: NodeRef<Li>, cache_key: String, cache: HistoryRowHeightCache) {
+pub fn attach_row_height_observer(
+    node_ref: NodeRef<Li>,
+    cache_key: String,
+    cache: HistoryRowHeightCache,
+) {
     use send_wrapper::SendWrapper;
     use wasm_bindgen::closure::Closure;
     use wasm_bindgen::JsCast;
@@ -78,4 +82,9 @@ pub fn attach_row_height_observer(node_ref: NodeRef<Li>, cache_key: String, cach
 }
 
 #[cfg(not(feature = "hydrate"))]
-pub fn attach_row_height_observer(_node_ref: NodeRef<Li>, _cache_key: String, _cache: HistoryRowHeightCache) {}
+pub fn attach_row_height_observer(
+    _node_ref: NodeRef<Li>,
+    _cache_key: String,
+    _cache: HistoryRowHeightCache,
+) {
+}

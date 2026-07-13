@@ -1,4 +1,6 @@
-use orbital_markdown::{render_to_html, CitationRef, MentionLinkStyle, OrbitalMarkdownOptions, RenderContext};
+use orbital_markdown::{
+    render_to_html, CitationRef, MentionLinkStyle, OrbitalMarkdownOptions, RenderContext,
+};
 
 use crate::types::{HistoryAttachment, HistoryCitation, HistoryMention};
 
@@ -59,15 +61,12 @@ fn is_image_attachment(att: &HistoryAttachment) -> bool {
     {
         return true;
     }
-    att.url
-        .rsplit('/')
-        .next()
-        .is_some_and(|name| {
-            matches!(
-                name.rsplit_once('.').map(|(_, ext)| ext.to_ascii_lowercase()),
-                Some(ext) if matches!(ext.as_str(), "png" | "jpg" | "jpeg" | "gif" | "webp" | "svg")
-            )
-        })
+    att.url.rsplit('/').next().is_some_and(|name| {
+        matches!(
+            name.rsplit_once('.').map(|(_, ext)| ext.to_ascii_lowercase()),
+            Some(ext) if matches!(ext.as_str(), "png" | "jpg" | "jpeg" | "gif" | "webp" | "svg")
+        )
+    })
 }
 
 /// Render image attachments not already present in markdown HTML (discussion File-part parity).

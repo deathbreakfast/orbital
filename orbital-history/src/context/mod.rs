@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use crate::engine::HistoryRowHeightCache;
 use crate::types::{
     HistoryEvents, HistoryFeatures, HistoryFilter, HistoryFilterActorOption, HistoryGroupBy,
-    HistoryLocale, HistoryLayout, HistoryRenderers, HistorySort,
+    HistoryLayout, HistoryLocale, HistoryRenderers, HistorySort,
 };
 
 use chrono::{DateTime, Utc};
@@ -62,6 +62,5 @@ pub fn provide_history_context(ctx: HistoryContext) {
 }
 
 pub fn use_history_context() -> HistoryContext {
-    use_context::<HistoryContext>()
-        .expect("HistoryContext must be provided by HistoryTimeline")
+    use_context::<HistoryContext>().expect("HistoryContext must be provided by HistoryTimeline")
 }
