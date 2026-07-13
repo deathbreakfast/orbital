@@ -6,8 +6,8 @@ Leptos chart library — bar, line, area, pie, scatter, heatmap, gauge, sparklin
 
 ```toml
 [dependencies]
-orbital-charts = { git = "https://github.com/unified-field-dev/orbital", default-features = false }
-orbital = { git = "https://github.com/unified-field-dev/orbital", default-features = false, features = ["hydrate"] }
+orbital-charts = { version = "0.1", default-features = false }
+orbital-ui = { version = "0.1", default-features = false, features = ["hydrate"] }
 leptos = { version = "0.8", default-features = false, features = ["nightly"] }
 ```
 

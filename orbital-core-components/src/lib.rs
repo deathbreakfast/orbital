@@ -1,5 +1,9 @@
 #![allow(clippy::needless_update, unused_doc_comments)]
 #![recursion_limit = "512"]
+//! Themed Orbital UI components for Leptos applications.
+//!
+//! Builds on [`orbital_base_components`] with Orbital theme tokens, motion, and
+//! styled surfaces (buttons, forms, overlays, navigation, and more).
 
 pub mod app_bar;
 pub mod button;

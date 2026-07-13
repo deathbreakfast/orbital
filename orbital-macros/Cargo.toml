@@ -2,6 +2,14 @@
 name = "orbital-macros"
 version = "0.1.1"
 edition = "2021"
+readme = "README.md"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-macros"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Proc macros for Orbital component documentation and routing helpers"
 license = "MIT"
 
 [lints]
@@ -18,3 +26,7 @@ darling = "0.20"
 
 [dev-dependencies]
 
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

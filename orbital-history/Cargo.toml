@@ -2,6 +2,14 @@
 name = "orbital-history"
 version = "0.1.1"
 edition = "2021"
+readme = "README.md"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-history"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Composable audit history timeline components for Orbital"
 license = "MIT"
 
 [lints]
@@ -15,13 +23,13 @@ leptos.workspace = true
 bitflags = "2"
 chrono.workspace = true
 serde = { workspace = true, features = ["derive"] }
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-paging = { path = "../orbital-paging", features = ["leptos"] }
-orbital-macros = { path = "../orbital-macros" }
-orbital-style = { path = "../orbital-style" }
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-markdown = { path = "../orbital-markdown" }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-paging = { path = "../orbital-paging", version = "0.1.1", features = ["leptos"] }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-style = { path = "../orbital-style", version = "0.1.1" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-markdown = { path = "../orbital-markdown", version = "0.1.1" }
 inventory = { version = "0.3", optional = true }
 icondata.workspace = true
 icondata_core.workspace = true
@@ -55,3 +63,7 @@ ssr = [
     "preview",
     "dep:inventory",
 ]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

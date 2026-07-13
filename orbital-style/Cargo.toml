@@ -2,6 +2,13 @@
 name = "orbital-style"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-style"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Style registry and CSS injection helpers for Orbital"
 license = "MIT"
 
 [lints]
@@ -17,3 +24,8 @@ send_wrapper = "0.6"
 default = []
 hydrate = ["leptos/hydrate"]
 ssr = ["leptos/ssr"]
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

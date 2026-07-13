@@ -2,6 +2,14 @@
 name = "orbital-charts"
 version = "0.1.1"
 edition = "2021"
+readme = "README.md"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-charts"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Chart components for Orbital and Leptos"
 license = "MIT"
 
 [lints]
@@ -13,14 +21,14 @@ doctest = false
 [dependencies]
 leptos.workspace = true
 bitflags = "2"
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-data = { path = "../orbital-data" }
-orbital-motion = { path = "../orbital-motion" }
-orbital-macros = { path = "../orbital-macros" }
-orbital-style = { path = "../orbital-style" }
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-datatable = { path = "../orbital-datatable", optional = true, default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-data = { path = "../orbital-data", version = "0.1.1" }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-style = { path = "../orbital-style", version = "0.1.1" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-datatable = { path = "../orbital-datatable", version = "0.1.1", optional = true, default-features = false }
 chrono.workspace = true
 wasm-bindgen = { workspace = true, optional = true }
 js-sys = { workspace = true, optional = true }
@@ -36,3 +44,7 @@ preview = ["dep:inventory", "orbital-core-components/preview", "datatable-integr
 datatable-integration = ["dep:orbital-datatable", "orbital-datatable/preview"]
 hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "orbital-theme/hydrate", "preview", "dep:inventory", "dep:wasm-bindgen", "dep:web-sys", "dep:js-sys", "dep:send_wrapper"]
 ssr = ["leptos/ssr", "orbital-core-components/ssr", "orbital-theme/ssr", "preview", "dep:inventory"]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

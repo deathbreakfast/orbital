@@ -2,6 +2,14 @@
 name = "orbital-scheduler"
 version = "0.1.1"
 edition = "2021"
+readme = "README.md"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-scheduler"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Calendar and timeline scheduling components for Orbital"
 license = "MIT"
 
 [lints]
@@ -18,13 +26,13 @@ wasm-bindgen = { workspace = true, optional = true }
 wasm-bindgen-futures = { workspace = true, optional = true }
 js-sys = { workspace = true, optional = true }
 web-sys = { workspace = true, optional = true, features = ["Document", "Element", "HtmlElement", "Window"] }
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-date-pickers = { path = "../orbital-date-pickers" }
-orbital-motion = { path = "../orbital-motion", default-features = false }
-orbital-macros = { path = "../orbital-macros" }
-orbital-style = { path = "../orbital-style" }
-orbital-theme = { path = "../orbital-theme", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.1" }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-style = { path = "../orbital-style", version = "0.1.1" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
 icondata.workspace = true
 icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }
@@ -34,3 +42,7 @@ default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]
 hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "orbital-theme/hydrate", "orbital-motion/hydrate", "preview", "dep:inventory", "dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:js-sys", "dep:web-sys"]
 ssr = ["leptos/ssr", "orbital-core-components/ssr", "orbital-theme/ssr", "preview", "dep:inventory"]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

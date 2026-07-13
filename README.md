@@ -2,21 +2,23 @@
 
 [![CI](https://github.com/unified-field-dev/orbital/actions/workflows/ci.yml/badge.svg)](https://github.com/unified-field-dev/orbital/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/orbital-ui.svg)](https://crates.io/crates/orbital-ui)
+[![docs.rs](https://docs.rs/orbital-ui/badge.svg)](https://docs.rs/orbital-ui)
 [![Preview catalog](https://img.shields.io/badge/docs-preview_catalog-blue)](https://unified-field-dev.github.io/orbital/)
 
 **Orbital** is a Leptos component library and design system for building focused, accessible product interfaces in Rust. It ships themed UI primitives, shared typed data models, and higher-level feature crates (tables, charts, scheduling, and more) that compose on the same tokens, motion vocabulary, and accessibility patterns.
 
-**Status:** v0.1.0 early release · [MIT](LICENSE) · [GitHub](https://github.com/unified-field-dev/orbital)
+**Status:** v0.1.1 early release · [MIT](LICENSE) · [GitHub](https://github.com/unified-field-dev/orbital)
 
 **Requires:** nightly Rust ([`rust-toolchain.toml`](rust-toolchain.toml)) · [cargo-leptos](https://github.com/leptos-rs/cargo-leptos) **≥ 0.3.6** · Node 24+ for Playwright
 
 ## Quick start
 
-Add the facade crate from GitHub and wrap your app in [`OrbitalTemplate`](orbital/README.md):
+Add the facade crate (`orbital-ui` on crates.io; Rust imports stay `orbital::`) and wrap your app in [`OrbitalTemplate`](orbital/README.md):
 
 ```toml
 [dependencies]
-orbital = { git = "https://github.com/unified-field-dev/orbital", default-features = false, features = ["hydrate"] }
+orbital-ui = { version = "0.1", default-features = false, features = ["hydrate"] }
 leptos = { version = "0.8", default-features = false, features = ["nightly"] }
 ```
 
@@ -153,7 +155,7 @@ Local: `cargo leptos watch -p orbital-preview` → `http://127.0.0.1:3010/orbita
 
 ### Repository docs
 
-[`orbital/README.md`](orbital/README.md) · [`orbital-macros/README.md`](orbital-macros/README.md) · [component testing](docs/component-testing.md) · `cargo doc -p orbital --open`
+[`orbital/README.md`](orbital/README.md) · [`orbital-macros/README.md`](orbital-macros/README.md) · [component testing](docs/component-testing.md) · `cargo doc -p orbital-ui --open`
 
 ## Design language
 
