@@ -30,7 +30,7 @@ orbital-base-components = { path = "../orbital-base-components", version = "0.1.
 orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
 orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.1" }
 orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 orbital-style = { path = "../orbital-style", version = "0.1.1" }
 orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
 icondata.workspace = true

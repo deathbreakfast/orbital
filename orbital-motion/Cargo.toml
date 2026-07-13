@@ -21,7 +21,7 @@ doctest = false
 leptos.workspace = true
 leptos_transition_group = "0.2.0"
 orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1", optional = true }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2", optional = true }
 turf.workspace = true
 icondata.workspace = true
 icondata_core.workspace = true

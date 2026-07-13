@@ -30,7 +30,7 @@ turf.workspace = true
 
 orbital = { package = "orbital-ui", path = "../orbital", version = "0.1.1", default-features = false }
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 orbital-primitives = { path = "../orbital-primitives", version = "0.1.1", default-features = false }
 orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
 orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }

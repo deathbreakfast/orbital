@@ -25,7 +25,7 @@ icondata_core.workspace = true
 chrono.workspace = true
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
 orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
 orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
 wasm-bindgen = { workspace = true }

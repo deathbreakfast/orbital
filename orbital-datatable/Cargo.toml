@@ -27,7 +27,7 @@ orbital-base-components = { path = "../orbital-base-components", version = "0.1.
 orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
 orbital-data = { path = "../orbital-data", version = "0.1.1" }
 orbital-paging = { path = "../orbital-paging", version = "0.1.1", features = ["leptos"] }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 orbital-style = { path = "../orbital-style", version = "0.1.1" }
 orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
 serde = { workspace = true, features = ["derive"] }
