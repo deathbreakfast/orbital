@@ -2,6 +2,13 @@
 name = "orbital-theme"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-theme"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Theme provider and design tokens for Orbital"
 license = "MIT"
 
 [lints]
@@ -9,12 +16,17 @@ workspace = true
 
 [dependencies]
 leptos.workspace = true
-orbital-style = { path = "../orbital-style", default-features = false }
+orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
 uuid = { version = "1.10", features = ["v4", "js"] }
 getset = "0.1.5"
-orbital-macros = { path = "../orbital-macros" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
 
 [features]
 default = []
 hydrate = ["leptos/hydrate", "orbital-style/hydrate"]
 ssr = ["leptos/ssr", "orbital-style/ssr"]
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

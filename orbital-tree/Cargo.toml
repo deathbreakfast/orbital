@@ -2,6 +2,13 @@
 name = "orbital-tree"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-tree"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Tree view components for Orbital"
 license = "MIT"
 
 [lints]
@@ -11,7 +18,7 @@ workspace = true
 doctest = false
 
 [dependencies]
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
 leptos.workspace = true
 icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }
@@ -21,3 +28,7 @@ default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]
 hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "preview", "dep:inventory"]
 ssr = ["leptos/ssr", "orbital-core-components/ssr", "preview", "dep:inventory"]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

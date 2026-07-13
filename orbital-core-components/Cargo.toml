@@ -2,6 +2,13 @@
 name = "orbital-core-components"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-core-components"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Themed Orbital UI components for Leptos applications"
 license = "MIT"
 
 [lints]
@@ -16,11 +23,11 @@ turf.workspace = true
 icondata.workspace = true
 icondata_core.workspace = true
 chrono.workspace = true
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-macros = { path = "../orbital-macros" }
-orbital-style = { path = "../orbital-style", default-features = false }
-orbital-motion = { path = "../orbital-motion", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
 wasm-bindgen = { workspace = true }
 web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement"] }
 inventory = { version = "0.3", optional = true }
@@ -39,3 +46,8 @@ minify = true
 [package.metadata.turf.class_names]
 template = "<original_name>-<name_hash_short>"
 excludes = ["^orbital-button.*", "^orbital-material.*", "^orbital-card.*", "^orbital-app-bar.*", "^orbital-layout.*", "^orbital-navigation.*", "^orbital-icon.*", "^orbital-scroll-area.*", "^orbital-tab.*", "^orbital-code.*", "^orbital-input.*", "^orbital-label.*", "^orbital-field.*", "^orbital-select.*", "^orbital-checkbox.*", "^orbital-switch.*", "^orbital-slider.*", "^orbital-numeric-stepper.*", "^orbital-textarea.*", "^orbital-tooltip.*", "^orbital-popover.*", "^orbital-menu.*", "^orbital-dialog.*", "^orbital-backdrop.*", "^orbital-overlay-layer.*", "^orbital-transfer-list.*", "^orbital-floating-actions-menu.*", "^orbital-message-bar.*", "^orbital-spinner.*", "^orbital-skeleton.*", "^orbital-badge.*", "^orbital-toast.*", "^orbital-loading-bar.*", "^orbital-grid.*", "^orbital-table.*", "^orbital-avatar.*", "^orbital-persona.*", "^orbital-link.*", "^orbital-image.*", "^orbital-breadcrumb.*", "^orbital-divider.*", "^orbital-space.*", "^orbital-date-picker.*", "^orbital-time-picker.*", "^orbital-color-picker.*", "^orbital-swatch-picker.*", "^orbital-combobox.*", "^orbital-auto-complete.*", "^orbital-tag.*", "^orbital-interaction-tag.*", "^orbital-rating.*", "^orbital-progress-bar.*", "^orbital-progress-circle.*", "^orbital-accordion.*", "^orbital-drawer.*", "^orbital-stack.*", "^orbital-upload.*", "^orbital-anchor.*", "^orbital-floating-button.*", "^orbital-back-to-top.*", "^orbital-content-with-aside.*", "^orbital-tree.*", "^orbital-motion-collapse.*", "^orbital-pagination.*", "^orbital-carousel.*"]
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

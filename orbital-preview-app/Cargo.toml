@@ -2,6 +2,7 @@
 name = "orbital-preview-app"
 version = "0.1.1"
 edition = "2021"
+publish = false
 license = "MIT"
 
 [lints.rust]
@@ -27,21 +28,22 @@ icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true
 
-orbital = { path = "../orbital", default-features = false }
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-macros = { path = "../orbital-macros" }
-orbital-primitives = { path = "../orbital-primitives", default-features = false }
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-style = { path = "../orbital-style", default-features = false }
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-datatable = { path = "../orbital-datatable", default-features = false }
-orbital-date-pickers = { path = "../orbital-date-pickers", default-features = false }
-orbital-charts = { path = "../orbital-charts", default-features = false }
-orbital-tree = { path = "../orbital-tree", default-features = false }
-orbital-scheduler = { path = "../orbital-scheduler", default-features = false }
-orbital-discussion = { path = "../orbital-discussion", default-features = false }
-orbital-motion = { path = "../orbital-motion", default-features = false }
-component-preview-e2e = { path = "../component-preview-e2e" }
+orbital = { package = "orbital-ui", path = "../orbital", version = "0.1.1", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-primitives = { path = "../orbital-primitives", version = "0.1.1", default-features = false }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-datatable = { path = "../orbital-datatable", version = "0.1.1", default-features = false }
+orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.1", default-features = false }
+orbital-charts = { path = "../orbital-charts", version = "0.1.1", default-features = false }
+orbital-tree = { path = "../orbital-tree", version = "0.1.1", default-features = false }
+orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.1", default-features = false }
+orbital-discussion = { path = "../orbital-discussion", version = "0.1.1", default-features = false }
+orbital-history = { path = "../orbital-history", version = "0.1.1", default-features = false }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
+component-preview-e2e = { path = "../component-preview-e2e", version = "0.1.1" }
 
 [features]
 default = []
@@ -69,6 +71,8 @@ hydrate = [
     "orbital-scheduler/preview",
     "orbital-discussion/hydrate",
     "orbital-discussion/preview",
+    "orbital-history/hydrate",
+    "orbital-history/preview",
     "orbital-motion/hydrate",
     "orbital-motion/preview",
 ]
@@ -98,6 +102,8 @@ ssr = [
     "orbital-scheduler/preview",
     "orbital-discussion/ssr",
     "orbital-discussion/preview",
+    "orbital-history/ssr",
+    "orbital-history/preview",
     "orbital-motion/ssr",
     "orbital-motion/preview",
 ]

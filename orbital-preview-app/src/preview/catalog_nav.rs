@@ -139,6 +139,9 @@ fn should_show_category_header(
     if section == "Motion" && categories.len() == 1 && categories[0].0 == "Motion" {
         return false;
     }
+    if section == "History" && categories.len() == 1 && categories[0].0 == "History" {
+        return false;
+    }
     if categories.len() > 1 {
         return true;
     }

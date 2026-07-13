@@ -4,9 +4,11 @@ Leptos UI component library and design system facade — shell, themed primitive
 
 ## Quick start
 
+The crates.io package name is **`orbital-ui`**; the Rust crate root remains `orbital` (`use orbital::...`).
+
 ```toml
 [dependencies]
-orbital = { git = "https://github.com/unified-field-dev/orbital", default-features = false, features = ["hydrate"] }
+orbital-ui = { version = "0.1", default-features = false, features = ["hydrate"] }
 leptos = { version = "0.8", default-features = false, features = ["nightly"] }
 ```
 

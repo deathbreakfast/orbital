@@ -7,7 +7,7 @@ changes are easiest to review and merge.
 
 - **Nightly Rust** — see [`rust-toolchain.toml`](rust-toolchain.toml)
 - **cargo-leptos** ≥ 0.3.6 — `cargo install cargo-leptos --locked --version 0.3.6`
-- **wasm-bindgen-cli** — match the workspace pin in [`Cargo.toml`](Cargo.toml) (currently `0.2.108`)
+- **wasm-bindgen-cli** — match the workspace pin in [`Cargo.toml`](Cargo.toml) (currently `0.2.126`)
 - **Node 24+** and Playwright for browser E2E — see [README — Development](README.md#development)
 
 ## Verify locally
@@ -24,6 +24,7 @@ cargo check -p orbital-charts --no-default-features
 cargo check -p orbital-date-pickers --no-default-features
 cargo check -p orbital-scheduler --no-default-features
 cargo check -p orbital-tree --no-default-features
+cargo check -p orbital-history --no-default-features
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
@@ -48,6 +49,20 @@ Do not push a `v*` tag until the local release gate passes:
 
 Tag deploys run full Playwright E2E and publish the preview catalog to GitHub Pages via [`.github/workflows/preview-pages.yml`](.github/workflows/preview-pages.yml).
 
+## Publishing to crates.io (maintainers)
+
+Library crates are published to crates.io under names such as `orbital-ui` (facade;
+Rust imports remain `use orbital::...`), `orbital-macros`, `orbital-core-components`,
+and the other `orbital-*` packages. Preview/e2e workspace members set `publish = false`.
+
+Publish bottom-up (leaves first) after `cargo publish -p <crate> --dry-run` succeeds.
+See the project publish plan for order and docs.rs feature settings.
+
+Consumers should depend on registry versions (for example
+`orbital-ui = { version = "0.1", default-features = false, features = ["hydrate"] }`),
+not workspace `[patch.crates-io]` entries — this repo no longer ships vendor patches
+that crates.io users would receive.
+
 ## Publishing preview
 
 One-time setup: **Settings → Pages → Build and deployment** → Source: **GitHub Actions**.
@@ -55,8 +70,8 @@ One-time setup: **Settings → Pages → Build and deployment** → Source: **Gi
 After `preview_release_gate.sh` passes on `main`, push a version tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.1
+git push origin v0.1.1
 ```
 
 The preview workflow publishes `target/site-preview/` to [Component preview](https://unified-field-dev.github.io/orbital/).

@@ -2,6 +2,12 @@
 name = "orbital-paging"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-paging"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
 license = "MIT"
 description = "Shared paging primitives (Page<T>, PageRequest) for Orbital apps"
 
@@ -10,7 +16,7 @@ workspace = true
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
-orbital-data = { path = "../orbital-data" }
+orbital-data = { path = "../orbital-data", version = "0.1.1" }
 
 # Optional: Leptos integration for the `use_paged_infinite_scroll` hook.
 # Kept behind a feature flag so SSR-only consumers (server functions returning
@@ -26,3 +32,8 @@ default = []
 leptos = ["dep:leptos", "dep:leptos-use"]
 hydrate = ["leptos", "leptos/hydrate"]
 ssr = ["leptos", "leptos/ssr"]
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

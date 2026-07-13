@@ -2,6 +2,12 @@
 name = "orbital-data"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-data"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
 license = "MIT"
 description = "Shared typed dataset primitives (Dataset, DataRecord, DataValue) for Orbital tables and charts"
 
@@ -11,3 +17,8 @@ workspace = true
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 chrono = { workspace = true, features = ["serde"] }
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

@@ -183,11 +183,6 @@ pub fn discussion_styles() -> &'static str {
     margin-bottom: 0;
 }
 
-.orbital-discussion__markdown a {
-    color: var(--orb-color-link-default);
-    text-decoration: underline;
-}
-
 .orbital-discussion__markdown code {
     font-family: var(--orb-type-family-mono);
     background: var(--orb-color-code-bg);

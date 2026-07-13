@@ -1,5 +1,8 @@
 use regex::Regex;
 
+use crate::citation_style::CitationLinkStyle;
+use crate::links::ORBITAL_LINK_INLINE_CLASS;
+
 /// Citation id + 1-based display index for ref resolution.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CitationRef<'a> {
@@ -8,7 +11,11 @@ pub struct CitationRef<'a> {
 }
 
 /// Replace `[^id]` in HTML output with superscript anchor links.
-pub fn replace_citation_refs(html: &str, citations: &[CitationRef<'_>]) -> String {
+pub fn replace_citation_refs(
+    html: &str,
+    citations: &[CitationRef<'_>],
+    style: CitationLinkStyle,
+) -> String {
     if citations.is_empty() {
         return html.to_string();
     }
@@ -19,9 +26,16 @@ pub fn replace_citation_refs(html: &str, citations: &[CitationRef<'_>]) -> Strin
         let Ok(re) = Regex::new(&pattern) else {
             continue;
         };
+        let row_anchor = format!("{}{}", style.row_anchor_prefix, citation.id);
+        let ref_id = format!("{}{}", style.ref_id_prefix, citation.id);
         let replacement = format!(
-            r##"<sup class="orbital-markdown__citation-ref"><a href="#discussion-citation-row-{0}" id="discussion-citation-ref-{0}" data-citation-id="{0}">{1}</a></sup>"##,
-            citation.id, citation.display_index,
+            r##"<sup class="{class}"><a href="#{row_anchor}" id="{ref_id}" class="{link_class}" data-citation-id="{id}">{index}</a></sup>"##,
+            class = style.anchor_class,
+            link_class = ORBITAL_LINK_INLINE_CLASS,
+            row_anchor = row_anchor,
+            ref_id = ref_id,
+            id = citation.id,
+            index = citation.display_index,
         );
         result = re.replace_all(&result, replacement.as_str()).to_string();
     }
@@ -50,15 +64,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn replaces_citation_ref_in_html() {
+    fn replaces_discussion_citation_ref_in_html() {
         let html = "<p>See [^cit-1] for details.</p>";
         let citations = vec![CitationRef {
             id: "cit-1",
             display_index: 1,
         }];
-        let out = replace_citation_refs(html, &citations);
+        let out = replace_citation_refs(html, &citations, CitationLinkStyle::discussion());
         assert!(out.contains("discussion-citation-row-cit-1"));
         assert!(out.contains(">1</a>"));
         assert!(!out.contains("[^cit-1]"));
+    }
+
+    #[test]
+    fn replaces_history_citation_ref_in_html() {
+        let html = "<p>See [^audit-1] for details.</p>";
+        let citations = vec![CitationRef {
+            id: "audit-1",
+            display_index: 2,
+        }];
+        let out = replace_citation_refs(html, &citations, CitationLinkStyle::history());
+        assert!(out.contains("history-citation-row-audit-1"));
+        assert!(out.contains("history-citation-ref-audit-1"));
+        assert!(out.contains("orbital-history__citation-ref"));
+        assert!(out.contains("orbital-link orbital-link--inline"));
     }
 }

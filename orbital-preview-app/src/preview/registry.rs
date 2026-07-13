@@ -104,6 +104,18 @@ pub fn collect_preview_registrations() -> Vec<&'static PreviewRegistration> {
         }
     }
 
+    for reg in orbital_history::preview::static_registrations::all() {
+        let reg = primitive_registration(unsafe {
+            std::mem::transmute::<
+                &orbital_history::preview::PreviewRegistration,
+                &orbital_primitives::preview::PreviewRegistration,
+            >(*reg)
+        });
+        if !items.iter().any(|item| item.slug == reg.slug) {
+            items.push(reg);
+        }
+    }
+
     for reg in orbital_motion::preview::static_registrations::all() {
         let reg = primitive_registration(unsafe {
             std::mem::transmute::<

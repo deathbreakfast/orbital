@@ -2,6 +2,13 @@
 name = "orbital-motion"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-motion"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Shared motion tokens, atoms, and presence utilities for Orbital"
 license = "MIT"
 
 [lints]
@@ -13,8 +20,8 @@ doctest = false
 [dependencies]
 leptos.workspace = true
 leptos_transition_group = "0.2.0"
-orbital-style = { path = "../orbital-style", default-features = false }
-orbital-macros = { path = "../orbital-macros", optional = true }
+orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1", optional = true }
 turf.workspace = true
 icondata.workspace = true
 icondata_core.workspace = true
@@ -35,3 +42,7 @@ hydrate = [
     "dep:wasm-bindgen",
 ]
 ssr = ["leptos/ssr", "orbital-style/ssr", "preview", "dep:inventory", "dep:pulldown-cmark"]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

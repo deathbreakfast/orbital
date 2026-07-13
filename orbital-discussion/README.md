@@ -8,8 +8,8 @@ Consumers own data via Leptos signals and wire backends through integration APIs
 
 ```toml
 [dependencies]
-orbital-discussion = { git = "https://github.com/unified-field-dev/orbital", default-features = false }
-orbital = { git = "https://github.com/unified-field-dev/orbital", default-features = false, features = ["hydrate"] }
+orbital-discussion = { version = "0.1", default-features = false }
+orbital-ui = { version = "0.1", default-features = false, features = ["hydrate"] }
 leptos = { version = "0.8", default-features = false, features = ["nightly"] }
 ```
 

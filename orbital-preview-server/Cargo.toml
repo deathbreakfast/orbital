@@ -2,6 +2,7 @@
 name = "orbital-preview-server"
 version = "0.1.1"
 edition = "2021"
+publish = false
 license = "MIT"
 
 [lints]
@@ -12,7 +13,7 @@ name = "orbital-preview-server"
 path = "src/main.rs"
 
 [dependencies]
-orbital-preview-app = { path = "../orbital-preview-app", default-features = false, features = ["ssr"] }
+orbital-preview-app = { path = "../orbital-preview-app", version = "0.1.1", default-features = false, features = ["ssr"] }
 leptos = { workspace = true, features = ["ssr"] }
 leptos_axum = { workspace = true }
 axum.workspace = true

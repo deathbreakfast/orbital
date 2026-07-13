@@ -9,3 +9,9 @@
 __dev_scripts/
 .DS_Store
 /public/orbital-theme-baseline.css
+.env
+.env.*
+!.env.example
+*.pem
+leptos.log
+Cargo.toml.tmp

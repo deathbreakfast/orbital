@@ -1,7 +1,11 @@
 [package]
-name = "orbital"
+name = "orbital-ui"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+documentation = "https://docs.rs/orbital-ui"
+homepage = "https://unified-field-dev.github.io/orbital/"
 license = "MIT"
 description = "Leptos component library and design system for focused, accessible product UIs"
 repository = "https://github.com/unified-field-dev/orbital"
@@ -12,6 +16,7 @@ readme = "README.md"
 workspace = true
 
 [lib]
+name = "orbital"
 doctest = false
 
 [dependencies]
@@ -39,22 +44,22 @@ tokio = { workspace = true, optional = true }
 inventory = "0.3"
 pulldown-cmark = "0.13"
 
-orbital-macros = { path = "../orbital-macros" }
-orbital-shell = { path = "../orbital-shell", default-features = false }
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-primitives = { path = "../orbital-primitives", default-features = false }
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-style = { path = "../orbital-style", default-features = false }
-orbital-paging = { path = "../orbital-paging", default-features = false, features = ["leptos"] }
-orbital-motion = { path = "../orbital-motion", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-shell = { path = "../orbital-shell", version = "0.1.1", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-primitives = { path = "../orbital-primitives", version = "0.1.1", default-features = false }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
+orbital-paging = { path = "../orbital-paging", version = "0.1.1", default-features = false, features = ["leptos"] }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
 
 wasm-bindgen = { workspace = true }
 js-sys = { workspace = true }
 web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "Window", "MediaQueryList", "Event", "Storage"] }
 
 [build-dependencies]
-orbital-theme = { path = "../orbital-theme", default-features = false }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
 
 [features]
 default = ["preview"]
@@ -95,3 +100,7 @@ excludes = ["^orbital-.*"]
 
 [package.metadata.turf-dev]
 minify = false
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

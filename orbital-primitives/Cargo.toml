@@ -2,6 +2,13 @@
 name = "orbital-primitives"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-primitives"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Aggregated Orbital UI primitive re-exports for applications"
 license = "MIT"
 
 [lints]
@@ -12,16 +19,17 @@ doctest = false
 
 [dependencies]
 leptos.workspace = true
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-datatable = { path = "../orbital-datatable", default-features = false }
-orbital-date-pickers = { path = "../orbital-date-pickers", default-features = false }
-orbital-charts = { path = "../orbital-charts", default-features = false }
-orbital-tree = { path = "../orbital-tree", default-features = false }
-orbital-scheduler = { path = "../orbital-scheduler", default-features = false }
-orbital-discussion = { path = "../orbital-discussion", default-features = false }
-orbital-macros = { path = "../orbital-macros" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-datatable = { path = "../orbital-datatable", version = "0.1.1", default-features = false }
+orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.1", default-features = false }
+orbital-charts = { path = "../orbital-charts", version = "0.1.1", default-features = false }
+orbital-tree = { path = "../orbital-tree", version = "0.1.1", default-features = false }
+orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.1", default-features = false }
+orbital-discussion = { path = "../orbital-discussion", version = "0.1.1", default-features = false }
+orbital-history = { path = "../orbital-history", version = "0.1.1", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
 icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true
@@ -38,6 +46,7 @@ preview = [
     "orbital-tree/preview",
     "orbital-scheduler/preview",
     "orbital-discussion/preview",
+    "orbital-history/preview",
     "dep:inventory",
 ]
 hydrate = [
@@ -50,6 +59,7 @@ hydrate = [
     "orbital-tree/hydrate",
     "orbital-scheduler/hydrate",
     "orbital-discussion/hydrate",
+    "orbital-history/hydrate",
     "preview",
     "dep:inventory",
 ]
@@ -63,6 +73,11 @@ ssr = [
     "orbital-tree/ssr",
     "orbital-scheduler/ssr",
     "orbital-discussion/ssr",
+    "orbital-history/ssr",
     "preview",
     "dep:inventory",
 ]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

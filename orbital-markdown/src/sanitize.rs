@@ -15,9 +15,16 @@ pub fn sanitize_html(html: &str, allow_images: bool) -> String {
     let mut tag_attrs: HashMap<&str, HashSet<&str>> = HashMap::from([
         (
             "a",
-            ["href", "target", "id", "class", "data-citation-id"]
-                .into_iter()
-                .collect(),
+            [
+                "href",
+                "target",
+                "id",
+                "class",
+                "data-citation-id",
+                "data-mention-id",
+            ]
+            .into_iter()
+            .collect(),
         ),
         ("code", ["class"].into_iter().collect()),
         ("pre", ["class"].into_iter().collect()),
@@ -34,7 +41,11 @@ pub fn sanitize_html(html: &str, allow_images: bool) -> String {
     let cleaned = ammonia::Builder::default()
         .tags(tags)
         .tag_attributes(tag_attrs)
-        .url_schemes(["http", "https", "mailto"].into_iter().collect())
+        .url_schemes(
+            ["http", "https", "mailto", "mention-ref"]
+                .into_iter()
+                .collect(),
+        )
         .link_rel(Some("noopener noreferrer"))
         .clean(html)
         .to_string();

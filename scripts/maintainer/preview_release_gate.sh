@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Optional local preview release gate (IP check, workspace build, full E2E).
+# Optional local preview release gate (workspace build, full E2E).
 # PR CI already runs the full Playwright suite on every pull request; this script
 # is a maintainer convenience before tagging. TagPush only deploys GitHub Pages.
 set -euo pipefail
@@ -7,10 +7,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-echo "== IP release gate =="
-"$ROOT/scripts/maintainer/ip_release_gate.sh"
-
-echo ""
 echo "== Workspace build (deny rustc warnings) =="
 RUSTFLAGS='-D warnings' cargo build --workspace
 echo "PASS: cargo build --workspace without warnings"

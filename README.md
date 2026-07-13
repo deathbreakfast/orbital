@@ -2,21 +2,23 @@
 
 [![CI](https://github.com/unified-field-dev/orbital/actions/workflows/ci.yml/badge.svg)](https://github.com/unified-field-dev/orbital/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/orbital-ui.svg)](https://crates.io/crates/orbital-ui)
+[![docs.rs](https://docs.rs/orbital-ui/badge.svg)](https://docs.rs/orbital-ui)
 [![Preview catalog](https://img.shields.io/badge/docs-preview_catalog-blue)](https://unified-field-dev.github.io/orbital/)
 
 **Orbital** is a Leptos component library and design system for building focused, accessible product interfaces in Rust. It ships themed UI primitives, shared typed data models, and higher-level feature crates (tables, charts, scheduling, and more) that compose on the same tokens, motion vocabulary, and accessibility patterns.
 
-**Status:** v0.1.0 early release · [MIT](LICENSE) · [GitHub](https://github.com/unified-field-dev/orbital)
+**Status:** v0.1.1 early release · [MIT](LICENSE) · [GitHub](https://github.com/unified-field-dev/orbital)
 
 **Requires:** nightly Rust ([`rust-toolchain.toml`](rust-toolchain.toml)) · [cargo-leptos](https://github.com/leptos-rs/cargo-leptos) **≥ 0.3.6** · Node 24+ for Playwright
 
 ## Quick start
 
-Add the facade crate from GitHub and wrap your app in [`OrbitalTemplate`](orbital/README.md):
+Add the facade crate (`orbital-ui` on crates.io; Rust imports stay `orbital::`) and wrap your app in [`OrbitalTemplate`](orbital/README.md):
 
 ```toml
 [dependencies]
-orbital = { git = "https://github.com/unified-field-dev/orbital", default-features = false, features = ["hydrate"] }
+orbital-ui = { version = "0.1", default-features = false, features = ["hydrate"] }
 leptos = { version = "0.8", default-features = false, features = ["nightly"] }
 ```
 
@@ -124,7 +126,7 @@ Specialized widgets omitted from this table: [`yew-datatable`](https://docs.rs/y
 ## Documentation
 
 - **Foundation components** — buttons, forms, navigation, overlays, tables, and layout primitives for SSR and hydration.
-- **Feature crates** — data tables, charts, date/time pickers, schedulers, trees, and discussion for product-heavy screens ([datatable](orbital-datatable/README.md), [charts](orbital-charts/README.md), [date-pickers](orbital-date-pickers/README.md), [scheduler](orbital-scheduler/README.md), [discussion](orbital-discussion/README.md)).
+- **Feature crates** — data tables, charts, date/time pickers, schedulers, trees, discussion, and history for product-heavy screens ([datatable](orbital-datatable/README.md), [charts](orbital-charts/README.md), [date-pickers](orbital-date-pickers/README.md), [scheduler](orbital-scheduler/README.md), [discussion](orbital-discussion/README.md), [history](orbital-history/README.md)).
 - **Design language** — spacing, typography, elevation, materials, brand tone, and motion via CSS variables and theme hooks ([Introduction](https://unified-field-dev.github.io/orbital/), [Theme](https://unified-field-dev.github.io/orbital/theme), [Boot loader](https://unified-field-dev.github.io/orbital/boot-loader)).
 - **Shared types** — UI-agnostic `Dataset`, paging, and datetime crates so tables, charts, and schedulers share one wire format ([details below](#shared-types)).
 - **Live preview** — ~220 interactive catalog pages with examples and Playwright coverage.
@@ -153,7 +155,7 @@ Local: `cargo leptos watch -p orbital-preview` → `http://127.0.0.1:3010/orbita
 
 ### Repository docs
 
-[`orbital/README.md`](orbital/README.md) · [`orbital-macros/README.md`](orbital-macros/README.md) · [component testing](docs/component-testing.md) · `cargo doc -p orbital --open`
+[`orbital/README.md`](orbital/README.md) · [`orbital-macros/README.md`](orbital-macros/README.md) · [component testing](docs/component-testing.md) · `cargo doc -p orbital-ui --open`
 
 ## Design language
 
@@ -167,7 +169,7 @@ Components share a single visual and interaction vocabulary:
 | Components | `orbital-core-components` | Themed controls that consume the tokens above |
 
 - **[Introduction (live)](https://unified-field-dev.github.io/orbital/)** — principles, color, elevation, typography, motion
-- **Crate READMEs:** [datatable](orbital-datatable/README.md) · [charts](orbital-charts/README.md) · [date-pickers](orbital-date-pickers/README.md) · [scheduler](orbital-scheduler/README.md) · [discussion](orbital-discussion/README.md)
+- **Crate READMEs:** [datatable](orbital-datatable/README.md) · [charts](orbital-charts/README.md) · [date-pickers](orbital-date-pickers/README.md) · [scheduler](orbital-scheduler/README.md) · [discussion](orbital-discussion/README.md) · [history](orbital-history/README.md)
 
 Authors wrap apps in `OrbitalThemeProvider` and compose shell chrome via [`OrbitalTemplate`](orbital/README.md). Capability is expressed through feature flags on each crate (for example `DataTableFeatures`, `ChartFeatures`) — not license-tier suffixes on type names.
 
@@ -200,6 +202,7 @@ Buttons, inputs, dialogs, drawers, menus, tabs, cards, lists, avatars, paginatio
 | Scheduler | `orbital-scheduler` | Calendar and timeline views, drag-resize, resource lanes, event editing |
 | Tree | `orbital-tree` | Hierarchical navigation and selection |
 | Discussion | `orbital-discussion` | Threaded replies, composer, markdown, attachments |
+| History | `orbital-history` | Audit timeline, field diffs, custom kind renderers |
 
 ## Development
 
@@ -247,7 +250,7 @@ cd end2end && npm test
 ./scripts/maintainer/preview_release_gate.sh
 ```
 
-Scans tracked release surface (`ip_release_gate.sh`), then runs full release-mode E2E (~1–2 hours). PR CI runs lean checks only; tag deploy runs the full gate via [`.github/workflows/preview-pages.yml`](.github/workflows/preview-pages.yml). Maintainers: see [CONTRIBUTING.md — Publishing preview](CONTRIBUTING.md#publishing-preview).
+Runs a workspace build (deny warnings) then full release-mode E2E (~1–2 hours). PR CI already runs the Playwright suite; this is a maintainer convenience before tagging. Tag deploy publishes via [`.github/workflows/preview-pages.yml`](.github/workflows/preview-pages.yml). Maintainers: see [CONTRIBUTING.md — Publishing preview](CONTRIBUTING.md#publishing-preview).
 
 ## Verify
 
@@ -263,6 +266,7 @@ cargo check -p orbital-charts --no-default-features
 cargo check -p orbital-date-pickers --no-default-features
 cargo check -p orbital-scheduler --no-default-features
 cargo check -p orbital-tree --no-default-features
+cargo check -p orbital-history --no-default-features
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 

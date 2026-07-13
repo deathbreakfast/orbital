@@ -15,6 +15,8 @@ use syn::{Expr, Lit, Meta, Path};
 /// | Data Table | 6 | Data table catalog |
 /// | Tree | 7 | Tree view |
 /// | Scheduling | 8 | Scheduler catalog |
+/// | Discussion | 9 | Discussion catalog |
+/// | History | 10 | History timeline catalog |
 ///
 /// Section is inferred from `file!()` path when not set explicitly. Typography category
 /// maps to Getting Started.

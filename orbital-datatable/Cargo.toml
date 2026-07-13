@@ -2,6 +2,14 @@
 name = "orbital-datatable"
 version = "0.1.1"
 edition = "2021"
+readme = "README.md"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-datatable"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Interactive DataTable product for the Orbital component library"
 license = "MIT"
 
 [lints]
@@ -15,13 +23,13 @@ leptos.workspace = true
 bitflags = "2"
 # Deflate only — default zip features pull in lzma-sys (native C), which fails on wasm32.
 zip = { version = "2", default-features = false, features = ["deflate"] }
-orbital-base-components = { path = "../orbital-base-components" }
-orbital-core-components = { path = "../orbital-core-components", default-features = false }
-orbital-data = { path = "../orbital-data" }
-orbital-paging = { path = "../orbital-paging", features = ["leptos"] }
-orbital-macros = { path = "../orbital-macros" }
-orbital-style = { path = "../orbital-style" }
-orbital-theme = { path = "../orbital-theme", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-data = { path = "../orbital-data", version = "0.1.1" }
+orbital-paging = { path = "../orbital-paging", version = "0.1.1", features = ["leptos"] }
+orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-style = { path = "../orbital-style", version = "0.1.1" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 chrono.workspace = true
@@ -38,3 +46,7 @@ default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]
 hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "orbital-theme/hydrate", "orbital-paging/hydrate", "preview", "dep:inventory", "dep:wasm-bindgen", "dep:web-sys", "dep:js-sys", "dep:wasm-bindgen-futures"]
 ssr = ["leptos/ssr", "orbital-core-components/ssr", "orbital-theme/ssr", "orbital-paging/ssr", "preview", "dep:inventory"]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]

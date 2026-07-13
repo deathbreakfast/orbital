@@ -2,6 +2,12 @@
 name = "orbital-markdown"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-markdown"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
 license = "MIT"
 description = "Shared markdown rendering for Orbital crates"
 
@@ -12,3 +18,8 @@ workspace = true
 ammonia = "4"
 pulldown-cmark = "0.13"
 regex = "1"
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]

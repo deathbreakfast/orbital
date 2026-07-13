@@ -2,6 +2,13 @@
 name = "orbital-base-components"
 version = "0.1.1"
 edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "components", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-base-components"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Headless base primitives for Orbital — structure, semantics, and accessibility"
 license = "MIT"
 
 [lints]
@@ -21,10 +28,10 @@ uuid = { workspace = true }
 wasm-bindgen = { workspace = true }
 web-sys = { version = "0.3", features = ["CssStyleDeclaration", "DataTransfer", "Document", "DomRect", "Element", "EventTarget", "FileList", "HtmlDivElement", "HtmlElement", "HtmlInputElement", "Node", "NodeFilter", "Performance", "ScrollBehavior", "ScrollToOptions", "TreeWalker"] }
 leptos_transition_group = "0.2.0"
-orbital-theme = { path = "../orbital-theme", default-features = false }
-orbital-style = { path = "../orbital-style", default-features = false }
-orbital-motion = { path = "../orbital-motion", default-features = false }
-orbital-data = { path = "../orbital-data" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-style = { path = "../orbital-style", version = "0.1.1", default-features = false }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
+orbital-data = { path = "../orbital-data", version = "0.1.1" }
 send_wrapper = "0.6"
 palette = "0.7"
 
@@ -37,3 +44,8 @@ hydrate = [
     "orbital-motion/hydrate",
 ]
 ssr = ["leptos/ssr", "orbital-theme/ssr", "orbital-style/ssr", "orbital-motion/ssr"]
+
+[package.metadata.docs.rs]
+all-features = false
+no-default-features = true
+rustdoc-args = ["--cfg", "docsrs"]
