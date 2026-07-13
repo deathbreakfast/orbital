@@ -53,6 +53,13 @@ jobs:
           ORBITAL_PREVIEW_BASE_PATH: /orbital
         run: cargo leptos build --release --project orbital-preview
 
+      # build.rs writes public/orbital-theme-baseline.css (gitignored). cargo-leptos may
+      # copy assets before that file exists, so sync it into the Pages root explicitly.
+      - name: Sync first-paint baseline CSS into site root
+        run: |
+          test -f public/orbital-theme-baseline.css
+          cp -f public/orbital-theme-baseline.css target/site-preview/orbital-theme-baseline.css
+
       - name: Static export
         env:
           ORBITAL_EXPORT_STATIC: "1"
@@ -66,6 +73,8 @@ jobs:
           test -f target/site-preview/index.html
           test -f target/site-preview/button/index.html
           test -f target/site-preview/pkg/orbital-preview.wasm
+          test -f target/site-preview/orbital-theme-baseline.css
+          test -s target/site-preview/orbital-theme-baseline.css
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

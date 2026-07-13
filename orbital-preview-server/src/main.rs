@@ -6,7 +6,10 @@ use leptos::config::get_configuration;
 use leptos_axum::{generate_route_list, LeptosRoutes};
 use orbital_preview_app::preview::collect_preview_slugs_for_export;
 use orbital_preview_app::preview_site_base;
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
+
+/// Must match `orbital_theme::BASELINE_STYLESHEET_FILENAME` / `OrbitalFirstPaintHeadAssets`.
+const BASELINE_STYLESHEET_FILENAME: &str = "orbital-theme-baseline.css";
 
 // `current_thread` keeps Leptos sandboxed-arena Owner cleanup on the same thread
 // that created SendWrapper-backed effects. Multi-thread Tokio workers panic with:
@@ -29,9 +32,11 @@ async fn main() {
 
     // Root-mounted `/*slug` would otherwise SSR-wrap `/pkg/*`, `/fonts/*`, and `/preview-assets/*`.
     let site_root = PathBuf::from(leptos_options.site_root.as_ref());
+    ensure_baseline_css_in_site_root(&site_root);
     let pkg_dir = site_root.join(leptos_options.site_pkg_dir.as_ref());
     let fonts_dir = site_root.join("fonts");
     let preview_assets_dir = site_root.join("orbital").join("preview-assets");
+    let baseline_css = site_root.join(BASELINE_STYLESHEET_FILENAME);
 
     let app = build_preview_router(
         leptos_options.clone(),
@@ -39,10 +44,13 @@ async fn main() {
         pkg_dir,
         fonts_dir,
         preview_assets_dir,
+        baseline_css,
     );
 
     if std::env::var("ORBITAL_EXPORT_STATIC").is_ok() {
         export_static_html(&leptos_options, app, addr).await;
+        // Re-sync after crawl so Pages upload is not missing the gitignored asset.
+        ensure_baseline_css_in_site_root(&site_root);
         log::info!(
             "Static export complete → {}",
             leptos_options.site_root.as_ref()
@@ -59,12 +67,47 @@ async fn main() {
         .expect("serve preview server");
 }
 
+/// `orbital` build.rs writes `public/orbital-theme-baseline.css` (gitignored). cargo-leptos
+/// may copy `assets-dir` before that file exists, so copy it into `site-root` before serve/export.
+fn ensure_baseline_css_in_site_root(site_root: &Path) {
+    let dest = site_root.join(BASELINE_STYLESHEET_FILENAME);
+    if dest.is_file() {
+        return;
+    }
+    let src = Path::new("public").join(BASELINE_STYLESHEET_FILENAME);
+    if !src.is_file() {
+        log::warn!(
+            "Missing {} (and {}); first-paint stylesheet link will 404 on static hosts",
+            dest.display(),
+            src.display()
+        );
+        return;
+    }
+    if let Some(parent) = dest.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    if let Err(err) = std::fs::copy(&src, &dest) {
+        log::warn!(
+            "Failed to copy {} → {}: {err}",
+            src.display(),
+            dest.display()
+        );
+    } else {
+        log::info!(
+            "Synced first-paint CSS {} → {}",
+            src.display(),
+            dest.display()
+        );
+    }
+}
+
 fn build_preview_router(
     leptos_options: leptos::config::LeptosOptions,
     routes: Vec<leptos_axum::AxumRouteListing>,
     pkg_dir: PathBuf,
     fonts_dir: PathBuf,
     preview_assets_dir: PathBuf,
+    baseline_css: PathBuf,
 ) -> Router {
     let leptos_options_for_routes = leptos_options.clone();
     let leptos_options_state = leptos_options.clone();
@@ -79,11 +122,19 @@ fn build_preview_router(
         .with_state(leptos_options_state);
 
     let base = preview_site_base();
+    // Serve the file explicitly so `/*slug` cannot SSR-wrap the stylesheet as HTML (200).
+    let baseline_path = if base.is_empty() {
+        format!("/{BASELINE_STYLESHEET_FILENAME}")
+    } else {
+        format!("{base}/{BASELINE_STYLESHEET_FILENAME}")
+    };
+
     if base.is_empty() {
         Router::new()
             .nest_service("/pkg", ServeDir::new(pkg_dir))
             .nest_service("/fonts", ServeDir::new(fonts_dir))
             .nest_service("/preview-assets", ServeDir::new(preview_assets_dir))
+            .route_service(&baseline_path, ServeFile::new(baseline_css))
             .merge(leptos_router)
     } else {
         let pkg_path = format!("{base}/pkg");
@@ -93,6 +144,7 @@ fn build_preview_router(
             .nest_service(&pkg_path, ServeDir::new(pkg_dir))
             .nest_service(&fonts_path, ServeDir::new(fonts_dir))
             .nest_service(&preview_assets_path, ServeDir::new(preview_assets_dir))
+            .route_service(&baseline_path, ServeFile::new(baseline_css))
             .merge(leptos_router)
     }
 }
