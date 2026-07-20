@@ -5,7 +5,6 @@ mod format;
 mod orbital_datetime;
 mod picker_shortcut;
 mod timezone;
-mod unix_time;
 
 pub use convert::{
     ToDataValue, ToIso8601, ToUnixSeconds, TryFromDataValue, TryFromIso8601, TryFromUnixSeconds,
@@ -16,8 +15,6 @@ pub use format::{format_datetime, format_unix, parse_datetime, parse_to_unix, Da
 pub use orbital_datetime::OrbitalDateTime;
 pub use picker_shortcut::PickerShortcut;
 pub use timezone::DatetimeTimezone;
-#[allow(deprecated)]
-pub use unix_time::UnixTime;
 
 #[cfg(test)]
 mod format_tests {

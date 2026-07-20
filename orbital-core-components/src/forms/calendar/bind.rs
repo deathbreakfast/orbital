@@ -1,4 +1,3 @@
-#![allow(deprecated)]
 use leptos::prelude::*;
 use orbital_base_components::{OptionBind, OrbitalDateTime};
 
@@ -15,18 +14,6 @@ impl CalendarBind {
         Self {
             value: value.into(),
         }
-    }
-
-    /// Legacy unix-seconds constructor for one release cycle.
-    #[deprecated(note = "use OrbitalDateTime with OptionBind<OrbitalDateTime>")]
-    pub fn from_unix_seconds(secs: i64) -> Self {
-        Self::new(orbital_from_i64(secs))
-    }
-
-    /// Legacy optional unix-seconds constructor for one release cycle.
-    #[deprecated(note = "use OrbitalDateTime with OptionBind<OrbitalDateTime>")]
-    pub fn from_optional_unix_seconds(secs: Option<i64>) -> Self {
-        Self::new(secs.and_then(orbital_from_i64))
     }
 }
 
@@ -68,12 +55,12 @@ impl From<Option<i64>> for CalendarBind {
 
 impl From<RwSignal<Option<i64>>> for CalendarBind {
     fn from(value: RwSignal<Option<i64>>) -> Self {
-        Self::from_optional_unix_seconds(value.get_untracked())
+        Self::new(value.get_untracked().and_then(orbital_from_i64))
     }
 }
 
 impl From<OptionBind<i64>> for CalendarBind {
     fn from(value: OptionBind<i64>) -> Self {
-        Self::from_optional_unix_seconds(value.get_untracked())
+        Self::new(value.get_untracked().and_then(orbital_from_i64))
     }
 }

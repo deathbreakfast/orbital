@@ -23,9 +23,9 @@ fn is_orbital_motion_consumer(source_path: &str) -> bool {
     if std::env::var_os("CARGO_PKG_NAME").is_some_and(|n| n == "orbital-motion") {
         return true;
     }
-    source_path.split('/').any(|seg| {
-        seg == "orbital-motion" || seg.starts_with("orbital-motion-")
-    })
+    source_path
+        .split('/')
+        .any(|seg| seg == "orbital-motion" || seg.starts_with("orbital-motion-"))
 }
 
 pub fn expand(attrs: &ComponentDocAttrs, input_fn: &ItemFn) -> proc_macro2::TokenStream {

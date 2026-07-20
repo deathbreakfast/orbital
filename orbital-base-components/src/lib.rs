@@ -26,7 +26,6 @@ pub mod icon;
 pub mod layout;
 pub mod loading_bar;
 pub mod material;
-pub mod motion;
 pub mod navigation;
 pub mod overlay;
 pub mod pagination;
@@ -71,29 +70,28 @@ pub use feedback::{BaseCounterBadge, BasePresenceBadge, PresenceBadgeSize, Prese
 pub use flex::{BaseFlex, FlexAlign, FlexGap, FlexJustify, FlexWrap};
 pub use floating_button::BaseFloatingButton;
 pub use floating_button::FloatingButtonVariant;
-#[allow(deprecated)]
 pub use form::{
-    build_month_grid, compose_time_unix, format_datetime, format_time_value, format_unix,
-    get_dropdown_action_from_key, is_datetime_out_of_range, is_day_disabled,
-    listbox_keyboard_event, move_all, move_checked, new_field_id, normalize_reference_date,
-    now_time, parse_datetime, parse_time_input, parse_to_unix, selectable_ids, selected_count,
-    to_panel_time, toggle_all, use_active_descendant, ActiveDescendantController, AutoCompleteSize,
-    BaseButtonGroup, BaseCalendar, BaseCheckbox, BaseColorPicker, BaseDatePicker, BaseField,
-    BaseInfoLabel, BaseInput, BaseLabel, BaseListbox, BaseNumericStepper, BaseRadio,
-    BaseRadioGroup, BaseSelect, BaseSlider, BaseSliderLabel, BaseSwatchPicker,
-    BaseSwatchPickerItem, BaseSwitch, BaseTextarea, BaseTimePicker, CheckboxSize, Color, ColorBind,
-    ComboboxSize, DatePickerRule, DatePickerRuleTrigger, DatetimeError, DatetimeFormat,
-    DatetimeTimezone, DropdownAction, FieldInjection, FieldOrientation, FieldValidationState,
-    FormBind, GridDay, GridDayKind, InfoLabelInfo, InputRef, InputRule, InputRuleTrigger,
-    InputSize, InputType, LabelSize, LabelWeight, ListboxInjection, MonthButtonRenderProps,
-    MonthButtonRenderer, NumericStepperRule, NumericStepperRuleTrigger, OptionBind,
-    OrbitalDateTime, PickerShortcut, PickerShortcutsBar, RadioGroupRule, RadioGroupRuleTrigger,
-    RatingRule, RatingRuleTrigger, Rule, RuleValueWithUntracked, SelectRule, SelectRuleTrigger,
-    SelectSize, SliderRule, SliderRuleTrigger, SwatchPickerInjection, SwatchPickerLayout,
-    SwatchPickerShape, SwatchPickerSize, SwitchRule, SwitchRuleTrigger, TextareaRef,
-    TextareaResize, TextareaRule, TextareaRuleTrigger, TextareaSize, ToDataValue, ToIso8601,
-    ToUnixSeconds, TransferListItem, TryFromDataValue, TryFromIso8601, TryFromUnixSeconds,
-    UnixTime, event_html_element, input_event_value, textarea_event_value,
+    build_month_grid, compose_time_unix, event_html_element, format_datetime, format_time_value,
+    format_unix, get_dropdown_action_from_key, input_event_value, is_datetime_out_of_range,
+    is_day_disabled, listbox_keyboard_event, move_all, move_checked, new_field_id,
+    normalize_reference_date, now_time, parse_datetime, parse_time_input, parse_to_unix,
+    selectable_ids, selected_count, textarea_event_value, to_panel_time, toggle_all,
+    use_active_descendant, ActiveDescendantController, AutoCompleteSize, BaseButtonGroup,
+    BaseCalendar, BaseCheckbox, BaseColorPicker, BaseDatePicker, BaseField, BaseInfoLabel,
+    BaseInput, BaseLabel, BaseListbox, BaseNumericStepper, BaseRadio, BaseRadioGroup, BaseSelect,
+    BaseSlider, BaseSliderLabel, BaseSwatchPicker, BaseSwatchPickerItem, BaseSwitch, BaseTextarea,
+    BaseTimePicker, CheckboxSize, Color, ColorBind, ComboboxSize, DatePickerRule,
+    DatePickerRuleTrigger, DatetimeError, DatetimeFormat, DatetimeTimezone, DropdownAction,
+    FieldInjection, FieldOrientation, FieldValidationState, FormBind, GridDay, GridDayKind,
+    InfoLabelInfo, InputRef, InputRule, InputRuleTrigger, InputSize, InputType, LabelSize,
+    LabelWeight, ListboxInjection, MonthButtonRenderProps, MonthButtonRenderer, NumericStepperRule,
+    NumericStepperRuleTrigger, OptionBind, OrbitalDateTime, PickerShortcut, PickerShortcutsBar,
+    RadioGroupRule, RadioGroupRuleTrigger, RatingRule, RatingRuleTrigger, Rule,
+    RuleValueWithUntracked, SelectRule, SelectRuleTrigger, SelectSize, SliderRule,
+    SliderRuleTrigger, SwatchPickerInjection, SwatchPickerLayout, SwatchPickerShape,
+    SwatchPickerSize, SwitchRule, SwitchRuleTrigger, TextareaRef, TextareaResize, TextareaRule,
+    TextareaRuleTrigger, TextareaSize, ToDataValue, ToIso8601, ToUnixSeconds, TransferListItem,
+    TryFromDataValue, TryFromIso8601, TryFromUnixSeconds,
 };
 pub use grid::{use_grid, BaseGrid, BaseGridItem, GridInjection};
 pub use icon::BaseIcon;
@@ -103,8 +101,6 @@ pub use layout::{
 };
 pub use loading_bar::{BaseLoadingBarProvider, LoadingBarInjection};
 pub use material::{BaseMaterial, MaterialCorners, MaterialElevation, MaterialVariant};
-#[allow(deprecated)]
-pub use motion::BaseCollapseTransition;
 pub use navigation::carousel::{
     BaseCarousel, BaseCarouselSlide, BaseCarouselStepper, BaseCarouselViewport, CarouselState,
     CarouselStateInjection, CarouselStepperLayout,

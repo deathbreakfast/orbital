@@ -416,10 +416,6 @@ pub fn resolve_display_events(
 mod tests {
     use super::*;
 
-    fn eastern_timezone() -> DatetimeTimezone {
-        DatetimeTimezone::FixedOffset(-5 * 3600)
-    }
-
     fn master_on(
         day: NaiveDate,
         start_hms: (u32, u32, u32),

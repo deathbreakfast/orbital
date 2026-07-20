@@ -252,7 +252,6 @@ pub fn DiscussionThread(
         discussion_citation_menu,
     );
 
-    #[allow(deprecated)]
     let renderers = StoredValue::new(DiscussionRenderers::merge_with_slots(&slots, renderers));
 
     let loading = loading.unwrap_or_else(|| Signal::derive(|| false));

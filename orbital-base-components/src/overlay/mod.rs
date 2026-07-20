@@ -2,7 +2,6 @@ pub mod anchored;
 pub mod appearance;
 pub mod arrow;
 pub mod backdrop;
-pub mod css_transition;
 pub mod dom_events;
 pub mod element_ref;
 pub mod feedback_intent;

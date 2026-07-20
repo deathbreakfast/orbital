@@ -2,9 +2,7 @@
 
 use chrono::Datelike;
 use leptos::prelude::*;
-use orbital_core_components::{
-    default_calendar_day, CalendarDayProps,
-};
+use orbital_core_components::{default_calendar_day, CalendarDayProps};
 use orbital_macros::component_doc;
 
 pub fn weekend_day(props: CalendarDayProps) -> AnyView {

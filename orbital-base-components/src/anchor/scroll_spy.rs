@@ -35,11 +35,7 @@ pub fn mount_anchor_scroll_spy(
         let on_scroll = move || {
             let next_active = element_ids.with(|ids| {
                 let offset_target_top = if let Some(offset_target) = offset_target.as_ref() {
-                    if let Some(rect) = offset_target.bounding_client_rect() {
-                        rect.top()
-                    } else {
-                        return None;
-                    }
+                    offset_target.bounding_client_rect()?.top()
                 } else {
                     0.0
                 };

@@ -2129,7 +2129,6 @@ dependencies = [
  "icondata",
  "icondata_core",
  "leptos",
- "leptos_transition_group",
  "orbital-data",
  "orbital-motion",
  "orbital-style",

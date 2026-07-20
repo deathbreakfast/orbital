@@ -16,8 +16,11 @@ use crate::{SchedulerCalendar, SchedulerFeatures, SchedulerView};
 #[cfg(feature = "preview")]
 use crate::preview::fixtures::sample_timezone_demo_event;
 
+#[cfg(feature = "preview")]
 const TZ_UTC: &str = "utc";
+#[cfg(feature = "preview")]
 const TZ_EASTERN: &str = "eastern";
+#[cfg(feature = "preview")]
 const TZ_TOKYO: &str = "tokyo";
 
 #[cfg(feature = "preview")]

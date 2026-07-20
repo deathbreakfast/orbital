@@ -417,6 +417,7 @@ pub fn HistoryTimeline(
                                 return;
                             }
                             page_ui.set(current.saturating_add(1));
+                            #[cfg(feature = "hydrate")]
                             for _ in 0..40 {
                                 if hunt_generation.get_untracked() != gen {
                                     return;
@@ -425,12 +426,7 @@ pub fn HistoryTimeline(
                                     schedule_scroll_entry_into_view(id.clone());
                                     return;
                                 }
-                                #[cfg(feature = "hydrate")]
-                                {
-                                    gloo_timers::future::TimeoutFuture::new(50).await;
-                                }
-                                #[cfg(not(feature = "hydrate"))]
-                                break;
+                                gloo_timers::future::TimeoutFuture::new(50).await;
                             }
                         }
                     });

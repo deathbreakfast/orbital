@@ -58,9 +58,7 @@ pub fn resize_timeline_event_start(
     start_ratio: f64,
     display_tz: DatetimeTimezone,
 ) -> Option<OrbitalDateTime> {
-    let Some(start) = datetime_from_range_ratio(range, start_ratio, display_tz) else {
-        return None;
-    };
+    let start = datetime_from_range_ratio(range, start_ratio, display_tz)?;
     let min_end = start.to_unix_seconds() + (MIN_EVENT_DURATION_MINUTES * 60.0) as i64;
     if event.end.to_unix_seconds() < min_end {
         return orbital_base_components::OrbitalDateTime::try_from_unix_seconds(
@@ -81,9 +79,7 @@ pub fn resize_timeline_event_end(
     end_ratio: f64,
     display_tz: DatetimeTimezone,
 ) -> Option<OrbitalDateTime> {
-    let Some(end) = datetime_from_range_ratio(range, end_ratio, display_tz) else {
-        return None;
-    };
+    let end = datetime_from_range_ratio(range, end_ratio, display_tz)?;
     let min_start = end.to_unix_seconds() - (MIN_EVENT_DURATION_MINUTES * 60.0) as i64;
     if event.start.to_unix_seconds() > min_start {
         return orbital_base_components::OrbitalDateTime::try_from_unix_seconds(

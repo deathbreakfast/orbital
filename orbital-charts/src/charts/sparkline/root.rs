@@ -316,8 +316,7 @@ pub fn Sparkline(
         _ => None,
     };
 
-    if width.is_some() {
-        let w = width.unwrap();
+    if let Some(w) = width {
         view! {
             <ChartContainer
                 class=class

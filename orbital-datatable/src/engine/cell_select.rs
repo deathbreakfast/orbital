@@ -77,12 +77,9 @@ pub fn coords_in_range(
         return Vec::new();
     };
     let mut coords = Vec::new();
-    for row_idx in range.row_start..=range.row_end {
-        for col_idx in range.col_start..=range.col_end {
-            coords.push(CellCoord::new(
-                row_ids[row_idx].clone(),
-                fields[col_idx].clone(),
-            ));
+    for row_id in &row_ids[range.row_start..=range.row_end] {
+        for field in &fields[range.col_start..=range.col_end] {
+            coords.push(CellCoord::new(row_id.clone(), field.clone()));
         }
     }
     coords
