@@ -181,14 +181,16 @@ pub fn SchedulerTimeline(
         let show_weekends = resolved_prefs.show_weekends.try_get();
         let ampm = resolved_prefs.ampm.try_get();
         let week_starts_on = resolved_prefs.week_starts_on.try_get();
-        if show_weekends.is_none() || ampm.is_none() || week_starts_on.is_none() {
+        let (Some(show_weekends), Some(ampm), Some(week_starts_on)) =
+            (show_weekends, ampm, week_starts_on)
+        else {
             return;
-        }
+        };
         resolved_events.with_value(|events| {
             events.notify_preferences_change(SchedulerPreferencesSnapshot {
-                show_weekends: show_weekends.unwrap(),
-                ampm: ampm.unwrap(),
-                week_starts_on: week_starts_on.unwrap(),
+                show_weekends,
+                ampm,
+                week_starts_on,
             });
         });
     });

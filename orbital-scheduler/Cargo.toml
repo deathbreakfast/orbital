@@ -36,6 +36,7 @@ orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features
 icondata.workspace = true
 icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }
+futures = { version = "0.3", default-features = false, features = ["std"] }
 
 [features]
 default = ["preview"]

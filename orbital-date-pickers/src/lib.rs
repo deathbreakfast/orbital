@@ -1,6 +1,6 @@
 //! Orbital Date Pickers — plugin extensions for date/time selection.
 
-#![allow(dead_code, clippy::needless_update)]
+#![allow(clippy::needless_update)]
 #![recursion_limit = "512"]
 
 #[cfg(feature = "preview")]

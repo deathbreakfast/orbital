@@ -1,9 +1,6 @@
 //! Calendar lazy-loading preview (SC-11).
 
 #[cfg(feature = "preview")]
-use std::sync::Arc;
-
-#[cfg(feature = "preview")]
 use leptos::prelude::*;
 #[cfg(feature = "preview")]
 use orbital_base_components::DatetimeTimezone;
@@ -65,7 +62,7 @@ use crate::{
 /// let simulate_error = RwSignal::new(false);
 /// let lazy_reload_key = RwSignal::new(0u32);
 /// let data_source = SchedulerDataSourceMode::Remote(Box::new(
-///     MockSlowDataSource::with_fail_signal(800, Arc::new(simulate_error)),
+///     MockSlowDataSource::with_fail_signal(800, simulate_error),
 /// ));
 /// view! {
 ///     <div data-testid="scheduler-calendar-lazy-loading-preview">
@@ -106,7 +103,6 @@ pub fn SchedulerCalendarLazyLoading(
     let display_timezone = RwSignal::new(DatetimeTimezone::Local);
     let simulate_error = RwSignal::new(false);
     let lazy_reload_key = RwSignal::new(0u32);
-    let fail_when = Arc::new(simulate_error);
 
     Effect::new(move |_| {
         let _ = simulate_error.get();
@@ -114,7 +110,7 @@ pub fn SchedulerCalendarLazyLoading(
     });
 
     let data_source = SchedulerDataSourceMode::Remote(Box::new(
-        MockSlowDataSource::with_fail_signal(800, fail_when),
+        MockSlowDataSource::with_fail_signal(800, simulate_error),
     ));
 
     view! {

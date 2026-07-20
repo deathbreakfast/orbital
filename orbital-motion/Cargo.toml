@@ -25,23 +25,22 @@ orbital-macros = { path = "../orbital-macros", version = "0.1.2", optional = tru
 turf.workspace = true
 icondata.workspace = true
 icondata_core.workspace = true
-inventory = { version = "0.3", optional = true }
+inventory = "0.3"
 pulldown-cmark = { version = "0.13", optional = true }
 wasm-bindgen = { workspace = true, optional = true }
 web-sys = { workspace = true, features = ["CssStyleDeclaration", "Element", "EventTarget", "HtmlElement", "MediaQueryList"] }
 
 [features]
 default = ["preview"]
-preview = ["dep:inventory", "dep:orbital-macros", "dep:pulldown-cmark"]
+preview = ["dep:orbital-macros", "dep:pulldown-cmark"]
 hydrate = [
     "leptos/hydrate",
     "orbital-style/hydrate",
     "preview",
-    "dep:inventory",
     "dep:pulldown-cmark",
     "dep:wasm-bindgen",
 ]
-ssr = ["leptos/ssr", "orbital-style/ssr", "preview", "dep:inventory", "dep:pulldown-cmark"]
+ssr = ["leptos/ssr", "orbital-style/ssr", "preview", "dep:pulldown-cmark"]
 
 [package.metadata.docs.rs]
 all-features = false

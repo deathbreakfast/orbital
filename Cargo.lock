@@ -2423,6 +2423,7 @@ version = "0.1.1"
 dependencies = [
  "bitflags",
  "chrono",
+ "futures",
  "icondata",
  "icondata_core",
  "inventory",
@@ -2517,7 +2518,6 @@ dependencies = [
  "pulldown-cmark",
  "serde",
  "serde_json",
- "thiserror 2.0.18",
  "tokio",
  "turf",
  "url",

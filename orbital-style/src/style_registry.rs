@@ -52,28 +52,27 @@ impl StyleRegistryContext {
     pub fn ensure_style_in_head(&self, id: &str, content: &str) {
         use leptos::prelude::document;
 
-        let head = document().head().expect("head no exist");
-        let style = head
-            .query_selector(&format!("style#{id}"))
-            .expect("query style element error")
-            .unwrap_or_else(|| {
-                let style = document()
-                    .create_element("style")
-                    .expect("create style element error");
+        let Some(head) = document().head() else {
+            return;
+        };
+        let style = match head.query_selector(&format!("style#{id}")) {
+            Ok(Some(existing)) => existing,
+            Ok(None) => {
+                let Ok(style) = document().create_element("style") else {
+                    return;
+                };
                 let _ = style.set_attribute("id", id);
 
-                let orbital_meta = head
-                    .query_selector(STYLE_MARKER)
-                    .expect("query orbital-style meta element error");
-
+                let orbital_meta = head.query_selector(STYLE_MARKER).ok().flatten();
                 if let Some(orbital_meta) = orbital_meta {
                     let _ = head.insert_before(&style, Some(&orbital_meta));
                 } else {
                     let _ = head.prepend_with_node_1(&style);
                 }
-
                 style
-            });
+            }
+            Err(_) => return,
+        };
 
         style.set_text_content(Some(content));
     }

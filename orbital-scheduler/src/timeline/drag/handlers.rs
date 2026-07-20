@@ -1,4 +1,7 @@
 //! Pointer handlers for horizontal timeline event drag (SC-20).
+//!
+//! Some helpers remain for upcoming lane-hit wiring.
+#![allow(dead_code)]
 
 use leptos::{ev, leptos_dom::helpers::window_event_listener, prelude::*};
 

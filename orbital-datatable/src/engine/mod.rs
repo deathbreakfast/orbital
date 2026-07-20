@@ -1,4 +1,8 @@
+//! DataTable engine — filtering, sorting, grouping, viewport, and export helpers.
+//!
+//! Several helpers are wired incrementally; allow unused items until product surfaces consume them.
 #![allow(dead_code)]
+
 mod aggregation;
 mod cell_select;
 mod clipboard;

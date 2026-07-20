@@ -1,4 +1,7 @@
 //! Pointer handlers for calendar event drag and resize.
+//!
+//! Some helpers remain for upcoming drag-hit wiring.
+#![allow(dead_code)]
 
 use chrono::NaiveDate;
 use leptos::{ev, leptos_dom::helpers::window_event_listener, prelude::*};

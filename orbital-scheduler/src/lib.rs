@@ -5,7 +5,6 @@
 //! - `SchedulerEvent` → [`PlannedEvent`]
 //! - `SchedulerResource` → [`ScheduleResource`]
 
-#![allow(dead_code)]
 #![recursion_limit = "512"]
 
 /// Label text for gap placeholder stubs.
