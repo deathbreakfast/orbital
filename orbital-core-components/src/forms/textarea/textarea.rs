@@ -1,6 +1,6 @@
 use leptos::{ev, html, prelude::*};
 use orbital_base_components::{
-    ComponentRef, FieldInjection, Rule, TextareaRef, TextareaRuleTrigger,
+    textarea_event_value, ComponentRef, FieldInjection, Rule, TextareaRef, TextareaRuleTrigger,
 };
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
@@ -173,7 +173,9 @@ pub fn Textarea(
     let on_input = {
         let allow_value = allow_value.clone();
         move |e| {
-            let input_value = event_target_value(&e);
+            let Some(input_value) = textarea_event_value(&e) else {
+                return;
+            };
             if let Some(allow_value) = allow_value.as_ref() {
                 if !allow_value(input_value.clone()) {
                     value.with_value(|v| v.update(|_| {}));

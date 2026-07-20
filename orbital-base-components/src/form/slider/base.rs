@@ -2,6 +2,7 @@ use leptos::{context::Provider, ev, prelude::*};
 
 use crate::form::bind::FormBind;
 use crate::form::field_injection::FieldInjection;
+use crate::form::input_event_value;
 
 #[derive(Clone, Copy)]
 pub(crate) struct SliderInjection {
@@ -50,8 +51,10 @@ pub fn BaseSlider(
 
     let on_input_value = value.clone();
     let on_input = move |e: ev::Event| {
-        if let Ok(range_value) = event_target_value(&e).parse::<f64>() {
-            on_input_value.set(range_value);
+        if let Some(raw) = input_event_value(&e) {
+            if let Ok(range_value) = raw.parse::<f64>() {
+                on_input_value.set(range_value);
+            }
         }
     };
 

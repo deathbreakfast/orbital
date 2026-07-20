@@ -296,7 +296,7 @@ impl DataTableTableState {
                 let next = next.clone();
                 let state = *self;
                 let row_id = row_id.to_string();
-                leptos::task::spawn_local(async move {
+                leptos::task::spawn_local_scoped(async move {
                     if matches!(state.edit_session.session.get(), EditSession::Idle) {
                         state.start_cell_edit(&row_id, &next);
                     }

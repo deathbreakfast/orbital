@@ -34,7 +34,7 @@ pub fn handle_clipboard_keys(
             if let Some(window) = web_sys::window() {
                 let clipboard = window.navigator().clipboard();
                 let state = state;
-                leptos::task::spawn_local(async move {
+                leptos::task::spawn_local_scoped(async move {
                     if let Ok(text) = wasm_bindgen_futures::JsFuture::from(clipboard.read_text())
                         .await
                         .map(|v| v.as_string().unwrap_or_default())

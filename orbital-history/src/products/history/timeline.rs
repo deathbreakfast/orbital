@@ -346,7 +346,7 @@ pub fn HistoryTimeline(
                         next
                     };
                     let max_pages = max_scroll_load_pages;
-                    leptos::task::spawn_local(async move {
+                    leptos::task::spawn_local_scoped(async move {
                         let mut pages_loaded = 0u32;
                         loop {
                             if hunt_generation.get_untracked() != gen {
@@ -402,7 +402,7 @@ pub fn HistoryTimeline(
                         next
                     };
                     let max_pages = max_scroll_load_pages;
-                    leptos::task::spawn_local(async move {
+                    leptos::task::spawn_local_scoped(async move {
                         for _ in 0..max_pages {
                             if hunt_generation.get_untracked() != gen {
                                 return;

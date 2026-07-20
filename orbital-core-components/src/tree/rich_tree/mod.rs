@@ -342,7 +342,7 @@ pub fn RichTree<T: Clone + Send + Sync + 'static>(
                         loading_ids.update(|loading| {
                             loading.insert(id.clone());
                         });
-                        leptos::task::spawn_local(async move {
+                        leptos::task::spawn_local_scoped(async move {
                             let items = fetch(id.clone()).await;
                             let child_nodes: Vec<_> = items
                                 .iter()

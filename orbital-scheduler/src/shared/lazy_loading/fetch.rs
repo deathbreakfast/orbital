@@ -78,7 +78,7 @@ pub fn mount_lazy_load(
             load_error.set(None);
 
             let fetch_source = source_stored.get_value();
-            leptos::task::spawn_local(async move {
+            leptos::task::spawn_local_scoped(async move {
                 let result = fetch_source.get_events(range, signal).await;
                 if !coordinator_is_current(coordinator, generation) || signal.is_aborted() {
                     return;
@@ -119,7 +119,7 @@ pub fn persist_event_changes(
 
     let source = Arc::clone(&lazy_context.source);
     let load_error = lazy_context.load_error;
-    leptos::task::spawn_local(async move {
+    leptos::task::spawn_local_scoped(async move {
         if let Err(err) = source.persist_events(changes).await {
             load_error.set(Some(err.to_string()));
         }

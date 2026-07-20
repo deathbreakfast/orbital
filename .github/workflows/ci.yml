@@ -98,6 +98,35 @@ jobs:
       - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
 
+  leptos-lints:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - run: rustup target add wasm32-unknown-unknown
+
+      # leptos-lints v0.1.2 pins nightly-2025-05-14 for its dylint driver.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2025-05-14
+          components: rustc-dev, llvm-tools-preview
+
+      - name: Install cargo-dylint
+        run: cargo install cargo-dylint dylint-link --locked --version 4.1.0
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: leptos-lints
+
+      - name: Leptos lints (deny warnings)
+        # zerocopy on this pinned nightly needs the AVX512 feature flag.
+        env:
+          RUSTFLAGS: -D warnings -Zcrate-attr=feature(stdarch_x86_avx512)
+        run: cargo dylint --all
+
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 120

@@ -520,7 +520,7 @@ pub fn DataTableRoot(
                 return;
             };
             server_loading.set(true);
-            leptos::task::spawn_local(async move {
+            leptos::task::spawn_local_scoped(async move {
                 match (fetcher)(request).await {
                     Ok(page_result) if coordinator_is_current(fetch_coordinator, gen) => {
                         if let Some(count) = page_result.total_count {

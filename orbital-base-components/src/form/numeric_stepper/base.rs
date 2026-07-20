@@ -2,6 +2,7 @@ use leptos::{ev, prelude::*};
 
 use crate::form::bind::FormBind;
 use crate::form::field_injection::FieldInjection;
+use crate::form::input_event_value;
 
 /// Headless numeric stepper with native text input and inc/dec controls.
 #[component(transparent)]
@@ -25,11 +26,13 @@ pub fn BaseNumericStepper(
         Memo::new(move |_| disabled.get() || value.get_value().get() <= min.get());
 
     let on_change = move |e: ev::Event| {
-        if let Ok(parsed) = event_target_value(&e).parse::<i32>() {
-            let clamped = parsed.clamp(min.get_untracked(), max.get_untracked());
-            value.with_value(|v| v.set(clamped));
-        } else {
-            value.with_value(|v| v.update(|_| {}));
+        if let Some(raw) = input_event_value(&e) {
+            if let Ok(parsed) = raw.parse::<i32>() {
+                let clamped = parsed.clamp(min.get_untracked(), max.get_untracked());
+                value.with_value(|v| v.set(clamped));
+            } else {
+                value.with_value(|v| v.update(|_| {}));
+            }
         }
     };
 

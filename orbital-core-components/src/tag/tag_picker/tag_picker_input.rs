@@ -1,5 +1,6 @@
 use super::types::{TagPickerControlInjection, TagPickerInjection};
 use leptos::prelude::*;
+use orbital_base_components::input_event_value;
 
 /// Text input inside the tag picker control area.
 #[component]
@@ -21,7 +22,9 @@ pub fn TagPickerInput(
         }
     };
     let on_input = move |ev| {
-        let value = event_target_value(&ev);
+        let Some(value) = input_event_value(&ev) else {
+            return;
+        };
         let value = value.trim().to_ascii_lowercase();
         if value.is_empty() {
             active_descendant_controller.blur();

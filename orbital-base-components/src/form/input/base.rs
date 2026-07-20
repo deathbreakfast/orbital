@@ -2,6 +2,7 @@ use leptos::{ev, html, prelude::*};
 
 use crate::form::bind::FormBind;
 use crate::form::field_injection::FieldInjection;
+use crate::form::input_event_value;
 use crate::form::types::InputType;
 use crate::ComponentRef;
 
@@ -28,7 +29,9 @@ pub fn BaseInput(
 
     let value_bind = value.clone();
     let on_input = move |ev: ev::Event| {
-        value_bind.set(event_target_value(&ev));
+        if let Some(value) = input_event_value(&ev) {
+            value_bind.set(value);
+        }
     };
 
     view! {

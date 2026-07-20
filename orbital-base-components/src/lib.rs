@@ -93,7 +93,7 @@ pub use form::{
     SwatchPickerShape, SwatchPickerSize, SwitchRule, SwitchRuleTrigger, TextareaRef,
     TextareaResize, TextareaRule, TextareaRuleTrigger, TextareaSize, ToDataValue, ToIso8601,
     ToUnixSeconds, TransferListItem, TryFromDataValue, TryFromIso8601, TryFromUnixSeconds,
-    UnixTime,
+    UnixTime, event_html_element, input_event_value, textarea_event_value,
 };
 pub use grid::{use_grid, BaseGrid, BaseGridItem, GridInjection};
 pub use icon::BaseIcon;

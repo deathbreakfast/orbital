@@ -8,6 +8,7 @@ pub mod color_picker;
 pub mod combobox;
 pub mod date_picker;
 pub mod datetime;
+mod event_value;
 pub mod field;
 mod field_injection;
 mod field_validation;
@@ -48,6 +49,7 @@ pub use datetime::{
     PickerShortcut, ToDataValue, ToIso8601, ToUnixSeconds, TryFromDataValue, TryFromIso8601,
     TryFromUnixSeconds, UnixTime,
 };
+pub use event_value::{event_html_element, input_event_value, textarea_event_value};
 pub use field::BaseField;
 pub use field_injection::{new_field_id, FieldInjection};
 pub use field_validation::FieldValidationState;

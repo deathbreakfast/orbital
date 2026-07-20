@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use orbital_base_components::input_event_value;
 use orbital_core_components::{Checkbox, DatePicker, DatePickerAppearance, Select, SelectSize};
 
 use crate::engine::{date_value_to_unix, unix_to_date_text};
@@ -139,7 +140,11 @@ pub fn data_table_default_editor_view(
                             class="orbital-input__input"
                             type=input_type
                             prop:value=move || draft.get()
-                            on:input=move |ev| draft.set(event_target_value(&ev))
+                            on:input=move |ev| {
+                                if let Some(value) = input_event_value(&ev) {
+                                    draft.set(value);
+                                }
+                            }
                             on:keydown=move |ev: leptos::ev::KeyboardEvent| {
                                 if ev.key() == "Enter" {
                                     ev.prevent_default();
