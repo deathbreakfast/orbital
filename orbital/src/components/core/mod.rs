@@ -65,8 +65,8 @@ pub use orbital_base_components::{
 pub use orbital_core_components::preview::{
     ComponentDocMarkdown, ComponentPreviewCard, OrbitalComponentView, OrbitalPreviewCardBody,
 };
-pub use orbital_core_components::*;
 pub use orbital_core_components::ScrollArea;
+pub use orbital_core_components::*;
 #[cfg(feature = "preview")]
 pub use orbital_core_components::{
     ScrollAreaPreview, SCROLLAREA_BEST_PRACTICES, SCROLLAREA_DESCRIPTION, SCROLLAREA_DOC,
