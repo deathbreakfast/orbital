@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use leptos::{html, prelude::*};
-use orbital_base_components::{DatetimeFormat, DatetimeTimezone, OptionBind, OrbitalDateTime};
+use orbital_base_components::{
+    input_event_value, DatetimeFormat, DatetimeTimezone, OptionBind, OrbitalDateTime,
+};
 use orbital_core_components::input_styles;
 use orbital_theme::use_theme_options;
 
@@ -367,7 +369,9 @@ fn SegmentInput(
             style=segment_style
             on:focus=move |_| editing.set(true)
             on:input=move |ev| {
-                let raw = event_target_value(&ev);
+                let Some(raw) = input_event_value(&ev) else {
+                    return;
+                };
                 let normalized = normalize_segment_input(&raw, spec, field_format);
                 segment_text.set(normalized.clone());
                 segments.update(|values| {
@@ -387,7 +391,9 @@ fn SegmentInput(
                 }
             }
             on:blur=move |ev| {
-                let raw = event_target_value(&ev);
+                let Some(raw) = input_event_value(&ev) else {
+                    return;
+                };
                 let normalized = normalize_segment_input(&raw, spec, field_format);
                 segment_text.set(normalized.clone());
                 segments.update(|values| {
@@ -410,7 +416,9 @@ fn SegmentInput(
                 editing.set(false);
             }
             on:change=move |ev| {
-                let raw = event_target_value(&ev);
+                let Some(raw) = input_event_value(&ev) else {
+                    return;
+                };
                 let normalized = normalize_segment_input(&raw, spec, field_format);
                 segment_text.set(normalized.clone());
                 segments.update(|values| {

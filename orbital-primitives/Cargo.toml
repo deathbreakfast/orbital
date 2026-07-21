@@ -29,7 +29,7 @@ orbital-tree = { path = "../orbital-tree", version = "0.1.1", default-features =
 orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.1", default-features = false }
 orbital-discussion = { path = "../orbital-discussion", version = "0.1.1", default-features = false }
 orbital-history = { path = "../orbital-history", version = "0.1.1", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true

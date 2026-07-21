@@ -15,7 +15,7 @@ preview = []
 orbital = { package = "orbital-ui", path = "../orbital", version = "0.1.1", default-features = false, features = ["preview"] }
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
 orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false, features = ["preview"] }
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 leptos = { workspace = true, default-features = false, features = ["csr"] }
 icondata.workspace = true
 

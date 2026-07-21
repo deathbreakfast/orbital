@@ -2129,7 +2129,6 @@ dependencies = [
  "icondata",
  "icondata_core",
  "leptos",
- "leptos_transition_group",
  "orbital-data",
  "orbital-motion",
  "orbital-style",
@@ -2293,7 +2292,7 @@ dependencies = [
 
 [[package]]
 name = "orbital-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -2423,6 +2422,7 @@ version = "0.1.1"
 dependencies = [
  "bitflags",
  "chrono",
+ "futures",
  "icondata",
  "icondata_core",
  "inventory",
@@ -2517,7 +2517,6 @@ dependencies = [
  "pulldown-cmark",
  "serde",
  "serde_json",
- "thiserror 2.0.18",
  "tokio",
  "turf",
  "url",

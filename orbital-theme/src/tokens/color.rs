@@ -139,61 +139,72 @@ impl ColorTheme {
                 .unwrap_or_else(|| panic!("Missing variant {} in brand color palette", variant));
         }
     }
+
+    /// Shade lookup after [`Self::validate_palette`] has confirmed keys `10..=160`.
+    fn shade(brand_colors: &HashMap<i32, String>, variant: i32) -> String {
+        brand_colors
+            .get(&variant)
+            .unwrap_or_else(|| {
+                unreachable!("brand palette missing variant {variant} after validate_palette")
+            })
+            .clone()
+    }
+
     pub fn custom_light(brand_colors: &HashMap<i32, String>) -> Self {
         Self::validate_palette(brand_colors);
         let mut theme = Self::light();
-        theme.color_brand_background = brand_colors.get(&80).unwrap().clone();
-        theme.color_brand_background_2 = brand_colors.get(&160).unwrap().clone();
-        theme.color_brand_background_hover = brand_colors.get(&70).unwrap().clone();
-        theme.color_brand_background_pressed = brand_colors.get(&40).unwrap().clone();
-        theme.color_brand_foreground_1 = brand_colors.get(&80).unwrap().clone();
-        theme.color_brand_foreground_2 = brand_colors.get(&70).unwrap().clone();
-        theme.color_brand_foreground_link = brand_colors.get(&70).unwrap().clone();
-        theme.color_brand_foreground_link_hover = brand_colors.get(&60).unwrap().clone();
-        theme.color_brand_foreground_link_pressed = brand_colors.get(&40).unwrap().clone();
-        theme.color_brand_stroke_1 = brand_colors.get(&80).unwrap().clone();
-        theme.color_brand_stroke_2 = brand_colors.get(&140).unwrap().clone();
-        theme.color_brand_stroke_2_contrast = brand_colors.get(&140).unwrap().clone();
-        theme.color_compound_brand_background = brand_colors.get(&80).unwrap().clone();
-        theme.color_compound_brand_background_hover = brand_colors.get(&70).unwrap().clone();
-        theme.color_compound_brand_background_pressed = brand_colors.get(&60).unwrap().clone();
-        theme.color_compound_brand_foreground_1 = brand_colors.get(&80).unwrap().clone();
-        theme.color_compound_brand_foreground_1_hover = brand_colors.get(&70).unwrap().clone();
-        theme.color_compound_brand_foreground_1_pressed = brand_colors.get(&60).unwrap().clone();
-        theme.color_compound_brand_stroke = brand_colors.get(&80).unwrap().clone();
-        theme.color_compound_brand_stroke_pressed = brand_colors.get(&60).unwrap().clone();
-        theme.color_neutral_foreground_2_brand_hover = brand_colors.get(&80).unwrap().clone();
-        theme.color_neutral_foreground_2_brand_pressed = brand_colors.get(&70).unwrap().clone();
-        theme.color_neutral_foreground_2_brand_selected = brand_colors.get(&80).unwrap().clone();
+        theme.color_brand_background = Self::shade(brand_colors, 80);
+        theme.color_brand_background_2 = Self::shade(brand_colors, 160);
+        theme.color_brand_background_hover = Self::shade(brand_colors, 70);
+        theme.color_brand_background_pressed = Self::shade(brand_colors, 40);
+        theme.color_brand_foreground_1 = Self::shade(brand_colors, 80);
+        theme.color_brand_foreground_2 = Self::shade(brand_colors, 70);
+        theme.color_brand_foreground_link = Self::shade(brand_colors, 70);
+        theme.color_brand_foreground_link_hover = Self::shade(brand_colors, 60);
+        theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, 40);
+        theme.color_brand_stroke_1 = Self::shade(brand_colors, 80);
+        theme.color_brand_stroke_2 = Self::shade(brand_colors, 140);
+        theme.color_brand_stroke_2_contrast = Self::shade(brand_colors, 140);
+        theme.color_compound_brand_background = Self::shade(brand_colors, 80);
+        theme.color_compound_brand_background_hover = Self::shade(brand_colors, 70);
+        theme.color_compound_brand_background_pressed = Self::shade(brand_colors, 60);
+        theme.color_compound_brand_foreground_1 = Self::shade(brand_colors, 80);
+        theme.color_compound_brand_foreground_1_hover = Self::shade(brand_colors, 70);
+        theme.color_compound_brand_foreground_1_pressed = Self::shade(brand_colors, 60);
+        theme.color_compound_brand_stroke = Self::shade(brand_colors, 80);
+        theme.color_compound_brand_stroke_pressed = Self::shade(brand_colors, 60);
+        theme.color_neutral_foreground_2_brand_hover = Self::shade(brand_colors, 80);
+        theme.color_neutral_foreground_2_brand_pressed = Self::shade(brand_colors, 70);
+        theme.color_neutral_foreground_2_brand_selected = Self::shade(brand_colors, 80);
         theme
     }
 
     pub fn custom_dark(brand_colors: &HashMap<i32, String>) -> Self {
         Self::validate_palette(brand_colors);
         let mut theme = Self::dark();
-        theme.color_brand_background = brand_colors.get(&70).unwrap().clone();
-        theme.color_brand_background_2 = brand_colors.get(&20).unwrap().clone();
-        theme.color_brand_background_hover = brand_colors.get(&80).unwrap().clone();
-        theme.color_brand_background_pressed = brand_colors.get(&40).unwrap().clone();
-        theme.color_brand_foreground_1 = brand_colors.get(&110).unwrap().clone();
-        theme.color_brand_foreground_2 = brand_colors.get(&120).unwrap().clone();
-        theme.color_brand_foreground_link = brand_colors.get(&100).unwrap().clone();
-        theme.color_brand_foreground_link_hover = brand_colors.get(&110).unwrap().clone();
-        theme.color_brand_foreground_link_pressed = brand_colors.get(&90).unwrap().clone();
-        theme.color_brand_stroke_1 = brand_colors.get(&100).unwrap().clone();
-        theme.color_brand_stroke_2 = brand_colors.get(&50).unwrap().clone();
-        theme.color_brand_stroke_2_contrast = brand_colors.get(&50).unwrap().clone();
-        theme.color_compound_brand_background = brand_colors.get(&100).unwrap().clone();
-        theme.color_compound_brand_background_hover = brand_colors.get(&110).unwrap().clone();
-        theme.color_compound_brand_background_pressed = brand_colors.get(&90).unwrap().clone();
-        theme.color_compound_brand_foreground_1 = brand_colors.get(&100).unwrap().clone();
-        theme.color_compound_brand_foreground_1_hover = brand_colors.get(&110).unwrap().clone();
-        theme.color_compound_brand_foreground_1_pressed = brand_colors.get(&90).unwrap().clone();
-        theme.color_compound_brand_stroke = brand_colors.get(&100).unwrap().clone();
-        theme.color_compound_brand_stroke_pressed = brand_colors.get(&90).unwrap().clone();
-        theme.color_neutral_foreground_2_brand_hover = brand_colors.get(&100).unwrap().clone();
-        theme.color_neutral_foreground_2_brand_pressed = brand_colors.get(&90).unwrap().clone();
-        theme.color_neutral_foreground_2_brand_selected = brand_colors.get(&100).unwrap().clone();
+        theme.color_brand_background = Self::shade(brand_colors, 70);
+        theme.color_brand_background_2 = Self::shade(brand_colors, 20);
+        theme.color_brand_background_hover = Self::shade(brand_colors, 80);
+        theme.color_brand_background_pressed = Self::shade(brand_colors, 40);
+        theme.color_brand_foreground_1 = Self::shade(brand_colors, 110);
+        theme.color_brand_foreground_2 = Self::shade(brand_colors, 120);
+        theme.color_brand_foreground_link = Self::shade(brand_colors, 100);
+        theme.color_brand_foreground_link_hover = Self::shade(brand_colors, 110);
+        theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, 90);
+        theme.color_brand_stroke_1 = Self::shade(brand_colors, 100);
+        theme.color_brand_stroke_2 = Self::shade(brand_colors, 50);
+        theme.color_brand_stroke_2_contrast = Self::shade(brand_colors, 50);
+        theme.color_compound_brand_background = Self::shade(brand_colors, 100);
+        theme.color_compound_brand_background_hover = Self::shade(brand_colors, 110);
+        theme.color_compound_brand_background_pressed = Self::shade(brand_colors, 90);
+        theme.color_compound_brand_foreground_1 = Self::shade(brand_colors, 100);
+        theme.color_compound_brand_foreground_1_hover = Self::shade(brand_colors, 110);
+        theme.color_compound_brand_foreground_1_pressed = Self::shade(brand_colors, 90);
+        theme.color_compound_brand_stroke = Self::shade(brand_colors, 100);
+        theme.color_compound_brand_stroke_pressed = Self::shade(brand_colors, 90);
+        theme.color_neutral_foreground_2_brand_hover = Self::shade(brand_colors, 100);
+        theme.color_neutral_foreground_2_brand_pressed = Self::shade(brand_colors, 90);
+        theme.color_neutral_foreground_2_brand_selected = Self::shade(brand_colors, 100);
         theme
     }
 

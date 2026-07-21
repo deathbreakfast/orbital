@@ -33,7 +33,6 @@ turf.workspace = true
 
 http.workspace = true
 cfg-if.workspace = true
-thiserror.workspace = true
 url = { version = "2" }
 urlencoding = "2.1"
 
@@ -44,7 +43,7 @@ tokio = { workspace = true, optional = true }
 inventory = "0.3"
 pulldown-cmark = "0.13"
 
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 orbital-shell = { path = "../orbital-shell", version = "0.1.1", default-features = false }
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
 orbital-primitives = { path = "../orbital-primitives", version = "0.1.1", default-features = false }

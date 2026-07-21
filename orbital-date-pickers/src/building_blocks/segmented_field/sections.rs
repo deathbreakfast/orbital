@@ -23,17 +23,6 @@ impl SegmentKind {
         }
     }
 
-    pub fn aria_bounds(self) -> (i32, i32) {
-        match self {
-            SegmentKind::Year => (1, 9999),
-            SegmentKind::Month => (1, 12),
-            SegmentKind::Day => (1, 31),
-            SegmentKind::Hour => (0, 23),
-            SegmentKind::Minute => (0, 59),
-            SegmentKind::Meridiem => (0, 1),
-        }
-    }
-
     pub fn aria_value(self, text: &str) -> Option<i32> {
         match self {
             SegmentKind::Meridiem => None,

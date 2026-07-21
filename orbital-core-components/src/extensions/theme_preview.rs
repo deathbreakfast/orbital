@@ -15,7 +15,9 @@ use crate::{
     PersonaConfig, PersonaSize, Radio, RadioGroup, RadioGroupBind, SwatchPicker, SwatchPickerItem,
     Switch, SwitchBind, Tab, TabList, TextTag, ThemeDensityStepper, Title1, Title3,
 };
-use orbital_base_components::{BorderRadius, Shadow, SpacingInset, StrokeWidth, ThemeColor};
+use orbital_base_components::{
+    input_event_value, BorderRadius, Shadow, SpacingInset, StrokeWidth, ThemeColor,
+};
 
 const ELEVATION_STEP: f32 = 0.25;
 const ELEVATION_MIN: f32 = 1.0;
@@ -394,7 +396,11 @@ fn ThemeDesignerPreview() -> impl IntoView {
                                 <input
                                     type="color"
                                     prop:value=move || brand_input.get()
-                                    on:input=move |ev| brand_input.set(event_target_value(&ev))
+                                    on:input=move |ev| {
+                                        if let Some(value) = input_event_value(&ev) {
+                                            brand_input.set(value);
+                                        }
+                                    }
                                 />
                             </div>
                             <ThemeDensityStepper theme=theme />

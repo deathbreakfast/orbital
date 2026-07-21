@@ -8,17 +8,14 @@ use crate::context::ChartKind;
 use crate::engine::projection::ProjectedChartData;
 use crate::engine::stacking::{resolve_chart_stack_offset, stack_series};
 use crate::engine::ticks::{compute_nice_linear_ticks, default_tick_format, DEFAULT_TICK_COUNT};
+use crate::shared::{
+    AXIS_TITLE_GAP, AXIS_TITLE_TICK_GAP, AXIS_TITLE_WIDTH, TICK_LABEL_HEIGHT, TICK_LABEL_OFFSET,
+    TICK_SIZE,
+};
 use crate::{
     AxisDef, AxisPosition, ChartOrientation, ChartType, DomainLimit, PlotInset,
     ProjectedScatterData, ScaleType, SeriesDef, StackOffset, StackOrder,
 };
-
-const AXIS_TITLE_WIDTH: f64 = 28.0;
-const AXIS_TITLE_TICK_GAP: f64 = 10.0;
-const TICK_SIZE: f64 = 6.0;
-const TICK_LABEL_OFFSET: f64 = 8.0;
-const TICK_LABEL_HEIGHT: f64 = 14.0;
-const AXIS_TITLE_GAP: f64 = 12.0;
 
 /// Default plot inset for a density tier (pixels).
 pub fn default_plot_inset(density: Density) -> PlotInset {

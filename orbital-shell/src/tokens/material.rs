@@ -14,16 +14,6 @@ pub enum Material {
 }
 
 impl Material {
-    #[allow(non_upper_case_globals)]
-    #[deprecated(note = "Renamed to Frost")]
-    pub const Acrylic: Self = Self::Frost;
-    #[allow(non_upper_case_globals)]
-    #[deprecated(note = "Renamed to Shell")]
-    pub const Mica: Self = Self::Shell;
-    #[allow(non_upper_case_globals)]
-    #[deprecated(note = "Renamed to Scrim")]
-    pub const Smoke: Self = Self::Scrim;
-
     pub const fn as_class(self) -> &'static str {
         match self {
             Self::Solid => "orbital-token-material-solid",

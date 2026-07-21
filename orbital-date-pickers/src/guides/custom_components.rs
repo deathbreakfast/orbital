@@ -2,9 +2,7 @@
 
 use chrono::Datelike;
 use leptos::prelude::*;
-use orbital_core_components::{
-    default_calendar_day, default_calendar_month_button, CalendarDayProps, CalendarMonthButtonProps,
-};
+use orbital_core_components::{default_calendar_day, CalendarDayProps};
 use orbital_macros::component_doc;
 
 pub fn weekend_day(props: CalendarDayProps) -> AnyView {
@@ -21,17 +19,6 @@ pub fn weekend_day(props: CalendarDayProps) -> AnyView {
         .into_any()
     } else {
         default_calendar_day(props).into_any()
-    }
-}
-
-fn short_month_button(props: CalendarMonthButtonProps) -> impl IntoView {
-    view! {
-        <div class="orb-picker-custom-month">
-            {default_calendar_month_button(CalendarMonthButtonProps {
-                label: props.label.chars().next().unwrap_or('?').to_string(),
-                ..props
-            })}
-        </div>
     }
 }
 

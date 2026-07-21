@@ -2,10 +2,9 @@
 
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::{Arc, Mutex};
-use std::task::{Context, Poll, Waker};
 use std::time::Duration;
 
+use futures::channel::oneshot;
 use leptos::prelude::*;
 use orbital_date_pickers::DateTimeRange;
 
@@ -16,41 +15,15 @@ use crate::{
 
 type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
-struct DelayFuture {
-    done: Arc<Mutex<bool>>,
-    waker: Arc<Mutex<Option<Waker>>>,
-}
-
-impl Future for DelayFuture {
-    type Output = ();
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        if *self.done.lock().expect("delay mutex") {
-            return Poll::Ready(());
-        }
-        *self.waker.lock().expect("waker mutex") = Some(cx.waker().clone());
-        Poll::Pending
-    }
-}
-
-fn delay_ms(ms: u32) -> DelayFuture {
-    let done = Arc::new(Mutex::new(false));
-    let waker_slot = Arc::new(Mutex::new(None::<Waker>));
-    let done_cb = Arc::clone(&done);
-    let waker_cb = Arc::clone(&waker_slot);
+async fn delay_ms(ms: u32) {
+    let (tx, rx) = oneshot::channel::<()>();
     leptos::leptos_dom::helpers::set_timeout(
         move || {
-            *done_cb.lock().expect("delay mutex") = true;
-            if let Some(waker) = waker_cb.lock().expect("waker mutex").take() {
-                waker.wake();
-            }
+            let _ = tx.send(());
         },
         Duration::from_millis(ms as u64),
     );
-    DelayFuture {
-        done,
-        waker: waker_slot,
-    }
+    let _ = rx.await;
 }
 
 async fn delay_with_abort(total_ms: u32, signal: AbortSignal) {
@@ -69,19 +42,19 @@ async fn delay_with_abort(total_ms: u32, signal: AbortSignal) {
 /// Mock remote source with configurable delay for catalog previews.
 pub struct MockSlowDataSource {
     delay_ms: u32,
-    fail_when: Arc<RwSignal<bool>>,
+    fail_when: RwSignal<bool>,
 }
 
 impl MockSlowDataSource {
     pub fn success(delay_ms: u32) -> Self {
-        Self::with_fail_signal(delay_ms, Arc::new(RwSignal::new(false)))
+        Self::with_fail_signal(delay_ms, RwSignal::new(false))
     }
 
     pub fn failure(delay_ms: u32) -> Self {
-        Self::with_fail_signal(delay_ms, Arc::new(RwSignal::new(true)))
+        Self::with_fail_signal(delay_ms, RwSignal::new(true))
     }
 
-    pub fn with_fail_signal(delay_ms: u32, fail_when: Arc<RwSignal<bool>>) -> Self {
+    pub fn with_fail_signal(delay_ms: u32, fail_when: RwSignal<bool>) -> Self {
         Self {
             delay_ms,
             fail_when,
@@ -96,7 +69,7 @@ impl SchedulerDataSource for MockSlowDataSource {
         signal: AbortSignal,
     ) -> BoxFuture<'_, Result<Vec<PlannedEvent>, SchedulerError>> {
         let delay_ms = self.delay_ms;
-        let fail_when = Arc::clone(&self.fail_when);
+        let fail_when = self.fail_when;
         Box::pin(async move {
             delay_with_abort(delay_ms, signal).await;
             if signal.is_aborted() {

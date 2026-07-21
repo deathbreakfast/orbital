@@ -12,8 +12,7 @@ pub fn range_to_tsv(
     range: NormalizedCellRange,
 ) -> String {
     let mut lines = Vec::new();
-    for row_idx in range.row_start..=range.row_end {
-        let row_id = &row_ids[row_idx];
+    for row_id in &row_ids[range.row_start..=range.row_end] {
         let Some(row) = rows.iter().find(|r| r.id() == row_id) else {
             continue;
         };

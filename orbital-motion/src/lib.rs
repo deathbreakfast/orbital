@@ -10,9 +10,12 @@ pub mod callback;
 pub mod collapse;
 pub mod group;
 pub mod presence;
+mod preview_registration;
 pub mod reduced_motion;
 pub mod slot;
 pub mod tokens;
+
+pub use preview_registration::PreviewRegistration;
 
 #[cfg(feature = "preview")]
 pub mod preview;

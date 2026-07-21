@@ -36,9 +36,7 @@ pub fn resolve_anchor_offset(
     let placement_len = placement_list.len();
     let mut placement_list = placement_list.into_iter().enumerate();
     loop {
-        let Some((index, placement)) = placement_list.next() else {
-            return None;
-        };
+        let (index, placement) = placement_list.next()?;
         let must = placement_len == index + 1;
         let rt = match placement {
             TopStart => placement_top_start(target_rect, content_rect, arrow_height, must),
@@ -83,9 +81,7 @@ fn placement_top_start(
 
     let target_left = target_rect.left();
     if !must {
-        let Some(window_inner_width) = window_inner_width() else {
-            return None;
-        };
+        let window_inner_width = window_inner_width()?;
         let content_width = content_rect.width();
         // Width
         if target_left + content_width > window_inner_width {
@@ -118,9 +114,7 @@ fn placement_top(
 
     let target_width_center = target_rect.left() + target_rect.width() / 2.0;
     if !must {
-        let Some(window_inner_width) = window_inner_width() else {
-            return None;
-        };
+        let window_inner_width = window_inner_width()?;
         let content_width_half = content_rect.width() / 2.0;
         // Width
         if content_width_half > target_width_center
@@ -177,9 +171,7 @@ fn placement_bottom_start(
     arrow_height: Option<f64>,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let Some(window_inner_height) = window_inner_height() else {
-        return None;
-    };
+    let window_inner_height = window_inner_height()?;
     let content_height = content_rect.height();
     let target_bottom = target_rect.bottom() + arrow_height.unwrap_or_default();
     let top = target_bottom;
@@ -190,9 +182,7 @@ fn placement_bottom_start(
 
     let target_left = target_rect.left();
     if !must {
-        let Some(window_inner_width) = window_inner_width() else {
-            return None;
-        };
+        let window_inner_width = window_inner_width()?;
         let content_width = content_rect.width();
         // Width
         if target_left + content_width > window_inner_width {
@@ -220,9 +210,7 @@ fn placement_bottom(
     arrow_height: Option<f64>,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let Some(window_inner_height) = window_inner_height() else {
-        return None;
-    };
+    let window_inner_height = window_inner_height()?;
     let content_height = content_rect.height();
     let target_bottom = target_rect.bottom() + arrow_height.unwrap_or_default();
     let top = target_bottom;
@@ -233,9 +221,7 @@ fn placement_bottom(
 
     let target_width_center = target_rect.left() + target_rect.width() / 2.0;
     if !must {
-        let Some(window_inner_width) = window_inner_width() else {
-            return None;
-        };
+        let window_inner_width = window_inner_width()?;
         let content_width_half = content_rect.width() / 2.0;
         // Width
         if content_width_half > target_width_center
@@ -266,9 +252,7 @@ fn placement_bottom_end(
     arrow_height: Option<f64>,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let Some(window_inner_height) = window_inner_height() else {
-        return None;
-    };
+    let window_inner_height = window_inner_height()?;
     let content_height = content_rect.height();
     let target_bottom = target_rect.bottom() + arrow_height.unwrap_or_default();
     let top = target_bottom;
@@ -306,9 +290,7 @@ fn placement_right_start(
     arrow_height: Option<f64>,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let Some(window_inner_width) = window_inner_width() else {
-        return None;
-    };
+    let window_inner_width = window_inner_width()?;
     let content_width = content_rect.width();
     let target_right = target_rect.right();
     let left = target_right + arrow_height.unwrap_or_default();
@@ -319,9 +301,7 @@ fn placement_right_start(
 
     let top = target_rect.top();
     if !must {
-        let Some(window_inner_height) = window_inner_height() else {
-            return None;
-        };
+        let window_inner_height = window_inner_height()?;
         let content_height = content_rect.height();
         // Height
         if content_height + top > window_inner_height {
@@ -344,9 +324,7 @@ fn placement_right(
     arrow_height: Option<f64>,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let Some(window_inner_width) = window_inner_width() else {
-        return None;
-    };
+    let window_inner_width = window_inner_width()?;
     let content_width = content_rect.width();
     let target_right = target_rect.right();
     let left = target_right + arrow_height.unwrap_or_default();
@@ -357,9 +335,7 @@ fn placement_right(
 
     let target_height_center = target_rect.top() + target_rect.height() / 2.0;
     if !must {
-        let Some(window_inner_height) = window_inner_height() else {
-            return None;
-        };
+        let window_inner_height = window_inner_height()?;
         let content_height_half = content_rect.height() / 2.0;
 
         // Height
@@ -385,9 +361,7 @@ fn placement_right_end(
     arrow_height: Option<f64>,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let Some(window_inner_width) = window_inner_width() else {
-        return None;
-    };
+    let window_inner_width = window_inner_width()?;
     let content_width = content_rect.width();
     let target_right = target_rect.right();
     let left = target_right + arrow_height.unwrap_or_default();
@@ -429,9 +403,7 @@ fn placement_left_start(
 
     let top = target_rect.top();
     if !must {
-        let Some(window_inner_height) = window_inner_height() else {
-            return None;
-        };
+        let window_inner_height = window_inner_height()?;
         let content_height = content_rect.height();
         // Height
         if content_height + top > window_inner_height {
@@ -464,9 +436,7 @@ fn placement_left(
 
     let target_height_center = target_rect.top() + target_rect.height() / 2.0;
     if !must {
-        let Some(window_inner_height) = window_inner_height() else {
-            return None;
-        };
+        let window_inner_height = window_inner_height()?;
         let content_height_half = content_rect.height() / 2.0;
 
         // Height
@@ -521,9 +491,7 @@ fn window_inner_width() -> Option<f64> {
     let Ok(inner_width) = window().inner_width() else {
         return None;
     };
-    let Some(inner_width) = inner_width.as_f64() else {
-        return None;
-    };
+    let inner_width = inner_width.as_f64()?;
     Some(inner_width)
 }
 
@@ -531,8 +499,6 @@ fn window_inner_height() -> Option<f64> {
     let Ok(inner_height) = window().inner_height() else {
         return None;
     };
-    let Some(inner_height) = inner_height.as_f64() else {
-        return None;
-    };
+    let inner_height = inner_height.as_f64()?;
     Some(inner_height)
 }

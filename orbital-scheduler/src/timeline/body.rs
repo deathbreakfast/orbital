@@ -17,6 +17,7 @@ use crate::TimelinePreset;
 const DEFAULT_VIEWPORT_HEIGHT: f64 = 400.0;
 const DEFAULT_ROW_HEIGHT: f64 = 44.0;
 
+#[cfg(feature = "hydrate")]
 fn set_metric(signal: RwSignal<f64>, next: f64) {
     if (signal.get_untracked() - next).abs() > 0.5 {
         signal.set(next);

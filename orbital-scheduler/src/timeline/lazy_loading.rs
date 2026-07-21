@@ -4,9 +4,6 @@ use leptos::prelude::*;
 use orbital_macros::component_doc;
 
 #[cfg(feature = "preview")]
-use std::sync::Arc;
-
-#[cfg(feature = "preview")]
 use orbital_base_components::DatetimeTimezone;
 #[cfg(feature = "preview")]
 use orbital_core_components::{Flex, FlexAlign, FlexGap, Switch, Text, ThemeDensityStepper};
@@ -66,7 +63,7 @@ use crate::{
 /// let simulate_error = RwSignal::new(false);
 /// let lazy_reload_key = RwSignal::new(0u32);
 /// let data_source = SchedulerDataSourceMode::Remote(Box::new(
-///     MockSlowDataSource::with_fail_signal(800, Arc::new(simulate_error)),
+///     MockSlowDataSource::with_fail_signal(800, simulate_error),
 /// ));
 /// view! {
 ///     <div data-testid="scheduler-timeline-lazy-loading-preview">
@@ -108,7 +105,6 @@ pub fn SchedulerTimelineLazyLoading(
         let display_timezone = RwSignal::new(DatetimeTimezone::Local);
         let simulate_error = RwSignal::new(false);
         let lazy_reload_key = RwSignal::new(0u32);
-        let fail_when = Arc::new(simulate_error);
 
         Effect::new(move |_| {
             let _ = simulate_error.get();
@@ -116,7 +112,7 @@ pub fn SchedulerTimelineLazyLoading(
         });
 
         let data_source = SchedulerDataSourceMode::Remote(Box::new(
-            MockSlowDataSource::with_fail_signal(800, fail_when),
+            MockSlowDataSource::with_fail_signal(800, simulate_error),
         ));
 
         view! {

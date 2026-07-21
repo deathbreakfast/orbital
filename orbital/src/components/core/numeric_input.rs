@@ -5,6 +5,7 @@
 //! would break a grid or table layout.
 
 use leptos::prelude::*;
+use orbital_base_components::input_event_value;
 use turf::inline_style_sheet_values;
 
 pub const NUMERICINPUT_DOC: &str = r#"
@@ -101,7 +102,9 @@ pub fn NumericInput(
             disabled=move || disabled.get()
             prop:value=move || clamp_value(value.get(), min, max).to_string()
             on:input=move |ev| {
-                let raw = event_target_value(&ev);
+                let Some(raw) = input_event_value(&ev) else {
+                    return;
+                };
                 let next = raw
                     .trim()
                     .parse::<u32>()

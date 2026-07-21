@@ -1,8 +1,11 @@
 use super::affix::{InputPrefix, InputSuffix};
 use super::styles::input_styles;
 use super::types::{InputAppearance, InputBind, InputEvents};
-use leptos::{either::Either, ev, html, prelude::*, web_sys};
-use orbital_base_components::{ComponentRef, FieldInjection, InputRef, InputRuleTrigger, Rule};
+use leptos::{either::Either, ev, html, prelude::*};
+use orbital_base_components::{
+    event_html_element, input_event_value, ComponentRef, FieldInjection, InputRef,
+    InputRuleTrigger, Rule,
+};
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
 
@@ -259,7 +262,9 @@ pub fn Input(
                 validate.run(Some(InputRuleTrigger::Input));
                 return;
             }
-            let input_value = event_target_value(&e);
+            let Some(input_value) = input_event_value(&e) else {
+                return;
+            };
             if let Some(allow_value) = allow_value.as_ref() {
                 if !allow_value(input_value.clone()) {
                     value.with_value(|v| v.update(|_| {}));
@@ -276,7 +281,10 @@ pub fn Input(
             validate.run(Some(InputRuleTrigger::Change));
             return;
         };
-        let Some(parsed_input_value) = parser(event_target_value(&e)) else {
+        let Some(raw) = input_event_value(&e) else {
+            return;
+        };
+        let Some(parsed_input_value) = parser(raw) else {
             value.with_value(|v| v.update(|_| {}));
             return;
         };
@@ -334,7 +342,9 @@ pub fn Input(
     comp_ref.load(InputRef::new(input_ref));
 
     let on_mousedown = move |event: ev::MouseEvent| {
-        let el: web_sys::HtmlElement = event_target(&event);
+        let Some(el) = event_html_element(event.as_ref()) else {
+            return;
+        };
         if el.tag_name() != "INPUT" {
             event.prevent_default();
             if !is_focus.get_untracked() {

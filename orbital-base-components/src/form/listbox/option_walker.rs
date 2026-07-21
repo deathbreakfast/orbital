@@ -52,9 +52,7 @@ pub struct OptionWalker(
 impl OptionWalker {
     pub fn first(&self) -> Option<HtmlElement> {
         self.0.with_value(|tree_walker| {
-            let Some((tree_walker, _)) = tree_walker.as_ref() else {
-                return None;
-            };
+            let (tree_walker, _) = tree_walker.as_ref()?;
             tree_walker.set_current_node(&tree_walker.root());
             tree_walker.first_child().unwrap_throw()?.dyn_into().ok()
         })
@@ -62,9 +60,7 @@ impl OptionWalker {
 
     pub fn last(&self) -> Option<HtmlElement> {
         self.0.with_value(|tree_walker| {
-            let Some((tree_walker, _)) = tree_walker.as_ref() else {
-                return None;
-            };
+            let (tree_walker, _) = tree_walker.as_ref()?;
             tree_walker.set_current_node(&tree_walker.root());
             tree_walker.last_child().unwrap_throw()?.dyn_into().ok()
         })
@@ -72,27 +68,21 @@ impl OptionWalker {
 
     pub fn next(&self) -> Option<HtmlElement> {
         self.0.with_value(|tree_walker| {
-            let Some((tree_walker, _)) = tree_walker.as_ref() else {
-                return None;
-            };
+            let (tree_walker, _) = tree_walker.as_ref()?;
             tree_walker.next_node().unwrap_throw()?.dyn_into().ok()
         })
     }
 
     pub fn prev(&self) -> Option<HtmlElement> {
         self.0.with_value(|tree_walker| {
-            let Some((tree_walker, _)) = tree_walker.as_ref() else {
-                return None;
-            };
+            let (tree_walker, _) = tree_walker.as_ref()?;
             tree_walker.previous_node().unwrap_throw()?.dyn_into().ok()
         })
     }
 
     pub fn find(&self, predicate: impl Fn(String) -> bool) -> Option<HtmlElement> {
         self.0.with_value(|tree_walker| {
-            let Some((tree_walker, _)) = tree_walker.as_ref() else {
-                return None;
-            };
+            let (tree_walker, _) = tree_walker.as_ref()?;
             tree_walker.set_current_node(&tree_walker.root());
             let mut current: Option<HtmlElement> =
                 tree_walker.first_child().unwrap_throw()?.dyn_into().ok();

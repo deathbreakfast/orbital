@@ -25,7 +25,7 @@ icondata_core.workspace = true
 turf.workspace = true
 pulldown-cmark = "0.13"
 
-orbital-macros = { path = "../orbital-macros", version = "0.1.1" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 orbital-primitives = { path = "../orbital-primitives", version = "0.1.1", default-features = false }
 orbital-core-components = { path = "../orbital-core-components", version = "0.1.1" }
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }

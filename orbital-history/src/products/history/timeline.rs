@@ -346,7 +346,7 @@ pub fn HistoryTimeline(
                         next
                     };
                     let max_pages = max_scroll_load_pages;
-                    leptos::task::spawn_local(async move {
+                    leptos::task::spawn_local_scoped(async move {
                         let mut pages_loaded = 0u32;
                         loop {
                             if hunt_generation.get_untracked() != gen {
@@ -402,7 +402,7 @@ pub fn HistoryTimeline(
                         next
                     };
                     let max_pages = max_scroll_load_pages;
-                    leptos::task::spawn_local(async move {
+                    leptos::task::spawn_local_scoped(async move {
                         for _ in 0..max_pages {
                             if hunt_generation.get_untracked() != gen {
                                 return;
@@ -417,6 +417,7 @@ pub fn HistoryTimeline(
                                 return;
                             }
                             page_ui.set(current.saturating_add(1));
+                            #[cfg(feature = "hydrate")]
                             for _ in 0..40 {
                                 if hunt_generation.get_untracked() != gen {
                                     return;
@@ -425,12 +426,7 @@ pub fn HistoryTimeline(
                                     schedule_scroll_entry_into_view(id.clone());
                                     return;
                                 }
-                                #[cfg(feature = "hydrate")]
-                                {
-                                    gloo_timers::future::TimeoutFuture::new(50).await;
-                                }
-                                #[cfg(not(feature = "hydrate"))]
-                                break;
+                                gloo_timers::future::TimeoutFuture::new(50).await;
                             }
                         }
                     });

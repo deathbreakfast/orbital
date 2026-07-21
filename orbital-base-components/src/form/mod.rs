@@ -8,6 +8,7 @@ pub mod color_picker;
 pub mod combobox;
 pub mod date_picker;
 pub mod datetime;
+mod event_value;
 pub mod field;
 mod field_injection;
 mod field_validation;
@@ -41,13 +42,13 @@ pub use date_picker::{
     date_from_unix, start_of_day_unix, today_for_timezone, BaseDatePicker, MonthButtonRenderProps,
     MonthButtonRenderer,
 };
-#[allow(deprecated)]
 pub use datetime::{
     format_datetime, format_unix, is_datetime_out_of_range, is_day_disabled, parse_datetime,
     parse_to_unix, DatetimeError, DatetimeFormat, DatetimeTimezone, OrbitalDateTime,
     PickerShortcut, ToDataValue, ToIso8601, ToUnixSeconds, TryFromDataValue, TryFromIso8601,
-    TryFromUnixSeconds, UnixTime,
+    TryFromUnixSeconds,
 };
+pub use event_value::{event_html_element, input_event_value, textarea_event_value};
 pub use field::BaseField;
 pub use field_injection::{new_field_id, FieldInjection};
 pub use field_validation::FieldValidationState;

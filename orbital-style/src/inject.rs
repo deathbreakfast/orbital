@@ -29,28 +29,27 @@ fn upsert_style_text_content(style: &leptos::web_sys::Element, content: &str) ->
 fn ensure_style_in_head(element_id: &str, content: &str) {
     use leptos::prelude::document;
 
-    let head = document().head().expect("head no exist");
-    let style = head
-        .query_selector(&format!("style#{element_id}"))
-        .expect("query style element error")
-        .unwrap_or_else(|| {
-            let style = document()
-                .create_element("style")
-                .expect("create style element error");
+    let Some(head) = document().head() else {
+        return;
+    };
+    let style = match head.query_selector(&format!("style#{element_id}")) {
+        Ok(Some(existing)) => existing,
+        Ok(None) => {
+            let Ok(style) = document().create_element("style") else {
+                return;
+            };
             let _ = style.set_attribute("id", element_id);
 
-            let orbital_meta = head
-                .query_selector(STYLE_MARKER_SELECTOR)
-                .expect("query orbital-style meta element error");
-
+            let orbital_meta = head.query_selector(STYLE_MARKER_SELECTOR).ok().flatten();
             if let Some(orbital_meta) = orbital_meta {
                 let _ = head.insert_before(&style, Some(&orbital_meta));
             } else {
                 let _ = head.prepend_with_node_1(&style);
             }
-
             style
-        });
+        }
+        Err(_) => return,
+    };
 
     upsert_style_text_content(&style, content);
 }
@@ -119,28 +118,27 @@ pub fn inject_dynamic_style<T: Fn() -> String + Send + Sync + 'static>(id: Strin
             use send_wrapper::SendWrapper;
             use std::ops::Deref;
 
-            let head = document().head().expect("head no exist");
-            let style = head
-                .query_selector(&format!("style#{element_id}"))
-                .expect("query style element error")
-                .unwrap_or_else(|| {
-                    let style = document()
-                        .create_element("style")
-                        .expect("create style element error");
+            let Some(head) = document().head() else {
+                return;
+            };
+            let style = match head.query_selector(&format!("style#{element_id}")) {
+                Ok(Some(existing)) => existing,
+                Ok(None) => {
+                    let Ok(style) = document().create_element("style") else {
+                        return;
+                    };
                     let _ = style.set_attribute("id", &element_id);
 
-                    let orbital_meta = head
-                        .query_selector(STYLE_MARKER_SELECTOR)
-                        .expect("query orbital-style meta element error");
-
+                    let orbital_meta = head.query_selector(STYLE_MARKER_SELECTOR).ok().flatten();
                     if let Some(orbital_meta) = orbital_meta {
                         let _ = head.insert_before(&style, Some(&orbital_meta));
                     } else {
                         let _ = head.prepend_with_node_1(&style);
                     }
-
                     style
-                });
+                }
+                Err(_) => return,
+            };
 
             let style = SendWrapper::new(style);
             leptos::prelude::Effect::new_isomorphic(move |_| {

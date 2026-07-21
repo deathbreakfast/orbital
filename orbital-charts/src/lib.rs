@@ -1,12 +1,7 @@
 //! Orbital Charts — chart components and engine.
 
 #![recursion_limit = "512"]
-#![allow(
-    dead_code,
-    clippy::if_same_then_else,
-    clippy::ptr_arg,
-    clippy::unnecessary_unwrap
-)]
+#![allow(clippy::if_same_then_else, clippy::ptr_arg)]
 
 pub use orbital_data::{
     ChartFieldBinding, DataRecord, DataSchema, DataValue, Dataset, FieldDef, ProjectionError,

@@ -4,6 +4,7 @@ use leptos::{children::ViewFnOnce, either::Either, html, prelude::*};
 
 use super::state::{checkbox_state, TreeCheckboxState, TreeSelectionMode, TreeStateInjection};
 use super::types::{TreeItemEditInjection, TreeItemInjection, TreeItemType};
+use crate::form::input_event_value;
 use crate::BaseIcon;
 use icondata::AiCaretRightOutlined;
 use icondata_core::Icon;
@@ -236,7 +237,11 @@ fn TreeItemLabelRegion(children: Children) -> impl IntoView {
                 class="orbital-tree-item-layout__label-input"
                 prop:value=move || edit.draft_label.get()
                 node_ref=input_ref
-                on:input=move |ev| edit.draft_label.set(event_target_value(&ev))
+                on:input=move |ev| {
+                    if let Some(value) = input_event_value(&ev) {
+                        edit.draft_label.set(value);
+                    }
+                }
                 on:keydown=move |ev| {
                     if ev.key() == "Enter" {
                         if let Some(commit) = &edit.on_commit {

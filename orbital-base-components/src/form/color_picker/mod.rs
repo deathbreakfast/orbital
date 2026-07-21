@@ -3,7 +3,7 @@ use palette::{FromColor, Hsl, Hsv, IntoColor, RgbHue, Srgb};
 use wasm_bindgen::JsCast;
 
 use crate::{
-    form::{FieldInjection, FormBind, OptionBind},
+    form::{input_event_value, FieldInjection, FormBind, OptionBind},
     overlay::{positioning::AnchorWidth, AnchoredPanel, AnchoredPositioner, Placement},
 };
 
@@ -245,25 +245,29 @@ pub fn BaseColorPicker(
                             step="1"
                             class="orbital-color-picker-panel__hue"
                             on:input=move |ev| {
-                                if let Ok(next_hue) = event_target_value(&ev).parse::<f32>() {
-                                    let mut next = hsv.get_untracked();
-                                    next.hue = RgbHue::from_degrees(next_hue);
-                                    if next.saturation == 0.0 && next.value == 0.0 {
-                                        next.saturation = 1.0;
-                                        next.value = 1.0;
+                                if let Some(raw) = input_event_value(&ev) {
+                                    if let Ok(next_hue) = raw.parse::<f32>() {
+                                        let mut next = hsv.get_untracked();
+                                        next.hue = RgbHue::from_degrees(next_hue);
+                                        if next.saturation == 0.0 && next.value == 0.0 {
+                                            next.saturation = 1.0;
+                                            next.value = 1.0;
+                                        }
+                                        update_model(next);
                                     }
-                                    update_model(next);
                                 }
                             }
                             on:change=move |ev| {
-                                if let Ok(next_hue) = event_target_value(&ev).parse::<f32>() {
-                                    let mut next = hsv.get_untracked();
-                                    next.hue = RgbHue::from_degrees(next_hue);
-                                    if next.saturation == 0.0 && next.value == 0.0 {
-                                        next.saturation = 1.0;
-                                        next.value = 1.0;
+                                if let Some(raw) = input_event_value(&ev) {
+                                    if let Ok(next_hue) = raw.parse::<f32>() {
+                                        let mut next = hsv.get_untracked();
+                                        next.hue = RgbHue::from_degrees(next_hue);
+                                        if next.saturation == 0.0 && next.value == 0.0 {
+                                            next.saturation = 1.0;
+                                            next.value = 1.0;
+                                        }
+                                        update_model(next);
                                     }
-                                    update_model(next);
                                 }
                             }
                         />

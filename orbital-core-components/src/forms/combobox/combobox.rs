@@ -2,8 +2,8 @@ use leptos::{children::ToChildren, context::Provider, html, prelude::*};
 #[cfg(feature = "preview")]
 use orbital_base_components::ComboboxSize;
 use orbital_base_components::{
-    listbox_keyboard_event, new_field_id, use_active_descendant, AnchorWidth, AnchoredPanel,
-    AnchoredPositioner, BaseListbox, FieldInjection, FormBind, Placement,
+    input_event_value, listbox_keyboard_event, new_field_id, use_active_descendant, AnchorWidth,
+    AnchoredPanel, AnchoredPositioner, BaseListbox, FieldInjection, FormBind, Placement,
 };
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
@@ -336,7 +336,9 @@ pub fn Combobox(
         let selected_options = selected_options.clone();
         let active_descendant_controller = active_descendant_controller.clone();
         move |ev| {
-            let input_value = event_target_value(&ev);
+            let Some(input_value) = input_event_value(&ev) else {
+                return;
+            };
             value.set(input_value.clone());
             if !multiselect.get_untracked() {
                 let has_selected = selected_options.get_untracked();
