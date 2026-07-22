@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use leptos_router::hooks::{use_location, use_navigate};
 #[cfg(feature = "hydrate")]
 use orbital_base_components::NavigationInjection;
-use orbital_core_components::{NavigationItem, NavigationItemConfig};
+use orbital_core_components::{NavigationItem, NavigationItemConfig, NavigationSubItem};
 
 use crate::nav::use_route_active;
 
@@ -23,18 +23,13 @@ fn preserve_env_query_suffix(search: &str) -> String {
     String::new()
 }
 
-/// Route-aware wrapper around [`NavigationItem`] for Leptos Router apps.
-///
-/// Syncs selection with the active route and navigates client-side on click.
-#[component]
-pub fn NavigationLink(
-    #[prop(into)] path: String,
-    #[prop(into)] value: String,
-    icon: Icon,
-    #[prop(default = false)] exact: bool,
-    #[prop(optional, into)] test_id: Option<String>,
-    children: Children,
-) -> impl IntoView {
+struct NavRouteWiring {
+    href: Signal<String>,
+    item_value: Signal<String>,
+    on_click: Callback<leptos::ev::MouseEvent>,
+}
+
+fn wire_nav_route(path: String, value: String, exact: bool) -> NavRouteWiring {
     #[cfg(feature = "hydrate")]
     let nav = NavigationInjection::expect_context();
     let active = use_route_active(&path, exact);
@@ -77,11 +72,75 @@ pub fn NavigationLink(
         });
     });
 
+    NavRouteWiring {
+        href,
+        item_value,
+        on_click,
+    }
+}
+
+/// Route-aware wrapper around [`NavigationItem`] for Leptos Router apps.
+///
+/// Syncs selection with the active route and navigates client-side on click.
+/// Use for top-level nav entries. For children under
+/// [`NavigationSubItemGroup`](orbital_core_components::NavigationSubItemGroup),
+/// use [`NavigationSubLink`] instead so indent styling applies.
+#[component]
+pub fn NavigationLink(
+    #[prop(into)] path: String,
+    #[prop(into)] value: String,
+    icon: Icon,
+    #[prop(default = false)] exact: bool,
+    #[prop(optional, into)] test_id: Option<String>,
+    children: Children,
+) -> impl IntoView {
+    let NavRouteWiring {
+        href,
+        item_value,
+        on_click,
+    } = wire_nav_route(path, value, exact);
+
     view! {
         <div data-testid=test_id.unwrap_or_default()>
             <NavigationItem config=NavigationItemConfig::from_signal(item_value).with_href(href).with_on_click(on_click) icon=icon>
                 {children()}
             </NavigationItem>
+        </div>
+    }
+}
+
+/// Route-aware wrapper around [`NavigationSubItem`] for nested Leptos Router links.
+///
+/// Same selection / navigation behavior as [`NavigationLink`], but renders an indented
+/// sub-item for use inside
+/// [`NavigationSubItemGroup`](orbital_core_components::NavigationSubItemGroup).
+#[component]
+pub fn NavigationSubLink(
+    #[prop(into)] path: String,
+    #[prop(into)] value: String,
+    icon: Icon,
+    #[prop(default = false)] exact: bool,
+    #[prop(default = 1)] depth: u8,
+    #[prop(optional, into)] test_id: Option<String>,
+    children: Children,
+) -> impl IntoView {
+    let NavRouteWiring {
+        href,
+        item_value,
+        on_click,
+    } = wire_nav_route(path, value, exact);
+
+    view! {
+        <div data-testid=test_id.unwrap_or_default()>
+            <NavigationSubItem
+                config=NavigationItemConfig::from_signal(item_value)
+                    .with_href(href)
+                    .with_on_click(on_click)
+                    .with_depth(depth)
+                icon=icon
+            >
+                {children()}
+            </NavigationSubItem>
         </div>
     }
 }
