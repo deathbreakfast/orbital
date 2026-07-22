@@ -53,7 +53,7 @@ pub use infinite_scroll::{
     ORBITALINFINITESCROLL_DESCRIPTION, ORBITALINFINITESCROLL_DOC,
     ORBITALINFINITESCROLL_PREVIEW_REGISTRATION, ORBITALINFINITESCROLL_PROPS,
 };
-pub use navigation_link::{NavLink, NavigationLink};
+pub use navigation_link::{NavLink, NavigationLink, NavigationSubLink};
 pub use not_found_page::NotFoundPage;
 pub use numeric_input::{NumericInput, NUMERICINPUT_DOC, NUMERICINPUT_PROPS};
 pub use orbital_base_components::{
