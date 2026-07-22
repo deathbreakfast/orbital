@@ -19,7 +19,7 @@ workspace = true
 doctest = false
 
 [dependencies]
-ammonia = "4"
+ammonia = "4.1.4"
 bitflags = "2"
 chrono.workspace = true
 orbital-markdown = { path = "../orbital-markdown", version = "0.1.1" }

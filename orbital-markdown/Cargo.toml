@@ -15,7 +15,7 @@ description = "Shared markdown rendering for Orbital crates"
 workspace = true
 
 [dependencies]
-ammonia = "4"
+ammonia = "4.1.4"
 pulldown-cmark = "0.13"
 regex = "1"
 
