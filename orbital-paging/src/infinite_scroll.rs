@@ -112,11 +112,7 @@ where
             skip_initial_refresh_reset.set_value(false);
             return;
         }
-        items.set(Vec::new());
-        has_more.set(false);
-        ever_loaded.set(false);
-        loading.set(false);
-        total_count.set(None);
+        // Keep prior rows visible while the Resource refetch completes (no empty flash).
         next_request_offset.set(0);
     });
 
@@ -131,6 +127,15 @@ where
 
     Effect::new(move || {
         if let Some(Ok(page)) = first_page.get() {
+            // Coordinator dedupe returns an empty stub (`stale_page` with has_more=true).
+            // Never apply it: on a non-empty list it would wipe rows; on an empty list it
+            // would flip has_more back to true and re-arm the scroll loader → empty flash.
+            let looks_like_stale_stub = page.items.is_empty()
+                && page.has_more
+                && page.total_count.is_none();
+            if looks_like_stale_stub {
+                return;
+            }
             has_more.set(page.has_more);
             ever_loaded.set(true);
             if let Some(count) = page.total_count {
@@ -159,9 +164,21 @@ where
                         if !has_more.get_untracked() {
                             return;
                         }
+                        // First page is owned by the Resource; never load-more at offset 0
+                        // (refresh resets offset to 0 while keeping rows — extending would
+                        // duplicate or apply stale stubs and flash).
                         let request_offset = next_request_offset.get_untracked();
+                        if request_offset == 0 {
+                            return;
+                        }
                         match fetch(PageRequest::new(request_offset, page_size)).await {
                             Ok(page) => {
+                                let looks_like_stale_stub = page.items.is_empty()
+                                    && page.has_more
+                                    && page.total_count.is_none();
+                                if looks_like_stale_stub {
+                                    return;
+                                }
                                 has_more.set(page.has_more);
                                 ever_loaded.set(true);
                                 if let Some(count) = page.total_count {
@@ -183,7 +200,11 @@ where
             );
 
         Effect::new(move || {
-            loading.set(first_page.get().is_none() || hook_loading.get());
+            // Ignore load-more loading pulses when there is nothing more to fetch.
+            // Empty tables keep the sentinel in view, so leptos_use would otherwise
+            // toggle loading every frame and flash the DataTable empty overlay.
+            let load_more_busy = has_more.get() && hook_loading.get();
+            loading.set(first_page.get().is_none() || load_more_busy);
         });
     }
 

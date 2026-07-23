@@ -111,6 +111,20 @@ pub fn collect_preview_registrations() -> Vec<&'static PreviewRegistration> {
     items
 }
 
+/// Collect preview registrations from every Orbital package plus this facade's locals.
+///
+/// Prefer this over hand-maintaining per-crate loops in catalog hosts.
+pub fn collect_all_preview_registrations() -> Vec<&'static PreviewRegistration> {
+    let mut items = orbital_primitives::preview::collect_all_preview_registrations();
+    for reg in super::static_registrations::all() {
+        if !items.iter().any(|item| item.slug == reg.slug) {
+            items.push(*reg);
+        }
+    }
+    items.sort_by(|a, b| preview_registration_cmp(a, b));
+    items
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

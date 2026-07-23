@@ -51,6 +51,8 @@ pub struct DataTableTableState {
     pub server_offset: RwSignal<u32>,
     pub server_total: RwSignal<Option<u64>>,
     pub server_loading: RwSignal<bool>,
+    /// True after the first server page (or infinite-scroll first page) has settled.
+    pub server_ever_loaded: RwSignal<bool>,
     pub paging: PagingMode,
     pub selected: RwSignal<std::collections::HashSet<String>>,
     pub selection_anchor: RwSignal<Option<String>>,
@@ -1114,12 +1116,13 @@ impl DataTableTableState {
 
         // Infinite scroll footer owns the loading spinner; avoid duplicate overlay chrome.
         if server_infinite {
-            let waiting_for_first_page =
-                self.processed.get().is_empty() && self.server_total.get().is_none();
-            if loading && waiting_for_first_page {
-                return OverlayState::None;
-            }
             if self.processed.get().is_empty() {
+                // Before the first page settles, show footer spinner only — not Empty.
+                // After ever_loaded, keep Empty stable even if loading flickers (empty
+                // tables keep the scroll sentinel in view).
+                if !self.server_ever_loaded.get() {
+                    return OverlayState::None;
+                }
                 if self.source_row_count() == 0 || !self.has_active_filters() {
                     return OverlayState::Empty;
                 }

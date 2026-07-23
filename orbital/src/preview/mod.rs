@@ -11,7 +11,7 @@ pub mod fixtures;
 
 pub use registration::{
     category_group_cmp, category_group_default_collapsed, category_group_priority,
-    category_open_key, collect_preview_registrations, group_default_collapsed, group_open_key,
-    preview_registration_cmp, section_default_collapsed, section_group_cmp, section_open_key,
-    CategoryGroup, PreviewRegistration, SectionGroup,
+    category_open_key, collect_all_preview_registrations, collect_preview_registrations,
+    group_default_collapsed, group_open_key, preview_registration_cmp, section_default_collapsed,
+    section_group_cmp, section_open_key, CategoryGroup, PreviewRegistration, SectionGroup,
 };

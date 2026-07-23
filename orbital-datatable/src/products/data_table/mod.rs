@@ -461,6 +461,9 @@ pub fn DataTable(
     /// Server fetch invalidation: drop stale in-flight responses; optional [`ServerFetchPolicy::dedupe_key`].
     #[prop(default = ServerFetchPolicy::default())]
     server_fetch_policy: ServerFetchPolicy,
+    /// External refresh nonce — reloads server data in place (no remount / empty flash).
+    #[prop(optional)]
+    refresh_signal: Option<Signal<u32>>,
     /// Side-effect callbacks for table integration.
     #[prop(optional, default = DataTableEvents::default())]
     data_table_events: DataTableEvents,
@@ -521,6 +524,8 @@ pub fn DataTable(
     let pagination = pagination.unwrap_or_else(|| Signal::derive(|| None));
     let selection = selection.unwrap_or_else(|| Signal::derive(|| None));
     let server_fetch_policy = StoredValue::new(server_fetch_policy);
+    let refresh_signal =
+        refresh_signal.unwrap_or_else(|| Signal::derive(|| 0u32));
 
     view! {
         <DataTableRoot
@@ -564,6 +569,7 @@ pub fn DataTable(
             toolbar_config=toolbar_config
             header_chrome=header_chrome
             server_fetch_policy=server_fetch_policy
+            refresh_signal=refresh_signal
             children=children
         />
     }

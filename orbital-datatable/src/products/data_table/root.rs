@@ -87,6 +87,7 @@ pub fn DataTableRoot(
     toolbar_config: StoredValue<crate::types::DataTableToolbarConfig>,
     header_chrome: StoredValue<crate::types::DataTableHeaderChromeConfig>,
     server_fetch_policy: StoredValue<ServerFetchPolicy>,
+    refresh_signal: Signal<u32>,
     children: Option<Children>,
 ) -> impl IntoView {
     inject_style("orbital-data-table", data_table_styles());
@@ -115,6 +116,7 @@ pub fn DataTableRoot(
     let server_offset = RwSignal::new(0u32);
     let server_total = RwSignal::new(None::<u64>);
     let server_loading = RwSignal::new(false);
+    let server_ever_loaded = RwSignal::new(false);
     let selected = RwSignal::new(init.selection.clone());
     let selection_anchor = RwSignal::new(init.selection.iter().next().cloned());
     let cell_selection = RwSignal::new(CellSelection::default());
@@ -245,6 +247,7 @@ pub fn DataTableRoot(
         server_offset,
         server_total,
         server_loading,
+        server_ever_loaded,
         paging,
         selected,
         selection_anchor,
@@ -504,6 +507,7 @@ pub fn DataTableRoot(
             let _ = filter.get();
             let _ = quick_search.get();
             let _ = page_size.get();
+            let _ = refresh_signal.get();
             let offset = server_offset.get();
             let limit = page_size.get() as u32;
             let fetcher = fetcher_stored.get_value();
@@ -534,11 +538,13 @@ pub fn DataTableRoot(
                                 .collect(),
                         );
                         table_state.sync_processed_dataset_server_page();
+                        server_ever_loaded.set(true);
                         render_key.update(|k| *k += 1);
                     }
                     Err(_) if coordinator_is_current(fetch_coordinator, gen) => {
                         processed.set(Vec::new());
                         table_state.sync_processed_dataset_server_page();
+                        server_ever_loaded.set(true);
                     }
                     _ => {}
                 }
@@ -701,6 +707,7 @@ pub fn DataTableRoot(
                                 page_size=page_size.get() as u32
                                 fetch_coordinator=fetch_coordinator
                                 server_fetch_policy=server_fetch_policy
+                                refresh_signal=refresh_signal
                             />
                         })}
                     </ScrollArea>

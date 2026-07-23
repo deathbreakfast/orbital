@@ -2410,6 +2410,7 @@ dependencies = [
  "orbital-discussion",
  "orbital-history",
  "orbital-macros",
+ "orbital-motion",
  "orbital-scheduler",
  "orbital-theme",
  "orbital-tree",

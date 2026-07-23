@@ -16,7 +16,10 @@ pub fn layout_styles() -> &'static str {
         }
 
         .orbital-layout__page-scroll.orbital-scroll-area > .orbital-scroll-area__content > .orbital-layout--overlay-header:not(.orbital-layout--inset-header) {
-            min-height: auto;
+            // Keep canvas fill at least one viewport tall. `auto` collapsed to content
+            // height when the sidebar is closed (sticky sidebar no longer props the row),
+            // exposing the default white body below short pages.
+            min-height: 100vh;
             box-sizing: border-box;
         }
 

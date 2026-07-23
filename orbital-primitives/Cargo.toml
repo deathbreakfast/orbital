@@ -29,6 +29,7 @@ orbital-tree = { path = "../orbital-tree", version = "0.1.1", default-features =
 orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.1", default-features = false }
 orbital-discussion = { path = "../orbital-discussion", version = "0.1.1", default-features = false }
 orbital-history = { path = "../orbital-history", version = "0.1.1", default-features = false }
+orbital-motion = { path = "../orbital-motion", version = "0.1.1", default-features = false }
 orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
 icondata.workspace = true
 icondata_core.workspace = true
@@ -47,6 +48,7 @@ preview = [
     "orbital-scheduler/preview",
     "orbital-discussion/preview",
     "orbital-history/preview",
+    "orbital-motion/preview",
     "dep:inventory",
 ]
 hydrate = [
@@ -60,6 +62,7 @@ hydrate = [
     "orbital-scheduler/hydrate",
     "orbital-discussion/hydrate",
     "orbital-history/hydrate",
+    "orbital-motion/hydrate",
     "preview",
     "dep:inventory",
 ]
@@ -74,6 +77,7 @@ ssr = [
     "orbital-scheduler/ssr",
     "orbital-discussion/ssr",
     "orbital-history/ssr",
+    "orbital-motion/ssr",
     "preview",
     "dep:inventory",
 ]

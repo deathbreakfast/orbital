@@ -28,8 +28,28 @@ pub fn DataTableInfiniteScrollController(
     page_size: u32,
     fetch_coordinator: RwSignal<ServerFetchCoordinator>,
     server_fetch_policy: StoredValue<ServerFetchPolicy>,
+    /// External refresh nonce — bumps first-page reload without remounting the table.
+    #[prop(optional)]
+    refresh_signal: Option<Signal<u32>>,
 ) -> impl IntoView {
     let refresh = RwSignal::new(0u32);
+    let refresh_in_flight = RwSignal::new(false);
+    let external_refresh = refresh_signal.unwrap_or_else(|| Signal::derive(|| 0u32));
+    let skip_external = StoredValue::new(true);
+
+    Effect::new(move || {
+        let _ = external_refresh.get();
+        if skip_external.get_value() {
+            skip_external.set_value(false);
+            return;
+        }
+        if refresh_in_flight.get_untracked() {
+            return;
+        }
+        fetch_coordinator.update(|c| c.clear_dedupe());
+        refresh.update(|v| *v += 1);
+        state.reset_pagination();
+    });
 
     let fetch = {
         let fetcher = fetcher.clone();
@@ -67,9 +87,16 @@ pub fn DataTableInfiniteScrollController(
             skip_initial_refresh.set_value(false);
             return;
         }
+        if refresh_in_flight.get_untracked() {
+            return;
+        }
         fetch_coordinator.update(|c| c.clear_dedupe());
         refresh.update(|v| *v += 1);
         state.reset_pagination();
+    });
+
+    Effect::new(move || {
+        refresh_in_flight.set(hook.loading.get());
     });
 
     Effect::new(move || {
@@ -79,13 +106,18 @@ pub fn DataTableInfiniteScrollController(
             .into_iter()
             .map(DataTableRowModel::new)
             .collect();
+        // Update rows in place. Do **not** bump `render_key` — that remounts TableBody
+        // and causes a multi-Hz empty/flash loop with infinite scroll.
         state.processed.set(rows);
         state.sync_processed_dataset_server_page();
-        state.render_key.update(|k| *k += 1);
     });
 
     Effect::new(move || {
         state.server_loading.set(hook.loading.get());
+    });
+
+    Effect::new(move || {
+        state.server_ever_loaded.set(hook.ever_loaded.get());
     });
 
     Effect::new(move || {
