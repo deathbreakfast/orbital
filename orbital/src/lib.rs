@@ -80,7 +80,9 @@ pub mod shell;
 
 // Re-export auth context helpers for downstream crates.
 pub use context::{
-    provide_auth_context, use_auth_context, use_auth_state, use_authenticated_user, AuthContext,
+    provide_auth_context, provide_auth_dialog_controller, use_auth_context,
+    use_auth_dialog_controller, use_auth_state, use_authenticated_user, AuthContext,
+    AuthDialogController, AuthDialogIntent,
 };
 pub use models::auth::{AnonymousUser, AuthSession, AuthenticatedUser};
 pub use orbital_theme::ThemeMode;

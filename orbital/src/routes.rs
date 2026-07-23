@@ -28,7 +28,11 @@ use leptos_router::hooks::use_navigate;
 use url::form_urlencoded;
 
 use crate::components::{EmptyState, EmptyStateCallToAction, EMPTYSTATE_SIGNIN_ILLUSTRATION};
-use crate::primitives::{Button, ButtonAppearance};
+use crate::primitives::{
+    Button, ButtonAppearance, Dialog, DialogBody, DialogContent, DialogDismissConfig,
+    DialogSurface, DialogTitle, Material, MaterialCorners, MaterialElevation, MaterialVariant,
+    OpenBind,
+};
 
 /// Extract the `referer` query parameter from a raw URL search string.
 ///
@@ -101,6 +105,110 @@ pub fn authenticated_route_condition(
     }
 }
 
+/// Modal shell for auth empty-states so protected pages keep their surrounding app
+/// bar chrome instead of rendering a blank full-page replacement.
+#[component]
+fn AccessGateDialog(
+    /// Stable test id for the dialog root.
+    #[prop(into)]
+    test_id: String,
+    /// Dialog title text.
+    #[prop(into)]
+    title: String,
+    /// Empty-state headline.
+    message: &'static str,
+    /// Empty-state supporting copy.
+    description: &'static str,
+    /// Illustration asset for the empty state.
+    illustration_src: &'static str,
+    /// Accessible alt text for the illustration.
+    illustration_alt: &'static str,
+    /// Primary / secondary CTAs besides Take me back.
+    #[prop(optional)]
+    children: Option<Children>,
+) -> impl IntoView {
+    let open = RwSignal::new(true);
+    let dismissed = RwSignal::new(false);
+    let navigate = use_navigate();
+    // Yield to the app-bar AuthDialog so the two modals don't stack.
+    if let Some(auth_dialog) = crate::use_auth_dialog_controller() {
+        Effect::new(move |_| {
+            if dismissed.get() {
+                return;
+            }
+            open.set(!auth_dialog.open().get());
+        });
+    }
+    let (style_sheet, class_names) = turf::inline_style_sheet_values! {
+        .DialogFrame {
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: fit-content;
+            min-width: 280px;
+            max-width: min(420px, calc(100vw - 48px));
+        }
+
+        .DialogMaterial {
+            border-radius: var(--orb-radius-xl);
+            padding: 24px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+    };
+
+    view! {
+        <style>{style_sheet}</style>
+        <div data-testid=test_id role="status" aria-live="polite">
+            <Dialog
+                open=OpenBind::from(open)
+                dismiss=DialogDismissConfig {
+                    mask_closeable: Signal::from(false),
+                    close_on_esc: false,
+                }
+            >
+                <DialogSurface class=class_names.dialog_frame>
+                    <Material
+                        class=class_names.dialog_material
+                        variant=MaterialVariant::Frost
+                        elevation=MaterialElevation::Modal
+                        corners=MaterialCorners::Rounded
+                    >
+                        <DialogBody>
+                            <DialogTitle>{title}</DialogTitle>
+                            <DialogContent>
+                                <EmptyState
+                                    message=message
+                                    description=description
+                                    illustration_src=illustration_src
+                                    illustration_alt=illustration_alt
+                                >
+                                    <EmptyStateCallToAction slot:call_to_action>
+                                        {children.map(|c| c())}
+                                        <Button
+                                            appearance=ButtonAppearance::Subtle
+                                            on_click=Callback::new({
+                                                let navigate = navigate.clone();
+                                                move |_| {
+                                                    dismissed.set(true);
+                                                    open.set(false);
+                                                    navigate("/", Default::default());
+                                                }
+                                            })
+                                        >
+                                            "Take me back"
+                                        </Button>
+                                    </EmptyStateCallToAction>
+                                </EmptyState>
+                            </DialogContent>
+                        </DialogBody>
+                    </Material>
+                </DialogSurface>
+            </Dialog>
+        </div>
+    }
+}
+
 /// Render children only when the current user satisfies the requested access rules.
 ///
 /// [`RequireAuthenticated`] covers two common page gates:
@@ -108,7 +216,8 @@ pub fn authenticated_route_condition(
 /// - signed-in user only
 /// - signed-in user with verified email
 ///
-/// When the requirement is not met, Orbital renders a guided empty-state instead of a blank page.
+/// When the requirement is not met, Orbital renders a modal over the page chrome
+/// (keep the app shell mounted around this guard) with a Take me back action.
 ///
 /// ## Examples
 ///
@@ -138,6 +247,7 @@ pub fn RequireAuthenticated(
 ) -> impl IntoView {
     let auth = crate::use_auth_state();
     let navigate = use_navigate();
+    let auth_dialog = crate::use_auth_dialog_controller();
 
     view! {
         {move || {
@@ -145,34 +255,41 @@ pub fn RequireAuthenticated(
                     AuthSession::Anonymous(_) => {
                         let nav_signin = navigate.clone();
                         let nav_signup = navigate.clone();
+                        let dialog = auth_dialog;
                         view! {
-                            <div
-                                data-testid="auth-required-empty-state"
-                                role="status"
-                                aria-live="polite"
+                            <AccessGateDialog
+                                test_id="auth-required-empty-state"
+                                title="Sign in required"
+                                message="Sign in required"
+                                description="Sign in or create an account to continue."
+                                illustration_src=EMPTYSTATE_SIGNIN_ILLUSTRATION
+                                illustration_alt="Sign in required"
                             >
-                                <EmptyState
-                                    message="Sign in required"
-                                    description="Sign in or create an account to continue."
-                                    illustration_src=EMPTYSTATE_SIGNIN_ILLUSTRATION
-                                    illustration_alt="Sign in required"
+                                <Button
+                                    appearance=ButtonAppearance::Primary
+                                    on_click=Callback::new(move |_| {
+                                        if let Some(dialog) = dialog {
+                                            dialog.open_signin();
+                                        } else {
+                                            nav_signin(crate::paths::AUTH_SIGNIN, Default::default());
+                                        }
+                                    })
                                 >
-                                    <EmptyStateCallToAction slot:call_to_action>
-                                        <Button
-                                            appearance=ButtonAppearance::Primary
-                                            on_click=Callback::new(move |_| nav_signin(crate::paths::AUTH_SIGNIN, Default::default()))
-                                        >
-                                            "Sign In"
-                                        </Button>
-                                        <Button
-                                            appearance=ButtonAppearance::Subtle
-                                            on_click=Callback::new(move |_| nav_signup(crate::paths::AUTH_SIGNUP, Default::default()))
-                                        >
-                                            "Sign Up"
-                                        </Button>
-                                    </EmptyStateCallToAction>
-                                </EmptyState>
-                            </div>
+                                    "Sign In"
+                                </Button>
+                                <Button
+                                    appearance=ButtonAppearance::Subtle
+                                    on_click=Callback::new(move |_| {
+                                        if let Some(dialog) = dialog {
+                                            dialog.open_signup();
+                                        } else {
+                                            nav_signup(crate::paths::AUTH_SIGNUP, Default::default());
+                                        }
+                                    })
+                                >
+                                    "Sign Up"
+                                </Button>
+                            </AccessGateDialog>
                         }
                             .into_any()
                     }
@@ -180,27 +297,21 @@ pub fn RequireAuthenticated(
                         if requires_email_verification && !user.email_verified {
                             let nav_account = navigate.clone();
                             view! {
-                                <div
-                                    data-testid="email-verification-required-empty-state"
-                                    role="status"
-                                    aria-live="polite"
+                                <AccessGateDialog
+                                    test_id="email-verification-required-empty-state"
+                                    title="Email verification required"
+                                    message="Email verification required"
+                                    description="Verify your email in account settings to continue."
+                                    illustration_src=EMPTYSTATE_SIGNIN_ILLUSTRATION
+                                    illustration_alt="Email verification required"
                                 >
-                                    <EmptyState
-                                        message="Email verification required"
-                                        description="Verify your email in account settings to continue."
-                                        illustration_src=EMPTYSTATE_SIGNIN_ILLUSTRATION
-                                        illustration_alt="Email verification required"
+                                    <Button
+                                        appearance=ButtonAppearance::Primary
+                                        on_click=Callback::new(move |_| nav_account(crate::paths::USER_ACCOUNT_SETTINGS, Default::default()))
                                     >
-                                        <EmptyStateCallToAction slot:call_to_action>
-                                            <Button
-                                                appearance=ButtonAppearance::Primary
-                                                on_click=Callback::new(move |_| nav_account(crate::paths::USER_ACCOUNT_SETTINGS, Default::default()))
-                                            >
-                                                "Account Settings"
-                                            </Button>
-                                        </EmptyStateCallToAction>
-                                    </EmptyState>
-                                </div>
+                                        "Account Settings"
+                                    </Button>
+                                </AccessGateDialog>
                             }
                                 .into_any()
                         } else {
