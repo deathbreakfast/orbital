@@ -32,11 +32,16 @@ pub fn layout_styles() -> &'static str {
         .orbital-layout__page-scroll.orbital-scroll-area > .orbital-scroll-area__content > .orbital-layout--overlay-header:not(.orbital-layout--inset-header) > .orbital-layout__body {
             flex: 1 1 auto;
             min-height: auto;
-            align-items: flex-start;
+            // Stretch main to the row width. `flex-start` shrunk main to content
+            // (e.g. empty states), leaving the canvas empty on the trailing edge.
+            // Sidebar keeps `align-self: flex-start` above for sticky height.
+            align-items: stretch;
         }
 
         .orbital-layout__page-scroll.orbital-scroll-area > .orbital-scroll-area__content > .orbital-layout--overlay-header:not(.orbital-layout--inset-header) > .orbital-layout__body > .orbital-layout__main {
             flex: 1 1 auto;
+            min-width: 0;
+            width: 100%;
             min-height: auto;
         }
 

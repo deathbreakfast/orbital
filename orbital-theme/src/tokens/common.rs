@@ -167,6 +167,8 @@ impl CommonTheme {
         const DURATION_FAST: &str = "150ms";
         const DURATION_SLOWER: &str = "400ms";
         const DURATION_ULTRA_SLOW: &str = "500ms";
+        const DURATION_GLACIAL: &str = "4000ms";
+        const DURATION_EPIC: &str = "10000ms";
         const CURVE_LINEAR: &str = "cubic-bezier(0, 0, 1, 1)";
         const CURVE_ACCELERATE_MAX: &str = "cubic-bezier(0.9, 0.1, 1, 0.2)";
         const CURVE_ACCELERATE_MIN: &str = "cubic-bezier(0.8, 0, 0.78, 1)";
@@ -208,6 +210,16 @@ impl CommonTheme {
                 "--orb-motion-duration-3xl",
                 "--durationUltraSlow",
                 DURATION_ULTRA_SLOW,
+            ),
+            (
+                "--orb-motion-duration-4xl",
+                "--durationGlacial",
+                DURATION_GLACIAL,
+            ),
+            (
+                "--orb-motion-duration-5xl",
+                "--durationEpic",
+                DURATION_EPIC,
             ),
         ];
 

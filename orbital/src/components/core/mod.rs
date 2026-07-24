@@ -1,4 +1,5 @@
 pub mod auto_grid;
+pub mod coming_soon;
 pub mod content_container;
 pub mod demo_box;
 pub mod empty_state;
@@ -20,6 +21,7 @@ pub use auto_grid::{
     AutoGridPreview, AUTOGRID_BEST_PRACTICES, AUTOGRID_DESCRIPTION, AUTOGRID_DOC,
     AUTOGRID_PREVIEW_REGISTRATION, AUTOGRID_PROPS,
 };
+pub use coming_soon::ComingSoon;
 /// Backward-compatible alias for [`Container`].
 pub use content_container::Container as ContentContainer;
 pub use content_container::Container;

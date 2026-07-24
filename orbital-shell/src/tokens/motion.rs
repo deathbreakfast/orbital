@@ -110,7 +110,10 @@ impl MotionPreset {
             Self::HoverLift => "50ms ease-out",
             Self::TopLevelPageFade => "200ms ease-in-out",
             Self::TabIndicatorSlide => "200ms ease-in-out",
-            Self::ProgressFill => "400ms ease-in-out",
+            // Aligned with orbital-motion `DEFAULT_PROGRESS_FILL` (Slower + EasyEase).
+            Self::ProgressFill => {
+                "var(--orb-motion-duration-2xl, 400ms) var(--orb-motion-ease-standard, ease-in-out)"
+            }
         }
     }
 }

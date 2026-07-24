@@ -11,10 +11,14 @@ pub enum MotionDuration {
     Slow,
     Slower,
     UltraSlow,
+    /// Ambient / marketing fills (~4s). Prefer for Coming Soon loops, not snappy bars.
+    Glacial,
+    /// Long ambient approach fills (~10s). Prefer for Coming Soon one-shot holds.
+    Epic,
 }
 
 impl MotionDuration {
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 10] = [
         Self::UltraFast,
         Self::Faster,
         Self::Fast,
@@ -23,6 +27,8 @@ impl MotionDuration {
         Self::Slow,
         Self::Slower,
         Self::UltraSlow,
+        Self::Glacial,
+        Self::Epic,
     ];
 
     pub const fn index(self) -> usize {
@@ -35,6 +41,8 @@ impl MotionDuration {
             Self::Slow => 5,
             Self::Slower => 6,
             Self::UltraSlow => 7,
+            Self::Glacial => 8,
+            Self::Epic => 9,
         }
     }
 
@@ -47,7 +55,9 @@ impl MotionDuration {
             4 => Self::Gentle,
             5 => Self::Slow,
             6 => Self::Slower,
-            _ => Self::UltraSlow,
+            7 => Self::UltraSlow,
+            8 => Self::Glacial,
+            _ => Self::Epic,
         }
     }
 
@@ -67,6 +77,8 @@ impl MotionDuration {
             Self::Slow => 300,
             Self::Slower => 400,
             Self::UltraSlow => 500,
+            Self::Glacial => 4000,
+            Self::Epic => 10000,
         }
     }
 
@@ -86,8 +98,12 @@ impl MotionDuration {
             Self::Slow
         } else if ms <= 400 {
             Self::Slower
-        } else {
+        } else if ms <= 500 {
             Self::UltraSlow
+        } else if ms <= 4000 {
+            Self::Glacial
+        } else {
+            Self::Epic
         }
     }
 
@@ -106,6 +122,8 @@ impl MotionDuration {
             Self::Slow => "var(--orb-motion-duration-xl)",
             Self::Slower => "var(--orb-motion-duration-2xl)",
             Self::UltraSlow => "var(--orb-motion-duration-3xl)",
+            Self::Glacial => "var(--orb-motion-duration-4xl)",
+            Self::Epic => "var(--orb-motion-duration-5xl)",
         }
     }
 
@@ -120,10 +138,12 @@ impl MotionDuration {
             Self::Slow => "--orb-motion-duration-xl",
             Self::Slower => "--orb-motion-duration-2xl",
             Self::UltraSlow => "--orb-motion-duration-3xl",
+            Self::Glacial => "--orb-motion-duration-4xl",
+            Self::Epic => "--orb-motion-duration-5xl",
         }
     }
 
-    /// Short human-readable scale label (2xs … 3xl).
+    /// Short human-readable scale label (2xs … 5xl).
     pub const fn scale_label(self) -> &'static str {
         match self {
             Self::UltraFast => "2xs",
@@ -134,6 +154,8 @@ impl MotionDuration {
             Self::Slow => "xl",
             Self::Slower => "2xl",
             Self::UltraSlow => "3xl",
+            Self::Glacial => "4xl",
+            Self::Epic => "5xl",
         }
     }
 
@@ -147,6 +169,8 @@ impl MotionDuration {
             Self::Slow => "300ms",
             Self::Slower => "400ms",
             Self::UltraSlow => "500ms",
+            Self::Glacial => "4000ms",
+            Self::Epic => "10000ms",
         }
     }
 }

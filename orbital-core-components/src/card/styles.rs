@@ -3,9 +3,20 @@ use turf::inline_style_sheet_values;
 /// Card layout stylesheet — column gaps and sizing only; surface on [`Material`](crate::Material).
 pub fn card_layout_styles() -> (&'static str, CardLayoutClassNames) {
     let (style_sheet, class_names) = inline_style_sheet_values! {
+        // Column shell so equal-height grid/flex parents can pin [`CardFooter`](crate::CardFooter)
+        // to the bottom when the card root is given `height: 100%`.
+        .orbital-card {
+            display: flex;
+            flex-direction: column;
+        }
+
         .orbital-card-inner {
+            box-sizing: border-box;
             width: var(--orbital-card-width, 100%);
             max-width: var(--orbital-card-max-width, 100%);
+            height: 100%;
+            min-height: 0;
+            flex: 1 1 auto;
             margin: var(--orbital-card-margin, 0);
             padding: var(--orbital-card-padding, 0);
             gap: var(--orbital-card-row-gap, 0) var(--orbital-card-column-gap, 0);
@@ -115,6 +126,8 @@ pub fn card_footer_styles() -> &'static str {
         .orbital-card-footer {
             display: flex;
             flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
             column-gap: 12px;
             row-gap: 12px;
             padding: var(--orbital-card-footer-padding, 0 16px 16px);

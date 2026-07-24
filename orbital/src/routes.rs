@@ -192,7 +192,7 @@ fn AccessGateDialog(
                                                 move |_| {
                                                     dismissed.set(true);
                                                     open.set(false);
-                                                    navigate("/", Default::default());
+                                                    crate::nav::navigate_back_or("/", &navigate);
                                                 }
                                             })
                                         >

@@ -24,6 +24,7 @@
 
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
+use leptos_router::NavigateOptions;
 
 /// Reactive hook that returns whether the given path matches the current location.
 ///
@@ -48,4 +49,33 @@ pub fn use_route_active(path: &str, exact: bool) -> Memo<bool> {
             normalized.starts_with(&path)
         }
     })
+}
+
+/// Navigate back in the browser history when possible; otherwise go to `fallback`.
+///
+/// Prefers `history.back()` whenever the session has a prior entry (`length > 1`),
+/// including cross-origin referrers (return to wherever the user came from).
+/// On SSR or when history is unavailable / empty, calls `navigate(fallback, …)`.
+pub fn navigate_back_or(fallback: &str, navigate: &impl Fn(&str, NavigateOptions)) {
+    #[cfg(target_arch = "wasm32")]
+    {
+        if let Some(window) = web_sys::window() {
+            if let Ok(history) = window.history() {
+                if history.length().unwrap_or(0) > 1 {
+                    let _ = history.back();
+                    return;
+                }
+            }
+            // Same-tab navigations sometimes report length == 1 while still having
+            // a document referrer (e.g. opened from an external link that replaced).
+            let referrer = window.document().map(|d| d.referrer()).unwrap_or_default();
+            if !referrer.is_empty() {
+                if let Ok(history) = window.history() {
+                    let _ = history.back();
+                    return;
+                }
+            }
+        }
+    }
+    navigate(fallback, NavigateOptions::default());
 }
