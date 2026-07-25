@@ -1,6 +1,7 @@
 use leptos::prelude::*;
 use orbital_base_components::{BaseIcon, IconSize, ThemeColor};
 use orbital_macros::component_doc;
+use orbital_style::inject_style;
 use turf::inline_style_sheet_values;
 
 /// Styled SVG icon from the icondata catalog at `1em` by default, with fill tracking foreground theme tokens via `currentColor`.
@@ -206,6 +207,9 @@ pub fn Icon(
             display: inline-block;
         }
     };
+    // Head injection — never emit <style> beside the SVG. Inline style siblings
+    // inside buttons pollute accessible names and can desync tachys hydration.
+    inject_style("orbital-icon", style_sheet);
 
     let merged_class = Signal::derive(move || {
         let extra = class.get().unwrap_or_default();
@@ -255,7 +259,6 @@ pub fn Icon(
 
     match on_click_cb {
         Some(on_click_cb) => view! {
-            <style>{style_sheet}</style>
             <BaseIcon
                 icon=icon
                 width=resolved_width
@@ -267,7 +270,6 @@ pub fn Icon(
         }
         .into_any(),
         None => view! {
-            <style>{style_sheet}</style>
             <BaseIcon
                 icon=icon
                 width=resolved_width

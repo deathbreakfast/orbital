@@ -94,7 +94,9 @@ minify = true
 load_paths = ["src/styles"]
 
 [package.metadata.turf.class_names]
-template = "<original_name>-<name_hash_short>"
+# Include stylesheet hash so identical local names (e.g. `.Root`) do not collide
+# across components in release builds (debug turf-dev already scopes by sheet).
+template = "<original_name>-<name_hash_short>-<style_sheet_hash_short>"
 excludes = ["^orbital-.*"]
 
 [package.metadata.turf-dev]

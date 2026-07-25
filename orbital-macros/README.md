@@ -57,7 +57,7 @@ wrapper components, and `PreviewRegistration` entries for the catalog.
 
 ```toml
 orbital-core-components = { path = "../orbital-core-components", default-features = false }
-# or via the facade:
+# or via the public crate:
 orbital-ui = { path = "../orbital", package = "orbital-ui", default-features = false, features = ["hydrate"] }
 ```
 

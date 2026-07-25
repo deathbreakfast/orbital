@@ -51,7 +51,7 @@ Tag deploys run full Playwright E2E and publish the preview catalog to GitHub Pa
 
 ## Publishing to crates.io (maintainers)
 
-Library crates are published to crates.io under names such as `orbital-ui` (facade;
+Library crates are published to crates.io under names such as `orbital-ui` (public crate;
 Rust imports remain `use orbital::...`), `orbital-macros`, `orbital-core-components`,
 and the other `orbital-*` packages. Preview/e2e workspace members set `publish = false`.
 

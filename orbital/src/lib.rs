@@ -1,7 +1,7 @@
 #![recursion_limit = "256"]
 //! # Orbital
 //!
-//! Orbital is a Leptos UI component library and preview catalog facade.
+//! Orbital is a Leptos UI component library and preview catalog public crate.
 //! It combines:
 //!
 //! - themed UI primitives and shell/layout helpers,
@@ -121,12 +121,56 @@ pub use orbital_shell::tokens;
 /// `public/orbital-theme-baseline.css`. Point cargo-leptos `assets-dir` at `public/`
 /// (or copy the file into your app static root). Font files must live under `public/fonts/`.
 /// Regenerate when `LEPTOS_BASE_PATH` changes.
+///
+/// Use [`orbital_shell_with_meta`] to set document title / favicon (defaults via
+/// [`OrbitalDocumentMeta::default`] are Orbital-oriented, not Leptos tutorial stubs).
 pub fn orbital_shell<F, IV>(options: LeptosOptions, app_fn: F) -> impl IntoView
 where
     F: Fn() -> IV + Send + 'static,
     IV: IntoView + 'static,
 {
+    orbital_shell_with_meta(options, OrbitalDocumentMeta::default(), app_fn)
+}
+
+/// Document `<head>` branding for [`orbital_shell`] / [`orbital_shell_with_meta`].
+///
+/// Hosts (Unified Field templates, preview apps) should pass product title and
+/// favicon paths. Defaults are Orbital-oriented (not Leptos tutorial stubs).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct OrbitalDocumentMeta {
+    /// Browser tab / document title.
+    pub title: &'static str,
+    /// Shortcut icon href (usually `/favicon.ico` from the host `assets-dir`).
+    pub favicon_href: &'static str,
+    /// Optional Apple touch icon href (e.g. `/apple-touch-icon.png`).
+    pub apple_touch_icon_href: Option<&'static str>,
+}
+
+impl Default for OrbitalDocumentMeta {
+    fn default() -> Self {
+        Self {
+            title: "Orbital",
+            favicon_href: "/favicon.ico",
+            apple_touch_icon_href: None,
+        }
+    }
+}
+
+/// [`orbital_shell`] with explicit document title / favicon branding.
+pub fn orbital_shell_with_meta<F, IV>(
+    options: LeptosOptions,
+    meta: OrbitalDocumentMeta,
+    app_fn: F,
+) -> impl IntoView
+where
+    F: Fn() -> IV + Send + 'static,
+    IV: IntoView + 'static,
+{
     provide_meta_context();
+
+    let title = meta.title;
+    let favicon_href = meta.favicon_href;
+    let apple_touch = meta.apple_touch_icon_href;
 
     view! {
          <StyleRegistry>
@@ -138,10 +182,14 @@ where
                     <OrbitalFirstPaintHeadAssets />
                     <OrbitalBootLoaderHeadAssets />
                     <meta name="orbital-style"/>
-                    <Title text="Welcome to Leptos" />
+                    <Title text=title />
                     <AutoReload options=options.clone() />
                     <HydrationScripts options/>
-                    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
+                    <link rel="shortcut icon" type="image/ico" href=favicon_href />
+                    <link rel="icon" type="image/x-icon" href=favicon_href />
+                    {apple_touch.map(|href| {
+                        view! { <link rel="apple-touch-icon" href=href /> }.into_any()
+                    })}
                     <link rel="stylesheet" href="/main.css" />
                     <MetaTags/>
                 </head>

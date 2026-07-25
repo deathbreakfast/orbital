@@ -491,8 +491,32 @@ const BOOT_LOADER_SCRIPT: &str = r#"
     return false;
   }
 
+  // Third-party tags (Cloudflare Insights, adblock→0.0.0.0, etc.) must not
+  // fail the app boot overlay. Only same-origin assets are required.
+  function isSameOriginUrl(url) {
+    if (!url) return true;
+    try {
+      return new URL(url, location.href).origin === location.origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isAppOwnedResource(node) {
+    if (!node) return false;
+    if (node.tagName === "SCRIPT") {
+      return isSameOriginUrl(node.src || "");
+    }
+    if (node.tagName === "LINK") {
+      return isSameOriginUrl(node.href || "");
+    }
+    return false;
+  }
+
   function waitForResources(selectors, onComplete, onError) {
-    var nodes = Array.prototype.slice.call(document.querySelectorAll(selectors));
+    var nodes = Array.prototype.slice
+      .call(document.querySelectorAll(selectors))
+      .filter(isAppOwnedResource);
     if (nodes.length === 0) {
       onComplete();
       return;
@@ -853,7 +877,11 @@ const BOOT_LOADER_SCRIPT: &str = r#"
     "error",
     function (event) {
       var target = event.target;
-      if (target && (target.tagName === "SCRIPT" || target.tagName === "LINK")) {
+      if (
+        target &&
+        (target.tagName === "SCRIPT" || target.tagName === "LINK") &&
+        isAppOwnedResource(target)
+      ) {
         showOrbitalBootError();
       }
     },
@@ -1154,6 +1182,8 @@ mod tests {
         assert!(BOOT_LOADER_SCRIPT.contains("orbital-motion-fade-leave-active"));
         assert!(BOOT_LOADER_SCRIPT.contains("orbital-motion-fade-scale-leave-active"));
         assert!(BOOT_LOADER_SCRIPT.contains("wasm_split_manifest"));
+        assert!(BOOT_LOADER_SCRIPT.contains("isSameOriginUrl"));
+        assert!(BOOT_LOADER_SCRIPT.contains("isAppOwnedResource"));
     }
 
     #[test]

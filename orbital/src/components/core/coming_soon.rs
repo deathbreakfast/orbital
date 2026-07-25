@@ -6,6 +6,7 @@ use orbital_motion::{
     clamp_unit_progress, progress_width_percent, use_reduced_motion, ProgressFillMotion,
     EPIC_PROGRESS_FILL, PROGRESS_FILL_RESPECTS_REDUCED_CLASS,
 };
+use orbital_style::inject_style;
 use turf::inline_style_sheet_values;
 
 /// Pill progress control that fills once toward [`fill_to`] and holds.
@@ -56,8 +57,10 @@ pub fn ComingSoon(
         }
     });
 
+    // Unique selectors (not `.Root`) — prod turf hashes only the local name, so
+    // `.Root` collides with `Text` and paints Coming Soon borders onto the app bar.
     let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Root {
+        .ComingSoon {
             display: block;
             width: min(100%, 28rem);
             box-sizing: border-box;
@@ -67,7 +70,7 @@ pub fn ComingSoon(
             background: transparent;
         }
 
-        .Track {
+        .ComingSoonTrack {
             position: relative;
             display: flex;
             align-items: center;
@@ -77,7 +80,7 @@ pub fn ComingSoon(
             overflow: hidden;
         }
 
-        .Fill {
+        .ComingSoonFill {
             position: absolute;
             inset: 0 auto 0 0;
             height: 100%;
@@ -86,7 +89,7 @@ pub fn ComingSoon(
             pointer-events: none;
         }
 
-        .Label {
+        .ComingSoonLabel {
             position: relative;
             z-index: 1;
             margin: 0;
@@ -102,6 +105,7 @@ pub fn ComingSoon(
             user-select: none;
         }
     };
+    inject_style("orbital-coming-soon", style_sheet);
 
     let brand = brand_color.clone();
     let root_style = move || format!("--coming-soon-brand: {brand};");
@@ -114,9 +118,8 @@ pub fn ComingSoon(
     };
 
     view! {
-        <style>{style_sheet}</style>
         <div
-            class=class_names.root
+            class=class_names.coming_soon
             data-testid="coming-soon"
             role="progressbar"
             aria-valuemin="0"
@@ -125,17 +128,17 @@ pub fn ComingSoon(
             aria-label=label_text.clone()
             style=root_style
         >
-            <div class=class_names.track>
+            <div class=class_names.coming_soon_track>
                 <div
                     class=move || {
                         format!(
                             "{} {}",
-                            class_names.fill, PROGRESS_FILL_RESPECTS_REDUCED_CLASS
+                            class_names.coming_soon_fill, PROGRESS_FILL_RESPECTS_REDUCED_CLASS
                         )
                     }
                     style=fill_style
                 />
-                <p class=class_names.label>{label_text.clone()}</p>
+                <p class=class_names.coming_soon_label>{label_text.clone()}</p>
             </div>
         </div>
     }

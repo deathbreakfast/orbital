@@ -111,7 +111,7 @@ pub fn collect_preview_registrations() -> Vec<&'static PreviewRegistration> {
     items
 }
 
-/// Collect preview registrations from every Orbital package plus this facade's locals.
+/// Collect preview registrations from every Orbital package plus this public crate's locals.
 ///
 /// Prefer this over hand-maintaining per-crate loops in catalog hosts.
 pub fn collect_all_preview_registrations() -> Vec<&'static PreviewRegistration> {

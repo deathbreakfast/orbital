@@ -1,6 +1,6 @@
 # Orbital
 
-Leptos UI component library and design system facade — shell, themed primitives, auth hooks, and preview catalog registration.
+Leptos UI component library and design system (public crate) — shell, themed primitives, auth hooks, and preview catalog registration.
 
 ## Quick start
 

@@ -14,7 +14,7 @@
 
 ## Quick start
 
-Add the facade crate (`orbital-ui` on crates.io; Rust imports stay `orbital::`) and wrap your app in [`OrbitalTemplate`](orbital/README.md):
+Add the public crate (`orbital-ui` on crates.io; Rust imports stay `orbital::`) and wrap your app in [`OrbitalTemplate`](orbital/README.md):
 
 ```toml
 [dependencies]
@@ -186,7 +186,7 @@ These crates have **no UI dependency** — use them in server functions, adapter
 
 ## Component surface
 
-Import the facade crate [`orbital`](orbital/) for shell, auth hooks, and `orbital::primitives`, or depend on individual workspace crates with `default-features = false` in production (enable `preview` only for the doc host).
+Import the public crate [`orbital`](orbital/) for shell, auth hooks, and `orbital::primitives`, or depend on individual workspace crates with `default-features = false` in production (enable `preview` only for the doc host).
 
 ### Foundation
 
