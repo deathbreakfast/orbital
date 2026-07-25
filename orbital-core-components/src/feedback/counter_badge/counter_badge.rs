@@ -4,6 +4,7 @@ use orbital_macros::component_doc;
 use orbital_style::inject_style;
 
 use super::styles::counter_badge_styles;
+use crate::feedback::badge::badge_styles;
 
 /// Overlays a numeric count on an avatar or icon — or renders as a standalone count pill.
 ///
@@ -78,6 +79,9 @@ pub fn CounterBadge(
     #[prop(optional)]
     children: Option<Children>,
 ) -> impl IntoView {
+    // CounterBadge paints through BaseBadge; without badge styles the pill is
+    // unstyled (default black text) until some other Badge mounts.
+    inject_style("orbital-badge", badge_styles());
     inject_style("orbital-counter-badge", counter_badge_styles());
 
     let overflow = overflow_count.unwrap_or(99);

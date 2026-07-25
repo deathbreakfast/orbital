@@ -1,6 +1,9 @@
 .orbital-code {
     display: block;
     box-sizing: border-box;
+    /* Grow with overflow so background fills scrolled width inside ScrollArea. */
+    width: max-content;
+    min-width: 100%;
     font-size: var(--orb-type-size-sm);
     font-family: var(--orb-type-family-mono);
     color: var(--orb-color-code-fg);
@@ -16,4 +19,5 @@
     font-family: inherit;
     color: inherit;
     background: transparent;
+    white-space: pre;
 }
