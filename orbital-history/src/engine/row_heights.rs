@@ -69,8 +69,9 @@ pub fn attach_row_height_observer(
             }
         }) as Box<dyn FnMut(js_sys::Array)>);
 
-        let observer = web_sys::ResizeObserver::new(callback.as_ref().unchecked_ref())
-            .expect("ResizeObserver should be available in hydrate builds");
+        let Ok(observer) = web_sys::ResizeObserver::new(callback.as_ref().unchecked_ref()) else {
+            return;
+        };
         observer.observe(&el);
         callback.forget();
 

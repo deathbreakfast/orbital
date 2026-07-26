@@ -482,85 +482,80 @@ pub fn DataTableRoot(
     let fetch_coordinator = RwSignal::new(ServerFetchCoordinator::default());
 
     if server_paged {
-        let fetcher = data_source
-            .get_value()
-            .server_fetcher()
-            .expect("server source");
-        let fetcher_stored = StoredValue::new(fetcher);
+        if let Some(fetcher) = data_source.get_value().server_fetcher() {
+            let fetcher_stored = StoredValue::new(fetcher);
 
-        Effect::new(move |_| {
-            let _ = quick_search.get();
-            let _ = filter.get();
-            server_total.set(None);
-            fetch_coordinator.update(|c| c.clear_dedupe());
-        });
-
-        Effect::new(move |_| {
-            let _ = quick_search.get();
-            let _ = filter.get();
-            let _ = sort.get();
-            server_offset.set(0);
-        });
-
-        Effect::new(move |_| {
-            let _ = sort.get();
-            let _ = filter.get();
-            let _ = quick_search.get();
-            let _ = page_size.get();
-            let _ = refresh_signal.get();
-            let offset = server_offset.get();
-            let limit = page_size.get() as u32;
-            let fetcher = fetcher_stored.get_value();
-            let policy = server_fetch_policy.get_value();
-            let request = build_page_request(
-                &sort.get_untracked(),
-                &filter.get_untracked(),
-                &quick_search.get_untracked(),
-                offset,
-                limit,
-            );
-            let gen = coordinator_begin(fetch_coordinator, &request, &policy);
-            let Some(gen) = gen else {
-                return;
-            };
-            server_loading.set(true);
-            leptos::task::spawn_local_scoped(async move {
-                match (fetcher)(request).await {
-                    Ok(page_result) if coordinator_is_current(fetch_coordinator, gen) => {
-                        if let Some(count) = page_result.total_count {
-                            server_total.set(Some(count));
-                        }
-                        processed.set(
-                            page_result
-                                .items
-                                .into_iter()
-                                .map(DataTableRowModel::new)
-                                .collect(),
-                        );
-                        table_state.sync_processed_dataset_server_page();
-                        server_ever_loaded.set(true);
-                        render_key.update(|k| *k += 1);
-                    }
-                    Err(_) if coordinator_is_current(fetch_coordinator, gen) => {
-                        processed.set(Vec::new());
-                        table_state.sync_processed_dataset_server_page();
-                        server_ever_loaded.set(true);
-                    }
-                    _ => {}
-                }
-                if coordinator_is_current(fetch_coordinator, gen) {
-                    server_loading.set(false);
-                }
+            Effect::new(move |_| {
+                let _ = quick_search.get();
+                let _ = filter.get();
+                server_total.set(None);
+                fetch_coordinator.update(|c| c.clear_dedupe());
             });
-        });
+
+            Effect::new(move |_| {
+                let _ = quick_search.get();
+                let _ = filter.get();
+                let _ = sort.get();
+                server_offset.set(0);
+            });
+
+            Effect::new(move |_| {
+                let _ = sort.get();
+                let _ = filter.get();
+                let _ = quick_search.get();
+                let _ = page_size.get();
+                let _ = refresh_signal.get();
+                let offset = server_offset.get();
+                let limit = page_size.get() as u32;
+                let fetcher = fetcher_stored.get_value();
+                let policy = server_fetch_policy.get_value();
+                let request = build_page_request(
+                    &sort.get_untracked(),
+                    &filter.get_untracked(),
+                    &quick_search.get_untracked(),
+                    offset,
+                    limit,
+                );
+                let gen = coordinator_begin(fetch_coordinator, &request, &policy);
+                let Some(gen) = gen else {
+                    return;
+                };
+                server_loading.set(true);
+                leptos::task::spawn_local_scoped(async move {
+                    match (fetcher)(request).await {
+                        Ok(page_result) if coordinator_is_current(fetch_coordinator, gen) => {
+                            if let Some(count) = page_result.total_count {
+                                server_total.set(Some(count));
+                            }
+                            processed.set(
+                                page_result
+                                    .items
+                                    .into_iter()
+                                    .map(DataTableRowModel::new)
+                                    .collect(),
+                            );
+                            table_state.sync_processed_dataset_server_page();
+                            server_ever_loaded.set(true);
+                            render_key.update(|k| *k += 1);
+                        }
+                        Err(_) if coordinator_is_current(fetch_coordinator, gen) => {
+                            processed.set(Vec::new());
+                            table_state.sync_processed_dataset_server_page();
+                            server_ever_loaded.set(true);
+                        }
+                        _ => {}
+                    }
+                    if coordinator_is_current(fetch_coordinator, gen) {
+                        server_loading.set(false);
+                    }
+                });
+            });
+        }
     }
 
-    let infinite_fetcher = server_infinite.then(|| {
-        data_source
-            .get_value()
-            .server_fetcher()
-            .expect("server source")
-    });
+    let infinite_fetcher = server_infinite
+        .then(|| data_source.get_value().server_fetcher())
+        .flatten();
 
     let theme_options = use_theme_options();
     let density_class =

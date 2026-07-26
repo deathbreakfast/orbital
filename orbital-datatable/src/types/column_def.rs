@@ -4,6 +4,8 @@ use std::sync::Arc;
 use leptos::prelude::*;
 use orbital_data::{DataRecord, DataValue};
 
+use super::DataTableError;
+
 /// Column type — drives default sort and filter operators.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ColumnType {
@@ -94,7 +96,7 @@ pub struct DataTableColumnDef {
     /// Select options for editable `SingleSelect` columns.
     pub edit_options: Option<Vec<String>>,
     /// Optional per-field validator run before row commit.
-    pub validate_value: Option<Callback<(DataValue,), Result<DataValue, String>>>,
+    pub validate_value: Option<Callback<(DataValue,), Result<DataValue, DataTableError>>>,
     /// Custom inline edit renderer (default: typed Input/Select/Checkbox/DatePicker).
     pub edit_view: Option<Arc<dyn Fn(super::EditCellProps) -> AnyView + Send + Sync>>,
     /// Optional per-cell CSS class callback.
@@ -298,7 +300,7 @@ impl DataTableColumnDef {
 
     pub fn with_validate_value(
         mut self,
-        cb: Callback<(DataValue,), Result<DataValue, String>>,
+        cb: Callback<(DataValue,), Result<DataValue, DataTableError>>,
     ) -> Self {
         self.validate_value = Some(cb);
         self

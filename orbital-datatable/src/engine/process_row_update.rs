@@ -5,7 +5,8 @@ use orbital_data::{DataRecord, DataValue};
 
 use crate::engine::{format_edit_value, parse_edit_value, resolve_value};
 use crate::types::{
-    DataTableColumnDef, DataTableFeatures, DataTableRowModel, DataTableTableState, EditHistoryEntry,
+    DataTableColumnDef, DataTableError, DataTableFeatures, DataTableRowModel, DataTableTableState,
+    EditHistoryEntry,
 };
 
 /// Apply a committed row update to the client data source and refresh processed rows.
@@ -51,7 +52,7 @@ pub fn process_row_update(
     row_id: &str,
     candidate: DataRecord,
     changed_fields: &[(String, DataValue, DataValue)],
-) -> Result<DataRecord, String> {
+) -> Result<DataRecord, DataTableError> {
     let events = state.events.get_value();
     let updated = if let Some(events) = events {
         events.notify_row_update(candidate)?
@@ -68,17 +69,21 @@ pub fn build_candidate_record(
     row: &DataTableRowModel,
     columns: &[DataTableColumnDef],
     drafts: &HashMap<String, (DataValue, RwSignal<String>)>,
-) -> Result<(DataRecord, Vec<(String, DataValue, DataValue)>), (String, String)> {
+) -> Result<(DataRecord, Vec<(String, DataValue, DataValue)>), (String, DataTableError)> {
     let mut record = row.record.clone();
     let mut changed = Vec::new();
 
     for (field, (original, draft)) in drafts {
-        let col = columns
-            .iter()
-            .find(|c| &c.field == field)
-            .ok_or_else(|| (field.clone(), format!("Unknown field: {field}")))?;
-        let parsed = parse_edit_value(&draft.get(), col.col_type)
-            .map_err(|message| (field.clone(), message))?;
+        let col = columns.iter().find(|c| &c.field == field).ok_or_else(|| {
+            (
+                field.clone(),
+                DataTableError::UnknownField {
+                    field: field.clone(),
+                },
+            )
+        })?;
+        let parsed =
+            parse_edit_value(&draft.get(), col.col_type).map_err(|err| (field.clone(), err))?;
         if &parsed != original {
             record.values.insert(field.clone(), parsed.clone());
             changed.push((field.clone(), original.clone(), parsed));

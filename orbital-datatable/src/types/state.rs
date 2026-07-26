@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 use crate::engine::SortDirection;
 use crate::types::DataTableFilter;
 
+use super::DataTableError;
+
 /// Pagination state (0-based page index internally).
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PaginationState {
@@ -181,14 +183,14 @@ impl DataTableState {
     }
 
     /// Deserialize a previously exported snapshot.
-    pub fn restore(snapshot: SerializedState) -> Result<Self, String> {
-        let envelope: StateSnapshotEnvelope =
-            serde_json::from_str(&snapshot.0).map_err(|e| format!("invalid state JSON: {e}"))?;
+    pub fn restore(snapshot: SerializedState) -> Result<Self, DataTableError> {
+        let envelope: StateSnapshotEnvelope = serde_json::from_str(&snapshot.0)
+            .map_err(|e| DataTableError::InvalidStateJson(format!("invalid state JSON: {e}")))?;
         if envelope.version != STATE_SNAPSHOT_VERSION {
-            return Err(format!(
-                "unsupported state version {} (expected {STATE_SNAPSHOT_VERSION})",
-                envelope.version
-            ));
+            return Err(DataTableError::UnsupportedStateVersion {
+                version: envelope.version,
+                expected: STATE_SNAPSHOT_VERSION,
+            });
         }
         Ok(envelope.state)
     }

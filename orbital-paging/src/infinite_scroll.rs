@@ -130,9 +130,8 @@ where
             // Coordinator dedupe returns an empty stub (`stale_page` with has_more=true).
             // Never apply it: on a non-empty list it would wipe rows; on an empty list it
             // would flip has_more back to true and re-arm the scroll loader → empty flash.
-            let looks_like_stale_stub = page.items.is_empty()
-                && page.has_more
-                && page.total_count.is_none();
+            let looks_like_stale_stub =
+                page.items.is_empty() && page.has_more && page.total_count.is_none();
             if looks_like_stale_stub {
                 return;
             }

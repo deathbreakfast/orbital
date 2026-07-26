@@ -1,3 +1,5 @@
+use std::fmt;
+
 use leptos::prelude::*;
 
 const PERMISSION_DENIED_PREFIX: &str = "permission_denied::";
@@ -8,6 +10,22 @@ pub enum PermissionServerError {
     Denied { permission: String },
     CheckFailed { permission: String, details: String },
 }
+
+impl fmt::Display for PermissionServerError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Denied { permission } => {
+                write!(f, "permission denied: {permission}")
+            }
+            Self::CheckFailed {
+                permission,
+                details,
+            } => write!(f, "permission check failed for {permission}: {details}"),
+        }
+    }
+}
+
+impl std::error::Error for PermissionServerError {}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PermissionToastRequest {

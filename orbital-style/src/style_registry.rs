@@ -167,9 +167,12 @@ impl RenderHtml for StyleRegistryView {
         self.children
             .to_html_with_buf(buf, position, escape, mark_branches, extra_attrs);
 
-        let head_loc = buf
-            .find("<head>")
-            .expect("you are using StyleRegistry without a <head> tag");
+        let Some(head_loc) = buf.find("<head>") else {
+            leptos::logging::warn!(
+                "StyleRegistry: no <head> tag in SSR buffer; skipping style injection"
+            );
+            return;
+        };
         let marker_loc = buf.find(STYLE_MARKER).unwrap_or(head_loc + 6);
 
         buf.insert_str(marker_loc, &self.context.to_html());
@@ -194,9 +197,12 @@ impl RenderHtml for StyleRegistryView {
         );
 
         buf.with_buf(|buf| {
-            let head_loc = buf
-                .find("<head>")
-                .expect("you are using StyleRegistry without a <head> tag");
+            let Some(head_loc) = buf.find("<head>") else {
+                leptos::logging::warn!(
+                    "StyleRegistry: no <head> tag in SSR buffer; skipping style injection"
+                );
+                return;
+            };
             let marker_loc = buf.find(STYLE_MARKER).unwrap_or(head_loc + 6);
             buf.insert_str(marker_loc, &self.context.to_html());
         });

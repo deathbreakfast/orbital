@@ -236,11 +236,11 @@ impl DataTableTableState {
                 for (field, _, new_value) in &changed {
                     if let Some(col) = columns.iter().find(|c| &c.field == field) {
                         if let Some(validator) = &col.validate_value {
-                            if let Err(message) = validator.run((new_value.clone(),)) {
+                            if let Err(err) = validator.run((new_value.clone(),)) {
                                 if let Some(draft) =
                                     self.edit_session.drafts.get_value().get(field).cloned()
                                 {
-                                    draft.error.set(Some(message));
+                                    draft.error.set(Some(err.message()));
                                 }
                                 return;
                             }
@@ -258,7 +258,8 @@ impl DataTableTableState {
                         self.edit_session.clear();
                         self.edit_error_dialog.set(None);
                     }
-                    Err(message) => {
+                    Err(err) => {
+                        let message = err.message();
                         self.edit_session.session.set(EditSession::Editing {
                             row_id: row_id.to_string(),
                             mode: self.edit_mode,
@@ -278,9 +279,9 @@ impl DataTableTableState {
                     }
                 }
             }
-            Err((field, message)) => {
+            Err((field, err)) => {
                 if let Some(draft) = self.edit_session.drafts.get_value().get(&field).cloned() {
-                    draft.error.set(Some(message));
+                    draft.error.set(Some(err.message()));
                 }
             }
         }
@@ -624,7 +625,10 @@ impl DataTableTableState {
         serialize_print_html(&dataset, &columns)
     }
 
-    pub fn export_xlsx(&self, scope: ExportRowScope) -> Result<Vec<u8>, String> {
+    pub fn export_xlsx(
+        &self,
+        scope: ExportRowScope,
+    ) -> Result<Vec<u8>, crate::types::DataTableError> {
         let dataset = self.export_dataset(scope);
         let columns = self.columns_for_export(scope);
         serialize_xlsx(&dataset, &columns)

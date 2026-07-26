@@ -20,10 +20,11 @@ pub fn Portal(
                 &node_ref.unchecked_into::<web_sys::Element>()
             } else {
                 use leptos::wasm_bindgen::JsCast;
-                &document()
-                    .body()
-                    .expect("body element to exist")
-                    .unchecked_into()
+                let Some(body) = document().body() else {
+                    leptos::logging::warn!("Portal: document.body missing; skipping mount");
+                    return;
+                };
+                &body.unchecked_into()
             };
 
             let mountable = {

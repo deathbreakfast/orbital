@@ -216,11 +216,7 @@ impl CommonTheme {
                 "--durationGlacial",
                 DURATION_GLACIAL,
             ),
-            (
-                "--orb-motion-duration-5xl",
-                "--durationEpic",
-                DURATION_EPIC,
-            ),
+            ("--orb-motion-duration-5xl", "--durationEpic", DURATION_EPIC),
         ];
 
         for (orb, legacy, value) in durations {

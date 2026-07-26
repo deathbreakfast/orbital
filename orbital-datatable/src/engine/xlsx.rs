@@ -3,13 +3,13 @@ use std::io::{Cursor, Write};
 use orbital_data::{DataValue, Dataset};
 
 use crate::engine::format_display;
-use crate::types::DataTableColumnDef;
+use crate::types::{DataTableColumnDef, DataTableError};
 
 /// Serialize a dataset to a minimal xlsx file (OpenXML zip).
 pub fn serialize_xlsx(
     dataset: &Dataset,
     columns: &[DataTableColumnDef],
-) -> Result<Vec<u8>, String> {
+) -> Result<Vec<u8>, DataTableError> {
     use zip::write::SimpleFileOptions;
     use zip::ZipWriter;
 
@@ -78,35 +78,36 @@ pub fn serialize_xlsx(
     let options = SimpleFileOptions::default();
 
     zip.start_file("[Content_Types].xml", options)
-        .map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
     zip.write_all(CONTENT_TYPES.as_bytes())
-        .map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
 
-    zip.start_file("_rels/.rels", options)
-        .map_err(|e| e.to_string())?;
-    zip.write_all(RELS.as_bytes()).map_err(|e| e.to_string())?;
+    zip.start_file("_rels/.rels", options).map_err(export_err)?;
+    zip.write_all(RELS.as_bytes()).map_err(export_err)?;
 
     zip.start_file("xl/workbook.xml", options)
-        .map_err(|e| e.to_string())?;
-    zip.write_all(WORKBOOK.as_bytes())
-        .map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
+    zip.write_all(WORKBOOK.as_bytes()).map_err(export_err)?;
 
     zip.start_file("xl/_rels/workbook.xml.rels", options)
-        .map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
     zip.write_all(WORKBOOK_RELS.as_bytes())
-        .map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
 
     zip.start_file("xl/worksheets/sheet1.xml", options)
-        .map_err(|e| e.to_string())?;
-    zip.write_all(sheet_rows.as_bytes())
-        .map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
+    zip.write_all(sheet_rows.as_bytes()).map_err(export_err)?;
 
     zip.start_file("xl/sharedStrings.xml", options)
-        .map_err(|e| e.to_string())?;
-    zip.write_all(sst.as_bytes()).map_err(|e| e.to_string())?;
+        .map_err(export_err)?;
+    zip.write_all(sst.as_bytes()).map_err(export_err)?;
 
-    let cursor = zip.finish().map_err(|e| e.to_string())?;
+    let cursor = zip.finish().map_err(export_err)?;
     Ok(cursor.into_inner())
+}
+
+fn export_err(e: impl ToString) -> DataTableError {
+    DataTableError::ExportFailed(e.to_string())
 }
 
 fn col_letter(idx: usize) -> String {

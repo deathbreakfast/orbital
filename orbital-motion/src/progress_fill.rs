@@ -12,7 +12,8 @@ use crate::tokens::{MotionCurve, MotionDuration};
 pub const PROGRESS_FILL_CLASS: &str = "orbital-motion-progress-fill";
 
 /// CSS class that also respects `prefers-reduced-motion` (near-instant transitions).
-pub const PROGRESS_FILL_RESPECTS_REDUCED_CLASS: &str = "orbital-motion-progress-fill-respects-reduced";
+pub const PROGRESS_FILL_RESPECTS_REDUCED_CLASS: &str =
+    "orbital-motion-progress-fill-respects-reduced";
 
 /// Default recipe for snappy measurable progress (ProgressBar-like).
 pub const DEFAULT_PROGRESS_FILL: ProgressFillMotion = ProgressFillMotion {

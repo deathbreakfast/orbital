@@ -4,7 +4,8 @@ use leptos::prelude::*;
 use orbital_data::DataRecord;
 
 use crate::types::{
-    DataTableFilter, DataTableHandle, DataTableSort, PaginationState, PinnedColumnsState,
+    DataTableError, DataTableFilter, DataTableHandle, DataTableSort, PaginationState,
+    PinnedColumnsState,
 };
 
 /// Event callbacks fired when [`crate::DataTable`] state changes or the user interacts with rows/cells.
@@ -23,7 +24,7 @@ pub struct DataTableEvents {
     /// Fires when a body cell is clicked (`row_id`, `field`).
     pub on_cell_click: Option<Callback<(String, String), ()>>,
     /// Validates and commits an inline edit; return `Err` to reject the update.
-    pub on_row_update: Option<Callback<(DataRecord,), Result<DataRecord, String>>>,
+    pub on_row_update: Option<Callback<(DataRecord,), Result<DataRecord, DataTableError>>>,
     /// Fires when inline validation fails or `on_row_update` rejects a commit.
     pub on_edit_error: Option<Callback<(String, String), ()>>,
     /// Fires after a column is resized by drag (`field`, width in pixels).
@@ -156,7 +157,7 @@ impl DataTableEvents {
         }
     }
 
-    pub fn notify_row_update(&self, record: DataRecord) -> Result<DataRecord, String> {
+    pub fn notify_row_update(&self, record: DataRecord) -> Result<DataRecord, DataTableError> {
         if let Some(cb) = &self.on_row_update {
             cb.run((record,))
         } else {

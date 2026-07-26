@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, TimeZone, Utc};
 use orbital_data::DataValue;
 
-use crate::types::ColumnType;
+use crate::types::{ColumnType, DataTableError};
 
 /// Format a [`DataValue`] as text for edit inputs.
 pub fn format_edit_value(value: &DataValue) -> String {
@@ -33,18 +33,18 @@ pub fn unix_to_date_text(unix: i64) -> String {
 }
 
 /// Parse user text into a typed [`DataValue`] for the given column type.
-pub fn parse_edit_value(text: &str, col_type: ColumnType) -> Result<DataValue, String> {
+pub fn parse_edit_value(text: &str, col_type: ColumnType) -> Result<DataValue, DataTableError> {
     let trimmed = text.trim();
     match col_type {
         ColumnType::Number => trimmed
             .parse::<f64>()
             .map(DataValue::Number)
-            .map_err(|_| "Enter a valid number".to_string()),
+            .map_err(|_| DataTableError::InvalidNumber),
         ColumnType::Boolean => match trimmed.to_ascii_lowercase().as_str() {
             "true" | "1" | "yes" => Ok(DataValue::Bool(true)),
             "false" | "0" | "no" => Ok(DataValue::Bool(false)),
             "" => Ok(DataValue::Bool(false)),
-            _ => Err("Enter true or false".to_string()),
+            _ => Err(DataTableError::InvalidBoolean),
         },
         ColumnType::Date => {
             if trimmed.is_empty() {
@@ -52,7 +52,7 @@ pub fn parse_edit_value(text: &str, col_type: ColumnType) -> Result<DataValue, S
             }
             NaiveDate::parse_from_str(trimmed, "%Y-%m-%d")
                 .map(DataValue::Date)
-                .map_err(|_| "Enter a date as YYYY-MM-DD".to_string())
+                .map_err(|_| DataTableError::InvalidDate)
         }
         ColumnType::SingleSelect | ColumnType::Text | ColumnType::Actions => {
             Ok(DataValue::Text(trimmed.to_string()))

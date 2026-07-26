@@ -524,8 +524,7 @@ pub fn DataTable(
     let pagination = pagination.unwrap_or_else(|| Signal::derive(|| None));
     let selection = selection.unwrap_or_else(|| Signal::derive(|| None));
     let server_fetch_policy = StoredValue::new(server_fetch_policy);
-    let refresh_signal =
-        refresh_signal.unwrap_or_else(|| Signal::derive(|| 0u32));
+    let refresh_signal = refresh_signal.unwrap_or_else(|| Signal::derive(|| 0u32));
 
     view! {
         <DataTableRoot

@@ -20,3 +20,5 @@ impl fmt::Display for SchedulerError {
         }
     }
 }
+
+impl std::error::Error for SchedulerError {}

@@ -49,6 +49,20 @@ pub enum RecurrenceError {
     CountAndUntil,
 }
 
+impl std::fmt::Display for RecurrenceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Empty => write!(f, "recurrence rule is empty"),
+            Self::MissingFreq => write!(f, "recurrence rule is missing FREQ"),
+            Self::UnsupportedFreq => write!(f, "unsupported recurrence FREQ"),
+            Self::InvalidToken => write!(f, "invalid recurrence rule token"),
+            Self::CountAndUntil => write!(f, "recurrence rule cannot set both COUNT and UNTIL"),
+        }
+    }
+}
+
+impl std::error::Error for RecurrenceError {}
+
 /// Build a synthetic instance id from master id and occurrence start instant.
 pub fn instance_id(master_id: &str, start: OrbitalDateTime) -> String {
     format!("{master_id}{INSTANCE_SEPARATOR}{}", start.to_unix_seconds())

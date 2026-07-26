@@ -107,3 +107,5 @@ impl fmt::Display for DiscussionError {
         write!(f, "{}", self.message)
     }
 }
+
+impl std::error::Error for DiscussionError {}
