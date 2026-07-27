@@ -1,0 +1,70 @@
+[package]
+name = "authenticated-dashboard"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Orbital auth context, route guards, and theme/density teaching host"
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+orbital = { package = "orbital-ui", path = "../../orbital", version = "0.1.1", default-features = false }
+orbital-theme = { path = "../../orbital-theme", version = "0.1.1", default-features = false }
+orbital-primitives = { path = "../../orbital-primitives", version = "0.1.1", default-features = false }
+leptos = { workspace = true }
+leptos_meta = { workspace = true }
+leptos_router = { workspace = true }
+cfg-if = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+axum = { workspace = true, optional = true }
+leptos_axum = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+tower-http = { workspace = true, optional = true }
+simple_logger = { workspace = true, optional = true }
+log = { workspace = true, optional = true }
+any_spawner = { version = "0.3", features = ["futures-executor"], optional = true }
+
+console_error_panic_hook = { workspace = true, optional = true }
+console_log = { workspace = true, optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+web-sys = { workspace = true, optional = true, features = ["Window", "Storage"] }
+
+[features]
+default = []
+hydrate = [
+    "leptos/hydrate",
+    "orbital/hydrate",
+    "orbital-theme/hydrate",
+    "orbital-primitives/hydrate",
+    "dep:console_error_panic_hook",
+    "dep:console_log",
+    "dep:wasm-bindgen",
+    "dep:web-sys",
+    "dep:log",
+]
+ssr = [
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+    "orbital/ssr",
+    "orbital-theme/ssr",
+    "orbital-primitives/ssr",
+    "dep:axum",
+    "dep:leptos_axum",
+    "dep:tokio",
+    "dep:tower-http",
+    "dep:simple_logger",
+    "dep:log",
+    "dep:any_spawner",
+]
+
+[[bin]]
+name = "authenticated-dashboard"
+path = "src/main.rs"
+required-features = ["ssr"]

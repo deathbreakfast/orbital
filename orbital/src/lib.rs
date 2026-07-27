@@ -27,7 +27,7 @@
 //!
 //! 1. Author a component and annotate it with `#[component_doc]`.
 //! 2. Enable the crate's `preview` feature so the macro emits catalog metadata.
-//! 3. Run `cargo leptos watch -p orbital-preview` and browse `/orbital/{slug}`.
+//! 3. Run `cargo leptos watch --split -p orbital-preview` and browse `/orbital/{slug}`.
 //! 4. Cover interactive behavior with Playwright specs in `end2end/`.
 //!
 //! ## API reference map
@@ -117,7 +117,7 @@ pub use orbital_shell::tokens;
 ///
 /// ## Static assets
 ///
-/// Build the `orbital` crate before `cargo leptos watch` so `build.rs` generates
+/// Build the `orbital` crate before `cargo leptos watch --split` so `build.rs` generates
 /// `public/orbital-theme-baseline.css`. Point cargo-leptos `assets-dir` at `public/`
 /// (or copy the file into your app static root). Font files must live under `public/fonts/`.
 /// Regenerate when `LEPTOS_BASE_PATH` changes.

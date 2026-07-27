@@ -21,7 +21,7 @@ Use `default-features = false` in production; enable `preview` only for the doc 
 
 ## Preview
 
-[Data Table preview](https://unified-field-dev.github.io/orbital/data-table) · local `http://127.0.0.1:3010/orbital/data-table` (with `cargo leptos watch -p orbital-preview`)
+[Data Table preview](https://unified-field-dev.github.io/orbital/data-table) · local `http://127.0.0.1:3010/orbital/data-table` (with `cargo leptos watch --split -p orbital-preview`)
 
 ## Deferred (not in current charter)
 

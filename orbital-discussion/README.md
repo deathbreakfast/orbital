@@ -23,7 +23,7 @@ Use `default-features = false` in production; enable `preview` only for the doc 
 
 ## Preview
 
-[Discussion preview](https://unified-field-dev.github.io/orbital/discussion) · local `http://127.0.0.1:3010/orbital/discussion` (with `cargo leptos watch -p orbital-preview`)
+[Discussion preview](https://unified-field-dev.github.io/orbital/discussion) · local `http://127.0.0.1:3010/orbital/discussion` (with `cargo leptos watch --split -p orbital-preview`)
 
 ## Scope
 

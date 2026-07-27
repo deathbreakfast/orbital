@@ -24,6 +24,9 @@ members = [
     "orbital-preview-app",
     "orbital-preview-frontend",
     "orbital-preview-server",
+    "examples/minimal-ssr-hydrate",
+    "examples/authenticated-dashboard",
+    "examples/server-paged-analytics",
 ]
 
 
@@ -111,3 +114,51 @@ lib-default-features = false
 # `npm test` in end2end/ (COMPONENT_PREVIEW_E2E=1 + Playwright baseURL :3010).
 end2end-cmd = "npm test"
 end2end-dir = "end2end"
+
+[[workspace.metadata.leptos]]
+name = "minimal-ssr-hydrate"
+output-name = "minimal-ssr-hydrate"
+bin-package = "minimal-ssr-hydrate"
+lib-package = "minimal-ssr-hydrate"
+site-root = "examples/minimal-ssr-hydrate/site"
+site-pkg-dir = "pkg"
+style-file = "examples/minimal-ssr-hydrate/style/main.scss"
+assets-dir = "public"
+site-addr = "127.0.0.1:3030"
+reload-port = 3035
+bin-features = ["ssr"]
+lib-features = ["hydrate"]
+bin-default-features = false
+lib-default-features = false
+
+[[workspace.metadata.leptos]]
+name = "authenticated-dashboard"
+output-name = "authenticated-dashboard"
+bin-package = "authenticated-dashboard"
+lib-package = "authenticated-dashboard"
+site-root = "examples/authenticated-dashboard/site"
+site-pkg-dir = "pkg"
+style-file = "examples/authenticated-dashboard/style/main.scss"
+assets-dir = "public"
+site-addr = "127.0.0.1:3031"
+reload-port = 3036
+bin-features = ["ssr"]
+lib-features = ["hydrate"]
+bin-default-features = false
+lib-default-features = false
+
+[[workspace.metadata.leptos]]
+name = "server-paged-analytics"
+output-name = "server-paged-analytics"
+bin-package = "server-paged-analytics"
+lib-package = "server-paged-analytics"
+site-root = "examples/server-paged-analytics/site"
+site-pkg-dir = "pkg"
+style-file = "examples/server-paged-analytics/style/main.scss"
+assets-dir = "public"
+site-addr = "127.0.0.1:3032"
+reload-port = 3037
+bin-features = ["ssr"]
+lib-features = ["hydrate"]
+bin-default-features = false
+lib-default-features = false

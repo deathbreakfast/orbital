@@ -21,7 +21,7 @@ const CODE_CSS: &str = include_str!("code.css");
 /// ```rust
 /// view! {
 ///     <div data-testid="code-preview">
-///         <Code text="cargo leptos watch".to_string() />
+///         <Code text="cargo leptos watch --split".to_string() />
 ///     </div>
 /// }
 /// ```
@@ -32,7 +32,7 @@ const CODE_CSS: &str = include_str!("code.css");
 /// ```rust
 /// view! {
 ///     <div data-testid="code-multiline">
-///         <Code text="cargo leptos build --release\ncargo leptos serve".to_string() />
+///         <Code text="cargo leptos build --split --release\ncargo leptos serve --split".to_string() />
 ///     </div>
 /// }
 /// ```

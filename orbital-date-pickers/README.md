@@ -21,7 +21,7 @@ Use `default-features = false` in production; enable `preview` only for the doc 
 
 ## Preview
 
-[Date picker preview](https://unified-field-dev.github.io/orbital/date-picker) · local `http://127.0.0.1:3010/orbital/date-picker` (with `cargo leptos watch -p orbital-preview`)
+[Date picker preview](https://unified-field-dev.github.io/orbital/date-picker) · local `http://127.0.0.1:3010/orbital/date-picker` (with `cargo leptos watch --split -p orbital-preview`)
 
 ## Deferred (not in current charter)
 

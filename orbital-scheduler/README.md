@@ -21,7 +21,7 @@ Use `default-features = false` in production; enable `preview` only for the doc 
 
 ## Preview
 
-[Scheduler preview](https://unified-field-dev.github.io/orbital/scheduler-calendar) · local `http://127.0.0.1:3010/orbital/scheduler-calendar` (with `cargo leptos watch -p orbital-preview`)
+[Scheduler preview](https://unified-field-dev.github.io/orbital/scheduler-calendar) · local `http://127.0.0.1:3010/orbital/scheduler-calendar` (with `cargo leptos watch --split -p orbital-preview`)
 
 ## Deferred (not in current charter)
 

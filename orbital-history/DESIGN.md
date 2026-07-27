@@ -923,7 +923,7 @@ Structural slots (header, empty, initial loading, loading-more, error, end) **re
 | `history-multi-diff` | FieldDiffs card (PR9) |
 | `history-embed` | Dialog `max_height` vs flex card |
 
-Each PR that adds UI registers at least one preview so the phase is demoable in `cargo leptos watch -p orbital-preview`.
+Each PR that adds UI registers at least one preview so the phase is demoable in `cargo leptos watch --split -p orbital-preview`.
 
 ---
 

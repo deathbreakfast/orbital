@@ -51,7 +51,7 @@ jobs:
           LEPTOS_ENV: PROD
           LEPTOS_OUTPUT_NAME: orbital-preview
           ORBITAL_PREVIEW_BASE_PATH: /orbital
-        run: cargo leptos build --release --project orbital-preview
+        run: cargo leptos build --split --release --project orbital-preview
 
       # build.rs writes public/orbital-theme-baseline.css (gitignored). cargo-leptos may
       # copy assets before that file exists, so sync it into the Pages root explicitly.

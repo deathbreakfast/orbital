@@ -186,6 +186,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "authenticated-dashboard"
+version = "0.1.0"
+dependencies = [
+ "any_spawner",
+ "axum",
+ "cfg-if",
+ "console_error_panic_hook",
+ "console_log",
+ "leptos",
+ "leptos_axum",
+ "leptos_meta",
+ "leptos_router",
+ "log",
+ "orbital-primitives",
+ "orbital-theme",
+ "orbital-ui",
+ "serde",
+ "serde_json",
+ "simple_logger",
+ "tokio",
+ "tower-http",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2010,6 +2036,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 
 [[package]]
+name = "minimal-ssr-hydrate"
+version = "0.1.0"
+dependencies = [
+ "any_spawner",
+ "axum",
+ "cfg-if",
+ "console_error_panic_hook",
+ "console_log",
+ "leptos",
+ "leptos_axum",
+ "leptos_meta",
+ "leptos_router",
+ "log",
+ "orbital-ui",
+ "simple_logger",
+ "tokio",
+ "tower-http",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "miniz_oxide"
 version = "0.8.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3393,6 +3440,31 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "server-paged-analytics"
+version = "0.1.0"
+dependencies = [
+ "any_spawner",
+ "axum",
+ "cfg-if",
+ "console_error_panic_hook",
+ "console_log",
+ "leptos",
+ "leptos_axum",
+ "leptos_meta",
+ "leptos_router",
+ "log",
+ "orbital-charts",
+ "orbital-data",
+ "orbital-datatable",
+ "orbital-paging",
+ "orbital-ui",
+ "simple_logger",
+ "tokio",
+ "tower-http",
+ "wasm-bindgen",
 ]
 
 [[package]]

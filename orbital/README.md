@@ -82,7 +82,9 @@ fn App() -> impl IntoView {
 | [Theme](https://unified-field-dev.github.io/orbital/theme) | Mode, density, CSS variables |
 | [Component preview](https://unified-field-dev.github.io/orbital/) | Full interactive catalog |
 
-Local catalog: `cargo leptos watch -p orbital-preview` → `http://127.0.0.1:3010/orbital/{slug}`
+Local catalog: `cargo leptos watch --split -p orbital-preview` → `http://127.0.0.1:3010/orbital/{slug}`
+
+Adopter teaching hosts (SSR+hydrate, auth, analytics): [`../examples/README.md`](../examples/README.md)
 
 ## Features
 
@@ -104,7 +106,7 @@ Orbital defines spacing tokens, typography presets, elevation ramps, and surface
 - **Shell** — [`OrbitalTemplate`] wraps apps with theme and layout primitives.
 - **Boot loader** — [`orbital_shell`] injects a WASM-free loading overlay until hydration completes (see below).
 - **Auth** — [`AuthContext`] + [`init_auth_resource`] for session state; the preview catalog uses a stub, while integrators wire a real session server function.
-- **Preview catalog** — `#[component_doc]` emits [`PreviewRegistration`] entries; run `cargo leptos watch -p orbital-preview` and browse `/orbital/{slug}` on `:3010`.
+- **Preview catalog** — `#[component_doc]` emits [`PreviewRegistration`] entries; run `cargo leptos watch --split -p orbital-preview` and browse `/orbital/{slug}` on `:3010`.
 
 Capability flags on feature crates (for example `DataTableFeatures`, `ChartFeatures`) express optional behavior — not license-tier suffixes on type names.
 

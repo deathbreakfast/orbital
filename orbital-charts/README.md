@@ -21,7 +21,7 @@ Use `default-features = false` in production; enable `preview` only for the doc 
 
 ## Preview
 
-[Bar chart preview](https://unified-field-dev.github.io/orbital/bar-chart) · local `http://127.0.0.1:3010/orbital/bar-chart` (with `cargo leptos watch -p orbital-preview`)
+[Bar chart preview](https://unified-field-dev.github.io/orbital/bar-chart) · local `http://127.0.0.1:3010/orbital/bar-chart` (with `cargo leptos watch --split -p orbital-preview`)
 
 ## Deferred (not in current charter)
 

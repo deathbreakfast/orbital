@@ -7,7 +7,7 @@ Orbital uses a three-layer testing model. Each layer validates a different slice
 | Layer | Tool | Validates | Typical command |
 |-------|------|-----------|-----------------|
 | **L1 — Macro / compile** | `#[component_doc]` + `component-preview-e2e` | Doc constants, props extraction, preview codegen | `cargo test -p component-preview-e2e` |
-| **L2 — Preview host** | Slim Leptos server on `:3010` | SSR + hydrate render of registry previews | `cargo leptos watch` (orbital-preview metadata) |
+| **L2 — Preview host** | Slim Leptos server on `:3010` | SSR + hydrate render of registry previews | `cargo leptos watch --split` (orbital-preview metadata) |
 | **L3 — Browser E2E** | Playwright | Visible variants, interaction smoke, testid hooks | `cargo leptos end-to-end --project orbital-preview` (or `COMPONENT_PREVIEW_E2E=1 npm test` with server already on `:3010`) |
 
 ## Authoring previews

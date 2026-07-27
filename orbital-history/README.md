@@ -17,7 +17,7 @@ Use `default-features = false` in production; enable `preview` only for the doc 
 
 ## Preview
 
-Local `http://127.0.0.1:3010/orbital/history-timeline` (with `cargo leptos watch -p orbital-preview`).
+Local `http://127.0.0.1:3010/orbital/history-timeline` (with `cargo leptos watch --split -p orbital-preview`).
 
 ## Scope
 
