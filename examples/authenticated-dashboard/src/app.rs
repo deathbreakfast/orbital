@@ -14,11 +14,13 @@ use orbital::{
     AuthenticatedUser, OrbitalDocumentMeta,
 };
 use orbital_primitives::Switch;
-use orbital_theme::{Density, OrbitalThemeProvider, Theme, ThemeMode};
 #[cfg(feature = "hydrate")]
 use orbital_theme::{set_density, set_theme_mode};
+use orbital_theme::{Density, OrbitalThemeProvider, Theme, ThemeMode};
 
-use crate::theme_prefs::{load_prefs, persist_theme_effect, DensityWire, ThemeModeWire, ThemePrefs};
+use crate::theme_prefs::{
+    load_prefs, persist_theme_effect, DensityWire, ThemeModeWire, ThemePrefs,
+};
 
 /// SSR document shell.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -126,10 +128,7 @@ fn ThemeDensityControls(theme: RwSignal<Theme>) -> impl IntoView {
 }
 
 #[component]
-fn AuthControls(
-    auth: orbital::AuthContext,
-    session: RwSignal<AuthSession>,
-) -> impl IntoView {
+fn AuthControls(auth: orbital::AuthContext, session: RwSignal<AuthSession>) -> impl IntoView {
     view! {
         {move || match session.get() {
             AuthSession::Anonymous(_) => view! {

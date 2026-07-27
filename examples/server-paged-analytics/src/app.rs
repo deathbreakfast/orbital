@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::{Route, Router, Routes};
 use leptos_router::StaticSegment;
-use orbital::components::{Title3};
+use orbital::components::Title3;
 use orbital::{orbital_shell_with_meta, OrbitalDocumentMeta, OrbitalTemplate};
 
 use crate::data::AnalyticsPage;

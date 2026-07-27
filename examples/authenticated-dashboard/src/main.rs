@@ -1,7 +1,7 @@
 //! Boot Axum + Leptos for the authenticated-dashboard host.
 
-use axum::Router;
 use authenticated_dashboard::{shell, App};
+use axum::Router;
 use leptos::config::get_configuration;
 use leptos_axum::{generate_route_list, LeptosRoutes};
 use tower_http::services::ServeDir;

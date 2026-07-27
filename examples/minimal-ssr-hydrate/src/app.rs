@@ -8,9 +8,7 @@ use orbital::components::{
     Button, ButtonAppearance, Card, CardContent, CardFooter, CardHeader, CardHeaderDescription,
     Subtitle1, Title3,
 };
-use orbital::{
-    orbital_shell_with_meta, OrbitalDocumentMeta, OrbitalTemplate,
-};
+use orbital::{orbital_shell_with_meta, OrbitalDocumentMeta, OrbitalTemplate};
 
 /// SSR document shell — [`orbital_shell_with_meta`] injects first-paint CSS + boot overlay.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
