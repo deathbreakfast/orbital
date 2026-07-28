@@ -1,6 +1,6 @@
 [package]
 name = "orbital-charts"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 readme = "README.md"
 categories = ["web-programming", "gui"]
@@ -21,14 +21,14 @@ doctest = false
 [dependencies]
 leptos.workspace = true
 bitflags = "2"
-orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
-orbital-data = { path = "../orbital-data", version = "0.1.1" }
-orbital-motion = { path = "../orbital-motion", version = "0.1.1" }
-orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
-orbital-style = { path = "../orbital-style", version = "0.1.1" }
-orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
-orbital-datatable = { path = "../orbital-datatable", version = "0.1.1", optional = true, default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.2" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.2", default-features = false }
+orbital-data = { path = "../orbital-data", version = "0.1.2" }
+orbital-motion = { path = "../orbital-motion", version = "0.1.2" }
+orbital-macros = { path = "../orbital-macros", version = "0.1.3" }
+orbital-style = { path = "../orbital-style", version = "0.1.2" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.2", default-features = false }
+orbital-datatable = { path = "../orbital-datatable", version = "0.1.2", optional = true, default-features = false }
 chrono.workspace = true
 wasm-bindgen = { workspace = true, optional = true }
 js-sys = { workspace = true, optional = true }

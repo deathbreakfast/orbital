@@ -1,6 +1,6 @@
 [package]
 name = "orbital-discussion"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 readme = "README.md"
 categories = ["web-programming", "gui"]
@@ -22,7 +22,7 @@ doctest = false
 ammonia = "4.1.4"
 bitflags = "2"
 chrono.workspace = true
-orbital-markdown = { path = "../orbital-markdown", version = "0.1.1" }
+orbital-markdown = { path = "../orbital-markdown", version = "0.1.2" }
 pulldown-cmark = "0.13"
 leptos.workspace = true
 serde.workspace = true
@@ -30,11 +30,11 @@ serde_json.workspace = true
 wasm-bindgen = { workspace = true, optional = true }
 js-sys = { workspace = true, optional = true }
 web-sys = { workspace = true, optional = true, features = ["Document", "Element", "File", "FileList", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement"] }
-orbital-base-components = { path = "../orbital-base-components", version = "0.1.1" }
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.2" }
-orbital-style = { path = "../orbital-style", version = "0.1.1" }
-orbital-theme = { path = "../orbital-theme", version = "0.1.1", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.2" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.2", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.3" }
+orbital-style = { path = "../orbital-style", version = "0.1.2" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.2", default-features = false }
 icondata.workspace = true
 icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }

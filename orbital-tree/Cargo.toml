@@ -1,6 +1,6 @@
 [package]
 name = "orbital-tree"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 categories = ["web-programming", "gui"]
 keywords = ["leptos", "ui", "wasm", "components", "design-system"]
@@ -18,7 +18,7 @@ workspace = true
 doctest = false
 
 [dependencies]
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.1", default-features = false }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.2", default-features = false }
 leptos.workspace = true
 icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }

@@ -12,9 +12,9 @@ workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-orbital = { package = "orbital-ui", path = "../../orbital", version = "0.1.1", default-features = false }
-orbital-theme = { path = "../../orbital-theme", version = "0.1.1", default-features = false }
-orbital-primitives = { path = "../../orbital-primitives", version = "0.1.1", default-features = false }
+orbital = { package = "orbital-ui", path = "../../orbital", version = "0.1.2", default-features = false }
+orbital-theme = { path = "../../orbital-theme", version = "0.1.2", default-features = false }
+orbital-primitives = { path = "../../orbital-primitives", version = "0.1.2", default-features = false }
 leptos = { workspace = true }
 leptos_meta = { workspace = true }
 leptos_router = { workspace = true }
