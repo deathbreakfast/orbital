@@ -2,7 +2,7 @@
 
 **Teaches:** `provide_auth_context` + `init_auth_resource`, [`RequireAuthenticated`](../../orbital/src/routes.rs) route gate, and theme mode / density toggles persisted to `localStorage`.
 
-**Topology:** Embedded demo session (in-memory `AuthSession` — not a real IdP). Swap the Sign in handler for your session server function in production.
+**Topology:** Embedded demo session (in-memory `AuthSession`). Swap the Sign in handler for your session server function in production.
 
 ## Prerequisites
 

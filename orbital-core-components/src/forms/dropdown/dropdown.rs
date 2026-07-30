@@ -5,7 +5,7 @@ use crate::{Select, SelectAppearance, SelectBind};
 
 /// Styled native `<select>` backed by [`Select`].
 ///
-/// Dropdown is Orbital's product name for a styled native `<select>` — it forwards every prop to [`Select`] and requires `<option>` children. It is not a custom listbox trigger. Use Dropdown for short fixed lists and native form posts. Use [`Combobox`](crate::Combobox) when you need type-ahead search, multiselect, or a custom listbox trigger. See [`Select`](crate::Select) for full API documentation.
+/// Dropdown is Orbital's product name for a styled native `<select>` — it forwards every prop to [`Select`] and requires `<option>` children. Use Dropdown for short fixed lists and native form posts. Use [`Combobox`](crate::Combobox) when you need type-ahead search, multiselect, or a custom listbox trigger. See [`Select`](crate::Select) for full API documentation.
 ///
 /// # When to use
 ///

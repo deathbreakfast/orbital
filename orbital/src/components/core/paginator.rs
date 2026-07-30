@@ -27,7 +27,7 @@ use turf::inline_style_sheet_values;
 ///
 /// Renders native [`Pagination`] from `orbital-core-components`.
 ///
-/// Minimal wiring (docs snippet — not a live preview):
+/// Minimal wiring (docs snippet):
 ///
 /// ```rust
 /// let offset = RwSignal::new(0u32);

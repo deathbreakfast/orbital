@@ -97,7 +97,7 @@ Runnable teaching hosts under [`examples/`](examples/) — **not** the preview c
 | Host | When to use | Command | Success | Look next |
 |------|-------------|---------|---------|-----------|
 | [`minimal-ssr-hydrate`](examples/minimal-ssr-hydrate/) | First SSR+hydrate shell (`orbital_shell`, boot overlay, `hide_boot_loader`) | `LEPTOS_OUTPUT_NAME=minimal-ssr-hydrate cargo leptos watch --split --project minimal-ssr-hydrate` → :3030 | Overlay dismisses; Increment bumps counter | `authenticated-dashboard` |
-| [`authenticated-dashboard`](examples/authenticated-dashboard/) | Auth context + `RequireAuthenticated` (+ theme/density prefs) | `LEPTOS_OUTPUT_NAME=authenticated-dashboard cargo leptos watch --split --project authenticated-dashboard` → :3031 | `/dashboard` gates anonymous; Sign in unlocks card | `server-paged-analytics` |
+| [`authenticated-dashboard`](examples/authenticated-dashboard/) | Auth context + `RequireAuthenticated` (+ theme/density prefs) | `LEPTOS_OUTPUT_NAME=authenticated-dashboard cargo leptos watch --split --project authenticated-dashboard` → :3031 | `/dashboard` gates anonymous; sign-in shows protected card | `server-paged-analytics` |
 | [`server-paged-analytics`](examples/server-paged-analytics/) | Server-paged `DataTable` + summary `BarChart` | `LEPTOS_OUTPUT_NAME=server-paged-analytics cargo leptos watch --split --project server-paged-analytics` → :3032 | 8 rows/page of 48; chart shows four regions | Preview catalog for widget APIs |
 
 Compile-check without WASM: `cargo check -p minimal-ssr-hydrate --features ssr` (same pattern for the other two).

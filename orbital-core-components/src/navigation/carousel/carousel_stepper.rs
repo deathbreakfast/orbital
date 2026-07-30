@@ -20,7 +20,7 @@ use super::styles::carousel_styles;
 ///
 /// # Usage
 ///
-/// 1. Place inside a [`Carousel`] after [`CarouselViewport`]. 2. Choose `layout` for bottom or inline overlay positioning. 3. Override with custom children only when you need fully bespoke controls.
+/// 1. Place inside a [`Carousel`] after [`CarouselViewport`]. 2. Choose `layout` for bottom or inline overlay positioning. 3. Override with custom children only when you need fully hand-built controls.
 ///
 /// # Best Practices
 ///

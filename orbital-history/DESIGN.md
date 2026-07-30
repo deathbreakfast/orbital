@@ -274,7 +274,7 @@ Helpers (datatable-style): `HistorySource::client_rw`, `is_server`, `server_page
 
 ### Pagination API (summary)
 
-Paging is **infinite-scroll oriented**, not a page-number footer like `DataTable`’s `PagingMode::Paged`.
+Paging is **infinite-scroll oriented** (contrast `DataTable`’s `PagingMode::Paged` page-number footer).
 
 | Piece | Role |
 | --- | --- |
@@ -879,7 +879,7 @@ Structural slots (header, empty, initial loading, loading-more, error, end) **re
 - Entry list uses list semantics (`<ul>` / `<li>` or equivalent `role="list"` / `role="listitem"`)
 - Date dividers use `role="separator"` and an accessible name from the bucket label
 - Actor links expose an accessible name via `actor_link_aria_template` (include display name)
-- System actor is plain text (`locale.system_actor`), not a link
+- System actor is plain text (`locale.system_actor`) rather than a link
 - When `ENTRY_CLICK` is enabled, the row is a single activatable control with a clear accessible name (actor + change summary); avoid nested interactive controls without care
 - Do **not** rely on color alone to distinguish change vs delete — wording comes from locale templates
 - Timestamps: visible compact text; optional `datetime` attribute on a `<time>` element with ISO-8601 UTC for machines

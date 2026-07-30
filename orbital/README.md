@@ -145,7 +145,7 @@ See [`orbital-preview-app/src/routes.rs`](../orbital-preview-app/src/routes.rs) 
 
 ### Load failures
 
-Leptos `HydrationScripts` does not catch failed JS/WASM loads. [`OrbitalBootLoaderHeadAssets`] registers inline `error` and `unhandledrejection` listeners that set `html[data-orbital-boot-state="error"]` and reveal a static error panel: dialog layout primitives (`DialogBody`, `DialogTitle`, `DialogContent`) and a [`MessageBar`] inside a fixed dialog surface — not the hydrated [`Dialog`] component (portal/focus trap).
+Leptos `HydrationScripts` does not catch failed JS/WASM loads. [`OrbitalBootLoaderHeadAssets`] registers inline `error` and `unhandledrejection` listeners that set `html[data-orbital-boot-state="error"]` and reveal a static error panel built from dialog layout primitives (`DialogBody`, `DialogTitle`, `DialogContent`) and a [`MessageBar`] inside a fixed dialog surface (no portal or focus trap).
 
 Rust panics **after** WASM is running are logged via `console_error_panic_hook` only unless you add custom panic handling. Set a panic hook that calls [`hide_boot_loader`] first (see `orbital-preview-frontend/src/lib.rs`) so startup failures do not leave the overlay trapping the page.
 

@@ -15,8 +15,8 @@ use crate::{
 /// Show volume or composition under a trend line with filled regions.
 ///
 /// Area charts share the line-series model: each series carries numeric values and
-/// optional `stack_group` ids. Turn on stacked or percent modes when the story is
-/// about contribution, not just the stroke.
+/// optional `stack_group` ids. Turn on stacked or percent modes when filled regions
+/// should show contribution across series.
 ///
 /// # When to use
 ///

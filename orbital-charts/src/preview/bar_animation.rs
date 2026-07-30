@@ -26,7 +26,7 @@ use orbital_macros::component_doc;
 /// ## Do's
 ///
 /// * Leave `skip_animation` unset in production so OS reduced-motion preferences apply automatically.
-/// * Use `ChartMotion` for duration and curve overrides — not ad-hoc CSS transitions.
+/// * Use `ChartMotion` for duration and curve overrides.
 /// * Pair animation toggles with visible chart content in docs and QA previews.
 ///
 /// ## Don'ts

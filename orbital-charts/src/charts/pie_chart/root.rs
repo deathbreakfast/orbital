@@ -15,7 +15,7 @@ use crate::{
 /// Show proportions of a single total when slice share matters more than precise comparison.
 ///
 /// Configure slice values, optional labels, and radii on `PieChart`. Arc labels and
-/// highlight behavior are controlled on the series and `arc_label` props — not ad-hoc CSS.
+/// highlight behavior are controlled on the series and `arc_label` props.
 ///
 /// # When to use
 ///

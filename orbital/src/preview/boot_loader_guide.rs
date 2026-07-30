@@ -152,9 +152,7 @@ pub fn BootLoaderGuidePreview() -> impl IntoView {
                 <code>"html[data-orbital-boot-state=\"error\"]"</code>
                 " and reveal a static dialog surface with "
                 <code>"MessageBar"</code>
-                " — not the hydrated "
-                <code>"Dialog"</code>
-                " component (portal/focus trap)."
+                " built from dialog layout primitives (no portal or focus trap)."
             </Body1>
             <BootLoaderErrorDemo />
 

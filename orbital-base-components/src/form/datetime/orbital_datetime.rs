@@ -8,14 +8,14 @@ use super::timezone::DatetimeTimezone;
 ///
 /// Each value stores a UTC [`instant`](Self::instant) and an explicit [`timezone`](Self::timezone)
 /// for wall-clock interpretation. Calendar operations (`start_of_day`, `same_calendar_day`,
-/// `apply_hms`) use the value's timezone — not the browser offset alone. Set
+/// `apply_hms`) use the value's timezone. Set
 /// `appearance.timezone` on pickers to control display and parsing; the bound value should
 /// use a matching timezone for consistent round-trips.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OrbitalDateTime {
     /// UTC instant — validated chrono `DateTime<Utc>` internally.
     instant: DateTime<Utc>,
-    /// Wall-clock / display interpretation — not inferred from browser alone.
+    /// Wall-clock / display interpretation from the stored timezone.
     timezone: DatetimeTimezone,
 }
 

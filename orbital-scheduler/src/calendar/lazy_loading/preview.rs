@@ -33,7 +33,7 @@ use crate::{
 ///
 /// ## Do's
 ///
-/// - Query only the visible range returned by the calendar engine — not the full history.
+/// - Query only the visible range returned by the calendar engine.
 ///
 /// ## Don'ts
 ///

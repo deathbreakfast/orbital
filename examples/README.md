@@ -1,6 +1,6 @@
 # Orbital examples
 
-Runnable **adopter** teaching hosts — not the maintainer catalog under `orbital-preview-*` / `component-preview-e2e`. Start with the SSR+hydrate shell; then auth gates; then server-paged analytics.
+Runnable **adopter** teaching hosts. The maintainer catalog lives under `orbital-preview-*` / `component-preview-e2e`. Start with the SSR+hydrate shell; then auth gates; then server-paged analytics.
 
 Each card: when to use · command · success · look next.
 

@@ -60,7 +60,7 @@ view! { /* ... */ }
 ```
 ```
 
-- Describe behavior, not just restate the title.
+- Describe behavior beyond restating the title.
 - Call out non-obvious props exercised in the snippet.
 - For layout examples, mention spacing approach (`Flex` `padding` vs wrapper `div` vs CSS vars) — see Layout below.
 - `<!-- code-only -->` examples should also include prose when they appear in rustdoc.
