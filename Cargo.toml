@@ -110,6 +110,9 @@ bin-features = ["ssr"]
 lib-features = ["hydrate"]
 bin-default-features = false
 lib-default-features = false
+# Avoid cargo-leptos RUSTFLAGS overwrite / erase_components skew with leptos 0.8.20
+# (`__as_shared_reactive_fn` configured out while leptos_macro still erases).
+disable-erase-components = true
 # `cargo leptos end-to-end --project orbital-preview` serves on site-addr (:3010) then runs
 # `npm test` in end2end/ (COMPONENT_PREVIEW_E2E=1 + Playwright baseURL :3010).
 end2end-cmd = "npm test"

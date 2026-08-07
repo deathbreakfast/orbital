@@ -108,10 +108,21 @@ test.describe("scheduler catalog navigation regressions", () => {
     await page.mouse.move(x, y);
     await page.mouse.down();
     await page.mouse.move(x, y + 60, { steps: 8 });
-    await page
-      .getByTestId("preview-catalog-nav")
-      .getByRole("link", { name: "Scheduler Event Timeline", exact: true })
-      .click();
+    // DOM click avoids Playwright actionability checks while the drag gesture holds the pointer.
+    const nav = page.getByTestId("preview-catalog-nav");
+    const timeline = nav.getByRole("link", {
+      name: "Scheduler Event Timeline",
+      exact: true,
+    });
+    if (!(await timeline.isVisible())) {
+      for (const folder of ["Scheduling", "Event Timeline"]) {
+        const btn = nav.getByRole("button", { name: folder, exact: true });
+        if ((await btn.count()) > 0 && (await btn.getAttribute("aria-expanded")) !== "true") {
+          await btn.click();
+        }
+      }
+    }
+    await timeline.evaluate((el) => (el as HTMLAnchorElement).click());
     await page.mouse.up();
 
     await expect(page.getByTestId("scheduler-timeline-preview")).toBeVisible();

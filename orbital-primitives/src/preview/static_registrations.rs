@@ -2,12 +2,7 @@
 
 use crate::preview::PreviewRegistration;
 
-#[cfg(feature = "preview")]
-pub fn all() -> &'static [&'static PreviewRegistration] {
-    &[]
-}
-
-#[cfg(not(feature = "preview"))]
+/// No local gap placeholders yet; leaf crates own their tables.
 pub fn all() -> &'static [&'static PreviewRegistration] {
     &[]
 }

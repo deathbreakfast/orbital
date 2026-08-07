@@ -2,3 +2,10 @@
 # filename as wasm-bindgen output (orbital-preview.wasm, not orbital-preview_bg.wasm).
 [env]
 LEPTOS_OUTPUT_NAME = "orbital-preview"
+
+# Do NOT set --cfg erase_components here.
+# A wasm build still compiles host build-script deps (orbital-theme → leptos)
+# and Cargo strips rustflags for those units. Wasm leptos enables
+# leptos_macro's __internal_erase_components via target cfg, so host leptos
+# then expands view! against a helper that is cfg'd out. Keep
+# disable-erase-components = true in [[workspace.metadata.leptos]] instead.

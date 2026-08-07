@@ -30,11 +30,16 @@ test.describe("reactivity canary", () => {
     await page.goto(previewUrl("/"));
     await waitForPreviewShell(page);
 
-    await page.getByTestId("preview-catalog-nav").getByRole("link", { name: "Theme" }).click();
+    const nav = page.getByTestId("preview-catalog-nav");
+    const gettingStarted = nav.getByRole("button", { name: "Getting Started", exact: true });
+    if ((await gettingStarted.getAttribute("aria-expanded")) !== "true") {
+      await gettingStarted.click();
+    }
+    await nav.getByRole("link", { name: "Theme" }).click();
     await expect(page).toHaveURL(/\/theme$/);
     await expect(page.getByTestId("preview-page-title")).toHaveText("Theme");
 
-    await page.getByTestId("preview-catalog-nav").getByRole("link", { name: "Introduction" }).click();
+    await nav.getByRole("link", { name: "Introduction" }).click();
     await expect(page).toHaveURL(previewUrl("/"));
     await expect(page.getByTestId("preview-page-title")).toHaveText("Introduction");
   });

@@ -29,6 +29,30 @@ The macro emits `{NAME}_DOC`, `{NAME}_PROPS`, and (when `preview_slug` is set) a
 
 Manual previews (`preview = "manual"`) register through a static `PreviewRegistration` in the fixture or preview crate — see `component-preview-e2e/src/fixtures.rs`.
 
+## External product catalogs
+
+Product teams that ship their own components with Orbital should keep those registrations in **their** crates and merge them in **their** preview host. Orbital leaf crates are only for Orbital’s design-system catalog.
+
+Customer workflow:
+
+1. Annotate with `#[component_doc(..., preview_slug = "...")]` in the product crate (enable that crate’s `preview` feature).
+2. Export the emitted `*_PREVIEW_REGISTRATION` statics with `preview_registrations!` (see [`orbital-macros` README](../orbital-macros/README.md)).
+3. In the host, merge with [`PreviewCatalog`](https://docs.rs/orbital-primitives):
+
+```rust
+use orbital_primitives::preview::PreviewCatalog;
+
+pub fn collect_preview_registrations() -> Vec<&'static PreviewRegistration> {
+    PreviewCatalog::orbital()
+        .extend(my_widgets::preview::all())
+        .into_sorted_vec()
+}
+```
+
+Hosts that already depend on the public `orbital-ui` crate and need its local pages (Paginator, EmptyState, …) should seed from `orbital::preview::collect_all_preview_registrations()` via `PreviewCatalog::from_registrations(...)` or `extend_many`, then `.extend` product tables.
+
+SSR and WASM hydrate must see the same static list. Catalog hosts walk export tables / `PreviewCatalog` — they do not use `inventory::iter` (empty on `wasm32-unknown-unknown`).
+
 ## Component authoring
 
 Documentation lives in **rustdoc comments** on the component function and its parameters. The `#[component_doc]` macro extracts props, sections, and examples into the preview catalog.

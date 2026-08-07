@@ -81,6 +81,7 @@ The preview workflow publishes `target/site-preview/` to [Component preview](htt
 - Keep diffs focused; one logical change per PR when possible
 - Run the verify commands above (or explain what you could not run)
 - Update docs and preview examples when behavior or public API changes
+- Product / customer components belong in the customer’s crate + host `PreviewCatalog::extend` — do not ask integrators to patch Orbital leaf `static_registrations` for their own widgets (see [docs/component-testing.md](docs/component-testing.md#external-product-catalogs))
 - Do not commit secrets, credentials, or large binaries
 
 ## Code of conduct

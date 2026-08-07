@@ -38,7 +38,7 @@ use syn::{Expr, Lit, Meta, Path};
 /// | Integrations | 110 | yes |
 ///
 /// Nested group folders (Card, Buttons, Pickers, Chart Types, …) also start collapsed.
-/// Only top-level **Getting Started** and **Core Components** section folders default open.
+/// Preview hosts open only ancestors of the current slug — no section defaults open.
 ///
 /// Nested `group` values (Card, Buttons, Chart Types, …) are inferred from `preview_slug`
 /// via [`category_defaults`](crate::component_doc::category_defaults) when omitted.

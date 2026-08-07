@@ -4,9 +4,9 @@ use leptos::prelude::*;
 use leptos_router::hooks::{use_location, use_navigate, use_params_map};
 use orbital::components::NavigationLink;
 use orbital::preview::{
-    category_group_cmp, category_group_priority, category_open_key, group_default_collapsed,
-    group_open_key, preview_registration_cmp, section_default_collapsed, section_group_cmp,
-    section_open_key, CategoryGroup, PreviewRegistration, SectionGroup,
+    category_group_cmp, category_group_priority, category_open_key, group_open_key,
+    preview_registration_cmp, section_group_cmp, section_open_key, CategoryGroup,
+    PreviewRegistration, SectionGroup,
 };
 use orbital::primitives::{
     MaterialCorners, MaterialElevation, MaterialVariant, Navigation, NavigationBody,
@@ -265,59 +265,6 @@ fn build_section_nodes(
     nodes
 }
 
-fn default_open_group_keys(
-    section: &str,
-    categories: &[(String, Vec<&PreviewRegistration>)],
-) -> Vec<String> {
-    if section.is_empty() || group_default_collapsed(section) {
-        return Vec::new();
-    }
-
-    let mut keys = Vec::new();
-    for (category, items) in categories {
-        if is_domain_section(section) {
-            if items.len() >= 2 {
-                keys.push(category_open_key(section, category));
-            }
-            continue;
-        }
-
-        let mut groups: HashMap<String, Vec<&PreviewRegistration>> = HashMap::new();
-        for item in items {
-            if !item.group.is_empty() {
-                groups.entry(item.group.to_string()).or_default().push(item);
-            }
-        }
-        for (group, group_items) in groups {
-            if group_items.len() >= 2 {
-                keys.push(group_open_key(section, category, &group));
-            }
-        }
-    }
-    keys
-}
-
-fn default_open_keys(sections: &[SectionGroup]) -> Vec<String> {
-    let mut open = default_open_sections(sections);
-    for (section, _, _, categories) in sections {
-        ensure_keys_open(&mut open, default_open_group_keys(section, categories));
-    }
-    open
-}
-
-fn default_open_sections(sections: &[SectionGroup]) -> Vec<String> {
-    sections
-        .iter()
-        .filter_map(|(section, _, _, _)| {
-            if section.is_empty() || section_default_collapsed(section) {
-                None
-            } else {
-                Some(section_open_key(section))
-            }
-        })
-        .collect()
-}
-
 fn open_keys_for_slug(sections: &[SectionGroup], slug: &str) -> (Option<String>, Vec<String>) {
     for (section, _, section_nav_items, categories) in sections {
         if section_nav_items.iter().any(|item| item.slug == slug) {
@@ -354,14 +301,6 @@ fn open_keys_for_slug(sections: &[SectionGroup], slug: &str) -> (Option<String>,
         }
     }
     (None, Vec::new())
-}
-
-fn ensure_keys_open(open: &mut Vec<String>, keys: impl IntoIterator<Item = String>) {
-    for key in keys {
-        if !open.iter().any(|value| value == &key) {
-            open.push(key);
-        }
-    }
 }
 
 #[component]
@@ -545,11 +484,8 @@ pub fn PreviewCatalogNav() -> impl IntoView {
     let (initial_section, initial_open) = open_keys_for_slug(&sections.get_value(), &initial_slug);
     let selected_category_value = RwSignal::new(initial_section);
 
-    let open_categories = RwSignal::new({
-        let mut open = default_open_keys(&sections.get_value());
-        ensure_keys_open(&mut open, initial_open);
-        open
-    });
+    // Only ancestors of the current slug start open — no section/group default-open.
+    let open_categories = RwSignal::new(initial_open);
 
     #[cfg(not(feature = "ssr"))]
     Effect::new(move |_| {
@@ -560,13 +496,14 @@ pub fn PreviewCatalogNav() -> impl IntoView {
         if slug.is_empty() {
             selected_value.set(None);
             selected_category_value.set(None);
+            open_categories.set(Vec::new());
             return;
         }
 
         selected_value.set(Some(slug.clone()));
         let (section, keys) = open_keys_for_slug(&sections.get_value(), &slug);
         selected_category_value.set(section);
-        open_categories.update(|open| ensure_keys_open(open, keys));
+        open_categories.set(keys);
     });
 
     view! {
@@ -841,15 +778,11 @@ mod tests {
     }
 
     #[test]
-    fn default_open_keys_opens_only_top_level_sections() {
+    fn open_keys_for_unselected_slug_opens_nothing() {
         let sections = group_by_section(vec![&CARD_HEADER, &CARD_FOOTER, &DATE_PICKER, &BAR_CHART]);
-        let open = default_open_keys(&sections);
-
-        assert!(open.contains(&"core-components".to_string()));
-        assert!(!open.contains(&"core-components/surfaces/card".to_string()));
-        assert!(!open.contains(&"core-components/calendar-and-time/pickers".to_string()));
-        assert!(!open.contains(&"charts".to_string()));
-        assert!(!open.contains(&"charts/chart-types".to_string()));
+        let (section, keys) = open_keys_for_slug(&sections, "");
+        assert!(section.is_none());
+        assert!(keys.is_empty());
     }
 
     #[test]

@@ -3,6 +3,7 @@
 use proc_macro::TokenStream;
 
 mod component_doc;
+mod preview_registrations;
 mod routes;
 mod routes_extract;
 mod write_css_vars;
@@ -15,6 +16,27 @@ use syn::{parse_macro_input, Token};
 #[proc_macro_attribute]
 pub fn component_doc(attr: TokenStream, input: TokenStream) -> TokenStream {
     component_doc::expand_component_doc(attr, input)
+}
+
+/// Export a crate-local `all()` table of `&'static PreviewRegistration` for host catalogs.
+///
+/// Bring `PreviewRegistration` into scope (typically `use crate::preview::PreviewRegistration`).
+/// Pass references to the `*_PREVIEW_REGISTRATION` statics emitted by `#[component_doc]`.
+///
+/// ```rust,ignore
+/// use orbital_macros::preview_registrations;
+/// use crate::preview::PreviewRegistration;
+/// use crate::status_chip::STATUSCHIP_PREVIEW_REGISTRATION;
+///
+/// preview_registrations! {
+///     &STATUSCHIP_PREVIEW_REGISTRATION,
+/// }
+/// ```
+///
+/// Hosts merge with [`orbital_primitives::preview::PreviewCatalog`] — do not patch Orbital.
+#[proc_macro]
+pub fn preview_registrations(input: TokenStream) -> TokenStream {
+    preview_registrations::expand_preview_registrations(input)
 }
 
 struct RouteComponents {

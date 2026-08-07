@@ -114,15 +114,13 @@ pub fn collect_preview_registrations() -> Vec<&'static PreviewRegistration> {
 /// Collect preview registrations from every Orbital package plus this public crate's locals.
 ///
 /// Prefer this over hand-maintaining per-crate loops in catalog hosts.
+/// Product hosts that also need their own crates should wrap the result in
+/// [`orbital_primitives::preview::PreviewCatalog`] (re-exported as
+/// [`crate::preview::PreviewCatalog`]) and `.extend` product tables.
 pub fn collect_all_preview_registrations() -> Vec<&'static PreviewRegistration> {
-    let mut items = orbital_primitives::preview::collect_all_preview_registrations();
-    for reg in super::static_registrations::all() {
-        if !items.iter().any(|item| item.slug == reg.slug) {
-            items.push(*reg);
-        }
-    }
-    items.sort_by(|a, b| preview_registration_cmp(a, b));
-    items
+    orbital_primitives::preview::PreviewCatalog::orbital()
+        .extend(super::static_registrations::all())
+        .into_sorted_vec()
 }
 
 #[cfg(test)]

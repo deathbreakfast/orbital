@@ -2,21 +2,11 @@
 //!
 //! `inventory` is empty on WASM hydrate, so hosts must walk these static tables.
 //! Keeping the walk here means catalog apps only call one function.
+//! Product hosts that need extras should use [`super::PreviewCatalog`] instead of
+//! editing these leaf tables.
 
-use std::cmp::Ordering;
-
+use super::catalog::preview_registration_cmp;
 use super::PreviewRegistration;
-
-fn preview_registration_cmp(a: &PreviewRegistration, b: &PreviewRegistration) -> Ordering {
-    a.section_priority
-        .cmp(&b.section_priority)
-        .then_with(|| a.section.cmp(b.section))
-        .then_with(|| a.category_priority.cmp(&b.category_priority))
-        .then_with(|| a.category.cmp(b.category))
-        .then_with(|| a.group_priority.cmp(&b.group_priority))
-        .then_with(|| a.group.cmp(b.group))
-        .then_with(|| a.slug.cmp(b.slug))
-}
 
 fn push_unique(
     items: &mut Vec<&'static PreviewRegistration>,
@@ -34,6 +24,9 @@ fn push_unique(
 ///
 /// Includes core components, primitives locals, datatable, date-pickers, charts,
 /// tree, scheduler, discussion, history, and motion.
+///
+/// For host composition with product crates, prefer
+/// [`PreviewCatalog::orbital`](super::PreviewCatalog::orbital).
 #[cfg(feature = "preview")]
 pub fn collect_all_preview_registrations() -> Vec<&'static PreviewRegistration> {
     let mut items = Vec::new();

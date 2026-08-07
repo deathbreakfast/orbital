@@ -1,21 +1,14 @@
-use orbital::preview::{preview_registration_cmp, PreviewRegistration};
+use orbital::preview::{PreviewCatalog, PreviewRegistration};
 
 use super::intro_registration::introduction_preview_registration;
 
 /// Collect preview registrations from the Orbital aggregator (SSR + WASM must match).
 pub fn collect_preview_registrations() -> Vec<&'static PreviewRegistration> {
-    let mut items = vec![introduction_preview_registration()];
-    items.extend(orbital::preview::collect_all_preview_registrations());
-
-    for reg in component_preview_e2e::manual_preview_registrations() {
-        let reg = *reg;
-        if !items.iter().any(|item| item.slug == reg.slug) {
-            items.push(reg);
-        }
-    }
-
-    items.sort_by(|a, b| preview_registration_cmp(a, b));
-    items
+    PreviewCatalog::new()
+        .extend_many(std::iter::once(introduction_preview_registration()))
+        .extend_many(orbital::preview::collect_all_preview_registrations())
+        .extend(component_preview_e2e::manual_preview_registrations())
+        .into_sorted_vec()
 }
 
 /// Slugs to pre-render for static export (GitHub Pages).

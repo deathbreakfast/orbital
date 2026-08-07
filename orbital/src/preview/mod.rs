@@ -9,6 +9,8 @@ pub use boot_loader_guide::BOOTLOADERGUIDEPREVIEW_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub mod fixtures;
 
+pub use orbital_primitives::preview::PreviewCatalog;
+
 pub use registration::{
     category_group_cmp, category_group_default_collapsed, category_group_priority,
     category_open_key, collect_all_preview_registrations, collect_preview_registrations,

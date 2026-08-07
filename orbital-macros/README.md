@@ -73,6 +73,28 @@ Note: `hydrate` and `ssr` on several Orbital crates currently enable `preview` a
 Use `default-features = false` and enable only the features you need if you want hydrate
 without the preview catalog.
 
+### `preview_registrations!`
+
+Exports a crate-local `all() -> &'static [&'static PreviewRegistration]` table for host
+catalogs. Bring `PreviewRegistration` into scope, then list the `*_PREVIEW_REGISTRATION`
+statics from `#[component_doc]`:
+
+```rust
+use orbital_macros::preview_registrations;
+use crate::preview::PreviewRegistration;
+use crate::status_chip::STATUSCHIP_PREVIEW_REGISTRATION;
+
+preview_registrations! {
+    &STATUSCHIP_PREVIEW_REGISTRATION,
+}
+```
+
+Behind `feature = "preview"` the macro emits the full table; with preview off it emits an
+empty `all()`. Product hosts merge with `orbital_primitives::preview::PreviewCatalog` —
+see [Component testing — External product catalogs](../docs/component-testing.md#external-product-catalogs).
+Keep product registrations in the product crate; do not open PRs against Orbital leaf
+`static_registrations` only to surface an external widget.
+
 ### `orbital_routes!`
 
 Include multiple route components inside `<Routes>`.
