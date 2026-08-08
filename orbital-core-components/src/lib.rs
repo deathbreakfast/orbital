@@ -97,6 +97,10 @@ pub use grid::{Grid, GridConfig, GridItem, GridItemConfig};
 pub use icon::Icon;
 pub use layout_box::Box;
 pub use orbital_base_components::DemoBox;
+pub use orbital_base_components::{
+    use_breakpoint, use_breakpoint_down, use_breakpoint_up, use_media_query,
+};
+pub use orbital_theme::Breakpoint;
 pub use rating::{Rating, RatingColor, RatingDisplay, RatingRule, RatingRuleTrigger, RatingSize};
 pub use scroll_area::ScrollArea;
 pub use space::{Space, SpaceConfig, SpaceGap};
@@ -120,26 +124,28 @@ pub use feedback::{
 pub use layout::{
     AppBarInset, Aside, Content, ContentWithAside, Layout, LayoutHeader, LayoutHeaderInset,
     LayoutMain, LayoutPosition, LayoutSidebar, LayoutSidebarOpen, LayoutSidebarToggle,
+    SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT,
 };
 pub use material::{Material, MaterialCorners, MaterialElevation, MaterialVariant};
 pub use navigation::{
-    Accordion, AccordionHeader, AccordionItem, Anchor, AnchorConfig, AnchorLink, BackToTop,
-    BackToTopLabel, Carousel, CarouselSlide, CarouselState, CarouselStateInjection,
-    CarouselStepper, CarouselStepperLayout, CarouselViewport, Drawer, DrawerBody, DrawerHeader,
-    DrawerHeaderTitle, DrawerHeaderTitleAction, DrawerModalType, DrawerPosition, DrawerSize,
-    FloatingActionsMenu, FloatingActionsMenuConfig, FloatingActionsMenuItem, InlineDrawer, Menu,
-    MenuAppearance, MenuConfig, MenuItem, MenuPosition, MenuTrigger, MenuTriggerType, Navigation,
-    NavigationAppItem, NavigationBody, NavigationCategory, NavigationCategoryHeader,
-    NavigationCollapseToggle, NavigationConfig, NavigationDensity, NavigationDivider,
-    NavigationFooter, NavigationHeader, NavigationItem, NavigationItemConfig, NavigationMaterial,
-    NavigationMode, NavigationSectionHeader, NavigationSubItem, NavigationSubItemGroup,
-    OffsetTarget, Overflow, OverflowAxes, OverflowChangeData, OverflowDirection, OverflowMenuItems,
-    OverlayDrawer, Popover, PopoverAppearance, PopoverConfig, PopoverLifecycle, PopoverPosition,
-    PopoverSize, PopoverTrigger, PopoverTriggerType, SpotlightActions, SpotlightBackdrop,
-    SpotlightBody, SpotlightFooter, SpotlightHeader, SpotlightMedia, SpotlightPopover,
-    SpotlightTip, SpotlightTour, SpotlightTourInjection, SpotlightTourState, SpotlightTourStep,
-    SpotlightTrigger, Toolbar, ToolbarButton, ToolbarSize, Tooltip, TooltipAppearance,
-    TooltipConfig, TooltipPosition,
+    Accordion, AccordionHeader, AccordionItem, AdaptiveMenu, AdaptiveMenuTrigger, Anchor,
+    AnchorConfig, AnchorLink, BackToTop, BackToTopLabel, Carousel, CarouselSlide, CarouselState,
+    CarouselStateInjection, CarouselStepper, CarouselStepperLayout, CarouselViewport, Drawer,
+    DrawerBody, DrawerHeader, DrawerHeaderTitle, DrawerHeaderTitleAction, DrawerModalType,
+    DrawerPosition, DrawerSize, FloatingActionsMenu, FloatingActionsMenuConfig,
+    FloatingActionsMenuItem, InlineDrawer, Menu, MenuAppearance, MenuConfig, MenuItem, MenuPosition,
+    MenuTrigger, MenuTriggerType, Navigation, NavigationAppItem, NavigationBody,
+    NavigationCategory, NavigationCategoryHeader, NavigationCollapseToggle, NavigationConfig,
+    NavigationDensity, NavigationDivider, NavigationFooter, NavigationHeader, NavigationItem,
+    NavigationItemConfig, NavigationMaterial, NavigationMode, NavigationSectionHeader,
+    NavigationSubItem, NavigationSubItemGroup, OffsetTarget, Overflow, OverflowAxes,
+    OverflowChangeData, OverflowDirection, OverflowMenuItems, OverlayDrawer, Popover,
+    PopoverAppearance, PopoverConfig, PopoverLifecycle, PopoverPosition, PopoverSize, PopoverTrigger,
+    PopoverTriggerType, SpotlightActions, SpotlightBackdrop, SpotlightBody, SpotlightFooter,
+    SpotlightHeader, SpotlightMedia, SpotlightPopover, SpotlightTip, SpotlightTour,
+    SpotlightTourInjection, SpotlightTourState, SpotlightTourStep, SpotlightTrigger, Toolbar,
+    ToolbarButton, ToolbarSize, Tooltip, TooltipAppearance, TooltipConfig, TooltipPosition,
+    DEFAULT_ADAPTIVE_MENU_BREAKPOINT,
 };
 pub use orbital_base_components::{ExpansionTrigger, TreeSelectionMode};
 pub use overlay::{Backdrop, BackdropConfig, OverlayLayerRoot, ThemedPortal};

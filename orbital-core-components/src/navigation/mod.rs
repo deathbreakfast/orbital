@@ -9,6 +9,7 @@ mod styles;
 mod types;
 
 pub mod accordion;
+pub mod adaptive_menu;
 pub mod anchor;
 pub mod back_to_top;
 pub mod carousel;
@@ -33,6 +34,9 @@ pub use slots::{NavigationBody, NavigationFooter, NavigationHeader, NavigationMa
 pub use types::NavigationConfig;
 
 pub use accordion::{Accordion, AccordionHeader, AccordionItem};
+pub use adaptive_menu::{
+    AdaptiveMenu, AdaptiveMenuTrigger, DEFAULT_ADAPTIVE_MENU_BREAKPOINT,
+};
 pub use anchor::{Anchor, AnchorConfig, AnchorLink, OffsetTarget};
 pub use back_to_top::{BackToTop, BackToTopLabel};
 pub use carousel::{
@@ -66,6 +70,8 @@ pub use tooltip::{Tooltip, TooltipAppearance, TooltipConfig, TooltipPosition};
 
 pub use orbital_base_components::{NavigationDensity, NavigationMode};
 
+#[cfg(feature = "preview")]
+pub use adaptive_menu::ADAPTIVEMENU_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use accordion::ACCORDION_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]

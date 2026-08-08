@@ -168,7 +168,8 @@ pub fn use_anchor_position(
             {
                 if auto_height {
                     if let Some(max_height) = anchor_offset.max_height {
-                        styles.push(("max-height", format!("{max_height}px")))
+                        styles.push(("max-height", format!("{max_height}px")));
+                        styles.push(("overflow", "auto".to_string()));
                     }
                 }
 

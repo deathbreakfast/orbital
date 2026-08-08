@@ -6,7 +6,9 @@
 #[cfg(feature = "preview")]
 pub use orbital_core_components::ThemePreviewMarker;
 pub use orbital_core_components::{
-    Accordion, AccordionHeader, AccordionItem, Anchor, AnchorConfig, AnchorLink, AppBar,
+    use_breakpoint, use_breakpoint_down, use_breakpoint_up, use_media_query, Accordion,
+    AccordionHeader, AccordionItem, AdaptiveMenu, AdaptiveMenuTrigger, Anchor, AnchorConfig,
+    AnchorLink, AppBar,
     AppBarDensity, AppBarInset, AppBarLeading, AppBarMaterial, AppBarPosition, AppBarTrailing,
     AutoComplete, AutoCompleteAppearance, AutoCompleteBind, AutoCompleteEvents, AutoCompleteOption,
     AutoCompleteSize, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
@@ -45,7 +47,7 @@ pub use orbital_core_components::{
     PresenceStatus, ProgressBar, ProgressBarColor, ProgressCircle, ProgressCircleColor, Radio,
     RadioGroup, RadioGroupBind, RadioGroupRule, RadioGroupRuleTrigger, SearchBox,
     SearchBoxAppearance, SearchBoxBind, SearchBoxEvents, Select, SelectAppearance, SelectBind,
-    SelectRule, SelectRuleTrigger, SelectSize, Skeleton, SkeletonItem, Slider, SliderAppearance,
+    SelectRule, SelectRuleTrigger, SelectSize, SidebarPresentation, Skeleton, SkeletonItem, Slider, SliderAppearance,
     SliderBind, SliderLabel, SliderRule, SliderRuleTrigger, Space, SpaceConfig, SpaceGap,
     SpacingHorizontal, SpacingInset, SpacingVertical, Spinner, SpinnerSize, Stack, StackConfig,
     Switch, SwitchBind, SwitchLabel, SwitchRule, SwitchRuleTrigger, Tab, TabList, Table, TableBody,
@@ -60,8 +62,9 @@ pub use orbital_core_components::{
     UploadConfig, UploadDragger,
 };
 pub use orbital_theme::{
-    BrandPalette, ColorTheme, CommonTheme, Density, Direction, ElevationScale,
-    OrbitalThemeProvider, Theme, ThemeMode, ThemeOptions, ThemeOverrides, TypographyOverrides,
+    write_orb_breakpoint_css_vars, BrandPalette, Breakpoint, ColorTheme, CommonTheme, Density,
+    Direction, ElevationScale, OrbitalThemeProvider, Theme, ThemeMode, ThemeOptions, ThemeOverrides,
+    TypographyOverrides,
 };
 
 pub mod gap;

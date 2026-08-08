@@ -19,6 +19,11 @@
 //!
 //! - Shell/layout primitives ([`orbital_shell`], [`OrbitalTemplate`]) for
 //!   consistent app composition.
+//! - Responsive breakpoints ([`Breakpoint`](orbital_theme::Breakpoint)) and
+//!   media hooks (`use_breakpoint_*`, `use_media_query`) for adaptive chrome.
+//! - [`AdaptiveMenu`](orbital_core_components::AdaptiveMenu) and Layout
+//!   [`SidebarPresentation`](orbital_core_components::SidebarPresentation) for
+//!   mobile drawers.
 //! - Auth context providers/hooks ([`provide_auth_context`], [`use_auth_context`]).
 //! - Auth redirect helpers and route guards ([`routes`]).
 //! - Preview catalog registration ([`PreviewRegistration`], [`collect_preview_registrations`]).

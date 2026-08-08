@@ -204,7 +204,7 @@ Import the public crate [`orbital`](orbital/) for shell, auth hooks, and `orbita
 
 ### Foundation
 
-Buttons, inputs, dialogs, drawers, menus, tabs, cards, lists, avatars, pagination, and layout (`Flex`, `Grid`, `Stack`, `ScrollArea`). Browse the [component preview](https://unified-field-dev.github.io/orbital/) or run `cargo leptos watch --split -p orbital-preview` locally.
+Buttons, inputs, dialogs, drawers, menus, tabs, cards, lists, avatars, pagination, and layout (`Flex`, `Grid`, `Stack`, `ScrollArea`). Responsive chrome uses `Breakpoint` tokens plus `use_breakpoint_*` / `use_media_query`, `Layout` `SidebarPresentation` (`Inline` | `Overlay` | `Auto`), and `AdaptiveMenu` (popover on wide viewports, overlay drawer below `Md`). Browse the [component preview](https://unified-field-dev.github.io/orbital/) or run `cargo leptos watch --split -p orbital-preview` locally.
 
 ### Feature crates
 
@@ -243,7 +243,7 @@ cargo leptos watch --split -p orbital-preview
 
 ### L3 — Browser E2E
 
-Playwright specs live in `end2end/tests/components/` (259 spec files + smoke).
+Playwright specs live in `end2end/tests/components/` (259 spec files + smoke). With `COMPONENT_PREVIEW_E2E=1`, projects include Desktop Chrome plus mobile device projects (`iPhone 13`, `Pixel 7`) for overlay / layout / AdaptiveMenu specs (`mobile-overlays.spec.ts`, `layout-responsive.spec.ts`).
 
 **One-shot:**
 
@@ -256,6 +256,7 @@ cargo leptos end-to-end --project orbital-preview
 
 ```bash
 cd end2end && npm test
+# mobile-only: npm test -- --project=component-preview-mobile --project=component-preview-mobile-android
 ```
 
 ### Release gate (before tagging)

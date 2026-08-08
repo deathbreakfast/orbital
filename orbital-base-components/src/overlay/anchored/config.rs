@@ -62,7 +62,7 @@ impl PopoverVariant {
             placement: Placement::Top,
             appearance: OverlayAppearance::Default,
             arrow: OverlayArrowMode::Popover,
-            auto_height: false,
+            auto_height: true,
             panel_size: Some(OverlayPanelSize::Medium),
             motion: None,
             show_delay_ms: 0,
@@ -113,5 +113,6 @@ mod tests {
         let config = PopoverVariant::config();
         assert_eq!(config.arrow, OverlayArrowMode::Popover);
         assert_eq!(config.panel_size, Some(OverlayPanelSize::Medium));
+        assert!(config.auto_height);
     }
 }

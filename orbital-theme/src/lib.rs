@@ -3,6 +3,13 @@
 //! Provides [`OrbitalThemeProvider`] and theme hooks for light/dark mode, brand
 //! color, density, typography, spacing, and elevation overrides.
 //!
+//! ## Responsive breakpoints
+//!
+//! [`Breakpoint`] tokens emit `--orb-breakpoint-*` CSS variables. Pair with
+//! `use_breakpoint_up` / `use_breakpoint_down` / `use_media_query` from
+//! `orbital-base-components` (re-exported via `orbital::primitives`) for
+//! adaptive Layout sidebars and AdaptiveMenu-style chrome.
+//!
 //! ## First-paint baseline
 //!
 //! [`default_first_paint_baseline_css`] and [`ROOT_THEME_SCOPE_ID`] supply SSR shell
@@ -43,4 +50,4 @@ pub use overrides::{
 pub use provider::OrbitalThemeProvider;
 pub use ramps::brand_ramp;
 pub use theme::{Theme, ThemeMode};
-pub use tokens::{ColorTheme, CommonTheme};
+pub use tokens::{write_orb_breakpoint_css_vars, Breakpoint, ColorTheme, CommonTheme};

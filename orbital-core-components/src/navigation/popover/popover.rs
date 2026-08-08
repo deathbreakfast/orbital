@@ -112,6 +112,47 @@ use crate::PopoverTrigger;
 /// }
 /// ```
 ///
+/// ## AppBar placement stress
+/// Tall click popover from a sticky AppBar trailing control — must stay in the viewport on narrow screens.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     AppBar, AppBarMaterial, AppBarPosition, AppBarTrailing, Button, ButtonAppearance, MaterialCorners,
+///     MaterialElevation, MaterialVariant, Popover, PopoverPosition, PopoverTrigger, PopoverTriggerType,
+/// };
+/// view! {
+///     <div data-testid="popover-appbar-stress" style="min-height: 200px; border: 1px solid var(--orb-color-border-subtle);">
+///         <AppBar position=AppBarPosition::Sticky>
+///             <AppBarMaterial variant=MaterialVariant::Frost elevation=MaterialElevation::Flat corners=MaterialCorners::Square slot />
+///             <AppBarTrailing slot>
+///                 <Popover trigger_type=PopoverTriggerType::Click position=PopoverPosition::Bottom>
+///                     <PopoverTrigger slot>
+///                         <Button appearance=ButtonAppearance::Subtle>"Platform"</Button>
+///                     </PopoverTrigger>
+///                     <div data-testid="popover-appbar-stress-body" style="min-width: 280px; overflow: auto; padding: 12px;">
+///                         <p>"Platform link 0"</p>
+///                         <p>"Platform link 1"</p>
+///                         <p>"Platform link 2"</p>
+///                         <p>"Platform link 3"</p>
+///                         <p>"Platform link 4"</p>
+///                         <p>"Platform link 5"</p>
+///                         <p>"Platform link 6"</p>
+///                         <p>"Platform link 7"</p>
+///                         <p>"Platform link 8"</p>
+///                         <p>"Platform link 9"</p>
+///                         <p>"Platform link 10"</p>
+///                         <p>"Platform link 11"</p>
+///                         <p>"Platform link 12"</p>
+///                         <p>"Platform link 13"</p>
+///                         <p>"Platform link 14"</p>
+///                     </div>
+///                 </Popover>
+///             </AppBarTrailing>
+///         </AppBar>
+///     </div>
+/// }
+/// ```
+///
 /// ## Inverted appearance
 /// Dark inverted panel for anchors on dark surfaces or high-contrast overlays.
 /// <!-- preview -->

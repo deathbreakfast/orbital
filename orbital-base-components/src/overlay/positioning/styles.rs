@@ -9,6 +9,7 @@ pub fn positioning_panel_styles() -> &'static str {
 
 .orbital-positioning-content {
     width: fit-content;
+    box-sizing: border-box;
 }
 
 .orbital-fade-in-scale-up-transition-leave-active {

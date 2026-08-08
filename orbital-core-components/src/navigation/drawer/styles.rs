@@ -99,16 +99,22 @@ pub fn drawer_styles() -> &'static str {
 
 .orbital-overlay-drawer--position-left {
     width: var(--orbital-drawer--size);
+    height: 100%;
+    max-height: 100dvh;
     top: 0;
     bottom: 0;
     left: 0;
+    align-items: stretch;
 }
 
 .orbital-overlay-drawer--position-right {
     width: var(--orbital-drawer--size);
+    height: 100%;
+    max-height: 100dvh;
     top: 0;
     bottom: 0;
     right: 0;
+    align-items: stretch;
 }
 
 .orbital-overlay-drawer.orbital-motion-slide-right-enter-from,
