@@ -10,9 +10,7 @@ use super::context::LayoutSidebarOpen;
 use super::main::LayoutMainShell;
 use super::overlay::LayoutOverlayScroll;
 use super::sidebar::LayoutSidebarShell;
-use super::sidebar_presentation::{
-    SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT,
-};
+use super::sidebar_presentation::{SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT};
 use super::slots::{LayoutHeader, LayoutMain, LayoutSidebar};
 use super::styles::{layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS};
 use crate::navigation::{DrawerPosition, DrawerSize, OverlayDrawer};

@@ -109,9 +109,8 @@ pub fn Overflow(
         on_cleanup(move || handle.remove());
     });
 
-    let has_overflow = Signal::derive(move || {
-        force_clipped.get().unwrap_or(false) || measured_overflow.get()
-    });
+    let has_overflow =
+        Signal::derive(move || force_clipped.get().unwrap_or(false) || measured_overflow.get());
 
     Effect::new(move |_| {
         if let Some(cb) = on_overflow_change {

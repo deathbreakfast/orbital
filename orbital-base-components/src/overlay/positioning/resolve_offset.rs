@@ -120,15 +120,29 @@ fn try_placement(
         TopStart | Top | TopEnd => {
             placement_vertical(placement, target, content, arrow_height, vw, vh, must, true)
         }
-        BottomStart | Bottom | BottomEnd => {
-            placement_vertical(placement, target, content, arrow_height, vw, vh, must, false)
-        }
+        BottomStart | Bottom | BottomEnd => placement_vertical(
+            placement,
+            target,
+            content,
+            arrow_height,
+            vw,
+            vh,
+            must,
+            false,
+        ),
         RightStart | Right | RightEnd => {
             placement_horizontal(placement, target, content, arrow_height, vw, vh, must, true)
         }
-        LeftStart | Left | LeftEnd => {
-            placement_horizontal(placement, target, content, arrow_height, vw, vh, must, false)
-        }
+        LeftStart | Left | LeftEnd => placement_horizontal(
+            placement,
+            target,
+            content,
+            arrow_height,
+            vw,
+            vh,
+            must,
+            false,
+        ),
     }
 }
 

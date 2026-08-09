@@ -12,8 +12,9 @@ use crate::navigation::{
     DrawerPosition, DrawerSize, OverlayDrawer, Popover, PopoverPosition, PopoverTrigger,
     PopoverTriggerType,
 };
-use crate::Button;
-use crate::ButtonAppearance;
+use crate::{
+    Button, ButtonAppearance, Flex, FlexJustify, SpacingHorizontal, SpacingInset, SpacingVertical,
+};
 
 /// Opens rich content from a trigger as a popover on wide viewports and an
 /// [`OverlayDrawer`](crate::OverlayDrawer) below a breakpoint.
@@ -122,7 +123,7 @@ pub fn AdaptiveMenu(
                             <OverlayDrawer
                                 open=open_bind
                                 position=drawer_position
-                                size=DrawerSize::Small
+                                size=DrawerSize::Navigation
                                 close_on_esc=true
                                 class="orbital-adaptive-menu-drawer-host"
                             >
@@ -132,7 +133,14 @@ pub fn AdaptiveMenu(
                                     aria-label=aria
                                     class="orbital-adaptive-menu-drawer"
                                 >
-                                    <div class="orbital-adaptive-menu-drawer__header" style="display:flex;justify-content:flex-end;padding:8px;flex:0 0 auto;">
+                                    <Flex
+                                        class="orbital-adaptive-menu-drawer__header"
+                                        justify=FlexJustify::FlexEnd
+                                        padding=SpacingInset::symmetric(
+                                            SpacingHorizontal::S,
+                                            SpacingVertical::S,
+                                        )
+                                    >
                                         <Button
                                             appearance=ButtonAppearance::Subtle
                                             icon=icondata::AiCloseOutlined
@@ -140,7 +148,7 @@ pub fn AdaptiveMenu(
                                                 open.set(false);
                                             })
                                         />
-                                    </div>
+                                    </Flex>
                                     <div data-testid="adaptive-menu-body" class="orbital-adaptive-menu-drawer__body">
                                         {body()}
                                     </div>

@@ -368,8 +368,9 @@ mod tests {
 
     #[test]
     fn sidebar_drawer_overlay_css_is_unhashed() {
-        assert!(SIDEBAR_DRAWER_OVERLAY_CSS
-            .contains(".orbital-overlay-drawer.orbital-layout-sidebar-drawer .orbital-scroll-area"));
+        assert!(SIDEBAR_DRAWER_OVERLAY_CSS.contains(
+            ".orbital-overlay-drawer.orbital-layout-sidebar-drawer .orbital-scroll-area"
+        ));
         assert!(!SIDEBAR_DRAWER_OVERLAY_CSS.contains("orbital-overlay-drawer-"));
         assert!(SIDEBAR_DRAWER_OVERLAY_CSS.contains("overflow-y: auto !important"));
     }

@@ -12,6 +12,10 @@ pub fn adaptive_menu_styles() -> &'static str {
     overflow: hidden;
 }
 
+.orbital-adaptive-menu-drawer__header {
+    flex: 0 0 auto;
+}
+
 .orbital-adaptive-menu-drawer__body {
     flex: 1 1 auto;
     min-height: 0;
@@ -19,7 +23,7 @@ pub fn adaptive_menu_styles() -> &'static str {
     -webkit-overflow-scrolling: touch;
     box-sizing: border-box;
     /* Match OverlayDrawer body inset so dense nav copy stays on-screen. */
-    padding: 12px 16px 20px;
+    padding: var(--orb-space-block-md) var(--orb-space-inline-lg) var(--orb-space-block-xl);
 }
 
 .orbital-adaptive-menu-popover {
