@@ -191,6 +191,58 @@ pub fn layout_styles() -> &'static str {
     style_sheet
 }
 
+/// Overlay sidebar drawer: stable global CSS (Turf would hash/mangle these selectors).
+pub const SIDEBAR_DRAWER_OVERLAY_CSS: &str = r#"
+.orbital-overlay-drawer.orbital-layout-sidebar-drawer {
+    align-items: stretch;
+    height: 100dvh !important;
+    max-height: 100dvh;
+    overflow: hidden;
+}
+.orbital-overlay-drawer.orbital-layout-sidebar-drawer > [data-testid="layout-sidebar-drawer"] {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+.orbital-overlay-drawer.orbital-layout-sidebar-drawer > [data-testid="layout-sidebar-drawer"] > .orbital-navigation {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+}
+.orbital-overlay-drawer.orbital-layout-sidebar-drawer .orbital-navigation__material {
+    --orbital-navigation-width: 100%;
+    --orbital-material-width: 100%;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+}
+.orbital-overlay-drawer.orbital-layout-sidebar-drawer .orbital-navigation__material > * {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+}
+.orbital-overlay-drawer.orbital-layout-sidebar-drawer .orbital-scroll-area {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+"#;
+
 /// Two-column doc layout: growing content column + sticky fit-content aside.
 pub fn content_with_aside_styles() -> &'static str {
     let (style_sheet, _) = inline_style_sheet_values! {
@@ -235,7 +287,7 @@ pub fn content_with_aside_styles() -> &'static str {
 
 #[cfg(test)]
 mod tests {
-    use super::{content_with_aside_styles, layout_styles};
+    use super::{content_with_aside_styles, layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS};
 
     #[test]
     fn overlay_body_uses_child_combinator() {
@@ -312,5 +364,13 @@ mod tests {
             )
         );
         assert!(css.contains("var(--orbital-layout-canvas-surface)"));
+    }
+
+    #[test]
+    fn sidebar_drawer_overlay_css_is_unhashed() {
+        assert!(SIDEBAR_DRAWER_OVERLAY_CSS
+            .contains(".orbital-overlay-drawer.orbital-layout-sidebar-drawer .orbital-scroll-area"));
+        assert!(!SIDEBAR_DRAWER_OVERLAY_CSS.contains("orbital-overlay-drawer-"));
+        assert!(SIDEBAR_DRAWER_OVERLAY_CSS.contains("overflow-y: auto !important"));
     }
 }

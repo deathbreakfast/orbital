@@ -35,6 +35,11 @@ pub fn overflow_styles() -> &'static str {
     overflow: hidden;
 }
 
+.orbital-overflow__items:empty {
+    display: none;
+    flex: 0 0 0;
+}
+
 .orbital-overflow__menu {
     flex: 0 0 auto;
 }

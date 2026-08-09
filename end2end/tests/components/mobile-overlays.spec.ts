@@ -37,6 +37,9 @@ test.describe("MOB / ADM overlays", () => {
     const shell = page.locator(".orbital-positioning-content").filter({ has: panel });
     await expect(shell).toBeVisible({ timeout: 10_000 });
     await expectOverlayMostlyInViewport(page, shell);
+    // Arrow is a sibling of the floating panel; overflow must stay off the
+    // positioning wrapper or negative arrow offsets get clipped.
+    await expect(shell.locator(".orbital-popover-surface__angle")).toBeVisible();
   });
 
   test("ADM-02: phone opens drawer not clipped popover", async ({ page }) => {

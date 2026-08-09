@@ -168,8 +168,15 @@ pub fn use_anchor_position(
             {
                 if auto_height {
                     if let Some(max_height) = anchor_offset.max_height {
+                        // Keep overflow visible on this wrapper — `overflow: auto` clips
+                        // popover/tooltip arrows (negative offsets). Scroll the floating
+                        // panel instead via `--orbital-positioning-max-height` CSS.
                         styles.push(("max-height", format!("{max_height}px")));
-                        styles.push(("overflow", "auto".to_string()));
+                        styles.push((
+                            "--orbital-positioning-max-height",
+                            format!("{max_height}px"),
+                        ));
+                        styles.push(("overflow", "visible".to_string()));
                     }
                 }
 
@@ -212,7 +219,9 @@ pub fn use_anchor_position(
                 let arrow_width = arrow_width.unwrap();
                 let arrow_height = arrow_height.unwrap();
                 let _ = style.remove_property("left");
+                let _ = style.remove_property("right");
                 let _ = style.remove_property("top");
+                let _ = style.remove_property("bottom");
 
                 match placement.get_untracked() {
                     Placement::Top | Placement::Bottom => {

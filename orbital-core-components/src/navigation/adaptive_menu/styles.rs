@@ -17,7 +17,9 @@ pub fn adaptive_menu_styles() -> &'static str {
     min-height: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 0 12px 16px;
+    box-sizing: border-box;
+    /* Match OverlayDrawer body inset so dense nav copy stays on-screen. */
+    padding: 12px 16px 20px;
 }
 
 .orbital-adaptive-menu-popover {

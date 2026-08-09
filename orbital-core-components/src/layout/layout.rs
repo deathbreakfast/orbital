@@ -14,7 +14,7 @@ use super::sidebar_presentation::{
     SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT,
 };
 use super::slots::{LayoutHeader, LayoutMain, LayoutSidebar};
-use super::styles::layout_styles;
+use super::styles::{layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS};
 use crate::navigation::{DrawerPosition, DrawerSize, OverlayDrawer};
 use crate::ScrollArea;
 
@@ -457,7 +457,7 @@ pub fn Layout(
                     <OverlayDrawer
                         open=drawer_open
                         position=DrawerPosition::Left
-                        size=DrawerSize::Small
+                        size=DrawerSize::Navigation
                         close_on_esc=true
                         class="orbital-layout-sidebar-drawer"
                     >
@@ -473,6 +473,7 @@ pub fn Layout(
 
     view! {
         <style>{style_sheet}</style>
+        <style>{SIDEBAR_DRAWER_OVERLAY_CSS}</style>
         {if use_page_scrollport {
             view! {
                 <ScrollArea
