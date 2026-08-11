@@ -11,8 +11,9 @@ use turf::inline_style_sheet_values;
 
 /// Pill progress control that fills once toward [`fill_to`] and holds.
 ///
-/// Border and fill use `brand_color`. A single centered label uses the Orbital
-/// theme foreground. Fill timing defaults to [`EPIC_PROGRESS_FILL`] (~10s).
+/// Border and fill use `brand_color`. The label is dual-layered so primary text
+/// shows on the empty track and on-brand text shows over the fill (readable in
+/// light and dark themes). Fill timing defaults to [`EPIC_PROGRESS_FILL`] (~10s).
 /// When `prefers-reduced-motion` is set, the bar snaps to `fill_to`.
 #[component_doc]
 #[component]
@@ -29,6 +30,7 @@ pub fn ComingSoon(
     ProgressFillMotion::ensure_styles();
 
     let label_text = label.unwrap_or_else(|| "COMING SOON...".to_string());
+    let label_on_fill = label_text.clone();
     let target = clamp_unit_progress(fill_to);
     let reduced = use_reduced_motion();
     let progress = RwSignal::new(if cfg!(target_arch = "wasm32") {
@@ -78,6 +80,8 @@ pub fn ComingSoon(
             min-height: 2.75rem;
             border-radius: inherit;
             overflow: hidden;
+            container-type: inline-size;
+            container-name: coming-soon-track;
         }
 
         .ComingSoonFill {
@@ -86,12 +90,12 @@ pub fn ComingSoon(
             height: 100%;
             border-radius: inherit;
             background: var(--coming-soon-brand, currentColor);
+            overflow: hidden;
             pointer-events: none;
+            z-index: 1;
         }
 
         .ComingSoonLabel {
-            position: relative;
-            z-index: 1;
             margin: 0;
             padding: 0 var(--spacingHorizontalM, 12px);
             font-family: var(--fontFamilyBase);
@@ -101,8 +105,23 @@ pub fn ComingSoon(
             line-height: 1;
             text-transform: uppercase;
             white-space: nowrap;
-            color: var(--orb-color-text-primary, var(--colorNeutralForeground1, #242424));
             user-select: none;
+        }
+
+        .ComingSoonLabelTrack {
+            position: relative;
+            z-index: 0;
+            color: var(--orb-color-text-primary, var(--colorNeutralForeground1, #242424));
+        }
+
+        .ComingSoonLabelOnFill {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100cqw;
+            height: 100%;
+            color: var(--orb-color-text-on-brand, var(--colorNeutralForegroundOnBrand, #fff));
         }
     };
     inject_style("orbital-coming-soon", style_sheet);
@@ -129,6 +148,9 @@ pub fn ComingSoon(
             style=root_style
         >
             <div class=class_names.coming_soon_track>
+                <p class=format!("{} {}", class_names.coming_soon_label, class_names.coming_soon_label_track)>
+                    {label_text.clone()}
+                </p>
                 <div
                     class=move || {
                         format!(
@@ -137,8 +159,14 @@ pub fn ComingSoon(
                         )
                     }
                     style=fill_style
-                />
-                <p class=class_names.coming_soon_label>{label_text.clone()}</p>
+                >
+                    <p
+                        class=format!("{} {}", class_names.coming_soon_label, class_names.coming_soon_label_on_fill)
+                        aria-hidden="true"
+                    >
+                        {label_on_fill}
+                    </p>
+                </div>
             </div>
         </div>
     }
