@@ -7,7 +7,7 @@ use crate::PopoverPosition;
 pub struct SpotlightTourState {
     pub(crate) active_index: RwSignal<usize>,
     pub(crate) step_count: RwSignal<usize>,
-    pub(crate) anchors: RwSignal<Vec<(String, PopoverPosition)>>,
+    pub(crate) anchors: RwSignal<Vec<(Option<String>, PopoverPosition)>>,
     pub(crate) open: RwSignal<bool>,
     pub(crate) on_finish: Option<Callback<()>>,
 }
@@ -23,10 +23,12 @@ impl SpotlightTourState {
         }
     }
 
-    pub fn register_step(&self, anchor_id: String, position: PopoverPosition) -> usize {
+    /// Register a step. Empty or omitted `anchor_id` means viewport-centered (no cutout target).
+    pub fn register_step(&self, anchor_id: Option<String>, position: PopoverPosition) -> usize {
         let index = self.step_count.get_untracked();
+        let normalized = anchor_id.filter(|id| !id.is_empty());
         self.anchors
-            .update(|anchors| anchors.push((anchor_id, position)));
+            .update(|anchors| anchors.push((normalized, position)));
         self.step_count.update(|count| *count += 1);
         index
     }
@@ -50,7 +52,7 @@ impl SpotlightTourState {
     pub fn anchor_for_active(&self) -> Option<String> {
         let index = self.active_index.get();
         self.anchors
-            .with(|anchors| anchors.get(index).map(|(id, _)| id.clone()))
+            .with(|anchors| anchors.get(index).and_then(|(id, _)| id.clone()))
     }
 
     pub fn placement_for_active(&self) -> PopoverPosition {

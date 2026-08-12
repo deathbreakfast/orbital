@@ -20,6 +20,21 @@ fn dom_rects_intersect(a: &web_sys::DomRect, b: &web_sys::DomRect) -> bool {
     a.left() < b.right() && a.right() > b.left() && a.top() < b.bottom() && a.bottom() > b.top()
 }
 
+/// Zero-size rect at the viewport center for unanchored / missing-target panels.
+#[cfg(not(feature = "ssr"))]
+fn viewport_center_point_rect() -> web_sys::DomRect {
+    let window = window();
+    let vw = window.inner_width().unwrap_throw().as_f64().unwrap_or(0.0);
+    let vh = window.inner_height().unwrap_throw().as_f64().unwrap_or(0.0);
+    web_sys::DomRect::new_with_x_and_y_and_width_and_height(vw / 2.0, vh / 2.0, 0.0, 0.0)
+        .unwrap_throw()
+}
+
+#[cfg(feature = "ssr")]
+fn viewport_center_point_rect() -> web_sys::DomRect {
+    web_sys::DomRect::new_with_x_and_y_and_width_and_height(0.0, 0.0, 0.0, 0.0).unwrap_throw()
+}
+
 fn is_anchor_visible(target_rect: &web_sys::DomRect, target_node: &web_sys::Node) -> bool {
     let mut node = target_node.clone();
     loop {
@@ -86,9 +101,14 @@ pub fn use_anchor_position(
         let external_anchor = external_anchor;
         move || -> Option<web_sys::DomRect> {
             if let Some(anchor_signal) = external_anchor {
-                let id = anchor_signal.get_untracked().filter(|id| !id.is_empty())?;
-                let element = resolve_external_anchor(&id)?;
-                Some(element.get_bounding_client_rect())
+                // Empty / missing external id → viewport center (no cutout target).
+                let Some(id) = anchor_signal.get_untracked().filter(|id| !id.is_empty()) else {
+                    return Some(viewport_center_point_rect());
+                };
+                match resolve_external_anchor(&id) {
+                    Some(element) => Some(element.get_bounding_client_rect()),
+                    None => Some(viewport_center_point_rect()),
+                }
             } else {
                 let target = target_ref.try_get_untracked().flatten()?;
                 Some(target.get_bounding_client_rect())

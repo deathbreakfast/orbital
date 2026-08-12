@@ -13,10 +13,20 @@ pub fn spotlight_styles() -> &'static str {
     color: var(--orb-color-text-primary);
 }
 
+.orbital-popover-surface--inverted .orbital-spotlight__header,
+.orbital-popover-surface--brand .orbital-spotlight__header {
+    color: inherit;
+}
+
 .orbital-spotlight__body {
     font-size: var(--orb-type-size-sm);
     color: var(--orb-color-text-secondary);
     line-height: var(--orb-type-line-md);
+}
+
+.orbital-popover-surface--inverted .orbital-spotlight__body,
+.orbital-popover-surface--brand .orbital-spotlight__body {
+    color: inherit;
 }
 
 .orbital-spotlight__media {
@@ -35,6 +45,24 @@ pub fn spotlight_styles() -> &'static str {
     color: var(--orb-color-text-tertiary);
 }
 
+.orbital-popover-surface--inverted .orbital-spotlight__footer,
+.orbital-popover-surface--brand .orbital-spotlight__footer {
+    color: inherit;
+}
+
+.orbital-spotlight__footer-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--orb-space-inline-sm);
+    width: 100%;
+}
+
+.orbital-spotlight__footer-count {
+    flex: 1;
+    text-align: center;
+}
+
 .orbital-spotlight-portal {
     position: relative;
     z-index: 1000;
@@ -48,10 +76,32 @@ pub fn spotlight_styles() -> &'static str {
     z-index: 1;
 }
 
-/* Portaled tips/tours must read as elevated surfaces over preview cards (also bg1). */
+/* Default spotlight follows page theme (canvas + primary text). Brand / Inverted keep their surface modifiers. */
 .orbital-popover-shell.orbital-spotlight .orbital-popover-surface.orbital-material--solid:not(.orbital-popover-surface--brand):not(.orbital-popover-surface--inverted) {
-    background-color: var(--orb-color-surface-static);
+    background-color: var(--orb-color-surface-canvas);
     border-color: var(--orb-color-border-subtle);
+    color: var(--orb-color-text-primary);
 }
 "#
 }
+
+#[cfg(test)]
+mod tests {
+    use super::spotlight_styles;
+
+    #[test]
+    fn default_spotlight_surface_matches_theme_canvas() {
+        let css = spotlight_styles();
+        assert!(
+            css.contains("background-color: var(--orb-color-surface-canvas)"),
+            "default spotlight must use theme canvas, not static inverted surface"
+        );
+        assert!(
+            !css.contains(
+                ".orbital-popover-shell.orbital-spotlight .orbital-popover-surface.orbital-material--solid:not(.orbital-popover-surface--brand):not(.orbital-popover-surface--inverted) {\n    background-color: var(--orb-color-surface-static)"
+            ),
+            "default spotlight must not force surface-static"
+        );
+    }
+}
+
