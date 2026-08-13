@@ -105,6 +105,11 @@ pub fn Overflow(
     Effect::new(move |_| {
         let _ = items_ref.get();
         measure_overflow();
+        // Preview/layout can settle a frame after the node mounts without a window resize.
+        request_animation_frame(move || {
+            measure_overflow();
+            request_animation_frame(move || measure_overflow());
+        });
         let handle = window_event_listener(ev::resize, move |_| measure_overflow());
         on_cleanup(move || handle.remove());
     });
