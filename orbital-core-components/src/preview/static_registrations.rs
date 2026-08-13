@@ -92,6 +92,8 @@ use crate::forms::upload::UPLOAD_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::grid::GRID_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::hide_on_scroll::HIDEONSCROLL_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::icon::ICON_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::layout::{CONTENTWITHASIDE_PREVIEW_REGISTRATION, LAYOUT_PREVIEW_REGISTRATION};
@@ -142,6 +144,7 @@ orbital_macros::preview_registrations! {
     &BUTTON_PREVIEW_REGISTRATION,
     &MATERIAL_PREVIEW_REGISTRATION,
     &APPBAR_PREVIEW_REGISTRATION,
+    &HIDEONSCROLL_PREVIEW_REGISTRATION,
     &BOX_PREVIEW_REGISTRATION,
     &LAYOUT_PREVIEW_REGISTRATION,
     &CONTENTWITHASIDE_PREVIEW_REGISTRATION,

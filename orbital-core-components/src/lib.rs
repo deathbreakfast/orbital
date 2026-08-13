@@ -16,6 +16,7 @@ pub mod flex;
 pub mod floating_button;
 pub mod forms;
 pub mod grid;
+pub mod hide_on_scroll;
 pub mod icon;
 pub mod layout;
 pub mod layout_box;
@@ -41,6 +42,9 @@ pub use card::{
     Card, CardButtonArea, CardContent, CardFooter, CardHeader, CardHeaderAction,
     CardHeaderDescription, CardMedia, CardPreview, CardSectionBorder,
 };
+pub use hide_on_scroll::HideOnScroll;
+#[cfg(feature = "preview")]
+pub use hide_on_scroll::HIDEONSCROLL_PREVIEW_REGISTRATION;
 pub use text::*;
 
 pub use button::{Button, ButtonAppearance, ButtonRef, ButtonShape, ButtonSize, ButtonType};
@@ -123,8 +127,8 @@ pub use feedback::{
 };
 pub use layout::{
     AppBarInset, Aside, Content, ContentWithAside, Layout, LayoutHeader, LayoutHeaderInset,
-    LayoutMain, LayoutPosition, LayoutSidebar, LayoutSidebarOpen, LayoutSidebarToggle,
-    SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT,
+    LayoutMain, LayoutPageScrollport, LayoutPosition, LayoutSidebar, LayoutSidebarOpen,
+    LayoutSidebarToggle, SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT,
 };
 pub use material::{Material, MaterialCorners, MaterialElevation, MaterialVariant};
 pub use navigation::{

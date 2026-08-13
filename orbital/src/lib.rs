@@ -180,7 +180,7 @@ where
     view! {
          <StyleRegistry>
             <!DOCTYPE html>
-            <html lang="en">
+            <html lang="en" style="height: 100%;">
                 <head>
                     <meta charset="utf-8"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -198,7 +198,7 @@ where
                     <link rel="stylesheet" href="/main.css" />
                     <MetaTags/>
                 </head>
-                <body style="margin: 0;">
+                <body style="margin: 0; height: 100%; overflow: hidden;">
                     {app_fn()}
                     <OrbitalBootOverlay />
                 </body>

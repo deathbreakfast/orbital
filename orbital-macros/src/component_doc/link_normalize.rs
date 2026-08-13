@@ -358,6 +358,7 @@ const PREVIEW_SLUGS: &[&str] = &[
     "floating-actions-menu",
     "floating-button",
     "grid",
+    "hide-on-scroll",
     "icon",
     "image",
     "infinite-scroll",

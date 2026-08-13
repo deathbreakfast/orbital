@@ -6,9 +6,12 @@ use orbital_base_components::{
 use orbital_macros::component_doc;
 use orbital_theme::Breakpoint;
 
+use leptos::html::Div;
+
 use super::context::LayoutSidebarOpen;
 use super::main::LayoutMainShell;
 use super::overlay::LayoutOverlayScroll;
+use super::page_scrollport::LayoutPageScrollport;
 use super::sidebar::LayoutSidebarShell;
 use super::sidebar_presentation::{SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT};
 use super::slots::{LayoutHeader, LayoutMain, LayoutSidebar};
@@ -26,7 +29,7 @@ use crate::ScrollArea;
 ///
 /// # Usage
 ///
-/// 1. Set `overlay_header=true` when the header uses Sticky or Fixed [`AppBar`]. 2. Use Sticky [`AppBar`] with frost material for the default pinned window-scroll shell. 3. Set `main_inset_scroll=true` for opaque fixed bars with inner main scroll below the bar. 4. Match `header_inset` density to the [`AppBar`] density tier. 5. Place navigation in [`LayoutSidebar`] and page content in [`LayoutMain`]. 6. [`LayoutSidebar`] stays pinned below the bar; only the page scrolls in pinned mode.
+/// 1. Set `overlay_header=true` when the header uses Sticky or Fixed [`AppBar`]. 2. Use Sticky [`AppBar`] with frost material for the default pinned window-scroll shell. 3. Set `main_inset_scroll=true` for opaque fixed bars with inner main scroll below the bar. 4. Match `header_inset` density to the [`AppBar`] density tier. 5. Place navigation in [`LayoutSidebar`] and page content in [`LayoutMain`]. 6. [`LayoutSidebar`] stays pinned below the bar; only the page scrolls in pinned mode. 7. When the page scrollport is active, Layout provides [`LayoutPageScrollport`] so [`HideOnScroll`](crate::HideOnScroll) can listen on the same ScrollArea.
 ///
 /// # Scroll modes
 ///
@@ -408,8 +411,12 @@ pub fn Layout(
 
     let style_sheet = layout_styles();
     let use_page_scrollport = overlay_header && !main_inset_scroll && page_scrollport;
+    let page_scroll_ref = NodeRef::<Div>::new();
+    if use_page_scrollport {
+        provide_context(LayoutPageScrollport(page_scroll_ref));
+    }
     let page_scroll_style = format!(
-        "display: block; width: 100%; height: 100%; box-sizing: border-box; \
+        "display: block; width: 100%; height: 100%; max-height: 100dvh; box-sizing: border-box; \
          --orbital-layout-header-inset: {inset_px}px; scroll-padding-top: {inset_px}px;"
     );
 
@@ -477,6 +484,7 @@ pub fn Layout(
                 <ScrollArea
                     class="orbital-layout__page-scroll"
                     style=page_scroll_style
+                    node_ref=page_scroll_ref
                 >
                     {shell}
                 </ScrollArea>

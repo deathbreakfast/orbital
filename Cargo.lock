@@ -2368,6 +2368,7 @@ dependencies = [
  "orbital-macros",
  "orbital-style",
  "pulldown-cmark",
+ "send_wrapper",
  "turf",
  "wasm-bindgen",
  "web-sys",
