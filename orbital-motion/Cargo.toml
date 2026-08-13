@@ -28,7 +28,8 @@ icondata_core.workspace = true
 inventory = "0.3"
 pulldown-cmark = { version = "0.13", optional = true }
 wasm-bindgen = { workspace = true, optional = true }
-web-sys = { workspace = true, features = ["CssStyleDeclaration", "Element", "EventTarget", "HtmlElement", "MediaQueryList"] }
+web-sys = { workspace = true, features = ["CssStyleDeclaration", "Element", "EventTarget", "HtmlElement", "MediaQueryList", "Window"] }
+send_wrapper = { version = "0.6", optional = true }
 
 [features]
 default = ["preview"]
@@ -39,6 +40,7 @@ hydrate = [
     "preview",
     "dep:pulldown-cmark",
     "dep:wasm-bindgen",
+    "dep:send_wrapper",
 ]
 ssr = ["leptos/ssr", "orbital-style/ssr", "preview", "dep:pulldown-cmark"]
 

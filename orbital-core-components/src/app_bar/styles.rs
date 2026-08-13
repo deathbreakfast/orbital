@@ -71,9 +71,12 @@ pub fn app_bar_styles() -> &'static str {
         .orbital-app-bar__trailing {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: var(--orb-space-inline-sm);
             min-width: 0;
-            flex-shrink: 0;
+            /* Allow Overflow to claim remaining row space; do not shove trailing off-screen. */
+            flex: 1 1 auto;
+            flex-shrink: 1;
         }
 
         .orbital-app-bar--density-expanded .orbital-app-bar__leading {

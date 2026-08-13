@@ -68,11 +68,27 @@ html[data-orbital-boot-state="error"] .orbital-boot-loading {
   margin: 0;
   width: 100%;
   max-width: 100%;
+  /* Self-contained chrome — do not rely on inject_style("orbital-dialog") for first paint
+     (StyleRegistry can skip head injection and leave the card flush). */
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--orb-color-border-transparent, transparent);
+  border-radius: var(--orb-radius-xl, 16px);
+  background-color: var(--orb-color-surface-canvas, #ffffff);
+  color: var(--orb-color-text-primary, #232425);
   box-shadow: var(
     --orb-elev-modal,
     0 0 8px rgba(0, 0, 0, 0.11),
     0 32px 68px rgba(0, 0, 0, 0.13)
   );
+}
+
+.orbital-boot-loading .orbital-dialog-title {
+  margin: 0;
+  font-family: var(--orb-type-family-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: var(--orb-type-size-lg, 20px);
+  font-weight: var(--orb-type-weight-semibold, 600);
+  line-height: var(--orb-type-line-xl, 28px);
 }
 
 .orbital-boot-progress-section {
@@ -204,11 +220,25 @@ html[data-orbital-boot-state="error"] .orbital-boot-error {
   margin: 0;
   width: 100%;
   max-width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--orb-color-border-transparent, transparent);
+  border-radius: var(--orb-radius-xl, 16px);
+  background-color: var(--orb-color-surface-canvas, #ffffff);
+  color: var(--orb-color-text-primary, #232425);
   box-shadow: var(
     --orb-elev-modal,
     0 0 8px rgba(0, 0, 0, 0.11),
     0 32px 68px rgba(0, 0, 0, 0.13)
   );
+}
+
+.orbital-boot-error .orbital-dialog-title {
+  margin: 0;
+  font-family: var(--orb-type-family-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: var(--orb-type-size-lg, 20px);
+  font-weight: var(--orb-type-weight-semibold, 600);
+  line-height: var(--orb-type-line-xl, 28px);
 }
 
 .orbital-boot-error .orbital-message-bar {
@@ -1169,6 +1199,12 @@ mod tests {
         assert!(BOOT_LOADER_CSS.contains("data-orbital-boot-theme=\"dark\""));
         assert!(BOOT_LOADER_CSS.contains(".orbital-boot-progress-meta"));
         assert!(BOOT_LOADER_CSS.contains(".orbital-boot-step__duration"));
+        // First-paint surface chrome must live in BOOT_LOADER_CSS (not only inject_style).
+        assert!(BOOT_LOADER_CSS.contains(".orbital-boot-loading .orbital-dialog-surface"));
+        assert!(
+            BOOT_LOADER_CSS.contains("padding: 24px"),
+            "boot dialog surface needs padding without StyleRegistry"
+        );
         assert!(BOOT_LOADER_SCRIPT.contains("formatDuration"));
         assert!(BOOT_LOADER_SCRIPT.contains("orbital-boot-progress-elapsed"));
     }

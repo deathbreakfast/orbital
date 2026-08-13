@@ -17,6 +17,7 @@ fn default_baseline_contains_key_vars() {
     let css = default_first_paint_baseline_css(ROOT_THEME_SCOPE_ID);
     assert!(css.contains("--orb-type-family-sans"));
     assert!(css.contains("--orb-color-brand-bg"));
+    assert!(css.contains("--orb-breakpoint-md: 1024px;"));
 }
 
 #[test]

@@ -9,7 +9,7 @@ pub struct LayoutHeader {
 /// Side navigation or utility column.
 #[slot]
 pub struct LayoutSidebar {
-    pub children: Children,
+    pub children: ChildrenFn,
 }
 
 /// Primary scrollable content region.

@@ -80,30 +80,42 @@ pub fn Overflow(
     /// Fired when overflow state changes.
     #[prop(optional)]
     on_overflow_change: Option<Callback<OverflowChangeData>>,
+    /// When true, always show the overflow menu (e.g. compact AppBar on phone).
+    #[prop(optional, into)]
+    force_clipped: MaybeProp<bool>,
     /// Menu items shown when content overflows.
     overflow_menu_items: Option<OverflowMenuItems>,
-    /// Items subject to overflow collapsing.
-    children: Children,
+    /// Items subject to overflow collapsing. Omit when using `force_clipped` with menu-only chrome.
+    #[prop(optional)]
+    children: Option<Children>,
 ) -> impl IntoView {
     inject_style("orbital-overflow", overflow_styles());
 
-    let has_overflow = RwSignal::new(false);
+    let measured_overflow = RwSignal::new(false);
     let items_ref = NodeRef::<html::Div>::new();
 
     let measure_overflow = move || {
         if let Some(el) = items_ref.get() {
             let scroll = el.scroll_width();
             let client = el.client_width();
-            has_overflow.set(scroll > client);
+            measured_overflow.set(scroll > client);
         }
     };
 
     Effect::new(move |_| {
         let _ = items_ref.get();
         measure_overflow();
+        // Preview/layout can settle a frame after the node mounts without a window resize.
+        request_animation_frame(move || {
+            measure_overflow();
+            request_animation_frame(measure_overflow);
+        });
         let handle = window_event_listener(ev::resize, move |_| measure_overflow());
         on_cleanup(move || handle.remove());
     });
+
+    let has_overflow =
+        Signal::derive(move || force_clipped.get().unwrap_or(false) || measured_overflow.get());
 
     Effect::new(move |_| {
         if let Some(cb) = on_overflow_change {
@@ -117,15 +129,20 @@ pub fn Overflow(
         <BaseOverflow
             class=class
             overflow_direction=overflow_direction
-            has_overflow=has_overflow.read_only()
+            has_overflow=has_overflow
         >
             <div class="orbital-overflow__items" node_ref=items_ref>
-                {children()}
+                {children.map(|c| c())}
             </div>
             <div class="orbital-overflow__menu">
                 <Menu on_select=|_: String| {}>
                     <MenuTrigger slot>
-                        <Button appearance=ButtonAppearance::Subtle>"..."</Button>
+                        <Button
+                            appearance=ButtonAppearance::Subtle
+                            icon=icondata::AiEllipsisOutlined
+                            attr:aria-label="More"
+                            attr:data-testid="overflow-menu-trigger"
+                        />
                     </MenuTrigger>
                     {overflow_menu_items.map(|items| (items.children)())}
                 </Menu>

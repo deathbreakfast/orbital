@@ -41,7 +41,7 @@ pub fn popover_styles() -> &'static str {
 }
 
 .orbital-popover-shell.orbital-spotlight > .orbital-popover-surface__angle {
-    background-color: var(--orb-color-surface-static);
+    background-color: var(--orb-color-surface-canvas);
 }
 
 .orbital-popover-shell:has(.orbital-popover-surface--brand) > .orbital-popover-surface__angle {

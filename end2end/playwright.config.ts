@@ -3,6 +3,11 @@ import { defineConfig, devices } from "@playwright/test";
 const desktopChrome = devices["Desktop Chrome"];
 const previewE2e = !!process.env.COMPONENT_PREVIEW_E2E;
 
+const mobileSpecs = [
+  "**/mobile-overlays.spec.ts",
+  "**/layout-responsive.spec.ts",
+];
+
 export default defineConfig({
   testDir: "./tests",
   timeout: 120 * 1000,
@@ -26,6 +31,23 @@ export default defineConfig({
           name: "component-preview",
           testMatch: "components/**/*.spec.ts",
           use: desktopChrome,
+        },
+        {
+          name: "component-preview-mobile",
+          testMatch: mobileSpecs,
+          use: {
+            ...devices["iPhone 13"],
+            // CI installs Chromium; keep iPhone metrics without requiring WebKit.
+            browserName: "chromium",
+          },
+        },
+        {
+          name: "component-preview-mobile-android",
+          testMatch: mobileSpecs,
+          use: {
+            ...devices["Pixel 7"],
+            browserName: "chromium",
+          },
         },
         {
           name: "smoke",

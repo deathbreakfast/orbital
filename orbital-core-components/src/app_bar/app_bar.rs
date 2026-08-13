@@ -21,7 +21,7 @@ use super::styles::app_bar_styles;
 ///
 /// # Usage
 ///
-/// 1. Configure surface via [`AppBarMaterial`] slot (`variant`, `elevation`, `corners`). 2. Place branding and wayfinding in [`AppBarLeading`]. 3. Put search, filters, or inline nav in default `children` (center region). 4. Place account and utility controls in [`AppBarTrailing`]. 5. Adjust `position` and `density` for scroll behavior and vertical budget. 6. Pair Sticky bars with [`Layout`](crate::Layout) `overlay_header=true` for pinned frost shells; use `main_inset_scroll=true` with Fixed opaque bars for inset inner scroll.
+/// 1. Configure surface via [`AppBarMaterial`] slot (`variant`, `elevation`, `corners`). 2. Place branding and wayfinding in [`AppBarLeading`]. 3. Put search, filters, or inline nav in default `children` (center region). 4. Place account and utility controls in [`AppBarTrailing`]. 5. Adjust `position` and `density` for scroll behavior and vertical budget. 6. Pair Sticky bars with [`Layout`](crate::Layout) `overlay_header=true` for pinned frost shells; use `main_inset_scroll=true` with Fixed opaque bars for inset inner scroll. 7. For mobile tuck-away chrome, wrap Sticky AppBar in [`HideOnScroll`](crate::HideOnScroll).
 ///
 /// # Best Practices
 ///

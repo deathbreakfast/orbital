@@ -27,6 +27,8 @@ pub enum DrawerSize {
     Medium,
     Large,
     Full,
+    /// Matches `--orbital-navigation-width` for layout sidebar overlay drawers.
+    Navigation,
 }
 
 impl DrawerSize {
@@ -36,6 +38,7 @@ impl DrawerSize {
             Self::Medium => "medium",
             Self::Large => "large",
             Self::Full => "full",
+            Self::Navigation => "navigation",
         }
     }
 }
@@ -63,6 +66,7 @@ pub fn drawer_size_css(size: DrawerSize, position: DrawerPosition) -> &'static s
         DrawerSize::Small => "320px",
         DrawerSize::Medium => "592px",
         DrawerSize::Large => "940px",
+        DrawerSize::Navigation => "var(--orbital-navigation-width, 260px)",
         DrawerSize::Full => match position {
             DrawerPosition::Top | DrawerPosition::Bottom => "100vh",
             DrawerPosition::Left | DrawerPosition::Right => "100vw",
@@ -87,6 +91,10 @@ mod tests {
         assert_eq!(
             drawer_size_css(DrawerSize::Full, DrawerPosition::Right),
             "100vw"
+        );
+        assert_eq!(
+            drawer_size_css(DrawerSize::Navigation, DrawerPosition::Left),
+            "var(--orbital-navigation-width, 260px)"
         );
     }
 }

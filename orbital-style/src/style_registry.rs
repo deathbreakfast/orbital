@@ -44,7 +44,11 @@ impl StyleRegistryContext {
     }
 
     pub fn push_style(&self, k: String, v: String) {
-        self.styles.write_value().insert(k, v);
+        // Ignore late injections after the SSR/hydrate owner is gone — panicking
+        // here aborts the whole Axum worker (Playwright sees ERR_EMPTY_RESPONSE).
+        if let Some(mut styles) = self.styles.try_write_value() {
+            styles.insert(k, v);
+        }
     }
 
     /// Upserts a collected stylesheet into `<head>` during client hydration.
@@ -86,7 +90,9 @@ impl StyleRegistryContext {
     fn html_len(&self) -> usize {
         const TEMPLATE_LEN: usize = r#"<style id=""></style>"#.len();
         let mut html_len = 0;
-        let styles = self.styles.write_value();
+        let Some(styles) = self.styles.try_write_value() else {
+            return 0;
+        };
 
         styles.iter().for_each(|(k, v)| {
             html_len += k.len() + v.len() + TEMPLATE_LEN;
@@ -97,7 +103,9 @@ impl StyleRegistryContext {
 
     #[allow(clippy::wrong_self_convention)]
     fn to_html(self) -> String {
-        let mut styles = self.styles.write_value();
+        let Some(mut styles) = self.styles.try_write_value() else {
+            return String::new();
+        };
         styles
             .drain()
             .map(|(k, v)| format!(r#"<style id="{k}">{v}</style>"#))

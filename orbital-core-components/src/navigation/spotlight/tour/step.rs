@@ -11,11 +11,15 @@ use super::footer::default_tour_footer;
 use super::injection::SpotlightTourInjection;
 
 /// One step in a [`super::tour::SpotlightTour`].
+///
+/// Omit `anchor_id` (or pass an empty string) to center the step in the viewport
+/// without highlighting a particular element.
 #[component]
 pub fn SpotlightTourStep(
-    /// Element `id` to anchor this step.
-    #[prop(into)]
-    anchor_id: String,
+    /// Element `id` to anchor this step. When omitted or empty, the panel is
+    /// centered in the viewport and no spotlight cutout target is used.
+    #[prop(optional, into)]
+    anchor_id: Option<String>,
     #[prop(optional)] position: Option<PopoverPosition>,
     #[prop(optional)] spotlight_header: Option<SpotlightHeader>,
     #[prop(optional)] spotlight_body: Option<SpotlightBody>,

@@ -48,10 +48,11 @@ test.describe("spotlight-tour preview", () => {
     const visibleHeader = page.locator('[data-testid="spotlight-header"]:visible');
     const visibleFooter = page.locator('[data-testid="spotlight-footer"]:visible');
     await expect(visibleHeader).toContainText("Step 1");
-    await expect(visibleFooter).toContainText("1 of 2");
-    await page.getByRole("button", { name: "Next" }).click();
+    await expect(visibleFooter.getByTestId("spotlight-footer-count")).toContainText("1 of 2");
+    // Per-step footers stay mounted; inactive steps are display:none — scope to :visible.
+    await visibleFooter.getByTestId("spotlight-tour-next").click();
     await expect(visibleHeader).toContainText("Step 2");
-    await expect(visibleFooter).toContainText("2 of 2");
+    await expect(visibleFooter.getByTestId("spotlight-footer-count")).toContainText("2 of 2");
   });
 
   test("SP-06 spotlight cutout moves on next step", async ({ page }) => {
@@ -59,8 +60,18 @@ test.describe("spotlight-tour preview", () => {
     const section = page.getByTestId("spotlight-tour");
     await section.getByRole("button", { name: "Start tour" }).click();
     await expect(page.getByTestId("spotlight-tour-target-1")).toBeVisible();
-    await page.getByRole("button", { name: "Next" }).click();
+    await page.locator('[data-testid="spotlight-tour-next"]:visible').click();
     await expect(page.locator('[data-testid="spotlight-header"]:visible')).toContainText("Step 2");
     await expect(page.getByTestId("spotlight-tour-target-2")).toBeVisible();
+  });
+
+  test("SP-07 tour back navigates to previous step", async ({ page }) => {
+    await openComponentPreview(page, "spotlight-tour", "spotlight-tour");
+    const section = page.getByTestId("spotlight-tour");
+    await section.getByRole("button", { name: "Start tour" }).click();
+    await page.locator('[data-testid="spotlight-tour-next"]:visible').click();
+    await expect(page.locator('[data-testid="spotlight-header"]:visible')).toContainText("Step 2");
+    await page.locator('[data-testid="spotlight-tour-back"]:visible').click();
+    await expect(page.locator('[data-testid="spotlight-header"]:visible')).toContainText("Step 1");
   });
 });

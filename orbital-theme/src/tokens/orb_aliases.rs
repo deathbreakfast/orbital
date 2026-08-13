@@ -1,5 +1,6 @@
 //! Emit Orbital `--orb-*` CSS custom properties (legacy token aliases sunset).
 
+use super::breakpoints::write_orb_breakpoint_css_vars;
 use super::{ColorTheme, CommonTheme};
 
 fn emit_orb(css_vars: &mut String, orb: &str, value: &str) {
@@ -94,6 +95,8 @@ impl CommonTheme {
         for (orb, value) in strokes {
             emit_orb(css_vars, orb, value);
         }
+
+        write_orb_breakpoint_css_vars(css_vars);
 
         emit_orb(css_vars, "--orb-type-line-sm", self.line_height_base_200());
         emit_orb(css_vars, "--orb-type-line-md", self.line_height_base_300());

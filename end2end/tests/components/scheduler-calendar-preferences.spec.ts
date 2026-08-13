@@ -18,11 +18,14 @@ test.describe("scheduler-calendar-preferences preview", () => {
 
     const menuTrigger = preview.getByTestId("scheduler-preferences-menu-trigger").getByRole("button");
     await scrollIntoPreviewView(menuTrigger);
-    await menuTrigger.click({ force: true });
+    await menuTrigger.focus();
+    await page.keyboard.press("Enter");
     await expect(page.getByTestId("scheduler-preferences-panel")).toBeVisible();
-    const showWeekends = page.getByTestId("scheduler-pref-show-weekends");
+    const showWeekends = page.getByTestId("scheduler-pref-show-weekends").getByRole("switch");
     await scrollIntoPreviewView(showWeekends);
-    await showWeekends.getByRole("switch").click();
+    // Match timeline prefs: opacity-0 switch hit targets are unreliable with pointer click.
+    await showWeekends.focus();
+    await page.keyboard.press("Space");
 
     const headers = preview.locator(".orb-scheduler-view__day-header");
     await expect(async () => {

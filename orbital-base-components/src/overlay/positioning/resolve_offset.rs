@@ -1,7 +1,13 @@
+//! Anchored overlay placement — flip, shift, and clamp into the viewport.
+
 use leptos::prelude::window;
 use web_sys::DomRect;
 
 use crate::overlay::placement::Placement;
+
+/// Minimum remaining space (px) required to accept a clamped preferred placement
+/// instead of flipping to another side.
+const MIN_CLAMP_SPACE: f64 = 48.0;
 
 pub struct AnchorOffset {
     pub top: f64,
@@ -11,494 +17,450 @@ pub struct AnchorOffset {
     pub max_height: Option<f64>,
 }
 
+/// Axis-aligned rect used by the pure placement solver (and tests).
+#[derive(Debug, Clone, Copy)]
+pub struct Rect {
+    pub top: f64,
+    pub left: f64,
+    pub width: f64,
+    pub height: f64,
+}
+
+impl Rect {
+    pub fn bottom(self) -> f64 {
+        self.top + self.height
+    }
+
+    pub fn right(self) -> f64 {
+        self.left + self.width
+    }
+
+    fn from_dom(rect: &DomRect) -> Self {
+        Self {
+            top: rect.top(),
+            left: rect.left(),
+            width: rect.width(),
+            height: rect.height(),
+        }
+    }
+}
+
 pub fn resolve_anchor_offset(
     placement: Placement,
     target_rect: &DomRect,
     content_rect: &DomRect,
     arrow_height: Option<f64>,
 ) -> Option<AnchorOffset> {
+    let vw = window_inner_width()?;
+    let vh = window_inner_height()?;
+    resolve_anchor_offset_in_viewport(
+        placement,
+        Rect::from_dom(target_rect),
+        Rect::from_dom(content_rect),
+        arrow_height,
+        vw,
+        vh,
+    )
+}
+
+/// Pure placement solver — preferred clamp/shift, then flip, then viewport-safe must.
+pub fn resolve_anchor_offset_in_viewport(
+    preferred: Placement,
+    target: Rect,
+    content: Rect,
+    arrow_height: Option<f64>,
+    viewport_w: f64,
+    viewport_h: f64,
+) -> Option<AnchorOffset> {
     use Placement::*;
-    let placement_list = match placement {
-        TopStart => vec![TopStart, BottomStart, Right, Left, TopStart],
-        Top => vec![Top, Bottom, Right, Left, Top],
-        TopEnd => vec![TopEnd, BottomEnd, Right, Left, TopEnd],
-        BottomStart => vec![BottomStart, TopStart, Right, Left, BottomStart],
-        Bottom => vec![Bottom, Top, Right, Left, Bottom],
-        BottomEnd => vec![BottomEnd, TopEnd, Right, Left, BottomEnd],
-        RightStart => vec![RightStart, LeftStart, Top, Bottom, RightStart],
-        Right => vec![Right, Left, Top, Bottom, Right],
-        RightEnd => vec![RightEnd, LeftEnd, Top, Bottom, RightEnd],
-        LeftStart => vec![LeftStart, RightStart, Top, Bottom, LeftStart],
-        Left => vec![Left, Right, Top, Bottom, Left],
-        LeftEnd => vec![LeftEnd, RightEnd, Top, Bottom, LeftEnd],
+    let candidates = match preferred {
+        TopStart => [TopStart, BottomStart, Right, Left, BottomStart],
+        Top => [Top, Bottom, Right, Left, Bottom],
+        TopEnd => [TopEnd, BottomEnd, Right, Left, BottomEnd],
+        BottomStart => [BottomStart, TopStart, Right, Left, BottomStart],
+        Bottom => [Bottom, Top, Right, Left, Bottom],
+        BottomEnd => [BottomEnd, TopEnd, Right, Left, BottomEnd],
+        RightStart => [RightStart, LeftStart, Top, Bottom, RightStart],
+        Right => [Right, Left, Top, Bottom, Right],
+        RightEnd => [RightEnd, LeftEnd, Top, Bottom, RightEnd],
+        LeftStart => [LeftStart, RightStart, Top, Bottom, LeftStart],
+        Left => [Left, Right, Top, Bottom, Left],
+        LeftEnd => [LeftEnd, RightEnd, Top, Bottom, LeftEnd],
     };
 
-    let placement_len = placement_list.len();
-    let mut placement_list = placement_list.into_iter().enumerate();
-    loop {
-        let (index, placement) = placement_list.next()?;
-        let must = placement_len == index + 1;
-        let rt = match placement {
-            TopStart => placement_top_start(target_rect, content_rect, arrow_height, must),
-            Top => placement_top(target_rect, content_rect, arrow_height, must),
-            TopEnd => placement_top_end(target_rect, content_rect, arrow_height, must),
-            BottomStart => placement_bottom_start(target_rect, content_rect, arrow_height, must),
-            Bottom => placement_bottom(target_rect, content_rect, arrow_height, must),
-            BottomEnd => placement_bottom_end(target_rect, content_rect, arrow_height, must),
-            RightStart => placement_right_start(target_rect, content_rect, arrow_height, must),
-            Right => placement_right(target_rect, content_rect, arrow_height, must),
-            RightEnd => placement_right_end(target_rect, content_rect, arrow_height, must),
-            LeftStart => placement_left_start(target_rect, content_rect, arrow_height, must),
-            Left => placement_left(target_rect, content_rect, arrow_height, must),
-            LeftEnd => placement_left_end(target_rect, content_rect, arrow_height, must),
-        };
-        if rt.is_some() {
-            return rt;
+    let len = candidates.len();
+    for (index, placement) in candidates.into_iter().enumerate() {
+        let must = index + 1 == len;
+        if let Some(offset) = try_placement(
+            placement,
+            target,
+            content,
+            arrow_height,
+            viewport_w,
+            viewport_h,
+            must,
+        ) {
+            return Some(offset);
         }
     }
-    // Some(AnchorOffset {
-    //     top: top - follower_rect.top(),
-    //     left: left - follower_rect.left(),
-    //     placement,
-    //     transform,
-    //     max_height,
-    // })
+    None
 }
 
-fn placement_top_start(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
+fn try_placement(
+    placement: Placement,
+    target: Rect,
+    content: Rect,
     arrow_height: Option<f64>,
+    vw: f64,
+    vh: f64,
     must: bool,
 ) -> Option<AnchorOffset> {
-    let content_height = content_rect.height() + arrow_height.unwrap_or_default();
-    let target_top = target_rect.top();
-    let top = target_top - content_height;
-    // Top
-    if !must && top < 0.0 {
-        return None;
-    }
-
-    let target_left = target_rect.left();
-    if !must {
-        let window_inner_width = window_inner_width()?;
-        let content_width = content_rect.width();
-        // Width
-        if target_left + content_width > window_inner_width {
-            return None;
+    use Placement::*;
+    match placement {
+        TopStart | Top | TopEnd => {
+            placement_vertical(placement, target, content, arrow_height, vw, vh, must, true)
         }
+        BottomStart | Bottom | BottomEnd => placement_vertical(
+            placement,
+            target,
+            content,
+            arrow_height,
+            vw,
+            vh,
+            must,
+            false,
+        ),
+        RightStart | Right | RightEnd => {
+            placement_horizontal(placement, target, content, arrow_height, vw, vh, must, true)
+        }
+        LeftStart | Left | LeftEnd => placement_horizontal(
+            placement,
+            target,
+            content,
+            arrow_height,
+            vw,
+            vh,
+            must,
+            false,
+        ),
     }
-
-    Some(AnchorOffset {
-        top,
-        left: target_left,
-        transform: String::new(),
-        placement: Placement::TopStart,
-        max_height: Some(target_top.max(0.0)),
-    })
 }
 
-fn placement_top(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
+fn placement_vertical(
+    placement: Placement,
+    target: Rect,
+    content: Rect,
     arrow_height: Option<f64>,
+    vw: f64,
+    vh: f64,
     must: bool,
+    prefer_top: bool,
 ) -> Option<AnchorOffset> {
-    let content_height = content_rect.height() + arrow_height.unwrap_or_default();
-    let target_top = target_rect.top();
-    let top = target_top - content_height;
-    // Top
-    if !must && top < 0.0 {
-        return None;
-    }
-
-    let target_width_center = target_rect.left() + target_rect.width() / 2.0;
-    if !must {
-        let window_inner_width = window_inner_width()?;
-        let content_width_half = content_rect.width() / 2.0;
-        // Width
-        if content_width_half > target_width_center
-            || target_width_center + content_width_half > window_inner_width
-        {
-            return None;
+    let arrow = arrow_height.unwrap_or_default();
+    let (top, max_height) = if prefer_top {
+        let content_height = content.height + arrow;
+        let raw_top = target.top - content_height;
+        let space_above = target.top.max(0.0);
+        if raw_top < 0.0 {
+            if !must && space_above < MIN_CLAMP_SPACE {
+                return None;
+            }
+            // Clamp into the viewport rather than placing above y=0.
+            (0.0, Some(space_above.max(MIN_CLAMP_SPACE.min(space_above))))
+        } else {
+            (raw_top, Some(space_above))
         }
-    }
-
-    Some(AnchorOffset {
-        top,
-        left: target_width_center,
-        transform: String::from("translateX(-50%)"),
-        placement: Placement::Top,
-        max_height: Some(target_top.max(0.0)),
-    })
-}
-
-fn placement_top_end(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let content_height = content_rect.height() + arrow_height.unwrap_or_default();
-    let target_top = target_rect.top();
-    let top = target_top - content_height;
-    // Top
-    if !must && top < 0.0 {
-        return None;
-    }
-
-    let target_right = target_rect.right();
-    if !must {
-        let content_width = content_rect.width();
-        // Width
-        if target_right < content_width {
-            return None;
-        }
-    }
-
-    Some(AnchorOffset {
-        top,
-        left: target_right,
-        transform: String::from("translateX(-100%)"),
-        placement: Placement::TopEnd,
-        max_height: Some(target_top.max(0.0)),
-    })
-}
-
-fn placement_bottom_start(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let window_inner_height = window_inner_height()?;
-    let content_height = content_rect.height();
-    let target_bottom = target_rect.bottom() + arrow_height.unwrap_or_default();
-    let top = target_bottom;
-    // Bottom
-    if !must && target_bottom + content_height > window_inner_height {
-        return None;
-    }
-
-    let target_left = target_rect.left();
-    if !must {
-        let window_inner_width = window_inner_width()?;
-        let content_width = content_rect.width();
-        // Width
-        if target_left + content_width > window_inner_width {
-            return None;
-        }
-    }
-
-    let max_heigth = if target_bottom > 0.0 {
-        window_inner_height - target_bottom
     } else {
-        0.0
+        let target_bottom = target.bottom() + arrow;
+        let space_below = (vh - target_bottom).max(0.0);
+        if target_bottom + content.height > vh {
+            if !must && space_below < MIN_CLAMP_SPACE {
+                return None;
+            }
+            (target_bottom, Some((space_below - 1.0).max(0.0)))
+        } else {
+            (target_bottom, Some((space_below - 1.0).max(0.0)))
+        }
     };
-    Some(AnchorOffset {
-        top,
-        left: target_left,
-        transform: String::new(),
-        placement: Placement::BottomStart,
-        max_height: Some(max_heigth),
-    })
-}
 
-fn placement_bottom(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let window_inner_height = window_inner_height()?;
-    let content_height = content_rect.height();
-    let target_bottom = target_rect.bottom() + arrow_height.unwrap_or_default();
-    let top = target_bottom;
-    // Bottom
-    if !must && target_bottom + content_height > window_inner_height {
+    // When must would still open Top with no space above a top-edge anchor, refuse
+    // so the candidate list can land on Bottom (last Top* preferred lists end on Bottom*).
+    if prefer_top && must && top <= 0.0 && target.top < MIN_CLAMP_SPACE {
         return None;
     }
 
-    let target_width_center = target_rect.left() + target_rect.width() / 2.0;
-    if !must {
-        let window_inner_width = window_inner_width()?;
-        let content_width_half = content_rect.width() / 2.0;
-        // Width
-        if content_width_half > target_width_center
-            || target_width_center + content_width_half > window_inner_width
-        {
-            return None;
-        }
-    }
+    let (left, transform) = shift_horizontal(placement, target, content, vw)?;
 
-    let max_heigth = if target_bottom > 0.0 {
-        window_inner_height - target_bottom
+    Some(AnchorOffset {
+        top: top.max(0.0),
+        left,
+        transform,
+        placement,
+        max_height,
+    })
+}
+
+fn shift_horizontal(
+    placement: Placement,
+    target: Rect,
+    content: Rect,
+    vw: f64,
+) -> Option<(f64, String)> {
+    use Placement::*;
+    let w = content.width;
+    match placement {
+        TopStart | BottomStart => {
+            let mut left = target.left;
+            if left + w > vw {
+                left = (vw - w).max(0.0);
+            }
+            if left < 0.0 {
+                left = 0.0;
+            }
+            Some((left, String::new()))
+        }
+        Top | Bottom => {
+            let half = w / 2.0;
+            let mut center = target.left + target.width / 2.0;
+            if center - half < 0.0 {
+                center = half;
+            }
+            if center + half > vw {
+                center = vw - half;
+            }
+            if w > vw {
+                center = vw / 2.0;
+            }
+            Some((center, String::from("translateX(-50%)")))
+        }
+        TopEnd | BottomEnd => {
+            let mut left = target.right();
+            // Panel extends left via translateX(-100%).
+            if left - w < 0.0 {
+                left = w.min(vw);
+            }
+            if left > vw {
+                left = vw;
+            }
+            Some((left, String::from("translateX(-100%)")))
+        }
+        _ => None,
+    }
+}
+
+fn placement_horizontal(
+    placement: Placement,
+    target: Rect,
+    content: Rect,
+    arrow_height: Option<f64>,
+    vw: f64,
+    vh: f64,
+    must: bool,
+    prefer_right: bool,
+) -> Option<AnchorOffset> {
+    let arrow = arrow_height.unwrap_or_default();
+    let left = if prefer_right {
+        let raw = target.right() + arrow;
+        if raw + content.width > vw {
+            if !must && (vw - target.right()).max(0.0) < MIN_CLAMP_SPACE {
+                return None;
+            }
+            (vw - content.width).max(0.0)
+        } else {
+            raw
+        }
     } else {
-        0.0
+        let content_width = content.width + arrow;
+        let raw = target.left - content_width;
+        if raw < 0.0 {
+            if !must && target.left < MIN_CLAMP_SPACE {
+                return None;
+            }
+            0.0
+        } else {
+            raw
+        }
     };
 
-    Some(AnchorOffset {
-        top,
-        left: target_width_center,
-        transform: String::from("translateX(-50%)"),
-        placement: Placement::Bottom,
-        max_height: Some(max_heigth),
-    })
-}
-
-fn placement_bottom_end(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let window_inner_height = window_inner_height()?;
-    let content_height = content_rect.height();
-    let target_bottom = target_rect.bottom() + arrow_height.unwrap_or_default();
-    let top = target_bottom;
-    // Bottom
-    if !must && target_bottom + content_height > window_inner_height {
-        return None;
-    }
-
-    let target_right = target_rect.right();
-    if !must {
-        let content_width = content_rect.width();
-        // Width
-        if target_right < content_width {
-            return None;
-        }
-    }
-
-    let max_heigth = if target_bottom > 0.0 {
-        window_inner_height - target_bottom
-    } else {
-        0.0
-    };
-    Some(AnchorOffset {
-        top,
-        left: target_right,
-        transform: String::from("translateX(-100%)"),
-        placement: Placement::BottomEnd,
-        max_height: Some(max_heigth),
-    })
-}
-
-fn placement_right_start(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let window_inner_width = window_inner_width()?;
-    let content_width = content_rect.width();
-    let target_right = target_rect.right();
-    let left = target_right + arrow_height.unwrap_or_default();
-    // Right
-    if !must && left + content_width > window_inner_width {
-        return None;
-    }
-
-    let top = target_rect.top();
-    if !must {
-        let window_inner_height = window_inner_height()?;
-        let content_height = content_rect.height();
-        // Height
-        if content_height + top > window_inner_height {
-            return None;
-        }
-    }
+    let (top, transform) = shift_vertical(placement, target, content, vh)?;
 
     Some(AnchorOffset {
         top,
-        left,
-        transform: String::new(),
-        placement: Placement::RightStart,
+        left: left.max(0.0),
+        transform,
+        placement,
         max_height: None,
     })
 }
 
-fn placement_right(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let window_inner_width = window_inner_width()?;
-    let content_width = content_rect.width();
-    let target_right = target_rect.right();
-    let left = target_right + arrow_height.unwrap_or_default();
-    // Right
-    if !must && left + content_width > window_inner_width {
-        return None;
-    }
-
-    let target_height_center = target_rect.top() + target_rect.height() / 2.0;
-    if !must {
-        let window_inner_height = window_inner_height()?;
-        let content_height_half = content_rect.height() / 2.0;
-
-        // Height
-        if content_height_half > target_height_center
-            || target_height_center + content_height_half > window_inner_height
-        {
-            return None;
+fn shift_vertical(
+    placement: Placement,
+    target: Rect,
+    content: Rect,
+    vh: f64,
+) -> Option<(f64, String)> {
+    use Placement::*;
+    let h = content.height;
+    match placement {
+        RightStart | LeftStart => {
+            let mut top = target.top;
+            if top + h > vh {
+                top = (vh - h).max(0.0);
+            }
+            if top < 0.0 {
+                top = 0.0;
+            }
+            Some((top, String::new()))
         }
-    }
-
-    Some(AnchorOffset {
-        top: target_height_center,
-        left,
-        transform: String::from("translateY(-50%)"),
-        placement: Placement::Right,
-        max_height: None,
-    })
-}
-
-fn placement_right_end(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let window_inner_width = window_inner_width()?;
-    let content_width = content_rect.width();
-    let target_right = target_rect.right();
-    let left = target_right + arrow_height.unwrap_or_default();
-    // Right
-    if !must && left + content_width > window_inner_width {
-        return None;
-    }
-
-    let target_bottom = target_rect.bottom();
-    if !must {
-        // Height
-        if target_bottom < content_rect.height() {
-            return None;
+        Right | Left => {
+            let half = h / 2.0;
+            let mut center = target.top + target.height / 2.0;
+            if center - half < 0.0 {
+                center = half;
+            }
+            if center + half > vh {
+                center = vh - half;
+            }
+            if h > vh {
+                center = vh / 2.0;
+            }
+            Some((center, String::from("translateY(-50%)")))
         }
-    }
-
-    Some(AnchorOffset {
-        top: target_bottom,
-        left,
-        transform: String::from("translateY(-100%)"),
-        placement: Placement::RightEnd,
-        max_height: None,
-    })
-}
-
-fn placement_left_start(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let content_width = content_rect.width() + arrow_height.unwrap_or_default();
-    let target_left = target_rect.left();
-    let left = target_left - content_width;
-    // Left
-    if !must && left < 0.0 {
-        return None;
-    }
-
-    let top = target_rect.top();
-    if !must {
-        let window_inner_height = window_inner_height()?;
-        let content_height = content_rect.height();
-        // Height
-        if content_height + top > window_inner_height {
-            return None;
+        RightEnd | LeftEnd => {
+            let mut top = target.bottom();
+            if top - h < 0.0 {
+                top = h.min(vh);
+            }
+            if top > vh {
+                top = vh;
+            }
+            Some((top, String::from("translateY(-100%)")))
         }
+        _ => None,
     }
-
-    Some(AnchorOffset {
-        top,
-        left,
-        transform: String::new(),
-        placement: Placement::LeftStart,
-        max_height: None,
-    })
-}
-
-fn placement_left(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let content_width = content_rect.width() + arrow_height.unwrap_or_default();
-    let target_left = target_rect.left();
-    let left = target_left - content_width;
-    // Left
-    if !must && left < 0.0 {
-        return None;
-    }
-
-    let target_height_center = target_rect.top() + target_rect.height() / 2.0;
-    if !must {
-        let window_inner_height = window_inner_height()?;
-        let content_height_half = content_rect.height() / 2.0;
-
-        // Height
-        if content_height_half > target_height_center
-            || target_height_center + content_height_half > window_inner_height
-        {
-            return None;
-        }
-    }
-
-    Some(AnchorOffset {
-        top: target_height_center,
-        left,
-        transform: String::from("translateY(-50%)"),
-        placement: Placement::Left,
-        max_height: None,
-    })
-}
-
-fn placement_left_end(
-    target_rect: &DomRect,
-    content_rect: &DomRect,
-    arrow_height: Option<f64>,
-    must: bool,
-) -> Option<AnchorOffset> {
-    let content_width = content_rect.width() + arrow_height.unwrap_or_default();
-    let target_left = target_rect.left();
-    let left = target_left - content_width;
-    // Left
-    if !must && left < 0.0 {
-        return None;
-    }
-
-    let target_bottom = target_rect.bottom();
-    if !must {
-        // Height
-        if target_bottom < content_rect.height() {
-            return None;
-        }
-    }
-
-    Some(AnchorOffset {
-        top: target_bottom,
-        left,
-        transform: String::from("translateY(-100%)"),
-        placement: Placement::LeftEnd,
-        max_height: None,
-    })
 }
 
 fn window_inner_width() -> Option<f64> {
     let Ok(inner_width) = window().inner_width() else {
         return None;
     };
-    let inner_width = inner_width.as_f64()?;
-    Some(inner_width)
+    inner_width.as_f64()
 }
 
 fn window_inner_height() -> Option<f64> {
     let Ok(inner_height) = window().inner_height() else {
         return None;
     };
-    let inner_height = inner_height.as_f64()?;
-    Some(inner_height)
+    inner_height.as_f64()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use Placement::*;
+
+    fn target_top_bar_trailing() -> Rect {
+        Rect {
+            top: 8.0,
+            left: 300.0,
+            width: 80.0,
+            height: 32.0,
+        }
+    }
+
+    fn tall_panel() -> Rect {
+        Rect {
+            top: 0.0,
+            left: 0.0,
+            width: 320.0,
+            height: 500.0,
+        }
+    }
+
+    #[test]
+    fn top_preferred_near_top_flips_to_bottom_with_clamp() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Top,
+            target_top_bar_trailing(),
+            tall_panel(),
+            None,
+            390.0,
+            844.0,
+        )
+        .expect("placement");
+        assert_eq!(offset.placement, Bottom);
+        assert!(offset.top >= 0.0);
+        let max_h = offset.max_height.expect("max_height");
+        assert!(max_h > 0.0);
+        assert!(offset.top + 1.0 < 844.0);
+    }
+
+    #[test]
+    fn bottom_tall_panel_clamps_instead_of_forcing_top() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Bottom,
+            target_top_bar_trailing(),
+            tall_panel(),
+            None,
+            390.0,
+            600.0,
+        )
+        .expect("placement");
+        assert_eq!(offset.placement, Bottom);
+        assert!(offset.top >= 40.0);
+        assert!(offset.max_height.unwrap() < 600.0);
+    }
+
+    #[test]
+    fn wide_centered_panel_shifts_into_viewport() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Bottom,
+            Rect {
+                top: 8.0,
+                left: 320.0,
+                width: 60.0,
+                height: 32.0,
+            },
+            Rect {
+                top: 0.0,
+                left: 0.0,
+                width: 320.0,
+                height: 120.0,
+            },
+            None,
+            390.0,
+            844.0,
+        )
+        .expect("placement");
+        assert_eq!(offset.placement, Bottom);
+        // Center with translateX(-50%) must keep panel within [0, vw].
+        let half = 160.0;
+        assert!(offset.left - half >= -1.0);
+        assert!(offset.left + half <= 390.0 + 1.0);
+    }
+
+    #[test]
+    fn must_never_returns_negative_top_for_top_placement() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Top,
+            Rect {
+                top: 4.0,
+                left: 10.0,
+                width: 40.0,
+                height: 24.0,
+            },
+            Rect {
+                top: 0.0,
+                left: 0.0,
+                width: 200.0,
+                height: 400.0,
+            },
+            None,
+            375.0,
+            500.0,
+        )
+        .expect("placement");
+        assert!(offset.top >= 0.0);
+        assert_ne!(offset.placement, Top);
+    }
 }

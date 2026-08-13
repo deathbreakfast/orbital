@@ -15,12 +15,12 @@ use super::super::styles::spotlight_styles;
 use super::injection::{SpotlightTourInjection, SpotlightTourState};
 
 /// `SpotlightTour` walks users through several UI targets in order. Add [`SpotlightTourStep`]
-/// children with unique `anchor_id` values matching stable DOM `id` attributes and optional
-/// per-step anatomy slots; bind `open` to start the tour. The built-in footer handles next,
-/// back, and finish — wire `on_finish` to record completion in your app state. Prefer
-/// [`SpotlightPopover`](super::super::popover::SpotlightPopover) when the user opens help from
-/// a button; prefer this component when the app drives a multi-step walkthrough. Skip and
-/// dismiss are not first-class props yet.
+/// children with optional `anchor_id` values matching stable DOM `id` attributes (omit to
+/// center in the viewport) and optional per-step anatomy slots; bind `open` to start the tour.
+/// The built-in footer provides Back, Next, and Finish. Wire `on_finish` to record completion
+/// in your app state. Prefer [`SpotlightPopover`](super::super::popover::SpotlightPopover) when
+/// the user opens help from a button; prefer this component when the app drives a multi-step
+/// walkthrough. Skip and dismiss are not first-class props yet.
 ///
 /// # Spotlight coaching
 ///
@@ -30,15 +30,13 @@ use super::injection::{SpotlightTourInjection, SpotlightTourState};
 /// # Examples
 ///
 /// ## Multi-step tour
-/// Declarative steps with next/previous navigation and a moving anchor.
+/// Declarative steps with built-in next/previous navigation and a moving anchor.
 /// <!-- preview -->
 /// ```rust
 /// use crate::{
-///     Button, ButtonAppearance, SpotlightActions, SpotlightBody, SpotlightHeader, SpotlightTour,
-///     SpotlightTourStep,
+///     Button, SpotlightBody, SpotlightHeader, SpotlightTour, SpotlightTourStep,
 /// };
 /// use leptos::prelude::*;
-/// use crate::SpotlightTourInjection;
 /// let open = RwSignal::new(false);
 /// view! {
 ///     <div data-testid="spotlight-tour">
@@ -53,16 +51,10 @@ use super::injection::{SpotlightTourInjection, SpotlightTourState};
 ///             <SpotlightTourStep anchor_id="spotlight-tour-target-1">
 ///                 <SpotlightHeader slot>"Step 1"</SpotlightHeader>
 ///                 <SpotlightBody slot>"Filter events from the toolbar."</SpotlightBody>
-///                 <SpotlightActions slot>
-///                     <Button appearance=ButtonAppearance::Primary on:click=move |_| SpotlightTourInjection::expect_context().next()>"Next"</Button>
-///                 </SpotlightActions>
 ///             </SpotlightTourStep>
 ///             <SpotlightTourStep anchor_id="spotlight-tour-target-2">
 ///                 <SpotlightHeader slot>"Step 2"</SpotlightHeader>
 ///                 <SpotlightBody slot>"Navigate between sections."</SpotlightBody>
-///                 <SpotlightActions slot>
-///                     <Button appearance=ButtonAppearance::Primary on:click=move |_| SpotlightTourInjection::expect_context().dismiss()>"Finish"</Button>
-///                 </SpotlightActions>
 ///             </SpotlightTourStep>
 ///         </SpotlightTour>
 ///     </div>

@@ -7,6 +7,7 @@ const VARIANTS = [
   "layout-app-shell",
   "layout-sidebar-toggle",
   "layout-sidebar-closed",
+  "layout-responsive-auto",
 ];
 
 test.describe("layout primitive preview", () => {

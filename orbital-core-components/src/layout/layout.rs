@@ -1,15 +1,22 @@
 use leptos::prelude::*;
 use orbital_base_components::{
-    AppBarDensity, AppBarInset, BaseLayout, BaseLayoutBody, LayoutPosition,
+    use_breakpoint_down, AppBarDensity, AppBarInset, BaseLayout, BaseLayoutBody, LayoutPosition,
+    OpenBind,
 };
 use orbital_macros::component_doc;
+use orbital_theme::Breakpoint;
+
+use leptos::html::Div;
 
 use super::context::LayoutSidebarOpen;
 use super::main::LayoutMainShell;
 use super::overlay::LayoutOverlayScroll;
+use super::page_scrollport::LayoutPageScrollport;
 use super::sidebar::LayoutSidebarShell;
+use super::sidebar_presentation::{SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT};
 use super::slots::{LayoutHeader, LayoutMain, LayoutSidebar};
-use super::styles::layout_styles;
+use super::styles::{layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS};
+use crate::navigation::{DrawerPosition, DrawerSize, OverlayDrawer};
 use crate::ScrollArea;
 
 /// Application shell with optional overlay header and side navigation.
@@ -22,7 +29,7 @@ use crate::ScrollArea;
 ///
 /// # Usage
 ///
-/// 1. Set `overlay_header=true` when the header uses Sticky or Fixed [`AppBar`]. 2. Use Sticky [`AppBar`] with frost material for the default pinned window-scroll shell. 3. Set `main_inset_scroll=true` for opaque fixed bars with inner main scroll below the bar. 4. Match `header_inset` density to the [`AppBar`] density tier. 5. Place navigation in [`LayoutSidebar`] and page content in [`LayoutMain`]. 6. [`LayoutSidebar`] stays pinned below the bar; only the page scrolls in pinned mode.
+/// 1. Set `overlay_header=true` when the header uses Sticky or Fixed [`AppBar`]. 2. Use Sticky [`AppBar`] with frost material for the default pinned window-scroll shell. 3. Set `main_inset_scroll=true` for opaque fixed bars with inner main scroll below the bar. 4. Match `header_inset` density to the [`AppBar`] density tier. 5. Place navigation in [`LayoutSidebar`] and page content in [`LayoutMain`]. 6. [`LayoutSidebar`] stays pinned below the bar; only the page scrolls in pinned mode. 7. When the page scrollport is active, Layout provides [`LayoutPageScrollport`] so [`HideOnScroll`](crate::HideOnScroll) can listen on the same ScrollArea.
 ///
 /// # Scroll modes
 ///
@@ -255,6 +262,44 @@ use crate::ScrollArea;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Responsive Auto sidebar
+/// Below the Md breakpoint the sidebar becomes an overlay drawer; wide viewports keep the inline column.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     AppBar, AppBarLeading, AppBarMaterial, AppBarPosition, DemoBox, Layout, LayoutHeader, LayoutMain,
+///     LayoutSidebar, LayoutSidebarToggle, MaterialCorners, MaterialElevation, MaterialVariant,
+///     SidebarPresentation, Title3,
+/// };
+/// let sidebar_open = RwSignal::new(false);
+/// view! {
+///     <div data-testid="layout-responsive-auto" style="height: 240px; border: 1px solid var(--orb-color-border-subtle); overflow: hidden;">
+///         <Layout
+///             overlay_header=true
+///             sidebar_open=sidebar_open
+///             sidebar_presentation=SidebarPresentation::Auto
+///             page_scrollport=false
+///         >
+///             <LayoutHeader slot>
+///                 <AppBar position=AppBarPosition::Sticky>
+///                     <AppBarMaterial variant=MaterialVariant::Solid elevation=MaterialElevation::Flat corners=MaterialCorners::Square slot />
+///                     <AppBarLeading slot>
+///                         <LayoutSidebarToggle />
+///                         <Title3>"Responsive shell"</Title3>
+///                     </AppBarLeading>
+///                 </AppBar>
+///             </LayoutHeader>
+///             <LayoutSidebar slot>
+///                 <DemoBox fill=true data_testid="layout-responsive-nav">"Nav"</DemoBox>
+///             </LayoutSidebar>
+///             <LayoutMain slot>
+///                 <DemoBox fill=true>"Main"</DemoBox>
+///             </LayoutMain>
+///         </Layout>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Shell",
     preview_slug = "layout",
@@ -284,6 +329,14 @@ pub fn Layout(
     /// Parent-owned sidebar open state; defaults to an internal open signal when omitted.
     #[prop(optional, into)]
     sidebar_open: Option<RwSignal<bool>>,
+    /// How the sidebar is presented — inline column, overlay drawer, or auto by breakpoint.
+    /// Defaults to [`SidebarPresentation::Inline`] for backward compatibility.
+    #[prop(optional)]
+    sidebar_presentation: SidebarPresentation,
+    /// Breakpoint used when `sidebar_presentation` is [`SidebarPresentation::Auto`]
+    /// (viewports below this width use an overlay drawer). Default: [`Breakpoint::Md`].
+    #[prop(optional)]
+    sidebar_overlay_breakpoint: Option<Breakpoint>,
     /// Header slot — typically an [`AppBar`] with leading and trailing regions.
     #[prop(optional)]
     layout_header: Option<LayoutHeader>,
@@ -305,6 +358,26 @@ pub fn Layout(
     LayoutSidebarOpen::provide(sidebar_open);
     let sidebar_open_signal = Signal::derive(move || sidebar_open.get());
 
+    let overlay_bp = sidebar_overlay_breakpoint.unwrap_or(DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT);
+    let narrow = use_breakpoint_down(overlay_bp);
+    let use_overlay_sidebar = Signal::derive(move || match sidebar_presentation {
+        SidebarPresentation::Inline => false,
+        SidebarPresentation::Overlay => true,
+        SidebarPresentation::Auto => narrow.get(),
+    });
+
+    // Close the sidebar when crossing into/out of overlay mode so surfaces do not stack.
+    {
+        let prev = StoredValue::new(use_overlay_sidebar.get_untracked());
+        Effect::new(move |_| {
+            let now = use_overlay_sidebar.get();
+            if now != prev.get_value() {
+                prev.set_value(now);
+                sidebar_open.set(false);
+            }
+        });
+    }
+
     let has_sidebar = layout_sidebar.is_some();
     let inset_px = header_inset.height_px();
     let root_style = Signal::derive(move || {
@@ -320,7 +393,10 @@ pub fn Layout(
         let mut parts = Vec::new();
         if has_sidebar {
             parts.push("orbital-layout--has-sidebar".to_string());
-            if !sidebar_open_signal.get() {
+            if use_overlay_sidebar.get() {
+                parts.push("orbital-layout--sidebar-overlay".to_string());
+                parts.push("orbital-layout--sidebar-closed".to_string());
+            } else if !sidebar_open_signal.get() {
                 parts.push("orbital-layout--sidebar-closed".to_string());
             }
         }
@@ -335,10 +411,19 @@ pub fn Layout(
 
     let style_sheet = layout_styles();
     let use_page_scrollport = overlay_header && !main_inset_scroll && page_scrollport;
+    let page_scroll_ref = NodeRef::<Div>::new();
+    if use_page_scrollport {
+        provide_context(LayoutPageScrollport(page_scroll_ref));
+    }
     let page_scroll_style = format!(
-        "display: block; width: 100%; height: 100%; box-sizing: border-box; \
+        "display: block; width: 100%; height: 100%; max-height: 100dvh; box-sizing: border-box; \
          --orbital-layout-header-inset: {inset_px}px; scroll-padding-top: {inset_px}px;"
     );
+
+    let sidebar_children = layout_sidebar.map(|slot| slot.children);
+    let drawer_open: OpenBind = sidebar_open.into();
+    let sidebar_for_inline = sidebar_children.clone();
+    let sidebar_for_drawer = sidebar_children;
 
     let shell = view! {
         <BaseLayout
@@ -350,19 +435,56 @@ pub fn Layout(
         >
             {layout_header.map(|slot| (slot.children)())}
             <BaseLayoutBody>
-                {layout_sidebar.map(|slot| view! { <LayoutSidebarShell>{(slot.children)()}</LayoutSidebarShell> })}
+                {
+                    move || {
+                        let Some(children) = sidebar_for_inline.clone() else {
+                            return ().into_any();
+                        };
+                        if use_overlay_sidebar.get() {
+                            ().into_any()
+                        } else {
+                            view! { <LayoutSidebarShell>{children()}</LayoutSidebarShell> }.into_any()
+                        }
+                    }
+                }
                 {layout_main.map(|slot| view! { <LayoutMainShell>{(slot.children)()}</LayoutMainShell> })}
             </BaseLayoutBody>
         </BaseLayout>
+        {
+            move || {
+                let Some(children) = sidebar_for_drawer.clone() else {
+                    return ().into_any();
+                };
+                if !use_overlay_sidebar.get() {
+                    return ().into_any();
+                }
+                view! {
+                    <OverlayDrawer
+                        open=drawer_open
+                        position=DrawerPosition::Left
+                        size=DrawerSize::Navigation
+                        close_on_esc=true
+                        class="orbital-layout-sidebar-drawer"
+                    >
+                        <div data-testid="layout-sidebar-drawer">
+                            {children()}
+                        </div>
+                    </OverlayDrawer>
+                }
+                .into_any()
+            }
+        }
     };
 
     view! {
         <style>{style_sheet}</style>
+        <style>{SIDEBAR_DRAWER_OVERLAY_CSS}</style>
         {if use_page_scrollport {
             view! {
                 <ScrollArea
                     class="orbital-layout__page-scroll"
                     style=page_scroll_style
+                    node_ref=page_scroll_ref
                 >
                     {shell}
                 </ScrollArea>

@@ -19,6 +19,11 @@
 //!
 //! - Shell/layout primitives ([`orbital_shell`], [`OrbitalTemplate`]) for
 //!   consistent app composition.
+//! - Responsive breakpoints ([`Breakpoint`](orbital_theme::Breakpoint)) and
+//!   media hooks (`use_breakpoint_*`, `use_media_query`) for adaptive chrome.
+//! - [`AdaptiveMenu`](orbital_core_components::AdaptiveMenu) and Layout
+//!   [`SidebarPresentation`](orbital_core_components::SidebarPresentation) for
+//!   mobile drawers.
 //! - Auth context providers/hooks ([`provide_auth_context`], [`use_auth_context`]).
 //! - Auth redirect helpers and route guards ([`routes`]).
 //! - Preview catalog registration ([`PreviewRegistration`], [`collect_preview_registrations`]).
@@ -175,7 +180,7 @@ where
     view! {
          <StyleRegistry>
             <!DOCTYPE html>
-            <html lang="en">
+            <html lang="en" style="height: 100%;">
                 <head>
                     <meta charset="utf-8"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -193,7 +198,7 @@ where
                     <link rel="stylesheet" href="/main.css" />
                     <MetaTags/>
                 </head>
-                <body style="margin: 0;">
+                <body style="margin: 0; height: 100%; overflow: hidden;">
                     {app_fn()}
                     <OrbitalBootOverlay />
                 </body>

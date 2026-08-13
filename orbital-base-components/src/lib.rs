@@ -26,6 +26,7 @@ pub mod icon;
 pub mod layout;
 pub mod loading_bar;
 pub mod material;
+pub mod media;
 pub mod navigation;
 pub mod overlay;
 pub mod pagination;
@@ -101,6 +102,7 @@ pub use layout::{
 };
 pub use loading_bar::{BaseLoadingBarProvider, LoadingBarInjection};
 pub use material::{BaseMaterial, MaterialCorners, MaterialElevation, MaterialVariant};
+pub use media::{use_breakpoint, use_breakpoint_down, use_breakpoint_up, use_media_query};
 pub use navigation::carousel::{
     BaseCarousel, BaseCarouselSlide, BaseCarouselStepper, BaseCarouselViewport, CarouselState,
     CarouselStateInjection, CarouselStepperLayout,
