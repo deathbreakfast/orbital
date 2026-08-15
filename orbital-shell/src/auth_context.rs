@@ -31,6 +31,8 @@ use leptos::prelude::*;
 pub struct AuthContext {
     session: RwSignal<AuthSession>,
     reload_token: RwSignal<u64>,
+    /// Becomes true after the first [`crate::init_auth_resource`] fetch settles.
+    session_loaded: RwSignal<bool>,
 }
 
 impl AuthContext {
@@ -44,6 +46,19 @@ impl AuthContext {
         self.reload_token
     }
 
+    /// Whether the initial (or latest settled) session fetch has completed.
+    ///
+    /// Until this is true, treat auth UI as unresolved rather than anonymous.
+    #[must_use]
+    pub fn session_loaded(&self) -> RwSignal<bool> {
+        self.session_loaded
+    }
+
+    /// Mark the session fetch as settled (called from the session resource effect).
+    pub fn mark_session_loaded(&self) {
+        self.session_loaded.set(true);
+    }
+
     /// Force dependent auth resources to refresh.
     ///
     /// This is the common way to tell [`crate::init_auth_resource`] that the backend session may have changed.
@@ -55,11 +70,12 @@ impl AuthContext {
 
 /// Provide [`AuthContext`] to the component tree and return it.
 ///
-/// Most applications call this once near the root layout or router.
+/// Most applications call this once near the router root or layout.
 pub fn provide_auth_context(initial: AuthSession) -> AuthContext {
     let context = AuthContext {
         session: RwSignal::new(initial),
         reload_token: RwSignal::new(0),
+        session_loaded: RwSignal::new(false),
     };
     provide_context(context.clone());
     context
