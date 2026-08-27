@@ -146,10 +146,7 @@ fn should_show_category_header(
         return true;
     }
     let total_links: usize = categories.iter().map(|(_, items)| items.len()).sum();
-    if total_links <= 3 && section == "Tree" {
-        return false;
-    }
-    true
+    !(total_links <= 3 && section == "Tree")
 }
 
 fn append_category_content(
