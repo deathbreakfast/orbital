@@ -1,6 +1,6 @@
 [package]
 name = "orbital-paging"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 categories = ["web-programming", "gui"]
 keywords = ["leptos", "ui", "wasm", "components", "design-system"]
@@ -16,7 +16,7 @@ workspace = true
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
-orbital-data = { path = "../orbital-data", version = "0.1.3" }
+orbital-data = { path = "../orbital-data", version = "0.1.4" }
 
 # Optional: Leptos integration for the `use_paged_infinite_scroll` hook.
 # Kept behind a feature flag so SSR-only consumers (server functions returning

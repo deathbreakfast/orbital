@@ -1,6 +1,6 @@
 [package]
 name = "orbital-history"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 readme = "README.md"
 categories = ["web-programming", "gui"]
@@ -23,13 +23,13 @@ leptos.workspace = true
 bitflags = "2"
 chrono.workspace = true
 serde = { workspace = true, features = ["derive"] }
-orbital-base-components = { path = "../orbital-base-components", version = "0.1.3" }
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.3", default-features = false }
-orbital-paging = { path = "../orbital-paging", version = "0.1.3", features = ["leptos"] }
-orbital-macros = { path = "../orbital-macros", version = "0.1.4" }
-orbital-style = { path = "../orbital-style", version = "0.1.3" }
-orbital-theme = { path = "../orbital-theme", version = "0.1.3", default-features = false }
-orbital-markdown = { path = "../orbital-markdown", version = "0.1.3" }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false }
+orbital-paging = { path = "../orbital-paging", version = "0.1.4", features = ["leptos"] }
+orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
+orbital-style = { path = "../orbital-style", version = "0.1.4" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false }
+orbital-markdown = { path = "../orbital-markdown", version = "0.1.4" }
 inventory = { version = "0.3", optional = true }
 icondata.workspace = true
 icondata_core.workspace = true

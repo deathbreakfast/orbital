@@ -1,6 +1,6 @@
 [package]
 name = "component-preview-e2e"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 publish = false
 
@@ -12,10 +12,10 @@ default = ["preview"]
 preview = []
 
 [dependencies]
-orbital = { package = "orbital-ui", path = "../orbital", version = "0.1.3", default-features = false, features = ["preview"] }
-orbital-base-components = { path = "../orbital-base-components", version = "0.1.3" }
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.3", default-features = false, features = ["preview"] }
-orbital-macros = { path = "../orbital-macros", version = "0.1.4" }
+orbital = { package = "orbital-ui", path = "../orbital", version = "0.1.4", default-features = false, features = ["preview"] }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false, features = ["preview"] }
+orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
 leptos = { workspace = true, default-features = false, features = ["csr"] }
 icondata.workspace = true
 

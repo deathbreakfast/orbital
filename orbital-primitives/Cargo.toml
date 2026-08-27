@@ -1,6 +1,6 @@
 [package]
 name = "orbital-primitives"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 categories = ["web-programming", "gui"]
 keywords = ["leptos", "ui", "wasm", "components", "design-system"]
@@ -19,18 +19,18 @@ doctest = false
 
 [dependencies]
 leptos.workspace = true
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.3", default-features = false }
-orbital-theme = { path = "../orbital-theme", version = "0.1.3", default-features = false }
-orbital-base-components = { path = "../orbital-base-components", version = "0.1.3" }
-orbital-datatable = { path = "../orbital-datatable", version = "0.1.3", default-features = false }
-orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.3", default-features = false }
-orbital-charts = { path = "../orbital-charts", version = "0.1.3", default-features = false }
-orbital-tree = { path = "../orbital-tree", version = "0.1.3", default-features = false }
-orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.3", default-features = false }
-orbital-discussion = { path = "../orbital-discussion", version = "0.1.3", default-features = false }
-orbital-history = { path = "../orbital-history", version = "0.1.3", default-features = false }
-orbital-motion = { path = "../orbital-motion", version = "0.1.3", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.4" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false }
+orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
+orbital-datatable = { path = "../orbital-datatable", version = "0.1.4", default-features = false }
+orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.4", default-features = false }
+orbital-charts = { path = "../orbital-charts", version = "0.1.4", default-features = false }
+orbital-tree = { path = "../orbital-tree", version = "0.1.4", default-features = false }
+orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.4", default-features = false }
+orbital-discussion = { path = "../orbital-discussion", version = "0.1.4", default-features = false }
+orbital-history = { path = "../orbital-history", version = "0.1.4", default-features = false }
+orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
 icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true
