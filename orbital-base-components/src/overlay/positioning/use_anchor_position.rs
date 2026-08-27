@@ -53,15 +53,10 @@ fn is_anchor_visible(target_rect: &web_sys::DomRect, target_node: &web_sys::Node
     let window = window();
     let vw = window.inner_width().unwrap_throw().as_f64().unwrap_or(0.0);
     let vh = window.inner_height().unwrap_throw().as_f64().unwrap_or(0.0);
-    if target_rect.bottom() <= 0.0
+    !(target_rect.bottom() <= 0.0
         || target_rect.top() >= vh
         || target_rect.right() <= 0.0
-        || target_rect.left() >= vw
-    {
-        return false;
-    }
-
-    true
+        || target_rect.left() >= vw)
 }
 
 pub fn use_anchor_position(
