@@ -653,7 +653,7 @@ version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9be934d936a0fbed5bcdc01042b770de1398bf79d0e192f49fa7faea0e99281e"
 dependencies = [
- "cssparser-macros 0.6.1",
+ "cssparser-macros",
  "dtoa-short",
  "itoa",
  "phf 0.11.3",
@@ -666,10 +666,8 @@ version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c9cdaae01d5ed7882b04d795e7f752f46ff52d2fa3b50a20d28c464510bba98"
 dependencies = [
- "cssparser-macros 0.7.0",
  "dtoa-short",
  "itoa",
- "phf 0.13.1",
  "smallvec",
 ]
 
@@ -687,16 +685,6 @@ name = "cssparser-macros"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
-dependencies = [
- "quote",
- "syn 2.0.119",
-]
-
-[[package]]
-name = "cssparser-macros"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10a2a99df6e410a8ff4245aa2006499ea662245f967cc7c0a38c83ef8eb44dbf"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -2178,6 +2166,7 @@ dependencies = [
  "orbital-style",
  "orbital-theme",
  "palette",
+ "parcel_selectors",
  "reactive_stores 0.2.5",
  "send_wrapper",
  "turf",
@@ -2225,6 +2214,7 @@ dependencies = [
  "orbital-style",
  "orbital-theme",
  "palette",
+ "parcel_selectors",
  "pulldown-cmark",
  "turf",
  "wasm-bindgen",
@@ -2279,6 +2269,7 @@ dependencies = [
  "orbital-core-components",
  "orbital-macros",
  "orbital-theme",
+ "parcel_selectors",
  "turf",
  "wasm-bindgen",
  "web-sys",
@@ -2364,6 +2355,7 @@ dependencies = [
  "leptos_transition_group",
  "orbital-macros",
  "orbital-style",
+ "parcel_selectors",
  "pulldown-cmark",
  "send_wrapper",
  "turf",
@@ -2407,6 +2399,7 @@ dependencies = [
  "orbital-theme",
  "orbital-tree",
  "orbital-ui",
+ "parcel_selectors",
  "turf",
 ]
 
@@ -2459,6 +2452,7 @@ dependencies = [
  "orbital-scheduler",
  "orbital-theme",
  "orbital-tree",
+ "parcel_selectors",
  "turf",
 ]
 
@@ -2498,6 +2492,7 @@ dependencies = [
  "orbital-core-components",
  "orbital-macros",
  "orbital-primitives",
+ "parcel_selectors",
  "pulldown-cmark",
  "serde",
  "turf",
@@ -2560,6 +2555,7 @@ dependencies = [
  "orbital-shell",
  "orbital-style",
  "orbital-theme",
+ "parcel_selectors",
  "pulldown-cmark",
  "serde",
  "serde_json",
@@ -2603,12 +2599,12 @@ checksum = "6e6eb142958d64335fb0e345c5b9ead2ecd6fc438c307e9d7d3c4fd428dbaf12"
 
 [[package]]
 name = "parcel_selectors"
-version = "0.28.3"
+version = "0.28.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d05f71e01edca03d245ab0a9f7ce13a974ceb79baaae8faf2ba0b11de6b90913"
+checksum = "54fd03f1ad26cb6b3ec1b7414fa78a3bd639e7dbb421b1a60513c96ce886a196"
 dependencies = [
  "bitflags",
- "cssparser 0.37.0",
+ "cssparser 0.33.0",
  "log",
  "phf 0.11.3",
  "phf_codegen 0.11.3",
@@ -2670,7 +2666,7 @@ version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fd6780a80ae0c52cc120a26a1a42c1ae51b247a253e4e06113d23d2c2edd078"
 dependencies = [
- "phf_macros 0.11.3",
+ "phf_macros",
  "phf_shared 0.11.3",
 ]
 
@@ -2680,7 +2676,6 @@ version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1562dc717473dbaa4c1f85a36410e03c047b2e7df7f45ee938fbef64ae7fadf"
 dependencies = [
- "phf_macros 0.13.1",
  "phf_shared 0.13.1",
  "serde",
 ]
@@ -2733,19 +2728,6 @@ checksum = "f84ac04429c13a7ff43785d75ad27569f2951ce0ffd30a3321230db2fc727216"
 dependencies = [
  "phf_generator 0.11.3",
  "phf_shared 0.11.3",
- "proc-macro2",
- "quote",
- "syn 2.0.119",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "812f032b54b1e759ccd5f8b6677695d5268c588701effba24601f6932f8269ef"
-dependencies = [
- "phf_generator 0.13.1",
- "phf_shared 0.13.1",
  "proc-macro2",
  "quote",
  "syn 2.0.119",

@@ -30,6 +30,7 @@ icondata.workspace = true
 icondata_core.workspace = true
 
 turf.workspace = true
+parcel_selectors = { workspace = true }
 
 http.workspace = true
 cfg-if.workspace = true

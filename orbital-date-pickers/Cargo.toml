@@ -29,6 +29,7 @@ icondata_core.workspace = true
 bitflags = "2"
 chrono.workspace = true
 turf.workspace = true
+parcel_selectors = { workspace = true }
 inventory = { version = "0.3", optional = true }
 wasm-bindgen = { workspace = true }
 web-sys = { version = "0.3", features = ["Document", "HtmlElement", "Window"] }

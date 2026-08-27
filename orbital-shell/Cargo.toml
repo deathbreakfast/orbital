@@ -23,6 +23,7 @@ leptos_router.workspace = true
 icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true
+parcel_selectors = { workspace = true }
 pulldown-cmark = "0.13"
 
 orbital-macros = { path = "../orbital-macros", version = "0.1.4" }

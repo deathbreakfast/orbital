@@ -34,6 +34,7 @@ orbital-macros = { path = "../orbital-macros", version = "0.1.4" }
 icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true
+parcel_selectors = { workspace = true }
 inventory = { version = "0.3", optional = true }
 
 [features]

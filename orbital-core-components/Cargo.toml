@@ -20,6 +20,7 @@ doctest = false
 [dependencies]
 leptos.workspace = true
 turf.workspace = true
+parcel_selectors = { workspace = true }
 icondata.workspace = true
 icondata_core.workspace = true
 chrono.workspace = true
