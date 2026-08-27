@@ -1,6 +1,6 @@
 [package]
 name = "orbital-datatable"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 readme = "README.md"
 categories = ["web-programming", "gui"]
@@ -23,13 +23,13 @@ leptos.workspace = true
 bitflags = "2"
 # Deflate only — default zip features pull in lzma-sys (native C), which fails on wasm32.
 zip = { version = "2", default-features = false, features = ["deflate"] }
-orbital-base-components = { path = "../orbital-base-components", version = "0.1.3" }
-orbital-core-components = { path = "../orbital-core-components", version = "0.1.3", default-features = false }
-orbital-data = { path = "../orbital-data", version = "0.1.3" }
-orbital-paging = { path = "../orbital-paging", version = "0.1.3", features = ["leptos"] }
-orbital-macros = { path = "../orbital-macros", version = "0.1.4" }
-orbital-style = { path = "../orbital-style", version = "0.1.3" }
-orbital-theme = { path = "../orbital-theme", version = "0.1.3", default-features = false }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false }
+orbital-data = { path = "../orbital-data", version = "0.1.4" }
+orbital-paging = { path = "../orbital-paging", version = "0.1.4", features = ["leptos"] }
+orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
+orbital-style = { path = "../orbital-style", version = "0.1.4" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 chrono.workspace = true

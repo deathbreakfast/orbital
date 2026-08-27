@@ -1,6 +1,6 @@
 [package]
 name = "orbital-motion"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 categories = ["web-programming", "gui"]
 keywords = ["leptos", "ui", "wasm", "components", "design-system"]
@@ -20,9 +20,10 @@ doctest = false
 [dependencies]
 leptos.workspace = true
 leptos_transition_group = "0.2.0"
-orbital-style = { path = "../orbital-style", version = "0.1.3", default-features = false }
-orbital-macros = { path = "../orbital-macros", version = "0.1.4", optional = true }
+orbital-style = { path = "../orbital-style", version = "0.1.4", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.5", optional = true }
 turf.workspace = true
+parcel_selectors = { workspace = true }
 icondata.workspace = true
 icondata_core.workspace = true
 inventory = "0.3"

@@ -70,6 +70,9 @@ icondata = { version = "0.4.0", default-features = false, features = ["ant-desig
 icondata_core = "0.1.0"
 
 turf = "0.10"
+# lightningcss 1.0.0-alpha.65 breaks with parcel_selectors 0.28.3 / cssparser 0.37.
+# See commit message for provenance and unpin requirements.
+parcel_selectors = "=0.28.2"
 
 axum = "0.8.4"
 cfg-if = "1.0.0"
