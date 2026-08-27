@@ -15,7 +15,7 @@ use super::page_scrollport::LayoutPageScrollport;
 use super::sidebar::LayoutSidebarShell;
 use super::sidebar_presentation::{SidebarPresentation, DEFAULT_SIDEBAR_OVERLAY_BREAKPOINT};
 use super::slots::{LayoutHeader, LayoutMain, LayoutSidebar};
-use super::styles::{layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS};
+use super::styles::{layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS, SIDEBAR_INLINE_FILL_CSS};
 use crate::navigation::{DrawerPosition, DrawerSize, OverlayDrawer};
 use crate::ScrollArea;
 
@@ -29,7 +29,7 @@ use crate::ScrollArea;
 ///
 /// # Usage
 ///
-/// 1. Set `overlay_header=true` when the header uses Sticky or Fixed [`AppBar`]. 2. Use Sticky [`AppBar`] with frost material for the default pinned window-scroll shell. 3. Set `main_inset_scroll=true` for opaque fixed bars with inner main scroll below the bar. 4. Match `header_inset` density to the [`AppBar`] density tier. 5. Place navigation in [`LayoutSidebar`] and page content in [`LayoutMain`]. 6. [`LayoutSidebar`] stays pinned below the bar; only the page scrolls in pinned mode. 7. When the page scrollport is active, Layout provides [`LayoutPageScrollport`] so [`HideOnScroll`](crate::HideOnScroll) can listen on the same ScrollArea.
+/// 1. Set `overlay_header=true` when the header uses Sticky or Fixed [`AppBar`]. 2. Use Sticky [`AppBar`] with frost material for the default pinned window-scroll shell. 3. Set `main_inset_scroll=true` for opaque fixed bars with inner main scroll below the bar. 4. Match `header_inset` density to the [`AppBar`] density tier. 5. Place navigation in [`LayoutSidebar`] and page content in [`LayoutMain`]. 6. [`LayoutSidebar`] stays pinned below the bar; only the page scrolls in pinned mode. 7. When the page scrollport is active, Layout provides [`LayoutPageScrollport`] so [`HideOnScroll`](crate::HideOnScroll) can listen on the same ScrollArea. 8. Put long nav trees in [`Navigation`](crate::Navigation) / [`NavigationBody`](crate::NavigationBody) inside [`LayoutSidebar`] — the Navigation body [`ScrollArea`](crate::ScrollArea) scrolls inside the sticky column once `header_inset` matches the AppBar (inline column and overlay drawer use the same fill chain).
 ///
 /// # Scroll modes
 ///
@@ -479,6 +479,7 @@ pub fn Layout(
     view! {
         <style>{style_sheet}</style>
         <style>{SIDEBAR_DRAWER_OVERLAY_CSS}</style>
+        <style>{SIDEBAR_INLINE_FILL_CSS}</style>
         {if use_page_scrollport {
             view! {
                 <ScrollArea

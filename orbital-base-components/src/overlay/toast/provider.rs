@@ -338,7 +338,7 @@ fn ToastPositionStack(
     let on_dismiss = ToasterInjection::dismiss_callback(injection);
 
     view! {
-        <Show when=has_toasts>
+        <Show when=move || has_toasts.get()>
             <div
                 class=move || {
                     format!(
@@ -394,7 +394,7 @@ pub fn BaseToastStack() -> impl IntoView {
 
     if config.inline {
         view! {
-            <Show when=has_messages>
+            <Show when=move || has_messages.get()>
                 <ToastStackLayer injection=injection inline=config.inline offset=config.offset />
             </Show>
         }

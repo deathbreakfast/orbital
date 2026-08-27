@@ -122,7 +122,7 @@ pub fn RatingDisplay(
     });
 
     view! {
-        <div role="img" class=class>
+        <div role="img" class=move || class.get().unwrap_or_default()>
             <leptos::context::Provider value=RatingInjection {
                 value: bound_value.into(),
                 hovered_value: RwSignal::new(None::<f32>),

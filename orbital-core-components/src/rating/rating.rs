@@ -201,7 +201,7 @@ pub fn Rating(
     view! {
         <div
             role="radiogroup"
-            class=class
+            class=move || class.get().unwrap_or_default()
             id=id
             on:change=on_change
             on:mouseover=on_mouseover

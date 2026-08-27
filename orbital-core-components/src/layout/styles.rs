@@ -243,6 +243,46 @@ pub const SIDEBAR_DRAWER_OVERLAY_CSS: &str = r#"
 }
 "#;
 
+/// Inline [`LayoutSidebar`](super::LayoutSidebar) + [`Navigation`](crate::Navigation) fill
+/// chain so the Navigation body [`ScrollArea`](crate::ScrollArea) scrolls inside the sticky
+/// column (viewport minus AppBar). Descendant selectors allow a thin host wrapper.
+/// Turf would hash/mangle these cross-component selectors.
+pub const SIDEBAR_INLINE_FILL_CSS: &str = r#"
+.orbital-layout__sidebar .orbital-navigation {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    width: 100%;
+}
+.orbital-layout__sidebar .orbital-navigation__material {
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100% !important;
+    max-height: 100%;
+    overflow: hidden;
+    width: 100%;
+}
+.orbital-layout__sidebar .orbital-navigation__material > * {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+}
+.orbital-layout__sidebar .orbital-scroll-area {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+"#;
+
 /// Two-column doc layout: growing content column + sticky fit-content aside.
 pub fn content_with_aside_styles() -> &'static str {
     let (style_sheet, _) = inline_style_sheet_values! {
@@ -287,7 +327,10 @@ pub fn content_with_aside_styles() -> &'static str {
 
 #[cfg(test)]
 mod tests {
-    use super::{content_with_aside_styles, layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS};
+    use super::{
+        content_with_aside_styles, layout_styles, SIDEBAR_DRAWER_OVERLAY_CSS,
+        SIDEBAR_INLINE_FILL_CSS,
+    };
 
     #[test]
     fn overlay_body_uses_child_combinator() {
@@ -373,5 +416,15 @@ mod tests {
         ));
         assert!(!SIDEBAR_DRAWER_OVERLAY_CSS.contains("orbital-overlay-drawer-"));
         assert!(SIDEBAR_DRAWER_OVERLAY_CSS.contains("overflow-y: auto !important"));
+    }
+
+    #[test]
+    fn sidebar_inline_fill_css_targets_layout_sidebar_scroll_area() {
+        assert!(SIDEBAR_INLINE_FILL_CSS.contains(".orbital-layout__sidebar .orbital-scroll-area"));
+        assert!(SIDEBAR_INLINE_FILL_CSS.contains(".orbital-layout__sidebar .orbital-navigation"));
+        assert!(SIDEBAR_INLINE_FILL_CSS.contains("overflow-y: auto !important"));
+        // Inline fill is sidebar-scoped, not drawer-only.
+        assert!(!SIDEBAR_INLINE_FILL_CSS.contains("orbital-overlay-drawer"));
+        assert!(!SIDEBAR_INLINE_FILL_CSS.contains("orbital-layout__sidebar-"));
     }
 }

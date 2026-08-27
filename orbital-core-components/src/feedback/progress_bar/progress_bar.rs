@@ -156,7 +156,7 @@ pub fn ProgressBar(
 
     view! {
         <div
-            class=class
+            class=move || class.get().unwrap_or_default()
             role="progressbar"
             aria-valuemax=move || max.get()
             aria-valuemin="0"

@@ -68,7 +68,7 @@ pub fn ProgressCircle(
 
     view! {
         <div
-            class=class
+            class=move || class.get().unwrap_or_default()
             role="progressbar"
             aria-valuemax="100"
             aria-valuemin="0"

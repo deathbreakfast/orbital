@@ -14,7 +14,10 @@ pub fn BaseSpace(
     children: Children,
 ) -> impl IntoView {
     view! {
-        <div class=class style=style>
+        <div
+            class=move || class.get().unwrap_or_default()
+            style=move || style.get().unwrap_or_default()
+        >
             <BaseFlex
                 gap=gap
                 vertical=vertical

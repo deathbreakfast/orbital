@@ -25,8 +25,8 @@ pub fn BaseFloatingButton(
     view! {
         <button
             type="button"
-            class=class
-            style=style
+            class=move || class.get().unwrap_or_default()
+            style=move || style.get().unwrap_or_default()
             aria-label=move || aria_label.get()
             disabled=move || disabled.get().then_some("")
             data-testid=move || testid.get()
