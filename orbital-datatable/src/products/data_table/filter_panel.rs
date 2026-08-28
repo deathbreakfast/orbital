@@ -187,7 +187,7 @@ fn DataTableFilterPanelContent(
                 value_text=val0
                 rule_index=0
             />
-            <Show when=Signal::derive(move || multi_filter && rule_count.get() >= 2)>
+            <Show when=move || multi_filter && (rule_count.get() >= 2)>
                 <DataTableFilterRuleEditor
                     columns=state.columns
                     field=field1
@@ -196,7 +196,7 @@ fn DataTableFilterPanelContent(
                     rule_index=1
                 />
             </Show>
-            <Show when=Signal::derive(move || multi_filter && rule_count.get() >= 3)>
+            <Show when=move || multi_filter && (rule_count.get() >= 3)>
                 <DataTableFilterRuleEditor
                     columns=state.columns
                     field=field2

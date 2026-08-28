@@ -174,9 +174,9 @@ pub fn DataTableFilterRuleEditor(
                 }}
             </Select>
             <Show
-                when=Signal::derive(move || {
+                when=move || {
                     operator_from_wire_local(operator_wire.get()).is_some_and(operator_requires_value)
-                })
+                }
                 fallback=|| view! { <span class="orbital-data-table__filter-rule-spacer" /> }
             >
                 {move || {
