@@ -3,6 +3,7 @@
 /target/ws-test/
 /target-site-preview/
 /target-orbital-examples/
+/target-pin-verify/
 /examples/*/site/
 /end2end/node_modules/
 /end2end/test-results/

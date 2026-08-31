@@ -56,10 +56,10 @@ use orbital_macros::component_doc;
 /// let entries_compact = RwSignal::new(sample);
 /// view! {
 ///     <div data-testid="history-layout-preview" style="display: flex; gap: 16px; height: 360px;">
-///         <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+///         <div data-testid="history-layout-natural" style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
 ///             <HistoryTimeline data_source=HistorySource::Client(entries_natural) />
 ///         </div>
-///         <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+///         <div data-testid="history-layout-compact" style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
 ///             <HistoryTimeline
 ///                 data_source=HistorySource::Client(entries_compact)
 ///                 layout=HistoryLayout::Compact

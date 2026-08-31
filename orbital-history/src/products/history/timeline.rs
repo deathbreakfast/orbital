@@ -1139,11 +1139,14 @@ fn HistoryServerPanel(
             && !show_error.get()
             && !filter_active.get()
     });
+    // Client filter: source still has rows, projection is empty.
+    // SERVER_FILTER: fetcher returns an empty page, so source is empty too — still no-matches
+    // when the filter is active (show_empty requires !filter_active).
     let show_no_matches = Memo::new(move |_| {
         !is_loading.get()
-            && source_has_data.get()
             && projected_empty.get()
             && filter_active.get()
+            && ever_loaded.get()
             && !show_error.get()
     });
     let show_list = Memo::new(move |_| !projected_empty.get());

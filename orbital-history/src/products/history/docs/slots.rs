@@ -22,6 +22,28 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Server fetch error overlay
+/// A failing page fetcher surfaces the default error MessageBar.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::{page_fetcher, HistoryPagingMode, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let fetcher = page_fetcher(|_| async {
+///     Err(ServerFnError::new("preview forced fetch failure"))
+/// });
+/// view! {
+///     <div data-testid="history-error-preview" style="height: 240px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Server {
+///                 fetcher,
+///                 page_size: 10,
+///             }
+///             paging=HistoryPagingMode::None
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-slots",
