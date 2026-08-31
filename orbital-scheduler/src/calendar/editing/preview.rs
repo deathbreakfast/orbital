@@ -143,7 +143,7 @@ pub fn SchedulerCalendarEditing(
         let display_timezone = RwSignal::new(DatetimeTimezone::Local);
 
         view! {
-            <div class=class data-testid="scheduler-calendar-editing-preview">
+            <div class=move || class.get().unwrap_or_default() data-testid="scheduler-calendar-editing-preview">
                 <DatetimeLocale default_timezone=Signal::derive(move || display_timezone.get())>
                     <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                         <ThemeDensityStepper />

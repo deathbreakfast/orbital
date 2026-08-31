@@ -49,7 +49,7 @@ pub fn SchedulerCalendarImportExport(
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     view! {
-        <div data-testid="scheduler-calendar-import-export-preview" class=class>
+        <div data-testid="scheduler-calendar-import-export-preview" class=move || class.get().unwrap_or_default()>
             <DeferredFeatureNotice
                 sc_id="SC-13"
                 feature_name="Calendar import/export"

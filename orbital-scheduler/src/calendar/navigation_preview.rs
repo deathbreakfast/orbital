@@ -121,7 +121,7 @@ pub fn SchedulerCalendarNavigation(
     }
 
     view! {
-        <div class=class data-testid="scheduler-calendar-navigation-preview">
+        <div class=move || class.get().unwrap_or_default() data-testid="scheduler-calendar-navigation-preview">
             <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                 <ThemeDensityStepper />
                 <Flex gap=FlexGap::Small align=FlexAlign::Center>

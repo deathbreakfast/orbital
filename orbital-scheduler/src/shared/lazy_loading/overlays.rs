@@ -24,7 +24,7 @@ pub fn SchedulerLazyLoadOverlays(
     let show_error = Signal::derive(move || !loading.get() && error.get().is_some());
 
     view! {
-        <Show when=show_loading>
+        <Show when=move || show_loading.get()>
             {move || {
                 interaction.slots.with_value(|slots| {
                     if let Some(loading_view) = &slots.loading_view {
@@ -45,7 +45,7 @@ pub fn SchedulerLazyLoadOverlays(
                 })
             }}
         </Show>
-        <Show when=show_error>
+        <Show when=move || show_error.get()>
             {move || {
                 let message = error.get().unwrap_or_default();
                 interaction.slots.with_value(|slots| {

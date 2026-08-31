@@ -104,7 +104,7 @@ pub fn SchedulerTimelineNavigation(
     let handle = RwSignal::new(None::<SchedulerTimelineHandle>);
 
     view! {
-        <div data-testid="scheduler-timeline-navigation-preview" class=class>
+        <div data-testid="scheduler-timeline-navigation-preview" class=move || class.get().unwrap_or_default()>
             <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                 <ThemeDensityStepper />
                 <Flex gap=FlexGap::Small align=FlexAlign::Center>

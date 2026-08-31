@@ -99,7 +99,7 @@ pub fn SchedulerTimelineVirtualization(
         view! {
             <div
                 data-testid="scheduler-timeline-virtualization-preview"
-                class=class
+                class=move || class.get().unwrap_or_default()
                 style="height: 480px; display: flex; flex-direction: column; min-height: 0;"
             >
                 <ThemeDensityStepper />

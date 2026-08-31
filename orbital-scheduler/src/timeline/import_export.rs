@@ -49,7 +49,7 @@ pub fn SchedulerTimelineImportExport(
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     view! {
-        <div data-testid="scheduler-timeline-import-export-preview" class=class>
+        <div data-testid="scheduler-timeline-import-export-preview" class=move || class.get().unwrap_or_default()>
             <DeferredFeatureNotice
                 sc_id="SC-26"
                 feature_name="Timeline import/export"

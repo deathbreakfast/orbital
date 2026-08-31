@@ -132,7 +132,7 @@ pub fn SchedulerCalendarLocalization(
         .provide();
 
         view! {
-            <div class=class data-testid="scheduler-calendar-localization-preview">
+            <div class=move || class.get().unwrap_or_default() data-testid="scheduler-calendar-localization-preview">
                 <DatetimeLocale default_timezone=Signal::derive(move || display_timezone.get())>
                     <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                         <ThemeDensityStepper />

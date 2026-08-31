@@ -114,7 +114,7 @@ pub fn SchedulerCalendarLazyLoading(
     ));
 
     view! {
-        <div data-testid="scheduler-calendar-lazy-loading-preview" class=class>
+        <div data-testid="scheduler-calendar-lazy-loading-preview" class=move || class.get().unwrap_or_default()>
             <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                 <ThemeDensityStepper />
                 <Switch bind=simulate_error label="Simulate error".to_string() />

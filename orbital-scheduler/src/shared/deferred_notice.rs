@@ -18,7 +18,7 @@ pub fn DeferredFeatureNotice(
     });
     let test_id = format!("scheduler-deferred-{sc_id}");
     view! {
-        <div class=class data-testid=test_id>
+        <div class=move || class.get().unwrap_or_default() data-testid=test_id>
             <MessageBar intent=MessageBarIntent::Info>
                 <MessageBarBody>
                     <MessageBarTitle>{feature_name.to_string()}</MessageBarTitle>

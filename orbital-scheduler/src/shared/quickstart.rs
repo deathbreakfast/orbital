@@ -98,7 +98,7 @@ pub fn SchedulerQuickstart(
         let display_timezone = RwSignal::new(DatetimeTimezone::Local);
 
         view! {
-            <div class=class data-testid="scheduler-quickstart-preview">
+            <div class=move || class.get().unwrap_or_default() data-testid="scheduler-quickstart-preview">
                 <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                     <ThemeDensityStepper />
                     <SchedulerCalendar
@@ -145,7 +145,7 @@ pub fn SchedulerQuickstart(
     {
         let _ = (&class, &children);
         view! {
-            <div class=class data-testid="scheduler-quickstart-preview">
+            <div class=move || class.get().unwrap_or_default() data-testid="scheduler-quickstart-preview">
                 <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                     <ThemeDensityStepper />
                 </Flex>

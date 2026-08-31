@@ -96,7 +96,7 @@ pub fn SchedulerTimelineEvents(
         let display_timezone = RwSignal::new(DatetimeTimezone::Local);
 
         view! {
-            <div data-testid="scheduler-timeline-events-preview" class=class>
+            <div data-testid="scheduler-timeline-events-preview" class=move || class.get().unwrap_or_default()>
                 <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                     <ThemeDensityStepper />
                     <SchedulerTimeline

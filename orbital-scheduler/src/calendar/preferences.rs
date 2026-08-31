@@ -117,7 +117,7 @@ pub fn SchedulerCalendarPreferences(
         let popover_mount = NodeRef::<Div>::new();
 
         view! {
-            <div class=class data-testid="scheduler-calendar-preferences-preview">
+            <div class=move || class.get().unwrap_or_default() data-testid="scheduler-calendar-preferences-preview">
                 <Flex vertical=true gap=FlexGap::Medium align=FlexAlign::Stretch full_width=true>
                     <ThemeDensityStepper />
                     <div node_ref=popover_mount style="position: relative;" />
