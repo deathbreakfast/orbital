@@ -6,6 +6,7 @@ use super::types::{MaterialCorners, MaterialElevation, MaterialVariant};
 #[component]
 pub fn BaseMaterial(
     #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(optional, into)] style: MaybeProp<String>,
     #[prop(default = MaterialVariant::Solid)] variant: MaterialVariant,
     #[prop(default = MaterialElevation::Resting)] elevation: MaterialElevation,
     #[prop(default = MaterialCorners::Rounded)] corners: MaterialCorners,
@@ -22,6 +23,7 @@ pub fn BaseMaterial(
                     format!("orbital-material {extra}")
                 }
             }
+            style=move || style.get()
             data-material-variant=variant.as_data()
             data-material-elevation=elevation.as_data()
             data-material-corners=corners.as_data()

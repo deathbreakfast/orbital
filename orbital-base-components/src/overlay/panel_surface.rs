@@ -22,6 +22,12 @@ pub struct OverlayPanelInjection {
 pub fn OverlaySurface(
     #[prop(into)] class: Signal<String>,
     #[prop(optional, into)] role: MaybeProp<String>,
+    /// Optional inline styles on the positioned overlay shell (e.g. min/max width).
+    #[prop(optional, into)]
+    style: MaybeProp<String>,
+    /// Optional `data-testid` for E2E targeting of the overlay shell.
+    #[prop(optional, into)]
+    data_testid: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     let panel = expect_context::<OverlayPanelInjection>();
@@ -41,6 +47,8 @@ pub fn OverlaySurface(
         <div
             class=class
             role=role
+            style=move || style.get()
+            data-testid=move || data_testid.get()
             node_ref=panel.panel_ref
             on:mouseenter=move |e| panel.on_mouse_enter.run(e)
             on:mouseleave=move |e| panel.on_mouse_leave.run(e)

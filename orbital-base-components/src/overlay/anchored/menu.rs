@@ -19,6 +19,8 @@ pub fn BaseMenu<TTrigger, V>(
     #[prop(optional)] placement: Option<Placement>,
     #[prop(optional)] appearance: Option<OverlayAppearance>,
     #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(optional, into)] style: MaybeProp<String>,
+    #[prop(optional, into)] data_testid: MaybeProp<String>,
     #[prop(into)] on_select: Handler<V>,
     overlay_trigger: OverlayTrigger<TTrigger>,
     children: Children,
@@ -55,7 +57,7 @@ where
     view! {
         <Provider value=menu_injection>
             <AnchoredOverlay config=config overlay_trigger=overlay_trigger>
-                <OverlaySurface class=shell_class role="menu">
+                <OverlaySurface class=shell_class role="menu" style=style data_testid=data_testid>
                     <MenuKeyboardRegion>
                         {children()}
                     </MenuKeyboardRegion>

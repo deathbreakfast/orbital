@@ -12,6 +12,7 @@ use crate::{Flex, MaterialElevation, MaterialVariant};
 #[component]
 pub fn FloatingPanel(
     #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(optional, into)] style: MaybeProp<String>,
     #[prop(optional, into)] body_class: MaybeProp<String>,
     #[prop(default = MaterialVariant::Solid)] variant: MaterialVariant,
     #[prop(default = MaterialElevation::Floating)] elevation: MaterialElevation,
@@ -35,6 +36,7 @@ pub fn FloatingPanel(
     view! {
         <BaseMaterial
             class=root_class
+            style=style
             variant=variant
             elevation=elevation
             corners=MaterialCorners::Rounded
