@@ -1,6 +1,7 @@
 use leptos::html::Div;
 use leptos::prelude::*;
 use orbital_base_components::DatetimeTimezone;
+use orbital_core_components::Flex;
 use orbital_core_components::ScrollArea;
 use orbital_macros::component_doc;
 use orbital_paging::{use_paged_infinite_scroll, Page, PageRequest};
@@ -841,7 +842,12 @@ fn HistoryClientPanel(
     };
 
     view! {
-        <div class="orbital-history__client-panel" style="display:flex;flex-direction:column;min-height:0;flex:1;">
+        <Flex
+            vertical=true
+            fill=true
+            full_width=true
+            class="orbital-history__client-panel".to_string()
+        >
             <ScrollArea
                 class="orbital-history__scroll".to_string()
                 style=scroll_style.unwrap_or_default()
@@ -867,7 +873,7 @@ fn HistoryClientPanel(
             <Show when=move || is_paged fallback=|| ()>
                 {pagination_view()}
             </Show>
-        </div>
+        </Flex>
     }
 }
 
@@ -1235,7 +1241,12 @@ fn HistoryServerPanel(
     });
 
     view! {
-        <div class="orbital-history__server-panel" style="display:flex;flex-direction:column;min-height:0;flex:1;">
+        <Flex
+            vertical=true
+            fill=true
+            full_width=true
+            class="orbital-history__server-panel".to_string()
+        >
             <ScrollArea
                 class="orbital-history__scroll".to_string()
                 style=scroll_style.unwrap_or_default()
@@ -1266,6 +1277,6 @@ fn HistoryServerPanel(
             <Show when=move || show_pagination fallback=|| ()>
                 {pagination_view()}
             </Show>
-        </div>
+        </Flex>
     }
 }

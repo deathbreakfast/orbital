@@ -8,6 +8,24 @@ use super::types::{MenuAppearance, MenuConfig, MenuPosition, MenuTriggerType};
 use crate::overlay::{overlay_surface_class, FloatingPanel};
 use crate::{MaterialElevation, MenuTrigger};
 
+/// Builds inline width constraints for menu overlay shells.
+fn menu_overlay_width_style(min_width: Option<String>, max_width: Option<String>) -> String {
+    let min = min_width.filter(|s| !s.trim().is_empty());
+    let max = max_width.filter(|s| !s.trim().is_empty());
+    if min.is_none() && max.is_none() {
+        return String::new();
+    }
+    let mut parts = vec!["box-sizing: border-box".to_string()];
+    if let Some(min) = min {
+        parts.push(format!("min-width: {min}"));
+    }
+    if let Some(max) = max {
+        parts.push(format!("max-width: {max}"));
+        parts.push(format!("width: {max}"));
+    }
+    parts.join("; ")
+}
+
 /// `Menu` opens a list of actions from any trigger you place in [`MenuTrigger`] — icon buttons,
 /// links, or custom controls. Handle choices in `on_select` by matching each [`MenuItem`] `value`.
 ///
@@ -215,6 +233,15 @@ pub fn Menu<T, V>(
     /// Visual variant: `Brand` or `Inverted`; omit for default surface.
     #[prop(optional, into)]
     appearance: MaybeProp<MenuAppearance>,
+    /// Minimum menu panel width (CSS length, e.g. `"360px"`).
+    #[prop(optional, into)]
+    min_width: MaybeProp<String>,
+    /// Maximum menu panel width (CSS length, e.g. `"400px"`). When set, also sets `width` to this value for stable sizing.
+    #[prop(optional, into)]
+    max_width: MaybeProp<String>,
+    /// Optional `data-testid` on the menu overlay shell.
+    #[prop(optional, into)]
+    data_testid: MaybeProp<String>,
     /// [`MenuItem`] children.
     children: Children,
 ) -> impl IntoView
@@ -240,17 +267,30 @@ where
     let surface_class =
         Signal::derive(move || overlay_surface_class("orbital-menu", appearance, None));
 
+    let overlay_style =
+        Signal::derive(move || menu_overlay_width_style(min_width.get(), max_width.get()));
+    let panel_fill_style = Signal::derive(move || {
+        if min_width.get().is_some() || max_width.get().is_some() {
+            Some("width: 100%; box-sizing: border-box".to_string())
+        } else {
+            None
+        }
+    });
+
     view! {
         <BaseMenu
             trigger_type=config.trigger_type.into()
             placement=config.position.into()
             appearance=appearance
             class=class
+            style=overlay_style
+            data_testid=data_testid
             on_select=on_select
             overlay_trigger=menu_trigger
         >
             <FloatingPanel
                 class=surface_class
+                style=panel_fill_style
                 body_class="orbital-menu-body"
                 elevation=MaterialElevation::Floating
             >

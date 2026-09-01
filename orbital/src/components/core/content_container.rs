@@ -64,6 +64,9 @@ pub fn Container(
     /// Maximum width of the content area. Defaults to `"1200px"`. Common values: `"900px"` for form pages, `"720px"` for focused content.
     #[prop(optional, into, default = "1200px".into())]
     max_width: String,
+    /// Minimum width of the content area (CSS length, e.g. `"360px"`).
+    #[prop(optional, into)]
+    min_width: MaybeProp<String>,
     /// Optional CSS class to merge onto the container element.
     #[prop(optional, into)]
     class: MaybeProp<String>,
@@ -80,7 +83,14 @@ pub fn Container(
         }
     };
 
-    let container_style = format!("width: min({}, 100%)", max_width);
+    let container_style = Signal::derive(move || {
+        let mut parts = vec![format!("width: min({}, 100%)", max_width.clone())];
+        if let Some(min) = min_width.get().filter(|s| !s.trim().is_empty()) {
+            parts.push(format!("min-width: {min}"));
+        }
+        parts.push("box-sizing: border-box".to_string());
+        parts.join("; ")
+    });
 
     let container_class = {
         let base = class_names.container.to_string();
