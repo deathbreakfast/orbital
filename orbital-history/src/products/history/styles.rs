@@ -44,6 +44,12 @@ pub fn history_styles() -> &'static str {
     gap: var(--orb-space-block-xs);
 }
 
+.orbital-history__client-panel,
+.orbital-history__server-panel {
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
 .orbital-history__toolbar {
     display: flex;
     flex-wrap: wrap;
