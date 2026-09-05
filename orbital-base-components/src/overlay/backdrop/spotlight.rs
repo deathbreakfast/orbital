@@ -2,6 +2,8 @@ use super::types::SpotlightRect;
 use crate::overlay::positioning::resolve_external_anchor;
 use leptos::{ev, leptos_dom::helpers::WindowListenerHandle, prelude::*};
 use std::sync::Arc;
+#[cfg(not(feature = "ssr"))]
+use wasm_bindgen::JsCast;
 
 /// Track the spotlight cutout rect and re-sync on scroll, resize, and anchor changes.
 pub fn use_spotlight_rect(
@@ -28,6 +30,19 @@ pub fn use_spotlight_rect(
                 rect.set(None);
                 return;
             };
+            #[cfg(not(feature = "ssr"))]
+            {
+                // Bring the cutout target on-screen before measuring so off-page
+                // anchors do not leave the tour panel without a hole.
+                if let Some(html) = element.dyn_ref::<web_sys::HtmlElement>() {
+                    let mut opts = web_sys::ScrollIntoViewOptions::new();
+                    opts.set_block(web_sys::ScrollLogicalPosition::Nearest);
+                    opts.set_inline(web_sys::ScrollLogicalPosition::Nearest);
+                    html.scroll_into_view_with_scroll_into_view_options(&opts);
+                } else {
+                    element.scroll_into_view();
+                }
+            }
             let bounds = element.get_bounding_client_rect();
             rect.set(Some(SpotlightRect {
                 top: bounds.top() - padding,
