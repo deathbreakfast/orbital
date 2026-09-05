@@ -4,6 +4,7 @@ version = "0.1.4"
 edition = "2021"
 publish = false
 license = "MIT"
+description = "SSR server for the Orbital component preview catalog."
 
 [lints]
 workspace = true
