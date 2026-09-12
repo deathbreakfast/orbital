@@ -670,54 +670,61 @@ pub fn DataTableRoot(
                 }>
                     <DataTableEditUndoToolbar state=table_state />
                 </Show>
-                <div
-                    class=move || {
-                        let mut parts = vec!["orbital-data-table__scroll-host".to_string()];
-                        if bounded_scroll {
-                            parts.push("orbital-data-table__scroll-host--bounded".to_string());
-                        }
-                        parts.join(" ")
-                    }
-                    tabindex="-1"
-                    data-testid="data-table-grid-focus"
-                    on:keydown=move |ev: leptos::ev::KeyboardEvent| {
-                        let ctx = use_data_table_context();
-                        handle_grid_keydown(table_state, ctx, ev);
-                    }
-                >
-                    <ScrollArea
-                        horizontal=horizontal_scroll
-                        class="orbital-data-table__scroll"
-                        style=scroll_area_style.clone()
-                        node_ref=scroll_el
-                        scroll_testid="data-table-scroll"
-                        scroll_data_column_order=column_order_label
-                    >
-                        <DataTableMain state=table_state />
-                        {infinite_fetcher.map(|fetcher| view! {
-                            <DataTableInfiniteScrollController
+                {if header_chrome.get_value().show_table_grid {
+                    view! {
+                        <div
+                            class=move || {
+                                let mut parts = vec!["orbital-data-table__scroll-host".to_string()];
+                                if bounded_scroll {
+                                    parts.push("orbital-data-table__scroll-host--bounded".to_string());
+                                }
+                                parts.join(" ")
+                            }
+                            tabindex="-1"
+                            data-testid="data-table-grid-focus"
+                            on:keydown=move |ev: leptos::ev::KeyboardEvent| {
+                                let ctx = use_data_table_context();
+                                handle_grid_keydown(table_state, ctx, ev);
+                            }
+                        >
+                            <ScrollArea
+                                horizontal=horizontal_scroll
+                                class="orbital-data-table__scroll"
+                                style=scroll_area_style.clone()
+                                node_ref=scroll_el
+                                scroll_testid="data-table-scroll"
+                                scroll_data_column_order=column_order_label
+                            >
+                                <DataTableMain state=table_state />
+                                {infinite_fetcher.map(|fetcher| view! {
+                                    <DataTableInfiniteScrollController
+                                        state=table_state
+                                        scroll_el=scroll_el
+                                        fetcher=fetcher
+                                        page_size=page_size.get() as u32
+                                        fetch_coordinator=fetch_coordinator
+                                        server_fetch_policy=server_fetch_policy
+                                        refresh_signal=refresh_signal
+                                    />
+                                })}
+                            </ScrollArea>
+                            <DataTableOverlays
                                 state=table_state
-                                scroll_el=scroll_el
-                                fetcher=fetcher
-                                page_size=page_size.get() as u32
-                                fetch_coordinator=fetch_coordinator
-                                server_fetch_policy=server_fetch_policy
-                                refresh_signal=refresh_signal
+                                empty_view=empty_view
+                                no_results_view=no_results_view
+                                loading_view=loading_view
                             />
-                        })}
-                    </ScrollArea>
-                    <DataTableOverlays
-                        state=table_state
-                        empty_view=empty_view
-                        no_results_view=no_results_view
-                        loading_view=loading_view
-                    />
-                </div>
-                {match footer_slot {
-                    Some(footer_slot) => {
-                        view! { <DataTableFooter state=table_state footer_slot=footer_slot /> }.into_any()
+                        </div>
+                        {match footer_slot {
+                            Some(footer_slot) => {
+                                view! { <DataTableFooter state=table_state footer_slot=footer_slot /> }.into_any()
+                            }
+                            None => view! { <DataTableFooter state=table_state /> }.into_any(),
+                        }}
                     }
-                    None => view! { <DataTableFooter state=table_state /> }.into_any(),
+                    .into_any()
+                } else {
+                    ().into_any()
                 }}
                 <DataTableColumnDragGhost />
                 <DataTableRowDragGhost />

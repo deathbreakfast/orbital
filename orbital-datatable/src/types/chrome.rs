@@ -40,6 +40,9 @@ pub struct DataTableHeaderChromeConfig {
     pub column_filter_button: bool,
     /// Allow hiding columns via menu and picker. Default `true`.
     pub column_hide: bool,
+    /// When `false`, omit thead/tbody/scroll host (toolbar-only chrome for chart panels).
+    /// Default `true`.
+    pub show_table_grid: bool,
 }
 
 impl Default for DataTableHeaderChromeConfig {
@@ -48,6 +51,7 @@ impl Default for DataTableHeaderChromeConfig {
             column_menu: true,
             column_filter_button: true,
             column_hide: true,
+            show_table_grid: true,
         }
     }
 }

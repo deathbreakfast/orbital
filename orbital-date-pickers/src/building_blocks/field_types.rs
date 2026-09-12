@@ -1174,6 +1174,10 @@ pub struct DateTimeRangePickerAppearance {
     pub timezone: Signal<DatetimeTimezone>,
     /// Disables the field and datetime panels.
     pub disabled: Signal<bool>,
+    /// Close the popover when the range selection completes.
+    pub close_on_select: Signal<bool>,
+    /// Popover placement for the start/end datetime panels.
+    pub placement: Signal<Placement>,
 }
 
 impl Default for DateTimeRangePickerAppearance {
@@ -1183,6 +1187,8 @@ impl Default for DateTimeRangePickerAppearance {
             time_format: Signal::from(DatetimeFormat::Time12),
             timezone: Signal::from(DatetimeTimezone::Local),
             disabled: Signal::from(false),
+            close_on_select: Signal::from(true),
+            placement: Signal::from(Placement::BottomStart),
         }
     }
 }

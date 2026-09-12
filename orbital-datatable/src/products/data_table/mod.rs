@@ -303,6 +303,7 @@ fn default_page_size_options() -> Option<Vec<u32>> {
 ///                 column_menu: false,
 ///                 column_filter_button: false,
 ///                 column_hide: false,
+///                 show_table_grid: true,
 ///             }
 ///             columns=vec![DataTableColumnDef::new("name", "Name")]
 ///             items=items
