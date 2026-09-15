@@ -11,8 +11,8 @@ use crate::context::ChartKind;
 use crate::engine::default_plot_inset;
 use crate::{
     AxisClickData, AxisDef, AxisHighlightConfig, ChartEmbedMode, ChartItemId, ChartMotion,
-    GridConfig, HighlightScope, LegendConfig, OrbitalChartPalette, OrbitalChartsTheme,
-    OverlayMount, PlotInset, SeriesDef, TooltipConfig,
+    ChartOrientation, GridConfig, HighlightScope, LegendConfig, OrbitalChartPalette,
+    OrbitalChartsTheme, OverlayMount, PlotInset, SeriesDef, TooltipConfig,
 };
 use leptos::callback::Callback;
 
@@ -37,6 +37,7 @@ fn ResponsiveChartMeasuredHost(
     y_axis: Option<Vec<AxisDef>>,
     grid: Option<GridConfig>,
     palette: Option<OrbitalChartPalette>,
+    orientation: ChartOrientation,
     highlight_scope: Option<HighlightScope>,
     axis_highlight: Option<AxisHighlightConfig>,
     legend: Option<LegendConfig>,
@@ -52,48 +53,69 @@ fn ResponsiveChartMeasuredHost(
     embed_mode: ChartEmbedMode,
     overlay_mount: OverlayMount,
     chart_kind: ChartKind,
+    prefer_line_x_strict: bool,
     #[prop(optional, into)] class: MaybeProp<String>,
-    #[prop(optional)] children: Option<Children>,
+    // Not `#[prop(optional)]`: this internal component is always invoked explicitly with
+    // `children=children` from `ResponsiveChartContainer` (already an `Option<ChildrenFn>`),
+    // and `#[prop(optional)]` would make the generated setter expect the *unwrapped*
+    // `ChildrenFn` instead (the macro wraps it in `Some(...)` itself), which is the opposite
+    // of what a passthrough of an already-`Option` value needs.
+    children: Option<ChildrenFn>,
 ) -> impl IntoView {
-    let (mw, mh) = measured.get();
-    let width = width_override.unwrap_or(mw);
-    let height = height_override.unwrap_or(mh);
-
+    // Reactive on `measured` (and thus on window/container resize): re-renders `ChartRoot`
+    // with fresh dimensions on every ResizeObserver callback. A previous version read
+    // `measured.get()` once, outside this closure, at component-setup time — the value was
+    // captured but never revisited, so the chart silently stayed pinned to whatever size it
+    // measured (or the fallback) on first mount and never grew or shrank afterward.
     view! {
         <div class="orb-chart-responsive-host" node_ref=node_ref>
-            <ChartRoot
-                class=class
-                dataset=dataset
-                binding=binding
-                width=width
-                height=height
-                margin=margin
-                skip_animation=skip_animation
-                motion=motion
-                loading=loading
-                series=series
-                x_axis=x_axis
-                y_axis=y_axis
-                grid=grid
-                palette=palette
-                highlight_scope=highlight_scope
-                axis_highlight=axis_highlight
-                legend=legend
-                tooltip=tooltip
-                charts_theme=charts_theme
-                highlighted_item=highlighted_item
-                on_highlight_change=on_highlight_change
-                on_item_click=on_item_click
-                on_axis_click=on_axis_click
-                on_legend_click=on_legend_click
-                loading_view=loading_view
-                empty_view=empty_view
-                embed_mode=embed_mode
-                overlay_mount=overlay_mount
-                chart_kind=chart_kind
-            >
-                {children.map(|c| c())}
-            </ChartRoot>
+            {move || {
+                let (mw, mh) = measured.get();
+                let width = width_override.unwrap_or(mw);
+                let height = height_override.unwrap_or(mh);
+                // Clone the `Arc` (cheap) rather than let `ChartRoot`'s own `Children`
+                // (`FnOnce`) slot move the captured `children` out of this closure's
+                // environment — that would make this whole closure only callable once,
+                // defeating the resize reactivity this component exists to provide.
+                let children = children.clone();
+                view! {
+                    <ChartRoot
+                        class=class.clone()
+                        dataset=dataset.clone()
+                        binding=binding.clone()
+                        width=width
+                        height=height
+                        margin=margin
+                        skip_animation=skip_animation
+                        motion=motion.clone()
+                        loading=loading
+                        series=series.clone()
+                        x_axis=x_axis.clone()
+                        y_axis=y_axis.clone()
+                        grid=grid
+                        palette=palette.clone()
+                        orientation=orientation
+                        highlight_scope=highlight_scope
+                        axis_highlight=axis_highlight
+                        legend=legend.clone()
+                        tooltip=tooltip.clone()
+                        charts_theme=charts_theme.clone()
+                        highlighted_item=highlighted_item
+                        on_highlight_change=on_highlight_change
+                        on_item_click=on_item_click
+                        on_axis_click=on_axis_click
+                        on_legend_click=on_legend_click
+                        loading_view=loading_view.clone()
+                        empty_view=empty_view.clone()
+                        embed_mode=embed_mode
+                        overlay_mount=overlay_mount.clone()
+                        chart_kind=chart_kind
+                        prefer_line_x_strict=prefer_line_x_strict
+                    >
+                        {children.map(|c| c())}
+                    </ChartRoot>
+                }
+            }}
         </div>
     }
 }
@@ -182,6 +204,9 @@ pub fn ResponsiveChartContainer(
     /// Color palette override.
     #[prop(default = None)]
     palette: Option<OrbitalChartPalette>,
+    /// Chart orientation for cartesian plots (e.g. `BarChart` horizontal bars).
+    #[prop(default = ChartOrientation::Vertical)]
+    orientation: ChartOrientation,
     /// Highlight and fade scope.
     #[prop(default = None)]
     highlight_scope: Option<HighlightScope>,
@@ -230,9 +255,15 @@ pub fn ResponsiveChartContainer(
     /// Chart geometry family.
     #[prop(default = ChartKind::Cartesian)]
     chart_kind: ChartKind,
-    /// Composition children (plot, axis, legend layers).
+    /// When true, inferred line/area x-axes use [`crate::DomainLimit::Strict`]. Chart roots
+    /// that set this in their fixed-size branch (e.g. `LineChart`, `AreaChart`) must pass the
+    /// same value here so responsive mode doesn't silently change domain behavior.
+    #[prop(default = false)]
+    prefer_line_x_strict: bool,
+    /// Composition children (plot, axis, legend layers). `ChildrenFn` (not the usual
+    /// one-shot `Children`) because the inner chart re-renders on every container resize.
     #[prop(optional)]
-    children: Option<Children>,
+    children: Option<ChildrenFn>,
 ) -> impl IntoView {
     let host_ref = NodeRef::<leptos::html::Div>::new();
     let fallback_w = width.unwrap_or(400.0);
@@ -261,6 +292,7 @@ pub fn ResponsiveChartContainer(
                 y_axis=y_axis
                 grid=grid
                 palette=palette
+                orientation=orientation
                 highlight_scope=highlight_scope
                 axis_highlight=axis_highlight
                 legend=legend
@@ -276,8 +308,8 @@ pub fn ResponsiveChartContainer(
                 embed_mode=embed_mode
                 overlay_mount=overlay_mount
                 chart_kind=chart_kind
-            >
-                {children.map(|c| c())}
-            </ResponsiveChartMeasuredHost>
+                prefer_line_x_strict=prefer_line_x_strict
+                children=children
+            />
     }
 }

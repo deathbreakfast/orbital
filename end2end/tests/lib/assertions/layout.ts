@@ -35,3 +35,42 @@ export async function expectHorizontallyBetween(
   expect(leftMid).toBeLessThan(centerMid);
   expect(centerMid).toBeLessThan(rightMid);
 }
+
+/**
+ * Assert no two elements matched by `selector` inside `container` have overlapping bounding
+ * boxes. Layout-level (position/size), not a screenshot diff, so it stays stable across
+ * environments/fonts. Catches overlapping axis tick labels (dense band axes) regardless of
+ * whether the fix path taken is rotation or thinning — it asserts the rendered outcome, not
+ * which mechanism produced it.
+ */
+export async function expectNoOverlappingLabels(
+  container: Locator,
+  selector = ".orb-axis-tick-label",
+): Promise<void> {
+  const labels = container.locator(selector);
+  const count = await labels.count();
+  const boxes: { x: number; y: number; width: number; height: number }[] = [];
+  for (let i = 0; i < count; i++) {
+    const box = await labels.nth(i).boundingBox();
+    if (box) boxes.push(box);
+  }
+
+  const overlapping: [number, number][] = [];
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i];
+      const b = boxes[j];
+      const intersects =
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+      if (intersects) overlapping.push([i, j]);
+    }
+  }
+
+  expect(
+    overlapping,
+    `overlapping label pairs (indices into rendered order): ${JSON.stringify(overlapping)}`,
+  ).toEqual([]);
+}

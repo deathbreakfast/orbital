@@ -54,6 +54,28 @@ use crate::ChartContainer;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Dense band axis — rotated/thinned labels
+/// 24 hourly buckets in a 320px-wide chart — more categories than fit as horizontal labels.
+/// Each category pairs a unique full-timestamp scale key with a short `tick_labels` display
+/// label (see [`crate::AxisDef::tick_labels`]); the axis renderer rotates and, if still dense,
+/// thins the labels so they stay legible instead of overlapping.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::{ChartContainer, GridConfig};
+/// use crate::preview::fixtures::{dense_hourly_series, dense_hourly_x_axis};
+/// view! {
+///     <div data-testid="charts-axis-dense-preview" style="min-width: 320px; min-height: 320px;">
+///         <ChartContainer
+///             series=Some(vec![dense_hourly_series()])
+///             x_axis=Some(vec![dense_hourly_x_axis()])
+///             grid=Some(GridConfig { horizontal: true, vertical: false })
+///             width=Some(320.0)
+///             height=Some(320.0)
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Charts",
     preview_slug = "charts-axis",

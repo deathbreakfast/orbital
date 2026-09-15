@@ -5,7 +5,7 @@ use leptos::prelude::*;
 use orbital_data::{ChartFieldBinding, Dataset};
 use orbital_macros::component_doc;
 
-use crate::shared::{AxisClickLayer, BarPlot, ChartContainer};
+use crate::shared::{AxisClickLayer, BarPlot, ChartContainer, ResponsiveChartContainer};
 use crate::{
     AxisClickData, AxisDef, AxisHighlightConfig, BarLabelConfig, ChartFeatures, ChartItemId,
     ChartMotion, ChartOrientation, GridConfig, HighlightScope, LegendConfig, OrbitalChartPalette,
@@ -155,12 +155,18 @@ pub fn BarChart(
     /// Vertical or horizontal bar orientation.
     #[prop(default = ChartOrientation::Vertical)]
     orientation: ChartOrientation,
-    /// Chart width in pixels.
+    /// Chart width in pixels. Ignored when `responsive=true`.
     #[prop(optional)]
     width: Option<f64>,
-    /// Chart height in pixels.
+    /// Chart height in pixels. Optional override even when `responsive=true`.
     #[prop(optional)]
     height: Option<f64>,
+    /// When true, the chart measures its host element via `ResizeObserver` and fills it
+    /// instead of using a fixed pixel `width` (see [`crate::ResponsiveChartContainer`]).
+    /// Defaults to `false` — existing callers that only pass `height` keep today's fixed
+    /// `520x320`-default behavior unchanged.
+    #[prop(default = false)]
+    responsive: bool,
     /// Plot inset between SVG border and plot area.
     #[prop(optional)]
     margin: Option<PlotInset>,
@@ -227,7 +233,6 @@ pub fn BarChart(
             .zip(y_fields.clone())
             .map(|(x, y)| ChartFieldBinding::new(x, y))
     });
-    let w = width.unwrap_or(520.0);
     let h = height.unwrap_or(320.0);
     let grid = grid.or({
         Some(GridConfig {
@@ -236,41 +241,88 @@ pub fn BarChart(
         })
     });
 
-    view! {
-        <ChartContainer
-            class=class
-            dataset=dataset
-            binding=binding
-            series=series
-            x_axis=x_axis
-            y_axis=y_axis
-            width=Some(w)
-            height=Some(h)
-            margin=margin
-            grid=grid
-            loading=loading
-            skip_animation=skip_animation
-            motion=motion
-            orientation=orientation
-            highlight_scope=highlight_scope
-            axis_highlight=axis_highlight
-            legend=legend
-            tooltip=tooltip
-            charts_theme=charts_theme
-            palette=palette
-            on_item_click=on_item_click
-            on_axis_click=on_axis_click
-            on_legend_click=on_legend_click
-            features=features
-            zoom=zoom
-            on_zoom_change=on_zoom_change
-        >
-            <BarPlot
-                orientation=Some(orientation)
-                bar_label=bar_label
-                corner_radius=corner_radius
+    if responsive {
+        let plot_children: ChildrenFn = std::sync::Arc::new(move || {
+            let bar_label = bar_label.clone();
+            view! {
+                <>
+                    <BarPlot
+                        orientation=Some(orientation)
+                        bar_label=bar_label
+                        corner_radius=corner_radius
+                    />
+                    <AxisClickLayer orientation=Some(orientation) />
+                </>
+            }
+            .into_any()
+        });
+        view! {
+            <ResponsiveChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                height=height
+                margin=margin
+                grid=grid
+                loading=loading
+                skip_animation=skip_animation
+                motion=motion
+                orientation=orientation
+                highlight_scope=highlight_scope
+                axis_highlight=axis_highlight
+                legend=legend
+                tooltip=tooltip
+                charts_theme=charts_theme
+                palette=palette
+                on_item_click=on_item_click
+                on_axis_click=on_axis_click
+                on_legend_click=on_legend_click
+                children=plot_children
             />
-            <AxisClickLayer orientation=Some(orientation) />
-        </ChartContainer>
+        }
+        .into_any()
+    } else {
+        let w = width.unwrap_or(520.0);
+        view! {
+            <ChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                width=Some(w)
+                height=Some(h)
+                margin=margin
+                grid=grid
+                loading=loading
+                skip_animation=skip_animation
+                motion=motion
+                orientation=orientation
+                highlight_scope=highlight_scope
+                axis_highlight=axis_highlight
+                legend=legend
+                tooltip=tooltip
+                charts_theme=charts_theme
+                palette=palette
+                on_item_click=on_item_click
+                on_axis_click=on_axis_click
+                on_legend_click=on_legend_click
+                features=features
+                zoom=zoom
+                on_zoom_change=on_zoom_change
+            >
+                <BarPlot
+                    orientation=Some(orientation)
+                    bar_label=bar_label
+                    corner_radius=corner_radius
+                />
+                <AxisClickLayer orientation=Some(orientation) />
+            </ChartContainer>
+        }
+        .into_any()
     }
 }

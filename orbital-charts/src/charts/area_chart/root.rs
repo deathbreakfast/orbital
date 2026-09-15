@@ -5,7 +5,7 @@ use leptos::prelude::*;
 use orbital_data::{ChartFieldBinding, Dataset};
 use orbital_macros::component_doc;
 
-use crate::shared::{AreaPlot, ChartContainer};
+use crate::shared::{AreaPlot, ChartContainer, ResponsiveChartContainer};
 use crate::{
     AxisClickData, AxisDef, AxisHighlightConfig, ChartItemId, ChartMotion, GridConfig,
     HighlightScope, LegendConfig, OrbitalChartPalette, OrbitalChartsTheme, PlotInset, SeriesDef,
@@ -136,12 +136,18 @@ pub fn AreaChart(
     /// Stack offset for all series in a stack group (`Expand` for 100% stacks).
     #[prop(optional)]
     stack_offset: Option<StackOffset>,
-    /// Chart width in pixels.
+    /// Chart width in pixels. Ignored when `responsive=true`.
     #[prop(optional)]
     width: Option<f64>,
-    /// Chart height in pixels.
+    /// Chart height in pixels. Optional override even when `responsive=true`.
     #[prop(optional)]
     height: Option<f64>,
+    /// When true, the chart measures its host element via `ResizeObserver` and fills it
+    /// instead of using a fixed pixel `width` (see [`crate::ResponsiveChartContainer`]).
+    /// Defaults to `false` — existing callers that only pass `height` keep today's fixed
+    /// `520x320`-default behavior unchanged.
+    #[prop(default = false)]
+    responsive: bool,
     /// Plot inset between SVG border and plot area.
     #[prop(optional)]
     margin: Option<PlotInset>,
@@ -193,7 +199,6 @@ pub fn AreaChart(
             .zip(y_fields.clone())
             .map(|(x, y)| ChartFieldBinding::new(x, y))
     });
-    let w = width.unwrap_or(520.0);
     let h = height.unwrap_or(320.0);
     let grid = grid.or({
         Some(GridConfig {
@@ -202,33 +207,70 @@ pub fn AreaChart(
         })
     });
 
-    view! {
-        <ChartContainer
-            class=class
-            dataset=dataset
-            binding=binding
-            series=series
-            x_axis=x_axis
-            y_axis=y_axis
-            width=Some(w)
-            height=Some(h)
-            margin=margin
-            grid=grid
-            loading=loading
-            skip_animation=skip_animation
-            motion=motion
-            highlight_scope=highlight_scope
-            axis_highlight=axis_highlight
-            legend=legend
-            tooltip=tooltip
-            charts_theme=charts_theme
-            palette=palette
-            on_item_click=on_item_click
-            on_axis_click=on_axis_click
-            on_legend_click=on_legend_click
-            prefer_line_x_strict=true
-        >
-            <AreaPlot stack_offset=stack_offset />
-        </ChartContainer>
+    if responsive {
+        let plot_children: ChildrenFn = std::sync::Arc::new(move || {
+            let stack_offset = stack_offset.clone();
+            view! { <AreaPlot stack_offset=stack_offset /> }.into_any()
+        });
+        view! {
+            <ResponsiveChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                height=height
+                margin=margin
+                grid=grid
+                loading=loading
+                skip_animation=skip_animation
+                motion=motion
+                highlight_scope=highlight_scope
+                axis_highlight=axis_highlight
+                legend=legend
+                tooltip=tooltip
+                charts_theme=charts_theme
+                palette=palette
+                on_item_click=on_item_click
+                on_axis_click=on_axis_click
+                on_legend_click=on_legend_click
+                prefer_line_x_strict=true
+                children=plot_children
+            />
+        }
+        .into_any()
+    } else {
+        let w = width.unwrap_or(520.0);
+        view! {
+            <ChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                width=Some(w)
+                height=Some(h)
+                margin=margin
+                grid=grid
+                loading=loading
+                skip_animation=skip_animation
+                motion=motion
+                highlight_scope=highlight_scope
+                axis_highlight=axis_highlight
+                legend=legend
+                tooltip=tooltip
+                charts_theme=charts_theme
+                palette=palette
+                on_item_click=on_item_click
+                on_axis_click=on_axis_click
+                on_legend_click=on_legend_click
+                prefer_line_x_strict=true
+            >
+                <AreaPlot stack_offset=stack_offset />
+            </ChartContainer>
+        }
+        .into_any()
     }
 }
