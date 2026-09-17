@@ -20,6 +20,9 @@ pub fn dialog_styles() -> &'static str {
     user-select: unset;
     visibility: unset;
     position: fixed;
+    /* Sibling of .orbital-backdrop (z-index: 1000) inside .orbital-dialog's stacking context —
+       needs a higher explicit z-index or the backdrop paints over this surface. */
+    z-index: 1001;
     height: fit-content;
     max-width: 600px;
     max-height: 100vh;

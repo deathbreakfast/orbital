@@ -111,8 +111,12 @@ pub fn band_label_layout(bandwidth: f64, labels: &[String]) -> BandLabelLayout {
     if widest <= 0.0 || widest <= bandwidth {
         return BandLabelLayout::Horizontal;
     }
-    // Rotated at ROTATED_LABEL_ANGLE_DEG: horizontal footprint shrinks by cos(angle).
-    let rotated_footprint = widest * ROTATED_LABEL_ANGLE_DEG.to_radians().cos().abs();
+    // Axis-aligned bounding-box width of a `widest`x`TICK_LABEL_HEIGHT` label rotated by the
+    // tick angle: both the width's cos component and the height's sin component contribute to
+    // the on-screen horizontal footprint. Dropping the height term (as a bare `widest * cos`
+    // would) underestimates the footprint enough to let rotated labels overlap in practice.
+    let angle = ROTATED_LABEL_ANGLE_DEG.to_radians();
+    let rotated_footprint = widest * angle.cos().abs() + TICK_LABEL_HEIGHT * angle.sin().abs();
     if rotated_footprint <= bandwidth {
         return BandLabelLayout::Rotated;
     }
@@ -171,7 +175,13 @@ pub fn band_ticks(
                     .get(i)
                     .cloned()
                     .unwrap_or_else(|| (cat.clone(), None));
-                let show_label = i == 0 || i == last_idx || i % stride == 0;
+                // The last category always shows its label (so the final data point stays
+                // labeled), which can land closer than `stride` to the nearest regular on-stride
+                // tick. Suppress that near-last regular tick rather than let its rotated
+                // footprint collide with the forced-last one.
+                let show_label = i == 0
+                    || i == last_idx
+                    || (i % stride == 0 && last_idx.saturating_sub(i) >= stride);
                 TickMark {
                     position,
                     label: if show_label { display } else { String::new() },
