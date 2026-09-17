@@ -15,6 +15,10 @@ pub struct ChartInteractionContext {
     pub hovered_item: RwSignal<Option<ChartItemId>>,
     /// Highlighted item (controlled or derived from hover).
     pub highlighted_item: RwSignal<Option<ChartItemId>>,
+    /// Item focused via keyboard navigation or native `:focus`, distinct from mouse hover so
+    /// [`crate::shared::layers::ChartKeyboardFocus`]'s ring only shows for keyboard users —
+    /// mouse interaction clears it, mirroring `:focus-visible` semantics.
+    pub keyboard_focus_item: RwSignal<Option<ChartItemId>>,
     /// Series ids hidden via legend toggle.
     pub hidden_series: RwSignal<HashSet<String>>,
     /// Pointer position in plot coordinates.
@@ -35,6 +39,7 @@ impl ChartInteractionContext {
         Self {
             hovered_item: RwSignal::new(None),
             highlighted_item: RwSignal::new(None),
+            keyboard_focus_item: RwSignal::new(None),
             hidden_series: RwSignal::new(HashSet::new()),
             pointer_plot: RwSignal::new(None),
             axis_data_index: RwSignal::new(None),
@@ -56,9 +61,27 @@ pub fn use_hovered_item() -> RwSignal<Option<ChartItemId>> {
     expect_context::<ChartInteractionContext>().hovered_item
 }
 
-/// Set the hovered item (or clear with `None`).
+/// Set the hovered item (or clear with `None`) from a mouse/pointer interaction. Clears
+/// [`ChartInteractionContext::keyboard_focus_item`] — moving the pointer means keyboard focus is
+/// no longer the active input, so its ring should disappear (see
+/// [`set_keyboard_focus_item`] for the counterpart that sets it).
 pub fn set_hovered_item(item: Option<ChartItemId>) {
     let ctx = expect_context::<ChartInteractionContext>();
+    ctx.keyboard_focus_item.set(None);
+    ctx.hovered_item.set(item);
+    sync_highlight_from_hover(ctx);
+}
+
+/// Access the keyboard-focus item signal (drives [`crate::shared::layers::ChartKeyboardFocus`]).
+pub fn use_keyboard_focus_item() -> RwSignal<Option<ChartItemId>> {
+    expect_context::<ChartInteractionContext>().keyboard_focus_item
+}
+
+/// Set the item focused via keyboard navigation or native `:focus` (not mouse hover). Also
+/// updates hover/highlight so tooltips and fade behavior stay in sync with the focused mark.
+pub fn set_keyboard_focus_item(item: Option<ChartItemId>) {
+    let ctx = expect_context::<ChartInteractionContext>();
+    ctx.keyboard_focus_item.set(item.clone());
     ctx.hovered_item.set(item);
     sync_highlight_from_hover(ctx);
 }

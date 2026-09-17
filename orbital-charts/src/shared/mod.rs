@@ -12,6 +12,7 @@ mod legend;
 mod marks;
 mod motion;
 mod plots;
+mod sample;
 mod styles;
 mod tooltip;
 
@@ -29,5 +30,6 @@ pub use legend::*;
 pub use marks::*;
 pub use motion::*;
 pub use plots::*;
+pub use sample::*;
 pub use styles::{chart_styles, density_modifier_class};
 pub use tooltip::*;

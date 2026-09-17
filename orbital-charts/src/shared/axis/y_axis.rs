@@ -105,6 +105,7 @@ pub fn YAxis(
                     _ if is_rtl => "start",
                     _ => "end",
                 };
+                let full_label = tick.full_label.clone();
                 view! {
                     <g class="orb-axis-tick-group">
                         <line class="orb-axis-tick" x1=lx1 y1=ly1 x2=lx2 y2=ly2 />
@@ -116,6 +117,7 @@ pub fn YAxis(
                                 text-anchor=anchor
                                 dominant-baseline="middle"
                             >
+                                {full_label.map(|full| view! { <title>{full}</title> })}
                                 {tick.label}
                             </text>
                         })}

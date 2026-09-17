@@ -6,8 +6,8 @@ use orbital_theme::{use_theme_options, Direction};
 use crate::axis_categories;
 use crate::context::{use_chart_context, use_x_scale, use_x_ticks};
 use crate::shared::axis::ticks::{
-    band_label_layout, band_ticks, linear_ticks, x_axis_title_y, x_label_position, x_tick_line,
-    ROTATED_LABEL_ANGLE_DEG,
+    band_label_layout, band_ticks, linear_ticks, resolved_band_labels, x_axis_title_y,
+    x_label_position, x_tick_line, ROTATED_LABEL_ANGLE_DEG,
 };
 use crate::{AxisPosition, ChartScale, ScaleType};
 
@@ -47,17 +47,11 @@ pub fn XAxis(
     let tick_labels = axis.tick_labels.clone();
     let ticks = Memo::new(move |_| match scale_type {
         ScaleType::Band | ScaleType::Point => {
-            let display_labels: Vec<String> = categories
-                .iter()
-                .enumerate()
-                .map(|(i, cat)| {
-                    tick_labels
-                        .as_ref()
-                        .and_then(|labels| labels.get(i))
-                        .cloned()
-                        .unwrap_or_else(|| cat.clone())
-                })
-                .collect();
+            let display_labels: Vec<String> =
+                resolved_band_labels(&categories, tick_labels.as_deref())
+                    .into_iter()
+                    .map(|(display, _)| display)
+                    .collect();
             let bandwidth = match &scale {
                 ChartScale::Band(band) => band.bandwidth(),
                 _ => 0.0,
@@ -116,6 +110,7 @@ pub fn XAxis(
                     .rotated
                     .then(|| format!("rotate({ROTATED_LABEL_ANGLE_DEG} {tx} {ty})"));
                 let label = tick.label.clone();
+                let full_label = tick.full_label.clone();
                 view! {
                     <g class="orb-axis-tick-group">
                         <line class="orb-axis-tick" x1=lx1 y1=ly1 x2=lx2 y2=ly2 />
@@ -128,6 +123,7 @@ pub fn XAxis(
                                 dominant-baseline="hanging"
                                 transform=transform.clone()
                             >
+                                {full_label.clone().map(|full| view! { <title>{full}</title> })}
                                 {label.clone()}
                             </text>
                         })}

@@ -29,6 +29,9 @@ pub struct TickMark {
     /// Display label. Empty when thinning hides this tick's label (the tick mark itself still
     /// renders at full density).
     pub label: String,
+    /// Untruncated label, present only when [`label`](Self::label) was shortened by
+    /// [`truncate_label`]. Hosts render this in a `<title>` so the full value is one hover away.
+    pub full_label: Option<String>,
     /// Whether the label should render rotated (dense band axis).
     pub rotated: bool,
 }
@@ -44,6 +47,45 @@ pub const ROTATED_LABEL_ANGLE_DEG: f64 = -40.0;
 
 fn estimated_label_width(label: &str) -> f64 {
     label.chars().count() as f64 * AVG_CHAR_WIDTH_PX
+}
+
+/// Hard cap on rendered tick label length, independent of [`band_label_layout`]'s rotate/thin
+/// decision. A single long category (a schema column name, say) would otherwise widen the
+/// "widest label" measurement enough to force rotation or thinning on every other tick, and its
+/// own rendered `<text>` could still run past the chart edge since SVG text doesn't wrap or clip
+/// by default.
+pub const MAX_TICK_LABEL_CHARS: usize = 24;
+
+/// Truncate a label to [`MAX_TICK_LABEL_CHARS`] with a trailing "…", by character (not byte) so
+/// multi-byte text isn't split mid-codepoint. Returns the (possibly truncated) display string and
+/// the original when truncation happened, so callers can offer it back via a `<title>`.
+fn truncate_label(label: &str) -> (String, Option<String>) {
+    if label.chars().count() <= MAX_TICK_LABEL_CHARS {
+        return (label.to_string(), None);
+    }
+    let head: String = label
+        .chars()
+        .take(MAX_TICK_LABEL_CHARS.saturating_sub(1))
+        .collect();
+    (format!("{head}…"), Some(label.to_string()))
+}
+
+/// Resolve display labels for a band axis — [`AxisDef::tick_labels`](crate::AxisDef::tick_labels)
+/// override when present, falling back to the category key — with [`truncate_label`] applied.
+/// Shared by [`band_label_layout`] width estimation and [`band_ticks`] rendering so both agree on
+/// exactly what will be drawn.
+pub fn resolved_band_labels(
+    categories: &[String],
+    tick_labels: Option<&[String]>,
+) -> Vec<(String, Option<String>)> {
+    categories
+        .iter()
+        .enumerate()
+        .map(|(i, cat)| {
+            let raw = tick_labels.and_then(|labels| labels.get(i)).unwrap_or(cat);
+            truncate_label(raw)
+        })
+        .collect()
 }
 
 /// How a dense band axis should render its tick labels.
@@ -113,6 +155,7 @@ pub fn band_ticks(
         BandLabelLayout::Rotated | BandLabelLayout::RotatedThinned { .. }
     );
     let last_idx = categories.len().saturating_sub(1);
+    let resolved = resolved_band_labels(categories, tick_labels);
     categories
         .iter()
         .enumerate()
@@ -124,15 +167,15 @@ pub fn band_ticks(
                     Some(crate::TickPlacement::Extremities) => center,
                     _ => center,
                 };
-                let display = tick_labels.and_then(|labels| labels.get(i)).unwrap_or(cat);
+                let (display, full_label) = resolved
+                    .get(i)
+                    .cloned()
+                    .unwrap_or_else(|| (cat.clone(), None));
                 let show_label = i == 0 || i == last_idx || i % stride == 0;
                 TickMark {
                     position,
-                    label: if show_label {
-                        display.clone()
-                    } else {
-                        String::new()
-                    },
+                    label: if show_label { display } else { String::new() },
+                    full_label: if show_label { full_label } else { None },
                     rotated,
                 }
             })
@@ -154,6 +197,7 @@ pub fn linear_ticks(
         .map(|&value| TickMark {
             position: linear.scale(value),
             label: format_tick_value(value, tick_format),
+            full_label: None,
             rotated: false,
         })
         .collect()
@@ -314,6 +358,56 @@ mod band_label_tests {
         let ticks = band_ticks(&scale, &categories, None, None, BandLabelLayout::Horizontal);
         assert!(ticks.iter().all(|t| !t.rotated));
         assert!(ticks.iter().all(|t| !t.label.is_empty()));
+    }
+
+    #[test]
+    fn truncate_label_leaves_short_labels_untouched() {
+        let (display, full) = truncate_label("actor_id");
+        assert_eq!(display, "actor_id");
+        assert_eq!(full, None);
+    }
+
+    #[test]
+    fn truncate_label_shortens_long_labels_with_ellipsis() {
+        let long = "gauge_permission_check_log_actor_valence_connection_id";
+        let (display, full) = truncate_label(long);
+        assert_eq!(display.chars().count(), MAX_TICK_LABEL_CHARS);
+        assert!(display.ends_with('…'));
+        assert_eq!(full.as_deref(), Some(long));
+    }
+
+    #[test]
+    fn band_ticks_truncates_long_labels_and_keeps_full_text_for_hover() {
+        let long_label = "gauge_permission_check_log_actor_valence_connection_id".to_string();
+        let categories = vec![long_label.clone(), "short".to_string()];
+        let scale = band_scale(&categories);
+        let ticks = band_ticks(&scale, &categories, None, None, BandLabelLayout::Horizontal);
+        assert!(ticks[0].label.chars().count() <= MAX_TICK_LABEL_CHARS);
+        assert_eq!(ticks[0].full_label.as_deref(), Some(long_label.as_str()));
+        assert_eq!(ticks[1].label, "short");
+        assert_eq!(
+            ticks[1].full_label, None,
+            "short labels carry no full_label override"
+        );
+    }
+
+    #[test]
+    fn band_ticks_thinned_out_labels_carry_no_full_label() {
+        let categories: Vec<String> = (0..10)
+            .map(|i| format!("very-long-category-name-{i}"))
+            .collect();
+        let scale = band_scale(&categories);
+        let ticks = band_ticks(
+            &scale,
+            &categories,
+            None,
+            None,
+            BandLabelLayout::RotatedThinned { stride: 3 },
+        );
+        assert!(
+            ticks[1].full_label.is_none(),
+            "thinned-out ticks render no label, so no title is needed either"
+        );
     }
 }
 

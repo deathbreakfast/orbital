@@ -35,7 +35,7 @@ pub fn use_spotlight_rect(
                 // Bring the cutout target on-screen before measuring so off-page
                 // anchors do not leave the tour panel without a hole.
                 if let Some(html) = element.dyn_ref::<web_sys::HtmlElement>() {
-                    let mut opts = web_sys::ScrollIntoViewOptions::new();
+                    let opts = web_sys::ScrollIntoViewOptions::new();
                     opts.set_block(web_sys::ScrollLogicalPosition::Nearest);
                     opts.set_inline(web_sys::ScrollLogicalPosition::Nearest);
                     html.scroll_into_view_with_scroll_into_view_options(&opts);
