@@ -39,6 +39,7 @@ pub fn use_chart_keyboard_listener(
                 }
                 interaction.hovered_item.set(None);
                 interaction.highlighted_item.set(None);
+                interaction.keyboard_focus_item.set(None);
                 return;
             }
             let active = interaction.hovered_item.get_untracked();

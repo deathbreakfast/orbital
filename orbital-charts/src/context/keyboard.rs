@@ -67,6 +67,7 @@ fn set_hover_item(interaction: &ChartInteractionContext, item: Option<ChartItemI
     if let Some(cb) = interaction.on_highlight_change.as_ref() {
         cb.run((item.clone(),));
     }
+    interaction.keyboard_focus_item.set(item.clone());
     interaction.hovered_item.set(item.clone());
     interaction.highlighted_item.set(item);
 }

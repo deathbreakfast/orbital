@@ -6,7 +6,7 @@ use orbital_data::{ChartFieldBinding, Dataset};
 use orbital_macros::component_doc;
 
 use crate::context::ChartKind;
-use crate::shared::{ChartContainer, ScatterPlot, VoronoiLayer};
+use crate::shared::{ChartContainer, ResponsiveChartContainer, ScatterPlot, VoronoiLayer};
 use crate::{
     AxisDef, ChartItemId, ChartMotion, FadeMode, GridConfig, HighlightMode, HighlightScope,
     PlotInset, SeriesDef,
@@ -149,12 +149,18 @@ pub fn ScatterChart(
     /// Y-axis definitions.
     #[prop(optional)]
     y_axis: Option<Vec<AxisDef>>,
-    /// Chart width in pixels.
+    /// Chart width in pixels. Ignored when `responsive=true`.
     #[prop(optional)]
     width: Option<f64>,
-    /// Chart height in pixels.
+    /// Chart height in pixels. Optional override even when `responsive=true`.
     #[prop(optional)]
     height: Option<f64>,
+    /// When true, the chart measures its host element via `ResizeObserver` and fills it
+    /// instead of using a fixed pixel `width` (see [`crate::ResponsiveChartContainer`]).
+    /// Defaults to `false` — existing callers that only pass `height` keep today's fixed
+    /// `520x320`-default behavior unchanged.
+    #[prop(default = false)]
+    responsive: bool,
     /// Plot inset.
     #[prop(optional)]
     margin: Option<PlotInset>,
@@ -198,7 +204,6 @@ pub fn ScatterChart(
             })
     });
 
-    let w = width.unwrap_or(520.0);
     let h = height.unwrap_or(320.0);
     let grid = grid.or({
         Some(GridConfig {
@@ -211,29 +216,66 @@ pub fn ScatterChart(
         fade: FadeMode::Global,
     }));
 
-    view! {
-        <ChartContainer
-            class=class
-            dataset=dataset
-            binding=binding
-            series=series
-            x_axis=x_axis
-            y_axis=y_axis
-            width=Some(w)
-            height=Some(h)
-            margin=margin
-            grid=grid
-            skip_animation=skip_animation
-            motion=motion
-            chart_kind=ChartKind::Scatter
-            highlight_scope=highlight
-            on_item_click=on_item_click
-        >
-            <VoronoiLayer
-                voronoi_max_radius=voronoi_max_radius
-                disable_voronoi=disable_voronoi
+    if responsive {
+        let plot_children: ChildrenFn = std::sync::Arc::new(move || {
+            view! {
+                <>
+                    <VoronoiLayer
+                        voronoi_max_radius=voronoi_max_radius
+                        disable_voronoi=disable_voronoi
+                    />
+                    <ScatterPlot marker_size=marker_size disable_voronoi=disable_voronoi />
+                </>
+            }
+            .into_any()
+        });
+        view! {
+            <ResponsiveChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                height=height
+                margin=margin
+                grid=grid
+                skip_animation=skip_animation
+                motion=motion
+                chart_kind=ChartKind::Scatter
+                highlight_scope=highlight
+                on_item_click=on_item_click
+                children=plot_children
             />
-            <ScatterPlot marker_size=marker_size disable_voronoi=disable_voronoi />
-        </ChartContainer>
+        }
+        .into_any()
+    } else {
+        let w = width.unwrap_or(520.0);
+        view! {
+            <ChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                width=Some(w)
+                height=Some(h)
+                margin=margin
+                grid=grid
+                skip_animation=skip_animation
+                motion=motion
+                chart_kind=ChartKind::Scatter
+                highlight_scope=highlight
+                on_item_click=on_item_click
+            >
+                <VoronoiLayer
+                    voronoi_max_radius=voronoi_max_radius
+                    disable_voronoi=disable_voronoi
+                />
+                <ScatterPlot marker_size=marker_size disable_voronoi=disable_voronoi />
+            </ChartContainer>
+        }
+        .into_any()
     }
 }

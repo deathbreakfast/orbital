@@ -107,6 +107,24 @@ pub struct AxisDef {
     pub field: Option<String>,
     /// Inline category labels when not using a dataset.
     pub data: Option<Vec<String>>,
+    /// Short display label per band category, same length/order as `data`. Falls back to the
+    /// matching `data` entry when absent (today's behavior). Lets callers keep `data` unique
+    /// per category — required for correct band scale placement — while showing a shorter
+    /// label, e.g. a full-timestamp scale key (`2026-01-05 14:00:00`) with an `"14:00"` or
+    /// `"Jan 5"` display label.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use orbital_charts::AxisDef;
+    /// let axis = AxisDef {
+    ///     data: Some(vec!["2026-01-05 14:00:00".to_string(), "2026-01-05 15:00:00".to_string()]),
+    ///     tick_labels: Some(vec!["14:00".to_string(), "15:00".to_string()]),
+    ///     ..Default::default()
+    /// };
+    /// assert_eq!(axis.tick_labels.as_ref().map(Vec::len), axis.data.as_ref().map(Vec::len));
+    /// ```
+    pub tick_labels: Option<Vec<String>>,
     /// Axis title label.
     pub label: Option<String>,
     /// Position relative to the plot area.

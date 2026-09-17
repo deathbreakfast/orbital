@@ -7,6 +7,7 @@ pub fn backdrop_styles() -> &'static str {
 .orbital-backdrop {
     inset: 0px;
     position: fixed;
+    z-index: 1000;
     background-color: var(--orbital-backdrop-color);
 }
 

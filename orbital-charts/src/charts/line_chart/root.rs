@@ -5,7 +5,7 @@ use leptos::prelude::*;
 use orbital_data::{ChartFieldBinding, Dataset};
 use orbital_macros::component_doc;
 
-use crate::shared::{ChartContainer, LinePlot};
+use crate::shared::{ChartContainer, LinePlot, ResponsiveChartContainer};
 use crate::{
     AxisClickData, AxisDef, AxisHighlightConfig, ChartFeatures, ChartItemId, ChartMotion,
     GridConfig, HighlightScope, LegendConfig, OrbitalChartPalette, OrbitalChartsTheme, PlotInset,
@@ -147,12 +147,26 @@ pub fn LineChart(
     /// Y-axis definitions.
     #[prop(optional)]
     y_axis: Option<Vec<AxisDef>>,
-    /// Chart width in pixels.
+    /// Chart width in pixels. Ignored when `responsive=true`.
     #[prop(optional)]
     width: Option<f64>,
-    /// Chart height in pixels.
+    /// Chart height in pixels. Optional override even when `responsive=true`.
     #[prop(optional)]
     height: Option<f64>,
+    /// When true, the chart measures its host element via `ResizeObserver` and fills it
+    /// instead of using a fixed pixel `width` (see [`crate::ResponsiveChartContainer`]).
+    /// Defaults to `false` — existing callers that only pass `height` keep today's fixed
+    /// `520x320`-default behavior unchanged.
+    ///
+    /// Known limitation shared with [`crate::Sparkline`]'s existing responsive mode:
+    /// [`crate::ResponsiveChartContainer`] does not yet forward `features`,
+    /// `keyboard_navigation`, `zoom`, or `on_zoom_change` — a caller relying on non-default
+    /// values for those together with `responsive=true` will silently get `ChartRoot`'s
+    /// defaults instead. Harmless while every `responsive=true` caller uses default
+    /// interaction features (true today); widen `ResponsiveChartContainer`'s prop surface
+    /// before a caller needs both.
+    #[prop(default = false)]
+    responsive: bool,
     /// Plot inset between SVG border and plot area.
     #[prop(optional)]
     margin: Option<PlotInset>,
@@ -219,7 +233,6 @@ pub fn LineChart(
             .zip(y_fields.clone())
             .map(|(x, y)| ChartFieldBinding::new(x, y))
     });
-    let w = width.unwrap_or(520.0);
     let h = height.unwrap_or(320.0);
     let grid = grid.or({
         Some(GridConfig {
@@ -228,40 +241,81 @@ pub fn LineChart(
         })
     });
 
-    view! {
-        <ChartContainer
-            class=class
-            dataset=dataset
-            binding=binding
-            series=series
-            x_axis=x_axis
-            y_axis=y_axis
-            width=Some(w)
-            height=Some(h)
-            margin=margin
-            grid=grid
-            loading=loading
-            skip_animation=skip_animation
-            motion=motion
-            highlight_scope=highlight_scope
-            axis_highlight=axis_highlight
-            legend=legend
-            tooltip=tooltip
-            charts_theme=charts_theme
-            palette=palette
-            on_item_click=on_item_click
-            on_axis_click=on_axis_click
-            on_legend_click=on_legend_click
-            features=features
-            keyboard_navigation=keyboard_navigation
-            prefer_line_x_strict=true
-            zoom=zoom
-            on_zoom_change=on_zoom_change
-        >
-            {match children {
-                Some(c) => c().into_any(),
-                None => view! { <LinePlot /> }.into_any(),
-            }}
-        </ChartContainer>
+    // Responsive mode only supports the default `LinePlot` child: redrawing on resize needs
+    // a repeatable (`Fn`) children source, but this component's public `children` stays the
+    // conventional one-shot `Children` (`FnOnce`) so existing composition callers are
+    // unaffected. No current caller combines custom children with `responsive=true`; if one
+    // ever does, fall back to the fixed-size branch below rather than silently dropping the
+    // custom content after the first resize.
+    if responsive && children.is_none() {
+        let plot_children: ChildrenFn =
+            std::sync::Arc::new(move || view! { <LinePlot /> }.into_any());
+        view! {
+            <ResponsiveChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                height=height
+                margin=margin
+                grid=grid
+                loading=loading
+                skip_animation=skip_animation
+                motion=motion
+                highlight_scope=highlight_scope
+                axis_highlight=axis_highlight
+                legend=legend
+                tooltip=tooltip
+                charts_theme=charts_theme
+                palette=palette
+                on_item_click=on_item_click
+                on_axis_click=on_axis_click
+                on_legend_click=on_legend_click
+                prefer_line_x_strict=true
+                children=plot_children
+            />
+        }
+        .into_any()
+    } else {
+        let w = width.unwrap_or(520.0);
+        view! {
+            <ChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                y_axis=y_axis
+                width=Some(w)
+                height=Some(h)
+                margin=margin
+                grid=grid
+                loading=loading
+                skip_animation=skip_animation
+                motion=motion
+                highlight_scope=highlight_scope
+                axis_highlight=axis_highlight
+                legend=legend
+                tooltip=tooltip
+                charts_theme=charts_theme
+                palette=palette
+                on_item_click=on_item_click
+                on_axis_click=on_axis_click
+                on_legend_click=on_legend_click
+                features=features
+                keyboard_navigation=keyboard_navigation
+                prefer_line_x_strict=true
+                zoom=zoom
+                on_zoom_change=on_zoom_change
+            >
+                {match children {
+                    Some(c) => c().into_any(),
+                    None => view! { <LinePlot /> }.into_any(),
+                }}
+            </ChartContainer>
+        }
+        .into_any()
     }
 }

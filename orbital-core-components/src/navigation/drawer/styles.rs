@@ -70,6 +70,9 @@ pub fn drawer_styles() -> &'static str {
     align-items: flex-start;
     justify-content: flex-start;
     position: fixed;
+    /* Sibling of .orbital-backdrop (z-index: 1000) inside the drawer container's stacking
+       context — needs a higher explicit z-index or the backdrop paints over this panel. */
+    z-index: 1001;
     max-width: 100vw;
     height: auto;
     max-height: 100vh;

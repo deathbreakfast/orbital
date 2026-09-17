@@ -341,6 +341,11 @@ pub fn Sparkline(
         }
         .into_any()
     } else {
+        let plot_children: ChildrenFn = std::sync::Arc::new(move || {
+            let color = color.clone();
+            view! { <SparklinePlot plot_type=plot_type area=area curve=curve color=color /> }
+                .into_any()
+        });
         view! {
             <ResponsiveChartContainer
                 class=class
@@ -358,9 +363,8 @@ pub fn Sparkline(
                 highlight_scope=highlight_scope
                 highlighted_item=highlighted_item
                 on_highlight_change=on_highlight_change
-            >
-                <SparklinePlot plot_type=plot_type area=area curve=curve color=color />
-            </ResponsiveChartContainer>
+                children=plot_children
+            />
         }
         .into_any()
     }

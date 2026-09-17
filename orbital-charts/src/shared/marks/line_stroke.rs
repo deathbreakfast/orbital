@@ -3,7 +3,8 @@
 use leptos::prelude::*;
 
 use crate::context::{
-    keyboard_nav_enabled, set_hovered_item, use_chart_context, use_highlighted_item,
+    keyboard_nav_enabled, set_hovered_item, set_keyboard_focus_item, use_chart_context,
+    use_highlighted_item,
 };
 use crate::shared::motion::PathDrawMotion;
 use crate::{ChartItemId, FadeMode, HighlightMode, HighlightScope};
@@ -122,7 +123,7 @@ pub fn LineStroke(
                                 fill=move || stroke.get()
                                 tabindex=tab_index
                                 style="pointer-events: all; cursor: pointer;"
-                                on:focus=move |_| set_hovered_item(Some(item_for_focus.clone()))
+                                on:focus=move |_| set_keyboard_focus_item(Some(item_for_focus.clone()))
                                 on:mouseenter=move |_| set_hovered_item(Some(item_for_hover.clone()))
                                 on:mouseleave=move |_| set_hovered_item(None)
                             />

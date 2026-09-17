@@ -6,7 +6,7 @@ use orbital_data::{ChartFieldBinding, Dataset};
 use orbital_macros::component_doc;
 
 use crate::context::ChartKind;
-use crate::shared::{ChartContainer, PiePlot};
+use crate::shared::{ChartContainer, PiePlot, ResponsiveChartContainer};
 use crate::{
     ChartItemId, ChartMotion, FadeMode, HighlightMode, HighlightScope, PieArcLabelConfig,
     PlotInset, SeriesDef,
@@ -176,12 +176,18 @@ pub fn PieChart(
     /// Category labels for inline series (band x-axis data).
     #[prop(optional)]
     x_axis: Option<Vec<crate::AxisDef>>,
-    /// Chart width in pixels.
+    /// Chart width in pixels. Ignored when `responsive=true`.
     #[prop(optional)]
     width: Option<f64>,
-    /// Chart height in pixels.
+    /// Chart height in pixels. Optional override even when `responsive=true`.
     #[prop(optional)]
     height: Option<f64>,
+    /// When true, the chart measures its host element via `ResizeObserver` and fills it
+    /// instead of using a fixed pixel `width` (see [`crate::ResponsiveChartContainer`]).
+    /// Defaults to `false` — existing callers that only pass `height` keep today's fixed
+    /// `520x320`-default behavior unchanged.
+    #[prop(default = false)]
+    responsive: bool,
     /// Plot inset.
     #[prop(optional)]
     margin: Option<PlotInset>,
@@ -224,7 +230,6 @@ pub fn PieChart(
         })
     });
 
-    let w = width.unwrap_or(520.0);
     let h = height.unwrap_or(320.0);
     let inset = margin.unwrap_or_else(|| PlotInset::uniform(24.0));
     let highlight = highlight_scope.or(Some(HighlightScope {
@@ -232,29 +237,69 @@ pub fn PieChart(
         fade: FadeMode::Global,
     }));
 
-    view! {
-        <ChartContainer
-            class=class
-            dataset=dataset
-            binding=binding
-            series=series
-            x_axis=x_axis
-            width=Some(w)
-            height=Some(h)
-            margin=Some(inset)
-            skip_animation=skip_animation
-            motion=motion
-            chart_kind=ChartKind::Pie
-            highlight_scope=highlight
-            on_item_click=on_item_click
-        >
-            <PiePlot
-                inner_radius=inner_radius
-                outer_radius=outer_radius
-                padding_angle=padding_angle
-                arc_label=arc_label
+    // Responsive mode only supports the default `PiePlot` child (no center-label overlay):
+    // see the matching comment in `line_chart/root.rs` for why custom children and
+    // `responsive=true` fall back to fixed sizing together rather than combining.
+    if responsive && children.is_none() {
+        let plot_children: ChildrenFn = std::sync::Arc::new(move || {
+            let inner_radius = inner_radius.clone();
+            let outer_radius = outer_radius.clone();
+            let arc_label = arc_label.clone();
+            view! {
+                <PiePlot
+                    inner_radius=inner_radius
+                    outer_radius=outer_radius
+                    padding_angle=padding_angle
+                    arc_label=arc_label
+                />
+            }
+            .into_any()
+        });
+        view! {
+            <ResponsiveChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                height=height
+                margin=Some(inset)
+                skip_animation=skip_animation
+                motion=motion
+                chart_kind=ChartKind::Pie
+                highlight_scope=highlight
+                on_item_click=on_item_click
+                children=plot_children
             />
-            {children.map(|c| c())}
-        </ChartContainer>
+        }
+        .into_any()
+    } else {
+        let w = width.unwrap_or(520.0);
+        view! {
+            <ChartContainer
+                class=class
+                dataset=dataset
+                binding=binding
+                series=series
+                x_axis=x_axis
+                width=Some(w)
+                height=Some(h)
+                margin=Some(inset)
+                skip_animation=skip_animation
+                motion=motion
+                chart_kind=ChartKind::Pie
+                highlight_scope=highlight
+                on_item_click=on_item_click
+            >
+                <PiePlot
+                    inner_radius=inner_radius
+                    outer_radius=outer_radius
+                    padding_angle=padding_angle
+                    arc_label=arc_label
+                />
+                {children.map(|c| c())}
+            </ChartContainer>
+        }
+        .into_any()
     }
 }

@@ -7,7 +7,7 @@ use crate::axis_categories;
 use crate::context::{use_chart_context, use_y_scale, use_y_ticks};
 use crate::shared::axis::ticks::{
     band_ticks, is_y_tick_at_plot_bottom, linear_ticks, y_axis_title_position, y_label_position,
-    y_tick_line, TICK_LABEL_OFFSET, TICK_SIZE,
+    y_tick_line, BandLabelLayout, TICK_LABEL_OFFSET, TICK_SIZE,
 };
 use crate::{AxisPosition, ScaleType};
 
@@ -49,7 +49,16 @@ pub fn YAxis(
         }
         ScaleType::Band | ScaleType::Point => {
             let categories = axis_categories(&axis_for_ticks, ctx.projected.as_ref());
-            band_ticks(&scale, &categories, axis.tick_placement)
+            // Y-axis band labels stack vertically; rotation doesn't relieve vertical crowding
+            // the way it does for x-axis horizontal spacing, so always render horizontal/full —
+            // still honor a short `tick_labels` display override when the caller sets one.
+            band_ticks(
+                &scale,
+                &categories,
+                axis.tick_labels.as_deref(),
+                axis.tick_placement,
+                BandLabelLayout::Horizontal,
+            )
         }
         _ => linear_ticks(&scale, &tick_values, tick_format.as_ref()),
     });
@@ -96,6 +105,7 @@ pub fn YAxis(
                     _ if is_rtl => "start",
                     _ => "end",
                 };
+                let full_label = tick.full_label.clone();
                 view! {
                     <g class="orb-axis-tick-group">
                         <line class="orb-axis-tick" x1=lx1 y1=ly1 x2=lx2 y2=ly2 />
@@ -107,6 +117,7 @@ pub fn YAxis(
                                 text-anchor=anchor
                                 dominant-baseline="middle"
                             >
+                                {full_label.map(|full| view! { <title>{full}</title> })}
                                 {tick.label}
                             </text>
                         })}

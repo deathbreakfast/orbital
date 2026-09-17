@@ -759,7 +759,13 @@ const BOOT_LOADER_SCRIPT: &str = r#"
           });
         });
       }).catch(function (err) {
-        showOrbitalBootError();
+        // Navigations / Playwright reloads abort in-flight wasm fetches.
+        // That is not a terminal boot failure — leave state alone so a retry can recover.
+        var name = (err && err.name) || "";
+        var message = (err && (err.message || String(err))) || "";
+        if (name !== "AbortError" && !/aborted/i.test(message)) {
+          showOrbitalBootError();
+        }
         throw err;
       });
     }
@@ -921,8 +927,13 @@ const BOOT_LOADER_SCRIPT: &str = r#"
   window.addEventListener("unhandledrejection", function (event) {
     if (isHydrated()) return;
     var reason = event.reason;
+    var name = (reason && reason.name) || "";
     var message = (reason && (reason.message || String(reason))) || "";
-    if (/wasm|import|orbital-preview|fetch|unreachable/i.test(message)) {
+    if (name === "AbortError" || /aborted/i.test(message)) {
+      return;
+    }
+    // Avoid matching bare "fetch" — AbortError / cancelled loads already handled above.
+    if (/wasm|import|orbital-preview|WebAssembly|unreachable/i.test(message)) {
       showOrbitalBootError();
     }
   });

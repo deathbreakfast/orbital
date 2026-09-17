@@ -6,9 +6,10 @@ use orbital_theme::{use_theme_options, Direction};
 use crate::axis_categories;
 use crate::context::{use_chart_context, use_x_scale, use_x_ticks};
 use crate::shared::axis::ticks::{
-    band_ticks, linear_ticks, x_axis_title_y, x_label_position, x_tick_line,
+    band_label_layout, band_ticks, linear_ticks, resolved_band_labels, x_axis_title_y,
+    x_label_position, x_tick_line, ROTATED_LABEL_ANGLE_DEG,
 };
-use crate::{AxisPosition, ScaleType};
+use crate::{AxisPosition, ChartScale, ScaleType};
 
 /// Renders the x-axis ticks and labels for one axis id.
 #[component]
@@ -43,8 +44,27 @@ pub fn XAxis(
     let categories = axis_categories(&axis, ctx.projected.as_ref());
 
     let tick_placement = axis.tick_placement;
+    let tick_labels = axis.tick_labels.clone();
     let ticks = Memo::new(move |_| match scale_type {
-        ScaleType::Band | ScaleType::Point => band_ticks(&scale, &categories, tick_placement),
+        ScaleType::Band | ScaleType::Point => {
+            let display_labels: Vec<String> =
+                resolved_band_labels(&categories, tick_labels.as_deref())
+                    .into_iter()
+                    .map(|(display, _)| display)
+                    .collect();
+            let bandwidth = match &scale {
+                ChartScale::Band(band) => band.bandwidth(),
+                _ => 0.0,
+            };
+            let layout = band_label_layout(bandwidth, &display_labels);
+            band_ticks(
+                &scale,
+                &categories,
+                tick_labels.as_deref(),
+                tick_placement,
+                layout,
+            )
+        }
         ScaleType::Linear | ScaleType::Log | ScaleType::Sqrt => {
             linear_ticks(&scale, &tick_values, tick_format.as_ref())
         }
@@ -79,19 +99,34 @@ pub fn XAxis(
                 let (lx1, ly1) = (area.left + tick.position, y_base);
                 let (_, (lx2, ly2)) = x_tick_line(area.left + tick.position, y_base);
                 let (tx, ty) = x_label_position(area.left + tick.position, y_base);
-                let anchor = if is_rtl() { "middle" } else { "middle" };
+                let anchor = if tick.rotated {
+                    "end"
+                } else if is_rtl() {
+                    "middle"
+                } else {
+                    "middle"
+                };
+                let transform = tick
+                    .rotated
+                    .then(|| format!("rotate({ROTATED_LABEL_ANGLE_DEG} {tx} {ty})"));
+                let label = tick.label.clone();
+                let full_label = tick.full_label.clone();
                 view! {
                     <g class="orb-axis-tick-group">
                         <line class="orb-axis-tick" x1=lx1 y1=ly1 x2=lx2 y2=ly2 />
-                        <text
-                            class="orb-axis-tick-label"
-                            x=tx
-                            y=ty
-                            text-anchor=anchor
-                            dominant-baseline="hanging"
-                        >
-                            {tick.label}
-                        </text>
+                        {(!label.is_empty()).then(|| view! {
+                            <text
+                                class="orb-axis-tick-label"
+                                x=tx
+                                y=ty
+                                text-anchor=anchor
+                                dominant-baseline="hanging"
+                                transform=transform.clone()
+                            >
+                                {full_label.clone().map(|full| view! { <title>{full}</title> })}
+                                {label.clone()}
+                            </text>
+                        })}
                     </g>
                 }
             }).collect_view()}

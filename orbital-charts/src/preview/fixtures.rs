@@ -57,6 +57,44 @@ pub fn quarter_x_axis() -> AxisDef {
     }
 }
 
+/// 24 unique full-timestamp band keys — the dense-axis worst case: one bucket per hour, keyed
+/// by full datetime (as `spectra-app` keys real time-series buckets) so labels would collide
+/// without [`AxisDef::tick_labels`] rotation/thinning.
+pub fn dense_hourly_categories() -> Vec<String> {
+    (0..24)
+        .map(|h| format!("2026-01-05 {h:02}:00:00"))
+        .collect()
+}
+
+/// Short `"HH:MM"` display labels for [`dense_hourly_categories`] — same length/order.
+pub fn dense_hourly_tick_labels() -> Vec<String> {
+    (0..24).map(|h| format!("{h:02}:00")).collect()
+}
+
+/// Dense 24-bucket band x-axis pairing a full-timestamp scale key with a short display label —
+/// the shape `spectra-app`'s time-series chart produces for a busy schema.
+pub fn dense_hourly_x_axis() -> AxisDef {
+    AxisDef {
+        id: "x".into(),
+        scale_type: ScaleType::Band,
+        data: Some(dense_hourly_categories()),
+        tick_labels: Some(dense_hourly_tick_labels()),
+        label: Some("Hour".into()),
+        position: crate::AxisPosition::Bottom,
+        ..Default::default()
+    }
+}
+
+/// Inline series aligned with [`dense_hourly_categories`] — 24 values, one per hour.
+pub fn dense_hourly_series() -> SeriesDef {
+    SeriesDef {
+        id: "events".into(),
+        label: Some("Events".into()),
+        data: Some((0..24).map(|h| 40.0 + (h as f64 * 7.0 % 53.0)).collect()),
+        ..Default::default()
+    }
+}
+
 /// Default linear y-axis for revenue demos.
 pub fn revenue_y_axis() -> AxisDef {
     AxisDef {

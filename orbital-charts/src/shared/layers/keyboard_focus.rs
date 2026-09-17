@@ -2,18 +2,18 @@
 
 use leptos::prelude::*;
 
-use crate::context::{use_chart_context, use_hovered_item, ChartInteractionContext};
+use crate::context::{use_chart_context, use_keyboard_focus_item, ChartInteractionContext};
 
 /// Renders a focus ring at the keyboard- or pointer-active mark position.
 #[component]
 pub fn ChartKeyboardFocus() -> impl IntoView {
     let ctx = use_chart_context();
-    let hovered = use_hovered_item();
+    let focused = use_keyboard_focus_item();
     let interaction = expect_context::<ChartInteractionContext>();
 
     view! {
         {move || {
-            let Some(item) = hovered.get() else {
+            let Some(item) = focused.get() else {
                 return ().into_any();
             };
 
