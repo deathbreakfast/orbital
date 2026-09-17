@@ -276,10 +276,14 @@ mod band_label_tests {
 
     #[test]
     fn band_label_layout_rotates_when_horizontal_does_not_fit() {
-        // "14:00" is 5 chars * 6.2px ~= 31px wide; rotated footprint ~= 31 * cos(40deg) ~= 23.7px.
-        // Bandwidth here doesn't fit the label flat (31 > 26) but does fit it rotated (23.7 <= 26).
-        let labels: Vec<String> = (0..4).map(|_| "14:00".to_string()).collect();
-        assert_eq!(band_label_layout(26.0, &labels), BandLabelLayout::Rotated);
+        // "14:00:00" is 8 chars * 6.2px ~= 49.6px wide; rotated footprint (width * cos(40deg) +
+        // TICK_LABEL_HEIGHT * sin(40deg)) ~= 38.0 + 9.0 ~= 47.0px. A short label's height term
+        // can outweigh what rotation saves on width (see the 5-char case in
+        // band_label_layout_thins_when_even_rotated_does_not_fit's sibling test below), so this
+        // uses a label long enough that rotating actually shrinks the footprint versus flat.
+        // Bandwidth here doesn't fit the label flat (49.6 > 48) but does fit it rotated (47.0 <= 48).
+        let labels: Vec<String> = (0..4).map(|_| "14:00:00".to_string()).collect();
+        assert_eq!(band_label_layout(48.0, &labels), BandLabelLayout::Rotated);
     }
 
     #[test]
