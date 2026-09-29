@@ -10,13 +10,14 @@ use std::collections::HashMap;
 
 use super::styles::tag_picker_styles;
 use super::types::{
-    TagPickerBind, TagPickerControl, TagPickerControlInjection, TagPickerInjection, TagPickerSize,
+    TagPickerBind, TagPickerControl, TagPickerControlInjection, TagPickerInjection,
+    TagPickerOptionEntry, TagPickerSize,
 };
 use crate::Icon;
 
 /// Multi-select field that shows choices as dismissible tags inside a combobox control.
 ///
-/// Options must be declared as [`TagPickerOption`] children — ad-hoc tags typed without a matching option are not supported. Bind selected keys with [`TagPickerBind`], group selected tags in [`TagPickerGroup`], and use [`TagPickerOptionGroup`] for labeled sections. For strict multi-select without tag UI use [`Combobox`](crate::Combobox).
+/// Options must be declared as [`TagPickerOption`] children. Typed text never becomes a tag by itself; to let users create one, render an action option (`on_activate`) that opens your own create flow. Bind selected keys with [`TagPickerBind`], group selected tags in [`TagPickerGroup`], and use [`TagPickerOptionGroup`] for labeled sections. For strict multi-select without tag UI use [`Combobox`](crate::Combobox).
 ///
 /// # When to use
 ///
@@ -257,6 +258,87 @@ use crate::Icon;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Search as you type
+/// `on_search` reports the typed text so the parent can load matching options, for example from a server. It reports `""` after a selection clears the input.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     Tag, TagPicker, TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput,
+///     TagPickerOption, Text,
+/// };
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let query = RwSignal::new(String::new());
+/// let panel_mount = NodeRef::<leptos::html::Div>::new();
+/// view! {
+///     <div data-testid="TP-08" node_ref=panel_mount>
+///         <TagPicker bind=TagPickerBind::new(selected) panel_mount=Some(panel_mount)>
+///             <TagPickerControl slot>
+///                 <TagPickerGroup>
+///                     {move || selected.get().into_iter().map(|value| {
+///                         let label = value.clone();
+///                         view! { <Tag value=value.clone()>{label}</Tag> }
+///                     }).collect_view()}
+///                     <TagPickerInput on_search=Callback::new(move |q: String| query.set(q)) />
+///                 </TagPickerGroup>
+///             </TagPickerControl>
+///             {move || {
+///                 let q = query.get().to_ascii_lowercase();
+///                 ["Groceries", "Gas", "Rent"]
+///                     .into_iter()
+///                     .filter(|name| name.to_ascii_lowercase().contains(&q))
+///                     .map(|name| view! { <TagPickerOption value=name.to_string() text=name /> })
+///                     .collect_view()
+///             }}
+///         </TagPicker>
+///         <span data-testid="TP-08-query">
+///             <Text>{move || format!("Query: {}", query.get())}</Text>
+///         </span>
+///     </div>
+/// }
+/// ```
+///
+/// ## Action option
+/// An option with `on_activate` runs a callback instead of toggling a tag, which suits a "create new" entry. Its `value` never reaches the selection.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     Tag, TagPicker, TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput,
+///     TagPickerOption, Text,
+/// };
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let created = RwSignal::new(0_u32);
+/// let panel_mount = NodeRef::<leptos::html::Div>::new();
+/// view! {
+///     <div data-testid="TP-09" node_ref=panel_mount>
+///         <TagPicker bind=TagPickerBind::new(selected) panel_mount=Some(panel_mount)>
+///             <TagPickerControl slot>
+///                 <TagPickerGroup>
+///                     {move || selected.get().into_iter().map(|value| {
+///                         let label = value.clone();
+///                         view! { <Tag value=value.clone()>{label}</Tag> }
+///                     }).collect_view()}
+///                     <TagPickerInput />
+///                 </TagPickerGroup>
+///             </TagPickerControl>
+///             <TagPickerOption
+///                 value="__create".to_string()
+///                 text="Travel (new)"
+///                 on_activate=Callback::new(move |_| created.update(|n| *n += 1))
+///             />
+///             <TagPickerOption
+///                 value="__create_locked".to_string()
+///                 text="Locked (new)"
+///                 disabled=Signal::from(true)
+///                 on_activate=Callback::new(move |_| created.update(|n| *n += 1))
+///             />
+///         </TagPicker>
+///         <span data-testid="TP-09-created">
+///             <Text>{move || format!("Created: {}", created.get())}</Text>
+///         </span>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "tag-picker",
@@ -294,7 +376,7 @@ pub fn TagPicker(
     let input_ref = NodeRef::<html::Input>::new();
     let listbox_ref = NodeRef::<html::Div>::new();
     let listbox_hidden_callback = StoredValue::new(Vec::<Handler<()>>::new());
-    let options = StoredValue::new(HashMap::<String, (String, String, Signal<bool>)>::new());
+    let options = StoredValue::new(HashMap::<String, TagPickerOptionEntry>::new());
     let listbox_id = StoredValue::new(format!("orbital-tag-picker-listbox-{}", new_field_id()));
 
     let (set_listbox, active_descendant_controller) =
@@ -309,6 +391,7 @@ pub fn TagPicker(
         options,
         is_show_listbox,
         listbox_hidden_callback,
+        on_search: StoredValue::new(None),
     };
 
     let on_click = move |e: ev::MouseEvent| {
@@ -357,15 +440,12 @@ pub fn TagPicker(
                 true,
                 &active_descendant_controller,
                 move |option| {
-                    let tag_picker_injection = tag_picker_injection.clone();
-                    tag_picker_injection.options.with_value(|all| {
-                        if let Some((value, _text, disabled)) = all.get(&option.id()) {
-                            if disabled.get_untracked() {
-                                return;
-                            }
-                            tag_picker_injection.select_option(value);
-                        }
-                    });
+                    let entry = tag_picker_injection
+                        .options
+                        .with_value(|all| all.get(&option.id()).cloned());
+                    if let Some(entry) = entry {
+                        tag_picker_injection.activate_option(&entry);
+                    }
                 },
             );
         }

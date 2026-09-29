@@ -70,4 +70,65 @@ test.describe("tag-picker primitive preview", () => {
       page.getByTestId("TP-07").locator(".orbital-tag-picker-control--extra-large"),
     ).toBeVisible();
   });
+
+  test("TP-08: on_search reports typed text and resets after selection", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-08").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-08");
+    const input = wrapper.locator("input[role='combobox']");
+    const query = page.getByTestId("TP-08-query");
+    await input.click();
+    await input.pressSequentially("gr");
+    await expect(query).toHaveText("Query: gr");
+    await expect(wrapper.locator(".orbital-tag-picker-option")).toHaveText(["Groceries"]);
+    await input.fill("");
+    await expect(query).toHaveText("Query:");
+    await input.pressSequentially("rent");
+    await wrapper.locator(".orbital-tag-picker-option", { hasText: "Rent" }).click();
+    await expect(wrapper.locator(".orbital-tag")).toHaveText(["Rent"]);
+    await expect(query).toHaveText("Query:");
+    await expect(input).toHaveValue("");
+  });
+
+  test("TP-09: clicking an action option runs its callback without selecting", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-09").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-09");
+    await wrapper.locator("input[role='combobox']").click();
+    await wrapper.locator(".orbital-tag-picker-option", { hasText: "Travel (new)" }).click();
+    await expect(page.getByTestId("TP-09-created")).toHaveText("Created: 1");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
+    await expect(
+      wrapper.locator(".orbital-tag-picker-option", { hasText: "Travel (new)" }),
+    ).toBeHidden();
+  });
+
+  test("TP-09: Enter on a focused action option runs its callback", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-09").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-09");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    await expect(
+      wrapper.locator(".orbital-tag-picker-option[data-activedescendant-focusvisible]", {
+        hasText: "Travel (new)",
+      }),
+    ).toBeVisible();
+    await input.press("Enter");
+    await expect(page.getByTestId("TP-09-created")).toHaveText("Created: 1");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
+  });
+
+  test("TP-09: disabled action option does nothing", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-09").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-09");
+    await wrapper.locator("input[role='combobox']").click();
+    await wrapper
+      .locator(".orbital-tag-picker-option--disabled", { hasText: "Locked (new)" })
+      .click({ force: true });
+    await expect(page.getByTestId("TP-09-created")).toHaveText("Created: 0");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
+  });
 });

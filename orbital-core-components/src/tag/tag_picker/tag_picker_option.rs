@@ -1,7 +1,7 @@
 use leptos::{either::Either, ev, prelude::*};
 use orbital_base_components::{new_field_id, ListboxInjection};
 
-use super::types::TagPickerInjection;
+use super::types::{TagPickerInjection, TagPickerOptionEntry};
 
 /// Selectable option rendered in the tag picker listbox.
 #[component]
@@ -18,20 +18,32 @@ pub fn TagPickerOption(
     /// Optional override for display text; defaults to children content.
     #[prop(into)]
     text: String,
+    /// Makes this an action option. Click or Enter runs the callback and closes
+    /// the listbox without adding `value` to the selection, so `value` only has
+    /// to be unique among the options (for example `"__create"`).
+    #[prop(optional, into)]
+    on_activate: Option<Callback<()>>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let tag_picker = TagPickerInjection::expect_context();
     let listbox = ListboxInjection::expect_context();
-    let value = StoredValue::new(value);
-    let text = StoredValue::new(text);
+    let entry = TagPickerOptionEntry {
+        value,
+        text,
+        disabled,
+        on_activate,
+    };
+    let value = StoredValue::new(entry.value.clone());
+    let text = StoredValue::new(entry.text.clone());
     let is_selected = Memo::new({
         let tag_picker = tag_picker.clone();
-        move |_| value.with_value(|v| tag_picker.is_selected(v))
+        move |_| on_activate.is_none() && value.with_value(|v| tag_picker.is_selected(v))
     });
     let id = new_field_id();
 
+    let entry = StoredValue::new(entry);
     {
-        tag_picker.insert_option(id.clone(), (value.get_value(), text.get_value(), disabled));
+        tag_picker.insert_option(id.clone(), entry.get_value());
         let id_for_cleanup = id.clone();
         let tag_picker_cleanup = tag_picker.clone();
         listbox.trigger();
@@ -47,9 +59,7 @@ pub fn TagPickerOption(
             e.stop_propagation();
             return;
         }
-        value.with_value(|v| {
-            tag_picker_click.select_option(v);
-        });
+        entry.with_value(|entry| tag_picker_click.activate_option(entry));
     };
 
     view! {

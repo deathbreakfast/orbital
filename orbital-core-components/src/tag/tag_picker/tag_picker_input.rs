@@ -8,10 +8,19 @@ pub fn TagPickerInput(
     /// Optional CSS class on the input element.
     #[prop(optional, into)]
     class: MaybeProp<String>,
+    /// Called with the trimmed text on every input event, and with `""` when
+    /// selecting an option clears the input. Use it to fetch options from a
+    /// server as the user types.
+    #[prop(optional, into)]
+    on_search: Option<Callback<String>>,
 ) -> impl IntoView {
     let TagPickerInjection {
-        input_ref, options, ..
+        input_ref,
+        options,
+        on_search: search_slot,
+        ..
     } = TagPickerInjection::expect_context();
+    search_slot.set_value(on_search);
     let TagPickerControlInjection(active_descendant_controller) =
         TagPickerControlInjection::expect_context();
     let value_trigger = ArcTrigger::new();
@@ -25,6 +34,9 @@ pub fn TagPickerInput(
         let Some(value) = input_event_value(&ev) else {
             return;
         };
+        if let Some(on_search) = on_search {
+            on_search.run(value.trim().to_string());
+        }
         let value = value.trim().to_ascii_lowercase();
         if value.is_empty() {
             active_descendant_controller.blur();
@@ -33,10 +45,10 @@ pub fn TagPickerInput(
         if active_descendant_controller
             .find(|id| {
                 options.with_value(|all| {
-                    let Some((_, text, _)) = all.get(&id) else {
+                    let Some(entry) = all.get(&id) else {
                         return false;
                     };
-                    text.to_ascii_lowercase().contains(&value)
+                    entry.text.to_ascii_lowercase().contains(&value)
                 })
             })
             .is_none()
