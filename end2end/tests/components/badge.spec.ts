@@ -31,6 +31,22 @@ test.describe("badge primitive preview", () => {
     expect(largeH).toBeGreaterThan(smallH);
   });
 
+  test("BD-06: small label badge keeps inline space between text and edge", async ({ page }) => {
+    await openComponentPreview(page, "badge");
+    await page.getByTestId("badge-sizes").scrollIntoViewIfNeeded();
+    const badge = page.getByTestId("badge-size-small-label").locator(".orbital-badge");
+    await expect(badge).toHaveText("Metric");
+    const gaps = await badge.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const text = range.getBoundingClientRect();
+      const box = el.getBoundingClientRect();
+      return { left: text.left - box.left, right: box.right - text.right };
+    });
+    expect(gaps.left).toBeGreaterThanOrEqual(5.5);
+    expect(gaps.right).toBeGreaterThanOrEqual(5.5);
+  });
+
   test("BD-04: semantic color matrix uses distinct color classes", async ({ page }) => {
     await openComponentPreview(page, "badge");
     await page.getByTestId("badge-colors").scrollIntoViewIfNeeded();

@@ -21,7 +21,7 @@ use crate::Icon;
 ///
 /// # When to use
 ///
-/// - Multi-select from a fixed, predefined option list - Filter or category pickers with removable selected tags - Forms where users pick multiple labeled values from known options
+/// - Multi-select from a predefined option list, or one the parent loads as the user types - Filter or category pickers with removable selected tags - Forms where users pick multiple labeled values from known options
 ///
 /// # Usage
 ///
@@ -260,7 +260,7 @@ use crate::Icon;
 /// ```
 ///
 /// ## Search as you type
-/// `on_search` reports the typed text so the parent can load matching options, for example from a server. It reports `""` after a selection clears the input.
+/// Set `on_search` on `TagPickerInput` when options come from a server or another source too large to render up front. It reports the typed text so the parent can load matching options, and it reports `""` after a selection clears the input.
 /// <!-- preview -->
 /// ```rust
 /// use crate::{

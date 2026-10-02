@@ -48,6 +48,7 @@ use super::styles::badge_styles;
 /// view! {
 ///     <div data-testid="badge-sizes" style="display: flex; gap: 8px; align-items: center;">
 ///         <div data-testid="badge-size-small"><Badge size=Signal::from(BadgeSize::Small) appearance=Signal::from(BadgeAppearance::Filled) color=Signal::from(BadgeColor::Brand)>"S"</Badge></div>
+///         <div data-testid="badge-size-small-label"><Badge size=Signal::from(BadgeSize::Small) appearance=Signal::from(BadgeAppearance::Tint) color=Signal::from(BadgeColor::Informative)>"Metric"</Badge></div>
 ///         <div data-testid="badge-size-large"><Badge size=Signal::from(BadgeSize::Large) appearance=Signal::from(BadgeAppearance::Filled) color=Signal::from(BadgeColor::Brand)>"L"</Badge></div>
 ///     </div>
 /// }

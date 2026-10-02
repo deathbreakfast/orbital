@@ -195,7 +195,7 @@ pub fn badge_styles() -> &'static str {
     font-size: var(--orb-type-size-2xs);
     height: 16px;
     width: 16px;
-    padding: 0 calc(var(--orb-space-inline-2xs) + var(--orb-space-inline-2xs));
+    padding: 0 calc(var(--orb-space-inline-xs) + var(--orb-space-inline-2xs));
 }
 
 .orbital-badge--large {
