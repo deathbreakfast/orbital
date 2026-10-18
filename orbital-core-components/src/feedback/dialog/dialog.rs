@@ -177,7 +177,7 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 /// ```
 ///
 /// ## Focus trap
-/// Tab cycles within the dialog so keyboard users cannot accidentally tab into the obscured page behind the mask.
+/// Opening the dialog moves focus to its first focusable control, Tab and Shift+Tab cycle within it so keyboard users cannot tab into the obscured page behind the mask, and closing returns focus to the element that opened it. This holds whether or not Escape closes the dialog.
 /// <!-- preview -->
 /// ```rust
 /// use crate::Button;

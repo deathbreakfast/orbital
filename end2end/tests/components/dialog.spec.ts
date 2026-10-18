@@ -49,18 +49,50 @@ test.describe("dialog primitive preview", () => {
     await expect(dialog).toBeHidden();
   });
 
-  test("DL-06: focus trap keeps tab cycle inside dialog", async ({ page }) => {
+  test("DL-06: opening moves focus in and Tab wraps inside the dialog", async ({ page }) => {
     await openComponentPreview(page, "dialog", "dialog-basic");
-    await page.getByTestId("dialog-focus").scrollIntoViewIfNeeded();
-    await page.getByTestId("dialog-focus").getByRole("button", { name: "Open dialog" }).click();
+    const section = page.getByTestId("dialog-focus");
+    await section.scrollIntoViewIfNeeded();
+    await section.getByRole("button", { name: "Open dialog" }).focus();
+    await page.keyboard.press("Enter");
     const dialog = page.getByRole("dialog").filter({ hasText: "First" });
-    const first = dialog.getByTestId("dialog-focus-first");
-    await expect(first).toBeVisible();
-    await expect(dialog.getByTestId("dialog-focus-last")).toBeVisible();
-    await first.click();
+    const first = dialog.getByRole("button", { name: "First" });
+    const last = dialog.getByRole("button", { name: "Last" });
+    await expect(first).toBeFocused();
     await page.keyboard.press("Tab");
-    const activeInDialog = await dialog.evaluate((el) => el.contains(document.activeElement));
-    expect(activeInDialog).toBe(true);
+    await expect(last).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(first).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(last).toBeFocused();
+  });
+
+  test("DL-09: closing returns focus to the trigger", async ({ page }) => {
+    await openComponentPreview(page, "dialog", "dialog-basic");
+    const section = page.getByTestId("dialog-focus");
+    await section.scrollIntoViewIfNeeded();
+    const trigger = section.getByRole("button", { name: "Open dialog" });
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog").filter({ hasText: "First" });
+    await expect(dialog.getByRole("button", { name: "First" })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test("DL-10: a dialog with no controls focuses its surface and keeps Tab there", async ({ page }) => {
+    await openComponentPreview(page, "dialog", "dialog-basic");
+    const section = page.getByTestId("dialog-theme");
+    await section.scrollIntoViewIfNeeded();
+    await section.getByRole("button", { name: "Open dialog" }).focus();
+    await page.keyboard.press("Enter");
+    const surface = page.getByRole("dialog").filter({ hasText: "Themed dialog surface" });
+    await expect(surface).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(surface).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(surface).toBeFocused();
   });
 
   test("DL-07: dialog surface uses theme background token", async ({ page }) => {

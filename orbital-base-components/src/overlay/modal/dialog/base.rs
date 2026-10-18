@@ -46,14 +46,22 @@ pub fn BaseDialog(
         }
     });
     let open_signal = open.signal();
+    let scope = NodeRef::new();
     let motion = resolve_presence_motion(motion, PresenceMotion::fade());
 
     provide_context(DialogInjection { open });
 
     view! {
         <ThemedPortal immediate=open_signal class=class>
-            <FocusTrap disabled=!dismiss.close_on_esc active=open_signal on_esc>
+            <FocusTrap
+                disabled=!dismiss.close_on_esc
+                active=open_signal
+                on_esc
+                contain_focus=true
+                scope=scope
+            >
                 <div
+                    node_ref=scope
                     class="orbital-dialog"
                     style:display=move || if open.get() { "" } else { "none" }
                 >
