@@ -22,7 +22,7 @@ doctest = false
 leptos.workspace = true
 bitflags = "2"
 # Deflate only — default zip features pull in lzma-sys (native C), which fails on wasm32.
-zip = { version = "2", default-features = false, features = ["deflate"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
 orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false }
 orbital-data = { path = "../orbital-data", version = "0.1.4" }
