@@ -36,6 +36,7 @@ mod styles;
 mod toolbar;
 mod toolbar_overflow;
 mod tree_grouping_cell;
+mod width_observer;
 
 pub use body::DataTableBody;
 pub use cell::data_table_cell_view;

@@ -2241,6 +2241,7 @@ dependencies = [
  "orbital-paging",
  "orbital-style",
  "orbital-theme",
+ "send_wrapper",
  "serde",
  "serde_json",
  "wasm-bindgen",

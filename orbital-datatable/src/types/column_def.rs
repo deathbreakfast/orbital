@@ -21,14 +21,18 @@ pub enum ColumnType {
 /// Column width mode.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColumnWidth {
+    /// Constant width in pixels.
     Fixed(f64),
+    /// Share of the width left over by non-flex columns, by weight. Resizable:
+    /// dragging a handle pins the column at the dragged width while the other
+    /// flex columns keep filling the table.
     Flex(f32),
     Auto,
 }
 
 impl Default for ColumnWidth {
     fn default() -> Self {
-        Self::Fixed(100.0)
+        Self::Flex(1.0)
     }
 }
 

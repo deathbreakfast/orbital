@@ -21,6 +21,7 @@ use super::overlays::DataTableOverlays;
 use super::row_reorder::DataTableRowDragGhost;
 use super::styles::{data_table_styles, density_modifier_class};
 use super::toolbar::DataTableToolbar;
+use super::width_observer::use_table_width;
 use crate::core::{provide_chart_binding, use_data_table_context, DataTableProvider};
 use crate::engine::build_page_request;
 use crate::engine::ExportRowScope;
@@ -150,6 +151,17 @@ pub fn DataTableRoot(
     let virtual_scroll_target = RwSignal::new(None::<usize>);
     let horizontal_scroll_target = RwSignal::new(None::<String>);
 
+    let measured_width = use_table_width(scroll_el);
+    let table_width = Signal::derive(move || {
+        let leading = crate::engine::LeadingColumnLayout::new(
+            features,
+            features.contains(DataTableFeatures::ROW_DETAIL),
+            selection_mode.get().is_some(),
+        );
+        measured_width
+            .get()
+            .map(|w| (w - leading.width_px()).max(0.0))
+    });
     let column_layout = create_column_layout_memo(
         columns,
         pivot_columns,
@@ -158,6 +170,7 @@ pub fn DataTableRoot(
         column_widths,
         pinned_columns,
         features,
+        table_width,
     );
 
     let source = data_source.get_value();
