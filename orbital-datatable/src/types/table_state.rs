@@ -1188,6 +1188,7 @@ pub fn create_column_layout_memo(
     column_widths: RwSignal<HashMap<String, f64>>,
     pinned_columns: RwSignal<PinnedColumnsState>,
     features: DataTableFeatures,
+    table_width: Signal<Option<f64>>,
 ) -> Signal<ColumnLayout> {
     Signal::derive(move || {
         let pivot_cols = pivot_columns.get();
@@ -1203,7 +1204,7 @@ pub fn create_column_layout_memo(
             column_widths: &column_widths.get(),
             pinned_columns: &pinned_columns.get(),
             features,
-            table_width_px: None,
+            table_width_px: table_width.get(),
         })
     })
 }

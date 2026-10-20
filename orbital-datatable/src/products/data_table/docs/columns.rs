@@ -15,13 +15,17 @@ use orbital_macros::component_doc;
 ///
 /// 1. Enable `COLUMN_PINNING`, `COLUMN_REORDER`, or related flags on `features`.
 /// 2. Set column widths with [`ColumnWidth::Fixed`] or [`ColumnWidth::Flex`].
+///    Columns default to `Flex(1.0)`: the table measures its container and shares
+///    the width left over by fixed columns by weight, refilling on window resize.
+///    Until the first measurement (server render) it assumes 800px.
 /// 3. Gate toolbar picker and header menu via `toolbar_config` and `header_chrome`.
 ///
 /// # Best Practices
 ///
 /// ## Do's
 ///
-/// * Use `resizable_columns=true` with explicit initial widths
+/// * Use `resizable_columns=true`; dragging a flex column pins it at the dragged
+///   width while the other flex columns keep filling the table
 /// * Pin identifier columns left in horizontally scrollable tables
 /// * Use [`DataTableColumnGroupDef`] for two-level headers only when needed
 ///

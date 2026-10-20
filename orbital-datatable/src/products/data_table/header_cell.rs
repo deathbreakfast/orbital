@@ -9,7 +9,7 @@ use super::column_reorder::{
 use super::column_styles::{column_cell_classes, column_combined_style};
 use crate::core::{use_data_table_context, DataTableContext};
 use crate::engine::{ResolvedColumn, SortDirection};
-use crate::types::{ColumnWidth, DataTableFeatures, DataTableTableState};
+use crate::types::{DataTableFeatures, DataTableTableState};
 
 /// Resolve the column field currently being dragged (for drop handlers).
 fn active_drag_source_field(ctx: DataTableContext) -> Option<String> {
@@ -61,7 +61,7 @@ pub fn DataTableHeaderCell(state: DataTableTableState, resolved: ResolvedColumn)
 
     let min_w = column.min_width.unwrap_or(50.0);
     let max_w = column.max_width.unwrap_or(500.0);
-    let resizable = state.resizable_columns && !matches!(column.width, ColumnWidth::Flex(_));
+    let resizable = state.resizable_columns;
 
     let on_resize_end = Callback::new({
         let field = field.clone();
