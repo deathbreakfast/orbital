@@ -95,6 +95,17 @@ impl ComboboxInjection {
 ///
 /// See the crate README for picker vs combobox selection.
 ///
+/// # Accessibility
+///
+/// - The text input carries `role="combobox"` and `aria-expanded`. Give it a name with a
+///   [`Field`](crate::Field) label or `aria-label` on the surrounding form.
+/// - ArrowDown opens the listbox, Enter or Space picks the active option, and Escape closes it.
+/// - The chevron on the right is decorative. It is hidden from assistive technology and only
+///   duplicates what the input already does.
+/// - With `clearable` set and a value selected, a button named "Clear" joins the Tab order.
+///   Enter or Space resets the field and returns focus to the input. The name is fixed English
+///   text, and the button is disabled together with the Combobox.
+///
 /// # Form picker controls
 ///
 /// When `Combobox` is not the right fit:
@@ -190,6 +201,47 @@ impl ComboboxInjection {
 ///         >
 ///             <ComboboxOption value="red".to_string() text="Red" />
 ///             <ComboboxOption value="blue".to_string() text="Blue" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Clearable multiselect
+/// Combine both options to reset several picked values at once with one keyboard-reachable button.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// view! {
+///     <div data-testid="combobox-clearable-multiselect">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance {
+///                 multiselect: Signal::from(true),
+///                 clearable: true,
+///                 ..Default::default()
+///             }
+///         >
+///             <ComboboxOption value="red".to_string() text="Red" />
+///             <ComboboxOption value="blue".to_string() text="Blue" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Disabled with selection
+/// A disabled field keeps its value, and the Clear button stays inert.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new("Apple".to_string());
+/// let selected = RwSignal::new(vec!["apple".to_string()]);
+/// view! {
+///     <div data-testid="combobox-disabled-selected">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance { clearable: true, disabled: Signal::from(true), ..Default::default() }
+///         >
+///             <ComboboxOption value="apple".to_string() text="Apple" />
 ///         </Combobox>
 ///     </div>
 /// }
@@ -510,7 +562,7 @@ pub fn Combobox(
                 />
                 <Show when=move || is_show_clear_icon.get() fallback=move || view! {
                     <span
-                        aria-label="Open"
+                        aria-hidden="true"
                         class="orbital-combobox__expand-icon"
                         on:mousedown=|e| e.prevent_default()
                         on:click=move |e| on_toggle_click.run(e)
@@ -518,14 +570,16 @@ pub fn Combobox(
                         <Icon icon=icondata::BiChevronDownRegular />
                     </span>
                 }>
-                    <span
+                    <button
+                        type="button"
                         aria-label="Clear"
                         class="orbital-combobox__clear-icon"
+                        disabled=move || disabled.get()
                         on:mousedown=|e| e.prevent_default()
                         on:click=move |e| on_clear_click.run(e)
                     >
                         <Icon icon=icondata::AiCloseOutlined />
-                    </span>
+                    </button>
                 </Show>
             </div>
         </AnchoredPositioner>
