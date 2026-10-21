@@ -242,6 +242,7 @@ button.orbital-combobox__clear-icon {
     width: 16px;
     height: 16px;
     font-size: 12px;
+    border-radius: var(--orb-radius-sm);
     border: var(--orb-stroke-thin) solid var(--orb-color-border-accessible);
     box-sizing: border-box;
     fill: currentcolor;
