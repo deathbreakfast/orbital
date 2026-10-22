@@ -178,6 +178,8 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 ///
 /// ## Focus trap
 /// Opening the dialog moves focus to its first focusable control, Tab and Shift+Tab cycle within it so keyboard users cannot tab into the obscured page behind the mask, and closing returns focus to the element that opened it. This holds whether or not Escape closes the dialog.
+///
+/// A control that mounts or becomes usable after the dialog opens, for example content behind a `<Show>` or a button that starts disabled while data loads, still receives that first focus. A dialog that never gains a control keeps focus on its surface.
 /// <!-- preview -->
 /// ```rust
 /// use crate::Button;
@@ -195,6 +197,251 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 ///                         <div data-testid="dialog-focus-last">
 ///                             <Button>"Last"</Button>
 ///                         </div>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Late content
+/// The control below appears a moment after the dialog opens, so focus waits on the dialog until it arrives.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::{set_timeout_with_handle, TimeoutHandle};
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let ready = RwSignal::new(false);
+/// let timer = StoredValue::new(None::<TimeoutHandle>);
+/// let cancel = move || {
+///     if let Some(handle) = timer.try_update_value(Option::take).flatten() {
+///         handle.clear();
+///     }
+/// };
+/// Effect::new(move |_| {
+///     cancel();
+///     if open.get() {
+///         let handle = set_timeout_with_handle(move || ready.set(true), Duration::from_millis(300));
+///         timer.set_value(handle.ok());
+///     } else {
+///         ready.set(false);
+///     }
+/// });
+/// on_cleanup(cancel);
+/// view! {
+///     <div data-testid="dialog-late-focus">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogContent>
+///                         <Show when=move || ready.get()>
+///                             <div data-testid="dialog-late-control"><Button>"Late control"</Button></div>
+///                         </Show>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Control enabled later
+/// The button starts disabled and is enabled a moment after the dialog opens; it takes focus once it can.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::{set_timeout_with_handle, TimeoutHandle};
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let ready = RwSignal::new(false);
+/// let timer = StoredValue::new(None::<TimeoutHandle>);
+/// let cancel = move || {
+///     if let Some(handle) = timer.try_update_value(Option::take).flatten() {
+///         handle.clear();
+///     }
+/// };
+/// Effect::new(move |_| {
+///     cancel();
+///     if open.get() {
+///         let handle = set_timeout_with_handle(move || ready.set(true), Duration::from_millis(300));
+///         timer.set_value(handle.ok());
+///     } else {
+///         ready.set(false);
+///     }
+/// });
+/// on_cleanup(cancel);
+/// view! {
+///     <div data-testid="dialog-late-enabled">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogContent>
+///                         <Button disabled=Signal::derive(move || !ready.get())>"Enabled later"</Button>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Control revealed later
+/// The button is hidden when the dialog opens and shown a moment later; it takes focus once it appears.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::{set_timeout_with_handle, TimeoutHandle};
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let ready = RwSignal::new(false);
+/// let timer = StoredValue::new(None::<TimeoutHandle>);
+/// let cancel = move || {
+///     if let Some(handle) = timer.try_update_value(Option::take).flatten() {
+///         handle.clear();
+///     }
+/// };
+/// Effect::new(move |_| {
+///     cancel();
+///     if open.get() {
+///         let handle = set_timeout_with_handle(move || ready.set(true), Duration::from_millis(300));
+///         timer.set_value(handle.ok());
+///     } else {
+///         ready.set(false);
+///     }
+/// });
+/// on_cleanup(cancel);
+/// view! {
+///     <div data-testid="dialog-late-revealed">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogContent>
+///                         <div hidden=move || !ready.get()><Button>"Revealed later"</Button></div>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Late content after close
+/// The timer keeps running when the dialog closes, so the control mounts into the closed dialog; focus must stay where it returned.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::set_timeout_with_handle;
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let ready = RwSignal::new(false);
+/// Effect::new(move |was_open: Option<bool>| {
+///     let is_open = open.get();
+///     if is_open && was_open != Some(true) {
+///         ready.set(false);
+///         set_timeout_with_handle(move || ready.set(true), Duration::from_millis(300)).ok();
+///     }
+///     is_open
+/// });
+/// view! {
+///     <div data-testid="dialog-late-after-close">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogContent>
+///                         <Show when=move || ready.get()>
+///                             <div data-testid="dialog-late-after-close-control"><Button>"Late control"</Button></div>
+///                         </Show>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Late content after you place focus
+/// The control takes two seconds to appear, long enough to put focus on the `tabindex="-1"` block first; focus you placed yourself is left alone.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::{set_timeout_with_handle, TimeoutHandle};
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let ready = RwSignal::new(false);
+/// let timer = StoredValue::new(None::<TimeoutHandle>);
+/// let cancel = move || {
+///     if let Some(handle) = timer.try_update_value(Option::take).flatten() {
+///         handle.clear();
+///     }
+/// };
+/// Effect::new(move |_| {
+///     cancel();
+///     if open.get() {
+///         let handle = set_timeout_with_handle(move || ready.set(true), Duration::from_millis(2000));
+///         timer.set_value(handle.ok());
+///     } else {
+///         ready.set(false);
+///     }
+/// });
+/// on_cleanup(cancel);
+/// view! {
+///     <div data-testid="dialog-late-placed">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogContent>
+///                         <div tabindex="-1" data-testid="dialog-late-block">"Details are loading."</div>
+///                         <Show when=move || ready.get()>
+///                             <div data-testid="dialog-late-control"><Button>"Late control"</Button></div>
+///                         </Show>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Control made reachable later
+/// A block starts with `tabindex="-1"`, which keeps it out of the tab order, and gets `tabindex="0"` a moment after the dialog opens; it takes focus once reachable.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::{set_timeout_with_handle, TimeoutHandle};
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let ready = RwSignal::new(false);
+/// let timer = StoredValue::new(None::<TimeoutHandle>);
+/// let cancel = move || {
+///     if let Some(handle) = timer.try_update_value(Option::take).flatten() {
+///         handle.clear();
+///     }
+/// };
+/// Effect::new(move |_| {
+///     cancel();
+///     if open.get() {
+///         let handle = set_timeout_with_handle(move || ready.set(true), Duration::from_millis(300));
+///         timer.set_value(handle.ok());
+///     } else {
+///         ready.set(false);
+///     }
+/// });
+/// on_cleanup(cancel);
+/// view! {
+///     <div data-testid="dialog-late-tabindex">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogContent>
+///                         <div tabindex=move || if ready.get() { "0" } else { "-1" } data-testid="dialog-late-tabbable">"Reachable later"</div>
 ///                     </DialogContent>
 ///                 </DialogBody>
 ///             </DialogSurface>
