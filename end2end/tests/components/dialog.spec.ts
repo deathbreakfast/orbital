@@ -141,13 +141,14 @@ test.describe("dialog primitive preview", () => {
     await expect(trigger).toBeFocused();
   });
 
-  test("DL-12: closing before late content mounts leaves focus on the trigger", async ({ page }) => {
-    const { trigger, dialog } = await openLate(page, "dialog-late-focus");
+  test("DL-12: content that mounts after the dialog closed leaves focus on the trigger", async ({ page }) => {
+    const { trigger, dialog } = await openLate(page, "dialog-late-after-close");
     await expect(dialog).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(trigger).toBeFocused();
-    await page.waitForTimeout(700);
+    // The timer keeps running after close, so the control mounts into the closed dialog.
+    await expect(page.getByTestId("dialog-late-after-close-control")).toBeAttached();
     await expect(trigger).toBeFocused();
   });
 
@@ -174,14 +175,19 @@ test.describe("dialog primitive preview", () => {
   });
 
   test("DL-15: late content does not take focus the user already placed in the dialog", async ({ page }) => {
-    const { dialog } = await openLate(page, "dialog-late-focus");
+    const { dialog } = await openLate(page, "dialog-late-placed");
     const block = dialog.getByTestId("dialog-late-block");
     await block.click();
     await expect(block).toBeFocused();
+    // The fixture waits two seconds, so the click above lands before the control mounts.
     const late = dialog.getByRole("button", { name: "Late control" });
     await expect(late).toBeVisible();
-    await page.waitForTimeout(300);
     await expect(block).toBeFocused();
     await expect(late).not.toBeFocused();
+  });
+
+  test("DL-16: an element made reachable by a tabindex change receives focus", async ({ page }) => {
+    const { dialog } = await openLate(page, "dialog-late-tabindex");
+    await expect(dialog.getByTestId("dialog-late-tabbable")).toBeFocused();
   });
 });
