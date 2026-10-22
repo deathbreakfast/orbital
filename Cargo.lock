@@ -2154,6 +2154,7 @@ dependencies = [
  "chrono",
  "icondata",
  "icondata_core",
+ "js-sys",
  "leptos",
  "orbital-data",
  "orbital-motion",
