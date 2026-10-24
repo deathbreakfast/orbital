@@ -88,4 +88,20 @@ test.describe("data-table server source", () => {
     await expect(preview.getByTestId("data-table-footer")).toContainText("of 1");
     await expect(preview.locator("tbody tr")).toHaveCount(1);
   });
+
+  test("quick search with no server matches shows no-results, not empty", async ({ page }) => {
+    await openComponentPreview(page, "data-table-data-source", "data-table-server-preview");
+    const preview = page.getByTestId("data-table-server-preview");
+    await preview.scrollIntoViewIfNeeded();
+    await expect(preview.getByTestId("data-table-footer")).toContainText("of 30");
+
+    const search = preview.getByTestId("data-table-quick-search").locator("input");
+    await search.fill("nobody-matches-this");
+    await expect(preview.getByTestId("data-table-no-results")).toBeVisible({ timeout: 10_000 });
+    await expect(preview.getByTestId("data-table-empty")).toHaveCount(0);
+
+    await search.fill("");
+    await expect(preview.getByTestId("data-table-footer")).toContainText("of 30");
+    await expect(preview.getByTestId("data-table-no-results")).toHaveCount(0);
+  });
 });

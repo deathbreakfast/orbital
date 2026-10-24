@@ -1127,10 +1127,7 @@ impl DataTableTableState {
                 if !self.server_ever_loaded.get() {
                     return OverlayState::None;
                 }
-                if self.source_row_count() == 0 || !self.has_active_filters() {
-                    return OverlayState::Empty;
-                }
-                return OverlayState::NoResults;
+                return self.empty_overlay();
             }
             return OverlayState::None;
         }
@@ -1139,12 +1136,18 @@ impl DataTableTableState {
             return OverlayState::Loading;
         }
         if self.processed.get().is_empty() {
-            if self.source_row_count() == 0 || !self.has_active_filters() {
-                return OverlayState::Empty;
-            }
-            return OverlayState::NoResults;
+            return self.empty_overlay();
         }
         OverlayState::None
+    }
+
+    /// Empty or no-match, for a table with no rows to show.
+    fn empty_overlay(&self) -> OverlayState {
+        empty_overlay_state(
+            self.is_server(),
+            self.source_row_count(),
+            self.has_active_filters(),
+        )
     }
 
     pub fn row_height_px(&self) -> f64 {
@@ -1207,4 +1210,43 @@ pub fn create_column_layout_memo(
             table_width_px: table_width.get(),
         })
     })
+}
+
+/// Which overlay a table with no rows to show gets.
+///
+/// No filter or search: [`OverlayState::Empty`]. With one: [`OverlayState::NoResults`] when the
+/// source has rows the filter hid. A server source reports the filtered total, so with a filter
+/// active it can't tell an empty source from no matches and shows `NoResults`.
+fn empty_overlay_state(server: bool, source_rows: usize, filtered: bool) -> OverlayState {
+    if filtered && (server || source_rows > 0) {
+        OverlayState::NoResults
+    } else {
+        OverlayState::Empty
+    }
+}
+
+#[cfg(test)]
+mod empty_overlay_tests {
+    use super::{empty_overlay_state, OverlayState};
+
+    #[test]
+    fn server_filter_with_no_matches_shows_no_results() {
+        assert_eq!(empty_overlay_state(true, 0, true), OverlayState::NoResults);
+    }
+
+    #[test]
+    fn server_without_filter_shows_empty() {
+        assert_eq!(empty_overlay_state(true, 0, false), OverlayState::Empty);
+    }
+
+    #[test]
+    fn client_filter_hiding_rows_shows_no_results() {
+        assert_eq!(empty_overlay_state(false, 3, true), OverlayState::NoResults);
+    }
+
+    #[test]
+    fn client_empty_source_shows_empty_even_with_a_filter() {
+        assert_eq!(empty_overlay_state(false, 0, true), OverlayState::Empty);
+        assert_eq!(empty_overlay_state(false, 0, false), OverlayState::Empty);
+    }
 }
