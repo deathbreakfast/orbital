@@ -1154,9 +1154,15 @@ impl DataTableTableState {
         40.0
     }
 
+    /// Move the roving focus cell.
+    ///
+    /// Cells read `focus_cell` for their tabindex and classes, so this doesn't rebuild the body.
+    /// A rebuild here replaced the cell a mouse press had just focused, and the browser then fired
+    /// no click: row and cell clicks on a cell's text were lost.
     pub fn set_focus_cell(&self, coord: Option<CellCoord>) {
-        self.focus_cell.set(coord);
-        self.bump_render();
+        if self.focus_cell.get_untracked() != coord {
+            self.focus_cell.set(coord);
+        }
     }
 
     pub fn scroll_to_row_id(&self, row_id: &str) {
