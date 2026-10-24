@@ -11,6 +11,13 @@ test.describe("breadcrumb primitive preview", () => {
     await expect(nav.locator(".orbital-breadcrumb-divider")).toHaveCount(1);
   });
 
+  test("BC-01b trail is a labelled navigation landmark", async ({ page }) => {
+    await openComponentPreview(page, "breadcrumb");
+    const nav = page.getByTestId("breadcrumb-preview").getByRole("navigation", { name: "Breadcrumb" });
+    await expect(nav).toBeVisible();
+    await expect(nav.locator(".orbital-breadcrumb-item")).toHaveCount(2);
+  });
+
   test("BC-02 current page aria", async ({ page }) => {
     await openComponentPreview(page, "breadcrumb");
     await expectPreviewVariants(page, ["breadcrumb-current"]);
