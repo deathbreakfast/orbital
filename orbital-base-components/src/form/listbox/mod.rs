@@ -13,6 +13,9 @@ pub use utils::{get_dropdown_action_from_key, DropdownAction};
 #[component]
 pub fn BaseListbox(
     #[prop(optional, into)] class: MaybeProp<String>,
+    /// Element id, for a control that points at the listbox with `aria-controls`.
+    #[prop(optional, into)]
+    id: MaybeProp<String>,
     set_listbox: Arc<dyn Fn(Node) + Send + Sync>,
     listbox_ref: NodeRef<html::Div>,
     children: Children,
@@ -43,6 +46,7 @@ pub fn BaseListbox(
                 }
                 parts.join(" ")
             }
+            id=move || id.get()
             node_ref=listbox_ref
             role="listbox"
             on:mousedown=|e| e.prevent_default()
