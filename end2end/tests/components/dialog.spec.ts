@@ -10,6 +10,12 @@ test.describe("dialog primitive preview", () => {
     await expect(page.getByTestId("dialog-preview")).toContainText("Save your changes?");
   });
 
+  test("DL-01b: the dialog is named by its title", async ({ page }) => {
+    await openComponentPreview(page, "dialog", "dialog-basic");
+    await page.getByTestId("dialog-basic").getByRole("button", { name: "Open dialog" }).click();
+    await expect(page.getByRole("dialog", { name: "Confirm" })).toBeVisible();
+  });
+
   test("DL-02: trigger opens closed dialog", async ({ page }) => {
     await openComponentPreview(page, "dialog", "dialog-basic");
     const trigger = page.getByTestId("dialog-trigger");

@@ -304,7 +304,13 @@ pub fn Combobox(
     let listbox_ref = NodeRef::<html::Div>::new();
     let is_show_listbox = RwSignal::new(false);
     let options = StoredValue::new(HashMap::<String, ComboboxOptionRecord>::new());
-    let listbox_id = StoredValue::new(format!("orbital-combobox-listbox-{}", new_field_id()));
+    // Random ids differ between the server render and hydration, and hydration keeps
+    // the server's `aria-controls`. Pick the id on the client, where the listbox
+    // (a portal) is rendered, so the input and the listbox agree.
+    let listbox_id = RwSignal::new(None::<String>);
+    Effect::new(move |_| {
+        listbox_id.set(Some(format!("orbital-combobox-listbox-{}", new_field_id())));
+    });
 
     let filter_needle = Signal::derive({
         let value = value.clone();
@@ -475,10 +481,11 @@ pub fn Combobox(
                     <Provider value=panel_injection>
                         <BaseListbox
                             class="orbital-combobox__listbox"
+                            id=listbox_id
                             listbox_ref
                             set_listbox
                         >
-                            <div id=move || listbox_id.get_value()>{children()}</div>
+                            {children()}
                         </BaseListbox>
                     </Provider>
                 }
@@ -489,7 +496,7 @@ pub fn Combobox(
                     type="text"
                     aria-expanded=move || if is_show_listbox.get() { "true" } else { "false" }
                     aria-autocomplete="list"
-                    aria-controls=move || listbox_id.get_value()
+                    aria-controls=move || listbox_id.get()
                     aria-activedescendant=move || active_option_id.get()
                     role="combobox"
                     class="orbital-combobox__input"

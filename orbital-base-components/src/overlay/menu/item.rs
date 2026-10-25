@@ -1,4 +1,4 @@
-use leptos::prelude::*;
+use leptos::{ev, prelude::*};
 
 use crate::overlay::OverlayDismiss;
 use crate::Handler;
@@ -35,13 +35,24 @@ where
         has_icon.set(true);
     }
 
-    let on_click = move |_| {
+    let activate = move || {
         if disabled.get_untracked() {
             return;
         }
         on_select.run(value.clone());
         if let Some(dismiss) = use_context::<OverlayDismiss>() {
             dismiss.close.run(());
+        }
+    };
+    let on_click = {
+        let activate = activate.clone();
+        move |_| activate()
+    };
+    // A focused item activates on Enter or Space, like a button.
+    let on_keydown = move |event: ev::KeyboardEvent| {
+        if is_activation_key(&event.key()) {
+            event.prevent_default();
+            activate();
         }
     };
 
@@ -63,9 +74,33 @@ where
             tabindex="-1"
             aria-disabled=move || disabled.get().then_some("true")
             on:click=on_click
+            on:keydown=on_keydown
         >
             {move || icon.get().map(|_| view! { <span class="orbital-menu-item__icon" aria-hidden="true"></span> })}
             <span class="orbital-menu-item__label">{children()}</span>
         </div>
+    }
+}
+
+/// Keys that activate a focused menu item.
+fn is_activation_key(key: &str) -> bool {
+    matches!(key, "Enter" | " ")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_activation_key;
+
+    #[test]
+    fn enter_and_space_activate() {
+        assert!(is_activation_key("Enter"));
+        assert!(is_activation_key(" "));
+    }
+
+    #[test]
+    fn other_keys_do_not_activate() {
+        for key in ["Escape", "Tab", "ArrowDown", "a", "Spacebar", ""] {
+            assert!(!is_activation_key(key), "{key:?}");
+        }
     }
 }
