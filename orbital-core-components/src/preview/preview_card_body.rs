@@ -28,6 +28,7 @@ pub fn OrbitalPreviewCardBody(
         }
         .PreviewDemo {
             --orbital-card-content-padding: initial;
+            min-width: 0;
             max-width: 700px;
             padding: var(--orb-space-block-lg) var(--orb-space-inline-lg);
         }
