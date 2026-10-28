@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { openComponentPreview, expectPreviewVariants } from "../lib/preview/navigation";
 const VARIANTS = [
   "navigation-preview",
@@ -44,5 +45,17 @@ test.describe("navigation primitive preview", () => {
     const headerHeight = await categoryHeader.evaluate((el) => el.getBoundingClientRect().height);
     const itemHeight = await subItem.evaluate((el) => el.getBoundingClientRect().height);
     expect(itemHeight).toBeLessThanOrEqual(headerHeight + 2);
+  });
+
+  test("current item is marked aria-current, with no menu roles", async ({ page }) => {
+    await openComponentPreview(page, "navigation");
+    const nav = page.getByTestId("navigation-preview");
+    await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
+    await expect(nav.locator('[role="menuitem"], [aria-selected]')).toHaveCount(0);
+    const results = await new AxeBuilder({ page })
+      .include('[data-testid="navigation-preview"]')
+      .withRules(["aria-allowed-attr", "aria-required-parent", "aria-required-children"])
+      .analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
   });
 });

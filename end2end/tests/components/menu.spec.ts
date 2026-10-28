@@ -75,4 +75,36 @@ test.describe("menu primitive preview", () => {
     await page.keyboard.press("Enter");
     await expect(page.getByRole("menuitem", { name: "Edit" })).toHaveCount(0);
   });
+
+  test("MN-10: Enter on a focused item selects it and closes the menu", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await page.getByTestId("menu-keyboard").scrollIntoViewIfNeeded();
+    await clickMenuTriggerInPreview(page, "menu-keyboard", "Keyboard menu");
+    const copy = page.getByRole("menuitem", { name: "Copy" });
+    await expect(copy).toBeVisible();
+    await copy.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("menuitem", { name: "Copy" })).toHaveCount(0);
+  });
+
+  test("MN-11: Space on a focused item selects it and closes the menu", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await page.getByTestId("menu-keyboard").scrollIntoViewIfNeeded();
+    await clickMenuTriggerInPreview(page, "menu-keyboard", "Keyboard menu");
+    const del = page.getByRole("menuitem", { name: "Delete" });
+    await expect(del).toBeVisible();
+    await del.focus();
+    await page.keyboard.press(" ");
+    await expect(page.getByRole("menuitem", { name: "Delete" })).toHaveCount(0);
+  });
+
+  test("MN-12: Enter on a focused disabled item keeps the menu open", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await page.getByTestId("menu-disabled").scrollIntoViewIfNeeded();
+    await clickMenuTriggerInPreview(page, "menu-disabled", "Actions");
+    const blocked = page.getByRole("menuitem", { name: "Blocked" });
+    await blocked.focus();
+    await page.keyboard.press("Enter");
+    await expect(blocked).toBeVisible();
+  });
 });

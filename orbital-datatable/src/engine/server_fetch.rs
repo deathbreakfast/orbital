@@ -49,11 +49,16 @@ pub fn coordinator_begin(
 }
 
 /// Whether `generation` is still current on `coordinator`.
+///
+/// `false` once the coordinator is disposed: a fetch can finish after its table
+/// unmounts (the user navigated away), and its response is then dropped.
 pub fn coordinator_is_current(
     coordinator: RwSignal<ServerFetchCoordinator>,
     generation: u32,
 ) -> bool {
-    coordinator.with_untracked(|c| c.is_current(generation))
+    coordinator
+        .try_with_untracked(|c| c.is_current(generation))
+        .unwrap_or(false)
 }
 
 #[cfg(test)]
@@ -62,6 +67,25 @@ mod tests {
 
     use super::*;
     use orbital_paging::PageRequest;
+
+    #[test]
+    fn response_after_unmount_is_not_current() {
+        let owner = leptos::prelude::Owner::new();
+        let (coordinator, generation) = owner.with(|| {
+            let coordinator = RwSignal::new(ServerFetchCoordinator::default());
+            let generation = coordinator_begin(
+                coordinator,
+                &PageRequest::new(0, 10),
+                &ServerFetchPolicy::default(),
+            )
+            .expect("first fetch");
+            (coordinator, generation)
+        });
+        assert!(coordinator_is_current(coordinator, generation));
+        owner.cleanup();
+        // Used to panic reading the disposed coordinator (a wasm trap in the browser).
+        assert!(!coordinator_is_current(coordinator, generation));
+    }
 
     #[test]
     fn begin_increments_generation() {
