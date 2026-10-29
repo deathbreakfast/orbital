@@ -165,6 +165,11 @@ pub fn data_table_styles() -> &'static str {
     min-width: 100%;
 }
 
+.orbital-data-table__scroll .orbital-table th,
+.orbital-data-table__scroll .orbital-table td {
+    box-sizing: border-box;
+}
+
 .orbital-data-table__toolbar {
     display: flex;
     gap: var(--orb-space-inline-md);
@@ -209,6 +214,8 @@ pub fn data_table_styles() -> &'static str {
 }
 
 .orbital-data-table__sortable {
+    flex: 1;
+    min-width: 0;
     cursor: pointer;
     user-select: none;
 }

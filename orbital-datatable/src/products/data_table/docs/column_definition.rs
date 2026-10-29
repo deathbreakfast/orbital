@@ -42,7 +42,7 @@ use orbital_macros::component_doc;
 /// | `field` | `String` | required | Schema key this column displays |
 /// | `header` | `String` | required | Column header label |
 /// | `col_type` | `ColumnType` | `Text` | Typed sort, filter, and edit behavior |
-/// | `width` | `ColumnWidth` | `Flex(1.0)` | Fixed, flex, or auto width |
+/// | `width` | `ColumnWidth` | `Flex(1.0)` | Fixed, flex (fills the table, resizable), or auto width |
 /// | `editable` | `bool` | `false` | Allow inline editing |
 /// | `cell_view` | `Option<Arc<...>>` | `None` | Custom cell renderer |
 /// | `header_view` | `Option<Arc<...>>` | `None` | Custom header renderer |
