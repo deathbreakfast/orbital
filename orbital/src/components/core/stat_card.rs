@@ -144,62 +144,63 @@ pub fn StatCard(
 ) -> impl IntoView {
     let variant = variant.unwrap_or(StatCardVariant::Default);
 
+    // Stable `orbital-*` names so static HTML mocks can reuse these rules.
     let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Card {
+        .orbital-stat-card {
             min-width: 140px;
             flex: 1;
         }
 
-        .Content {
+        .orbital-stat-card-content {
             padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        .Header {
+        .orbital-stat-card-header {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .Label {
+        .orbital-stat-card-label {
             color: var(--orb-color-text-tertiary);
         }
 
-        .Value {
+        .orbital-stat-card-value {
             font-size: 32px;
             font-weight: 600;
             line-height: 1;
         }
 
-        .ValueSuccess {
+        .orbital-stat-card-value-success {
             color: var(--orb-color-status-success-fg);
         }
 
-        .ValueDanger {
+        .orbital-stat-card-value-danger {
             color: var(--orb-color-status-danger-fg);
         }
 
-        .ValueWarning {
+        .orbital-stat-card-value-warning {
             color: var(--orb-color-status-warning-fg);
         }
     };
 
     let value_class = match variant {
-        StatCardVariant::Default => class_names.value.to_string(),
-        StatCardVariant::Success => format!("{} {}", class_names.value, class_names.value_success),
-        StatCardVariant::Danger => format!("{} {}", class_names.value, class_names.value_danger),
-        StatCardVariant::Warning => format!("{} {}", class_names.value, class_names.value_warning),
+        StatCardVariant::Default => class_names.orbital_stat_card_value.to_string(),
+        StatCardVariant::Success => format!("{} {}", class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_success),
+        StatCardVariant::Danger => format!("{} {}", class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_danger),
+        StatCardVariant::Warning => format!("{} {}", class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_warning),
     };
 
     view! {
         <style>{style_sheet}</style>
-        <Card class=class_names.card>
-            <div class=class_names.content>
-                <div class=class_names.header>
+        <Card class=class_names.orbital_stat_card>
+            <div class=class_names.orbital_stat_card_content>
+                <div class=class_names.orbital_stat_card_header>
                     {icon.map(|i| view! { <Icon icon=i /> })}
-                    <Caption1 class=class_names.label>{label}</Caption1>
+                    <Caption1 class=class_names.orbital_stat_card_label>{label}</Caption1>
                 </div>
                 <Title2 class=value_class>{move || value.get()}</Title2>
             </div>

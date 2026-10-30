@@ -155,8 +155,9 @@ pub fn Stepper(
 ) -> impl IntoView {
     let total = steps.len();
 
+    // Stable `orbital-*` names so static HTML mocks can reuse these rules.
     let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Wrapper {
+        .orbital-stepper {
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -164,19 +165,19 @@ pub fn Stepper(
 
         // ── Vertical ────────────────────────────────────────────────
 
-        .Vertical {
+        .orbital-stepper-vertical {
             display: flex;
             flex-direction: column;
         }
 
-        .StepRowV {
+        .orbital-stepper-step-row-v {
             display: flex;
             flex-direction: row;
             align-items: flex-start;
             gap: 12px;
         }
 
-        .IconColumnV {
+        .orbital-stepper-icon-column-v {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -184,7 +185,7 @@ pub fn Stepper(
             width: 24px;
         }
 
-        .ConnectorV {
+        .orbital-stepper-connector-v {
             width: 2px;
             flex: 1;
             min-height: 16px;
@@ -192,19 +193,19 @@ pub fn Stepper(
             margin-bottom: 4px;
         }
 
-        .ConnectorSolid {
+        .orbital-stepper-connector-solid {
             border-left: 2px solid var(--orb-color-status-success-fg);
         }
 
-        .ConnectorActive {
+        .orbital-stepper-connector-active {
             border-left: 2px solid var(--orb-color-brand-fg);
         }
 
-        .ConnectorDashed {
+        .orbital-stepper-connector-dashed {
             border-left: 2px dashed var(--orb-color-border-default);
         }
 
-        .ContentV {
+        .orbital-stepper-content-v {
             display: flex;
             flex-direction: column;
             gap: 2px;
@@ -213,13 +214,13 @@ pub fn Stepper(
 
         // ── Horizontal ──────────────────────────────────────────────
 
-        .Horizontal {
+        .orbital-stepper-horizontal {
             display: flex;
             flex-direction: row;
             align-items: flex-start;
         }
 
-        .StepItemH {
+        .orbital-stepper-step-item-h {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -227,31 +228,31 @@ pub fn Stepper(
             flex-shrink: 0;
         }
 
-        .IconRowH {
+        .orbital-stepper-icon-row-h {
             display: flex;
             flex-direction: row;
             align-items: center;
             width: 100%;
         }
 
-        .ConnectorH {
+        .orbital-stepper-connector-h {
             height: 2px;
             flex: 1;
         }
 
-        .ConnectorHSolid {
+        .orbital-stepper-connector-h-solid {
             border-top: 2px solid var(--orb-color-status-success-fg);
         }
 
-        .ConnectorHActive {
+        .orbital-stepper-connector-h-active {
             border-top: 2px solid var(--orb-color-brand-fg);
         }
 
-        .ConnectorHDashed {
+        .orbital-stepper-connector-h-dashed {
             border-top: 2px dashed var(--orb-color-border-default);
         }
 
-        .ContentH {
+        .orbital-stepper-content-h {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -262,7 +263,7 @@ pub fn Stepper(
 
         // ── Shared ──────────────────────────────────────────────────
 
-        .IconWrap {
+        .orbital-stepper-icon-wrap {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -271,62 +272,62 @@ pub fn Stepper(
             flex-shrink: 0;
         }
 
-        .StatusDone {
+        .orbital-stepper-status-done {
             color: var(--orb-color-status-success-fg);
         }
 
-        .StatusActive {
+        .orbital-stepper-status-active {
             color: var(--orb-color-brand-fg);
         }
 
-        .StatusFailed {
+        .orbital-stepper-status-failed {
             color: var(--orb-color-status-danger-fg);
         }
 
-        .StatusPending {
+        .orbital-stepper-status-pending {
             color: var(--orb-color-text-tertiary);
         }
 
-        .StatusSkipped {
+        .orbital-stepper-status-skipped {
             color: var(--orb-color-text-tertiary);
         }
 
-        .Message {
+        .orbital-stepper-message {
             color: var(--orb-color-text-tertiary);
         }
     };
 
     let icon_class = |status: StepStatus| -> String {
-        let base = &class_names.icon_wrap;
+        let base = &class_names.orbital_stepper_icon_wrap;
         let modifier = match status {
-            StepStatus::Done => &class_names.status_done,
-            StepStatus::Active => &class_names.status_active,
-            StepStatus::Failed => &class_names.status_failed,
-            StepStatus::Pending => &class_names.status_pending,
-            StepStatus::Skipped => &class_names.status_skipped,
+            StepStatus::Done => &class_names.orbital_stepper_status_done,
+            StepStatus::Active => &class_names.orbital_stepper_status_active,
+            StepStatus::Failed => &class_names.orbital_stepper_status_failed,
+            StepStatus::Pending => &class_names.orbital_stepper_status_pending,
+            StepStatus::Skipped => &class_names.orbital_stepper_status_skipped,
         };
         format!("{base} {modifier}")
     };
 
     let connector_v_class = |status: StepStatus| -> String {
-        let base = &class_names.connector_v;
+        let base = &class_names.orbital_stepper_connector_v;
         let modifier = match status {
-            StepStatus::Done => &class_names.connector_solid,
-            StepStatus::Active => &class_names.connector_active,
+            StepStatus::Done => &class_names.orbital_stepper_connector_solid,
+            StepStatus::Active => &class_names.orbital_stepper_connector_active,
             StepStatus::Pending | StepStatus::Failed | StepStatus::Skipped => {
-                &class_names.connector_dashed
+                &class_names.orbital_stepper_connector_dashed
             }
         };
         format!("{base} {modifier}")
     };
 
     let connector_h_class = |status: StepStatus| -> String {
-        let base = &class_names.connector_h;
+        let base = &class_names.orbital_stepper_connector_h;
         let modifier = match status {
-            StepStatus::Done => &class_names.connector_h_solid,
-            StepStatus::Active => &class_names.connector_h_active,
+            StepStatus::Done => &class_names.orbital_stepper_connector_h_solid,
+            StepStatus::Active => &class_names.orbital_stepper_connector_h_active,
             StepStatus::Pending | StepStatus::Failed | StepStatus::Skipped => {
-                &class_names.connector_h_dashed
+                &class_names.orbital_stepper_connector_h_dashed
             }
         };
         format!("{base} {modifier}")
@@ -359,14 +360,14 @@ pub fn Stepper(
 
     let steps_view = if vertical {
         view! {
-            <div class=class_names.vertical>
+            <div class=class_names.orbital_stepper_vertical>
                 {steps.into_iter().enumerate().map(|(i, step)| {
                     let is_last = i == total - 1;
                     let ic = icon_class(step.status);
                     let cc = connector_v_class(step.status);
                     view! {
-                        <div class=class_names.step_row_v>
-                            <div class=class_names.icon_column_v>
+                        <div class=class_names.orbital_stepper_step_row_v>
+                            <div class=class_names.orbital_stepper_icon_column_v>
                                 <div class=ic>{step_icon(step.status)}</div>
                                 {if !is_last {
                                     view! { <div class=cc></div> }.into_any()
@@ -374,10 +375,10 @@ pub fn Stepper(
                                     ().into_any()
                                 }}
                             </div>
-                            <div class=class_names.content_v>
+                            <div class=class_names.orbital_stepper_content_v>
                                 <Body1>{step.label}</Body1>
                                 {step.message.map(|msg| view! {
-                                    <Caption1 class=class_names.message>{msg}</Caption1>
+                                    <Caption1 class=class_names.orbital_stepper_message>{msg}</Caption1>
                                 })}
                             </div>
                         </div>
@@ -388,14 +389,14 @@ pub fn Stepper(
         .into_any()
     } else {
         view! {
-            <div class=class_names.horizontal>
+            <div class=class_names.orbital_stepper_horizontal>
                 {steps.into_iter().enumerate().map(|(i, step)| {
                     let is_last = i == total - 1;
                     let ic = icon_class(step.status);
                     let cc = connector_h_class(step.status);
                     view! {
-                        <div class=class_names.step_item_h style="flex: 1;">
-                            <div class=class_names.icon_row_h>
+                        <div class=class_names.orbital_stepper_step_item_h style="flex: 1;">
+                            <div class=class_names.orbital_stepper_icon_row_h>
                                 <div class=ic>{step_icon(step.status)}</div>
                                 {if !is_last {
                                     view! { <div class=cc></div> }.into_any()
@@ -403,10 +404,10 @@ pub fn Stepper(
                                     ().into_any()
                                 }}
                             </div>
-                            <div class=class_names.content_h>
+                            <div class=class_names.orbital_stepper_content_h>
                                 <Body1>{step.label}</Body1>
                                 {step.message.map(|msg| view! {
-                                    <Caption1 class=class_names.message>{msg}</Caption1>
+                                    <Caption1 class=class_names.orbital_stepper_message>{msg}</Caption1>
                                 })}
                             </div>
                         </div>
@@ -419,7 +420,7 @@ pub fn Stepper(
 
     view! {
         <style>{style_sheet}</style>
-        <div class=class_names.wrapper>
+        <div class=class_names.orbital_stepper>
             {steps_view}
             {progress.map(|p| view! {
                 <ProgressBar value=Signal::derive(move || p.get() as f64 / 100.0) />

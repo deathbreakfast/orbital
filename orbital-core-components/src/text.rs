@@ -178,68 +178,70 @@ pub fn Text(
     test_id: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
-    let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Root {
+    // Stable `orbital-text*` names (excluded from turf hashing) so static HTML mocks can
+    // reuse these rules.
+    let (style_sheet, _) = inline_style_sheet_values! {
+        .orbital-text {
             display: inline;
             font-family: inherit;
             margin: 0;
             color: var(--orb-color-text-primary);
         }
 
-        .Block {
+        .orbital-text--block {
             display: block;
         }
 
-        .AlignStart {
+        .orbital-text--align-start {
             text-align: start;
         }
-        .AlignCenter {
+        .orbital-text--align-center {
             text-align: center;
         }
-        .AlignEnd {
+        .orbital-text--align-end {
             text-align: end;
         }
-        .AlignJustify {
+        .orbital-text--align-justify {
             text-align: justify;
         }
 
-        .FontBase {
+        .orbital-text--font-base {
             font-family: var(--orb-type-family-sans);
         }
-        .FontNumeric {
+        .orbital-text--font-numeric {
             font-family: var(--orb-type-family-numeric);
             font-variant-numeric: tabular-nums;
         }
-        .FontMonospace {
+        .orbital-text--font-monospace {
             font-family: var(--orb-type-family-mono);
         }
 
-        .Italic {
+        .orbital-text--italic {
             font-style: italic;
         }
 
-        .Underline {
+        .orbital-text--underline {
             text-decoration-line: underline;
         }
 
-        .Strikethrough {
+        .orbital-text--strikethrough {
             text-decoration-line: line-through;
         }
 
-        .Underline.Strikethrough {
+        .orbital-text--underline.orbital-text--strikethrough {
             text-decoration-line: underline line-through;
         }
 
-        .Wrap {
+        .orbital-text--wrap {
             white-space: normal;
             overflow-wrap: break-word;
         }
 
-        .NoWrap {
+        .orbital-text--no-wrap {
             white-space: nowrap;
         }
 
-        .Truncate {
+        .orbital-text--truncate {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -247,99 +249,99 @@ pub fn Text(
             display: inline-block;
         }
 
-        .Block.Truncate {
+        .orbital-text--block.orbital-text--truncate {
             display: block;
         }
 
         // Typography scale tracks theme tokens on the active OrbitalThemeProvider scope.
-        .Size100 { font-size: var(--orb-type-size-2xs); line-height: var(--orb-type-line-sm); }
-        .Size200 { font-size: var(--orb-type-size-xs); line-height: var(--orb-type-line-sm); }
-        .Size300 { font-size: var(--orb-type-size-sm); line-height: var(--orb-type-line-md); }
-        .Size400 { font-size: var(--orb-type-size-md); line-height: var(--orb-type-line-lg); }
-        .Size500 { font-size: var(--orb-type-size-lg); line-height: var(--orb-type-line-xl); }
-        .Size600 { font-size: var(--orb-type-size-xl); line-height: 1.333; }
-        .Size700 { font-size: var(--orb-type-size-2xl); line-height: 1.286; }
-        .Size800 { font-size: var(--orb-type-size-3xl); line-height: 1.25; }
-        .Size900 { font-size: var(--orb-type-size-4xl); line-height: 1.3; }
-        .Size1000 { font-size: var(--orb-type-size-5xl); line-height: 1.35; }
+        .orbital-text--size-100 { font-size: var(--orb-type-size-2xs); line-height: var(--orb-type-line-sm); }
+        .orbital-text--size-200 { font-size: var(--orb-type-size-xs); line-height: var(--orb-type-line-sm); }
+        .orbital-text--size-300 { font-size: var(--orb-type-size-sm); line-height: var(--orb-type-line-md); }
+        .orbital-text--size-400 { font-size: var(--orb-type-size-md); line-height: var(--orb-type-line-lg); }
+        .orbital-text--size-500 { font-size: var(--orb-type-size-lg); line-height: var(--orb-type-line-xl); }
+        .orbital-text--size-600 { font-size: var(--orb-type-size-xl); line-height: 1.333; }
+        .orbital-text--size-700 { font-size: var(--orb-type-size-2xl); line-height: 1.286; }
+        .orbital-text--size-800 { font-size: var(--orb-type-size-3xl); line-height: 1.25; }
+        .orbital-text--size-900 { font-size: var(--orb-type-size-4xl); line-height: 1.3; }
+        .orbital-text--size-1000 { font-size: var(--orb-type-size-5xl); line-height: 1.35; }
 
-        .WeightRegular { font-weight: var(--orb-type-weight-regular); }
-        .WeightMedium { font-weight: 500; }
-        .WeightSemibold { font-weight: var(--orb-type-weight-semibold); }
-        .WeightBold { font-weight: var(--orb-type-weight-bold); }
+        .orbital-text--weight-regular { font-weight: var(--orb-type-weight-regular); }
+        .orbital-text--weight-medium { font-weight: 500; }
+        .orbital-text--weight-semibold { font-weight: var(--orb-type-weight-semibold); }
+        .orbital-text--weight-bold { font-weight: var(--orb-type-weight-bold); }
     };
     inject_style("orbital-text", style_sheet);
 
     let class = Signal::derive(move || {
-        let mut classes: Vec<String> = vec![class_names.root.to_string()];
+        let mut classes: Vec<String> = vec!["orbital-text".to_string()];
 
         if block {
-            classes.push(class_names.block.to_string());
+            classes.push("orbital-text--block".to_string());
         }
 
         classes.push(
             match align {
-                TextAlign::Start => class_names.align_start,
-                TextAlign::Center => class_names.align_center,
-                TextAlign::End => class_names.align_end,
-                TextAlign::Justify => class_names.align_justify,
+                TextAlign::Start => "orbital-text--align-start",
+                TextAlign::Center => "orbital-text--align-center",
+                TextAlign::End => "orbital-text--align-end",
+                TextAlign::Justify => "orbital-text--align-justify",
             }
             .to_string(),
         );
 
         classes.push(
             match font {
-                TextFont::Base => class_names.font_base,
-                TextFont::Numeric => class_names.font_numeric,
-                TextFont::Monospace => class_names.font_monospace,
+                TextFont::Base => "orbital-text--font-base",
+                TextFont::Numeric => "orbital-text--font-numeric",
+                TextFont::Monospace => "orbital-text--font-monospace",
             }
             .to_string(),
         );
 
         if italic {
-            classes.push(class_names.italic.to_string());
+            classes.push("orbital-text--italic".to_string());
         }
         if underline {
-            classes.push(class_names.underline.to_string());
+            classes.push("orbital-text--underline".to_string());
         }
         if strikethrough {
-            classes.push(class_names.strikethrough.to_string());
+            classes.push("orbital-text--strikethrough".to_string());
         }
 
         classes.push(
             match size {
-                TextSize::S100 => class_names.size_100,
-                TextSize::S200 => class_names.size_200,
-                TextSize::S300 => class_names.size_300,
-                TextSize::S400 => class_names.size_400,
-                TextSize::S500 => class_names.size_500,
-                TextSize::S600 => class_names.size_600,
-                TextSize::S700 => class_names.size_700,
-                TextSize::S800 => class_names.size_800,
-                TextSize::S900 => class_names.size_900,
-                TextSize::S1000 => class_names.size_1000,
+                TextSize::S100 => "orbital-text--size-100",
+                TextSize::S200 => "orbital-text--size-200",
+                TextSize::S300 => "orbital-text--size-300",
+                TextSize::S400 => "orbital-text--size-400",
+                TextSize::S500 => "orbital-text--size-500",
+                TextSize::S600 => "orbital-text--size-600",
+                TextSize::S700 => "orbital-text--size-700",
+                TextSize::S800 => "orbital-text--size-800",
+                TextSize::S900 => "orbital-text--size-900",
+                TextSize::S1000 => "orbital-text--size-1000",
             }
             .to_string(),
         );
 
         classes.push(
             match weight {
-                TextWeight::Regular => class_names.weight_regular,
-                TextWeight::Medium => class_names.weight_medium,
-                TextWeight::Semibold => class_names.weight_semibold,
-                TextWeight::Bold => class_names.weight_bold,
+                TextWeight::Regular => "orbital-text--weight-regular",
+                TextWeight::Medium => "orbital-text--weight-medium",
+                TextWeight::Semibold => "orbital-text--weight-semibold",
+                TextWeight::Bold => "orbital-text--weight-bold",
             }
             .to_string(),
         );
 
         if truncate {
-            classes.push(class_names.truncate.to_string());
+            classes.push("orbital-text--truncate".to_string());
         }
 
         classes.push(if wrap {
-            class_names.wrap.to_string()
+            "orbital-text--wrap".to_string()
         } else {
-            class_names.no_wrap.to_string()
+            "orbital-text--no-wrap".to_string()
         });
 
         if let Some(extra) = class.get() {
@@ -525,15 +527,15 @@ pub fn FormHint(
     #[prop(optional, into)] test_id: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
-    let (style_sheet, class_names) = inline_style_sheet_values! {
-        .FormHint {
+    let (style_sheet, _) = inline_style_sheet_values! {
+        .orbital-form-hint {
             color: var(--orb-color-text-tertiary);
             margin-top: 4px;
         }
     };
     inject_style("orbital-form-hint", style_sheet);
     // Combine base class with optional user class (evaluated at init)
-    let base = class_names.form_hint.to_string();
+    let base = "orbital-form-hint".to_string();
     let class_val = match class.get() {
         None => base.clone(),
         Some(ref s) if s.trim().is_empty() => base.clone(),
@@ -556,13 +558,13 @@ pub fn SectionTitle(
     #[prop(optional, into)] test_id: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
-    let (style_sheet, class_names) = inline_style_sheet_values! {
-        .SectionTitle {
+    let (style_sheet, _) = inline_style_sheet_values! {
+        .orbital-section-title {
             color: var(--orb-color-text-primary);
         }
     };
     inject_style("orbital-section-title", style_sheet);
-    let base = class_names.section_title.to_string();
+    let base = "orbital-section-title".to_string();
     let class_val = match class.get() {
         None => base.clone(),
         Some(ref s) if s.trim().is_empty() => base.clone(),
