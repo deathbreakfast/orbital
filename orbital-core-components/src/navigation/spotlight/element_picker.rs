@@ -41,12 +41,17 @@ fn rect_of(element: &web_sys::Element) -> SpotlightRect {
     }
 }
 
-/// Nearest pickable ancestor of an event target, or `None` over the picker's own chrome.
-fn pick_target(target: Option<web_sys::EventTarget>, selector: &str) -> Option<web_sys::Element> {
+/// Element under the pointer, outside the picker's own chrome.
+fn event_element(target: Option<web_sys::EventTarget>) -> Option<web_sys::Element> {
     let element = target?.dyn_into::<web_sys::Element>().ok()?;
     if element.closest(CHROME_ATTR).ok().flatten().is_some() {
         return None;
     }
+    Some(element)
+}
+
+/// Nearest ancestor (or self) matching `selector`.
+fn pick_target(element: &web_sys::Element, selector: &str) -> Option<web_sys::Element> {
     element.closest(selector).ok().flatten()
 }
 
@@ -155,16 +160,25 @@ pub fn ElementPicker(
         let selector_move = selector.clone();
         let selector_click = selector.clone();
         let on_move = add_event_listener_capture(document.clone(), ev::pointermove, move |event| {
-            let element = pick_target(event.target(), &selector_move);
-            let next = element.as_ref().map(|element| {
-                let (text, pickable) = chip_for(label.run(element.clone()));
-                Hover {
-                    rect: rect_of(element),
-                    text,
-                    pickable,
+            // Elements with no match are still outlined, as not pickable.
+            let (next, boxed) = match event_element(event.target()) {
+                Some(element) => {
+                    let matched = pick_target(&element, &selector_move);
+                    let (text, pickable) =
+                        chip_for(matched.as_ref().and_then(|m| label.run(m.clone())));
+                    let boxed = matched.unwrap_or(element);
+                    (
+                        Some(Hover {
+                            rect: rect_of(&boxed),
+                            text,
+                            pickable,
+                        }),
+                        Some(boxed),
+                    )
                 }
-            });
-            hovered.set_value(element);
+                None => (None, None),
+            };
+            hovered.set_value(boxed);
             if hover.get_untracked() != next {
                 hover.set(next);
             }
@@ -208,7 +222,9 @@ pub fn ElementPicker(
             }
             event.prevent_default();
             event.stop_propagation();
-            if let Some(element) = pick_target(event.target(), &selector_click) {
+            let matched =
+                event_element(event.target()).and_then(|el| pick_target(&el, &selector_click));
+            if let Some(element) = matched {
                 if label.run(element.clone()).is_some() {
                     active.set(false);
                     on_pick.run(element);
