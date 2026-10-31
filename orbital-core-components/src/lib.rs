@@ -116,14 +116,14 @@ pub use tag::{
 };
 
 pub use feedback::{
-    Badge, BadgeAppearance, BadgeColor, BadgeSize, CounterBadge, Dialog, DialogActions, DialogBody,
-    DialogContent, DialogDismiss, DialogDismissConfig, DialogSurface, DialogTitle, MessageBar,
-    MessageBarActions, MessageBarBody, MessageBarIntent, MessageBarLayout, MessageBarTitle,
-    OpenBind, PresenceBadge, PresenceBadgeSize, PresenceStatus, ProgressBar, ProgressBarColor,
-    ProgressCircle, ProgressCircleColor, Skeleton, SkeletonItem, SkeletonItemShape,
-    SkeletonItemSize, Spinner, SpinnerSize, Toast, ToastAction, ToastBody, ToastDefaultTimeoutMs,
-    ToastFooter, ToastId, ToastIntent, ToastOffset, ToastOptions, ToastPosition, ToastTitle,
-    ToastTrigger, ToasterInjection, ToasterProvider,
+    AnchoredCounterBadge, Badge, BadgeAppearance, BadgeColor, BadgeCorner, BadgeSize, CounterBadge,
+    Dialog, DialogActions, DialogBody, DialogContent, DialogDismiss, DialogDismissConfig,
+    DialogSurface, DialogTitle, MessageBar, MessageBarActions, MessageBarBody, MessageBarIntent,
+    MessageBarLayout, MessageBarTitle, OpenBind, PresenceBadge, PresenceBadgeSize, PresenceStatus,
+    ProgressBar, ProgressBarColor, ProgressCircle, ProgressCircleColor, Skeleton, SkeletonItem,
+    SkeletonItemShape, SkeletonItemSize, Spinner, SpinnerSize, Toast, ToastAction, ToastBody,
+    ToastDefaultTimeoutMs, ToastFooter, ToastId, ToastIntent, ToastOffset, ToastOptions,
+    ToastPosition, ToastTitle, ToastTrigger, ToasterInjection, ToasterProvider,
 };
 pub use layout::{
     AppBarInset, Aside, Content, ContentWithAside, Layout, LayoutHeader, LayoutHeaderInset,
