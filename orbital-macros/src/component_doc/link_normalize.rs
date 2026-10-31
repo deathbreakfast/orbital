@@ -313,6 +313,7 @@ const PREVIEW_SLUGS: &[&str] = &[
     "accordion",
     "action-menu-button",
     "anchor",
+    "anchored-counter-badge",
     "app-bar",
     "auto-complete",
     "auto-grid",
