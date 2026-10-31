@@ -75,3 +75,43 @@ test.describe("spotlight-tour preview", () => {
     await expect(page.locator('[data-testid="spotlight-header"]:visible')).toContainText("Step 1");
   });
 });
+
+test.describe("element-picker preview", () => {
+  test("EP-01 hover outlines, click picks, page handler does not fire", async ({ page }) => {
+    await openComponentPreview(page, "element-picker", "element-picker-default");
+    const section = page.getByTestId("element-picker-default");
+    await section.getByRole("button", { name: "Pick element" }).click();
+    await page.getByTestId("picker-card-a").hover();
+    await expect(page.getByTestId("element-picker-chip")).toHaveText("picker-card-a");
+    await expect(page.getByTestId("element-picker-outline")).toBeVisible();
+    await page.getByTestId("picker-card-b").getByRole("button", { name: "Vote" }).hover();
+    await expect(page.getByTestId("element-picker-chip")).toHaveText("picker-card-b");
+    await page.getByTestId("picker-card-b").getByRole("button", { name: "Vote" }).click();
+    await expect(page.getByTestId("element-picker-picked")).toHaveText("picked picker-card-b");
+    await expect(page.getByTestId("element-picker")).toHaveCount(0);
+  });
+
+  test("EP-02 element without an anchor is dimmed and not picked", async ({ page }) => {
+    await openComponentPreview(page, "element-picker", "element-picker-default");
+    const section = page.getByTestId("element-picker-default");
+    await section.getByRole("button", { name: "Pick element" }).click();
+    await page.getByTestId("picker-no-anchor").hover();
+    await expect(page.getByTestId("element-picker-chip")).toHaveText("Can't pick this element");
+    await expect(page.getByTestId("element-picker-outline")).toHaveClass(/--unavailable/);
+    await page.getByTestId("picker-no-anchor").click();
+    await expect(page.getByTestId("element-picker")).toBeVisible();
+    await expect(page.getByTestId("element-picker-picked")).toHaveText("");
+  });
+
+  test("EP-03 Esc and Cancel leave picker mode", async ({ page }) => {
+    await openComponentPreview(page, "element-picker", "element-picker-default");
+    const section = page.getByTestId("element-picker-default");
+    await section.getByRole("button", { name: "Pick element" }).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("element-picker")).toHaveCount(0);
+    await expect(page.getByTestId("element-picker-picked")).toHaveText("cancelled");
+    await section.getByRole("button", { name: "Pick element" }).click();
+    await page.getByTestId("element-picker").getByRole("button", { name: "Cancel" }).click();
+    await expect(page.getByTestId("element-picker")).toHaveCount(0);
+  });
+});

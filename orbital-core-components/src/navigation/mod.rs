@@ -59,9 +59,9 @@ pub use popover::{
     PopoverTrigger, PopoverTriggerType,
 };
 pub use spotlight::{
-    SpotlightActions, SpotlightBackdrop, SpotlightBody, SpotlightFooter, SpotlightHeader,
-    SpotlightMedia, SpotlightPopover, SpotlightTip, SpotlightTour, SpotlightTourInjection,
-    SpotlightTourState, SpotlightTourStep, SpotlightTrigger,
+    ElementPicker, SpotlightActions, SpotlightBackdrop, SpotlightBody, SpotlightFooter,
+    SpotlightHeader, SpotlightMedia, SpotlightPopover, SpotlightTip, SpotlightTour,
+    SpotlightTourInjection, SpotlightTourState, SpotlightTourStep, SpotlightTrigger,
 };
 pub use toolbar::{Toolbar, ToolbarButton, ToolbarSize};
 pub use tooltip::{Tooltip, TooltipAppearance, TooltipConfig, TooltipPosition};
@@ -92,8 +92,8 @@ pub use overflow::OVERFLOW_PREVIEW_REGISTRATION;
 pub use popover::POPOVER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use spotlight::{
-    SPOTLIGHTPOPOVER_PREVIEW_REGISTRATION, SPOTLIGHTTIP_PREVIEW_REGISTRATION,
-    SPOTLIGHTTOUR_PREVIEW_REGISTRATION,
+    ELEMENTPICKER_PREVIEW_REGISTRATION, SPOTLIGHTPOPOVER_PREVIEW_REGISTRATION,
+    SPOTLIGHTTIP_PREVIEW_REGISTRATION, SPOTLIGHTTOUR_PREVIEW_REGISTRATION,
 };
 #[cfg(feature = "preview")]
 pub use toolbar::TOOLBAR_PREVIEW_REGISTRATION;
