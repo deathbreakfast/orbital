@@ -129,11 +129,13 @@ pub fn ElementPicker(
     inject_style("orbital-element-picker", element_picker_styles());
 
     let hover = RwSignal::new(None::<Hover>);
+    let hovered = StoredValue::new_local(None::<web_sys::Element>);
     let handles = StoredValue::<Vec<EventListenerHandle>>::new(vec![]);
 
     let stop = move || {
         handles.update_value(|list| list.drain(..).for_each(|handle| handle.remove()));
         hover.set(None);
+        hovered.set_value(None);
     };
     let cancel = move || {
         active.set(false);
@@ -153,17 +155,48 @@ pub fn ElementPicker(
         let selector_move = selector.clone();
         let selector_click = selector.clone();
         let on_move = add_event_listener_capture(document.clone(), ev::pointermove, move |event| {
-            let next = pick_target(event.target(), &selector_move).map(|element| {
+            let element = pick_target(event.target(), &selector_move);
+            let next = element.as_ref().map(|element| {
                 let (text, pickable) = chip_for(label.run(element.clone()));
                 Hover {
-                    rect: rect_of(&element),
+                    rect: rect_of(element),
                     text,
                     pickable,
                 }
             });
+            hovered.set_value(element);
             if hover.get_untracked() != next {
                 hover.set(next);
             }
+        });
+        // Scrolling moves the hovered element under a still pointer; re-measure its box.
+        let on_scroll = add_event_listener_capture(document.clone(), ev::scroll, move |_| {
+            let Some(element) = hovered.get_value() else {
+                return;
+            };
+            hover.update(|current| {
+                if let Some(h) = current {
+                    h.rect = rect_of(&element);
+                }
+            });
+        });
+        // Swallow the press so the page doesn't focus, start a drag, or act on mousedown.
+        let swallow_press = |event: web_sys::Event| {
+            let in_chrome = event
+                .target()
+                .and_then(|t| t.dyn_into::<web_sys::Element>().ok())
+                .is_some_and(|el| el.closest(CHROME_ATTR).ok().flatten().is_some());
+            if !in_chrome {
+                event.prevent_default();
+                event.stop_propagation();
+            }
+        };
+        let on_pointerdown =
+            add_event_listener_capture(document.clone(), ev::pointerdown, move |e| {
+                swallow_press(e.into())
+            });
+        let on_mousedown = add_event_listener_capture(document.clone(), ev::mousedown, move |e| {
+            swallow_press(e.into())
         });
         let on_click = add_event_listener_capture(document.clone(), ev::click, move |event| {
             let in_chrome = event
@@ -188,7 +221,14 @@ pub fn ElementPicker(
                 cancel();
             }
         });
-        handles.set_value(vec![on_move, on_click, on_key]);
+        handles.set_value(vec![
+            on_move,
+            on_scroll,
+            on_pointerdown,
+            on_mousedown,
+            on_click,
+            on_key,
+        ]);
     });
     Owner::on_cleanup(stop);
 
