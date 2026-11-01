@@ -99,7 +99,8 @@ test.describe("element-picker preview", () => {
     await expect(page.getByTestId("element-picker-chip")).toHaveText("Can't pick this element");
     await expect(page.getByTestId("element-picker-outline")).toHaveClass(/--unavailable/);
     await page.getByTestId("picker-no-anchor").click();
-    await expect(page.getByTestId("element-picker")).toBeVisible();
+    // The root has no box of its own (its children are fixed), so check the Cancel button.
+    await expect(page.getByTestId("element-picker").getByRole("button", { name: "Cancel" })).toBeVisible();
     await expect(page.getByTestId("element-picker-picked")).toHaveText("");
   });
 
