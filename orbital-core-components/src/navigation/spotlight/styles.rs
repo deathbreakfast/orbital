@@ -85,6 +85,58 @@ pub fn spotlight_styles() -> &'static str {
 "#
 }
 
+pub fn element_picker_styles() -> &'static str {
+    r#"
+.orbital-element-picker__outline {
+    position: fixed;
+    z-index: 1001;
+    pointer-events: none;
+    box-sizing: border-box;
+    border: 2px solid var(--orb-color-brand-stroke);
+    border-radius: var(--orb-radius-md);
+    background-color: var(--orb-color-brand-bg-subtle);
+}
+
+.orbital-element-picker__outline--unavailable {
+    border-style: dashed;
+    border-color: var(--orb-color-border-subtle);
+    background-color: transparent;
+    opacity: 0.6;
+}
+
+.orbital-element-picker__chip {
+    position: fixed;
+    z-index: 1002;
+    pointer-events: none;
+    padding: var(--orb-space-block-xs) var(--orb-space-inline-sm);
+    border-radius: var(--orb-radius-md);
+    background-color: var(--orb-color-brand-bg);
+    color: var(--orb-color-text-on-brand);
+    font-size: var(--orb-type-size-xs);
+    transform: translateY(-100%);
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.orbital-element-picker__actions {
+    position: fixed;
+    z-index: 1002;
+    right: var(--orb-space-inline-lg);
+    bottom: var(--orb-space-block-lg);
+}
+
+.orbital-element-picker__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+"#
+}
+
 #[cfg(test)]
 mod tests {
     use super::spotlight_styles;

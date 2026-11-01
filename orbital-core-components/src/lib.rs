@@ -136,7 +136,7 @@ pub use navigation::{
     AnchorConfig, AnchorLink, BackToTop, BackToTopLabel, Carousel, CarouselSlide, CarouselState,
     CarouselStateInjection, CarouselStepper, CarouselStepperLayout, CarouselViewport, Drawer,
     DrawerBody, DrawerHeader, DrawerHeaderTitle, DrawerHeaderTitleAction, DrawerModalType,
-    DrawerPosition, DrawerSize, FloatingActionsMenu, FloatingActionsMenuConfig,
+    DrawerPosition, DrawerSize, ElementPicker, FloatingActionsMenu, FloatingActionsMenuConfig,
     FloatingActionsMenuItem, InlineDrawer, Menu, MenuAppearance, MenuConfig, MenuItem,
     MenuPosition, MenuTrigger, MenuTriggerType, Navigation, NavigationAppItem, NavigationBody,
     NavigationCategory, NavigationCategoryHeader, NavigationCollapseToggle, NavigationConfig,
@@ -211,7 +211,7 @@ pub use navigation::back_to_top::BACKTOTOP_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use navigation::{
     ACCORDION_PREVIEW_REGISTRATION, CAROUSELSTEPPER_PREVIEW_REGISTRATION,
-    CAROUSEL_PREVIEW_REGISTRATION, DRAWER_PREVIEW_REGISTRATION,
+    CAROUSEL_PREVIEW_REGISTRATION, DRAWER_PREVIEW_REGISTRATION, ELEMENTPICKER_PREVIEW_REGISTRATION,
     FLOATINGACTIONSMENU_PREVIEW_REGISTRATION, MENU_PREVIEW_REGISTRATION,
     POPOVER_PREVIEW_REGISTRATION, SPOTLIGHTPOPOVER_PREVIEW_REGISTRATION,
     SPOTLIGHTTIP_PREVIEW_REGISTRATION, SPOTLIGHTTOUR_PREVIEW_REGISTRATION,

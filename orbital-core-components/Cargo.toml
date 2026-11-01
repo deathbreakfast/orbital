@@ -30,7 +30,7 @@ orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
 orbital-style = { path = "../orbital-style", version = "0.1.4", default-features = false }
 orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-features = false }
 wasm-bindgen = { workspace = true }
-web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Element", "DomRect", "ResizeObserver"] }
+web-sys = { version = "0.3", features = ["Document", "DomRect", "Element", "Event", "EventTarget", "HtmlElement", "HtmlInputElement", "KeyboardEvent", "MouseEvent", "PointerEvent", "ResizeObserver", "Window"] }
 inventory = { version = "0.3", optional = true }
 pulldown-cmark = { version = "0.13", optional = true }
 palette = "0.7"
