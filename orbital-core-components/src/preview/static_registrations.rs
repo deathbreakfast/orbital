@@ -57,6 +57,10 @@ use crate::forms::date_picker::DATEPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::dropdown::DROPDOWN_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::forms::emoji_picker::{
+    EMOJIPICKERBUTTON_PREVIEW_REGISTRATION, EMOJIPICKER_PREVIEW_REGISTRATION,
+};
+#[cfg(feature = "preview")]
 use crate::forms::field::FIELD_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::info_label::INFOLABEL_PREVIEW_REGISTRATION;
@@ -184,6 +188,8 @@ orbital_macros::preview_registrations! {
     &TEXTAREA_PREVIEW_REGISTRATION,
     &SEARCHBOX_PREVIEW_REGISTRATION,
     &DROPDOWN_PREVIEW_REGISTRATION,
+    &EMOJIPICKER_PREVIEW_REGISTRATION,
+    &EMOJIPICKERBUTTON_PREVIEW_REGISTRATION,
     &ACCORDION_PREVIEW_REGISTRATION,
     &DRAWER_PREVIEW_REGISTRATION,
     &FLOATINGACTIONSMENU_PREVIEW_REGISTRATION,
