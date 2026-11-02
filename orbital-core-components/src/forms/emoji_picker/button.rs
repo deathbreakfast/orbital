@@ -74,8 +74,8 @@ pub fn EmojiPickerButton(
     #[prop(optional)]
     recent: Option<RwSignal<Vec<String>>>,
     /// Emoji to offer instead of the built-in set.
-    #[prop(optional)]
-    emojis: Option<Vec<Emoji>>,
+    #[prop(optional, into)]
+    emojis: MaybeProp<Vec<Emoji>>,
     /// Emoji per grid row. Defaults to 8.
     #[prop(default = 8)]
     columns: u8,
@@ -126,7 +126,7 @@ pub fn EmojiPickerButton(
             <EmojiPicker
                 on_select=on_select
                 recent=recent
-                emojis=emojis.unwrap_or_else(|| super::data::default_emojis().to_vec())
+                emojis=emojis
                 columns=columns
                 comp_ref=picker_ref
             />

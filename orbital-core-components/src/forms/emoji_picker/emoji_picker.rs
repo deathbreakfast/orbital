@@ -139,8 +139,8 @@ pub fn EmojiPicker(
     #[prop(optional)]
     recent: Option<RwSignal<Vec<String>>>,
     /// Emoji to offer instead of the built-in set.
-    #[prop(optional)]
-    emojis: Option<Vec<Emoji>>,
+    #[prop(optional, into)]
+    emojis: MaybeProp<Vec<Emoji>>,
     /// Emoji per grid row. Defaults to 8.
     #[prop(default = 8)]
     columns: u8,
@@ -157,7 +157,7 @@ pub fn EmojiPicker(
     inject_style("orbital-emoji-picker", emoji_picker_styles());
 
     let columns = usize::from(columns.max(1));
-    let all = StoredValue::new(emojis.unwrap_or_else(|| default_emojis().to_vec()));
+    let all = Memo::new(move |_| emojis.get().unwrap_or_else(|| default_emojis().to_vec()));
     let recent = recent.unwrap_or_else(|| RwSignal::new(Vec::new()));
     let query = RwSignal::new(String::new());
     let search_ref = ComponentRef::<InputRef>::new();
@@ -167,10 +167,10 @@ pub fn EmojiPicker(
     let root_ref = NodeRef::<html::Div>::new();
     let dismiss = use_context::<OverlayDismiss>();
 
-    let results = Memo::new(move |_| query.with(|q| all.with_value(|all| filter(all, q))));
+    let results = Memo::new(move |_| query.with(|q| all.with(|all| filter(all, q))));
     let recent_emojis = Memo::new(move |_| {
         recent.with(|glyphs| {
-            all.with_value(|all| {
+            all.with(|all| {
                 glyphs
                     .iter()
                     .take(RECENT_CAP)
@@ -268,24 +268,10 @@ pub fn EmojiPicker(
         }
     };
 
-    let cell = move |pos: CellPos, emoji: Emoji| {
-        let label = emoji.label();
-        view! {
-            <div role="gridcell" class="orbital-emoji-picker__gridcell" on:focusin=move |_| active.set(pos)>
-                <Button
-                    appearance=ButtonAppearance::Subtle
-                    shape=ButtonShape::Square
-                    class="orbital-emoji-picker__cell"
-                    attr:tabindex=move || if tab_stop.get() == pos { "0" } else { "-1" }
-                    attr:aria-label=label.clone()
-                    attr:title=label
-                    attr:data-emoji-cell=format!("{}-{}", pos.0, pos.1)
-                    on_click=Callback::new(move |_| pick(emoji))
-                >
-                    {emoji.glyph}
-                </Button>
-            </div>
-        }
+    let grid = GridState {
+        tab_stop,
+        active,
+        pick: Callback::new(pick),
     };
 
     let grid_label = Signal::derive(move || aria_label.get().unwrap_or_else(|| "Emoji".into()));
@@ -316,7 +302,7 @@ pub fn EmojiPicker(
                                         .get()
                                         .into_iter()
                                         .enumerate()
-                                        .map(|(c, emoji)| cell((0, c), emoji))
+                                        .map(|(c, emoji)| view! { <EmojiCell pos=(0, c) emoji=emoji grid=grid /> })
                                         .collect_view()
                                 }}
                             </div>
@@ -324,37 +310,77 @@ pub fn EmojiPicker(
                     </div>
                 </Show>
                 {move || {
-                    let found = results.get();
-                    if found.is_empty() {
-                        return view! {
-                            <div class="orbital-emoji-picker__empty" role="status">
-                                <Body1>"No emoji match"</Body1>
-                            </div>
-                        }
-                            .into_any();
-                    }
                     let offset = usize::from(show_recent.get());
-                    let body = found
-                        .chunks(columns)
-                        .enumerate()
-                        .map(|(r, chunk)| {
-                            let row = r + offset;
-                            let cells = chunk
-                                .iter()
-                                .enumerate()
-                                .map(|(c, emoji)| cell((row, c), *emoji))
-                                .collect_view();
-                            view! { <div role="row" class="orbital-emoji-picker__row">{cells}</div> }
-                        })
-                        .collect_view();
-                    view! {
-                        <div role="grid" aria-label=move || grid_label.get() class="orbital-emoji-picker__grid orbital-emoji-picker__results">
-                            {body}
-                        </div>
-                    }
-                        .into_any()
+                    results.with(|found| results_grid(found, columns, offset, grid_label, grid))
                 }}
             </div>
+        </div>
+    }
+}
+
+/// Roving-focus state and the pick action, shared by every cell.
+#[derive(Clone, Copy)]
+struct GridState {
+    tab_stop: Memo<CellPos>,
+    active: RwSignal<CellPos>,
+    pick: Callback<Emoji>,
+}
+
+/// The search results as rows of [`EmojiCell`]s, or the empty state when nothing matches.
+/// `row_offset` is 1 when the Recent row sits above as row 0.
+fn results_grid(
+    found: &[Emoji],
+    columns: usize,
+    row_offset: usize,
+    label: Signal<String>,
+    grid: GridState,
+) -> AnyView {
+    if found.is_empty() {
+        return view! {
+            <div class="orbital-emoji-picker__empty" role="status">
+                <Body1>"No emoji match"</Body1>
+            </div>
+        }
+        .into_any();
+    }
+    let rows = found
+        .chunks(columns)
+        .enumerate()
+        .map(|(r, chunk)| {
+            let cells = chunk
+                .iter()
+                .enumerate()
+                .map(|(c, emoji)| view! { <EmojiCell pos=(r + row_offset, c) emoji=*emoji grid=grid /> })
+                .collect_view();
+            view! { <div role="row" class="orbital-emoji-picker__row">{cells}</div> }
+        })
+        .collect_view();
+    view! {
+        <div role="grid" aria-label=move || label.get() class="orbital-emoji-picker__grid orbital-emoji-picker__results">
+            {rows}
+        </div>
+    }
+    .into_any()
+}
+
+/// One grid cell: a subtle square button that is the tab stop only when `pos` is.
+#[component]
+fn EmojiCell(pos: CellPos, emoji: Emoji, grid: GridState) -> impl IntoView {
+    let label = emoji.label();
+    view! {
+        <div role="gridcell" class="orbital-emoji-picker__gridcell" on:focusin=move |_| grid.active.set(pos)>
+            <Button
+                appearance=ButtonAppearance::Subtle
+                shape=ButtonShape::Square
+                class="orbital-emoji-picker__cell"
+                attr:tabindex=move || if grid.tab_stop.get() == pos { "0" } else { "-1" }
+                attr:aria-label=label.clone()
+                attr:title=label
+                attr:data-emoji-cell=format!("{}-{}", pos.0, pos.1)
+                on_click=Callback::new(move |_| grid.pick.run(emoji))
+            >
+                {emoji.glyph}
+            </Button>
         </div>
     }
 }
