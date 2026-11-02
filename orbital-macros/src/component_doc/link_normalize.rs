@@ -353,6 +353,8 @@ const PREVIEW_SLUGS: &[&str] = &[
     "divider",
     "drawer",
     "dropdown",
+    "emoji-picker",
+    "emoji-picker-button",
     "empty-state",
     "field",
     "flex",
