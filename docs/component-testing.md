@@ -105,16 +105,44 @@ Gold-standard references: `button/button.rs`, `space/space.rs`, `flex/flex.rs`, 
 
 Maintainers may run `python3 scripts/maintainer/check_component_docs.py` before opening PRs that touch component docs.
 
+Run `python3 scripts/maintainer/check_testids.py` when a change adds or renames `data-testid` values.
+
 ## `data-testid` conventions
 
-| Pattern | Example | Notes |
-|---------|---------|-------|
-| Default preview wrapper | `{slug}-preview` | On a **native** HTML element (`div`, `span`) |
-| Named variant | `{slug}-{variant-kebab}` | e.g. `button-secondary` |
-| Not found page | `preview-not-found` | Preview host unknown slug |
-| Teleported UI | inside portal content | Dialog: put testids on `DialogContent`, not empty outer wrappers |
+### Naming rules
 
-Orbital components do **not** forward arbitrary attributes — wrap controls in a native element when you need a test hook.
+- Lowercase ASCII kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`.
+- Name the role of the element, never its copy, position or index. `scheduler-event-dialog-open` survives a text change; `button-3` does not.
+- Repeated items get a distinct suffix that comes from the data (`-row-{id}`), so each id stays unique on the page.
+- Sub-parts append a lowercase suffix to the owner's id: `-value`, `-label`, `-trigger`, `-content`.
+
+### Id families
+
+| Family | Pattern | Example | Notes |
+|--------|---------|---------|-------|
+| Default preview wrapper | `{slug}-preview` | `persona-preview` | On a **native** HTML element (`div`, `span`) |
+| Named variant | `{slug}-{variant-kebab}` | `button-secondary` | One wrapper per visible variant |
+| Sub-part of a wrapper | `{owner-id}-{part}` | `date-field-preview-value` | Readouts and labels next to a demo |
+| Product-prefixed hook | `{product}-{area}-{role}` | `discussion-composer-send` | `scheduler-`, `discussion-`, `spotlight-`, `orbital-boot-` |
+| Preview shell chrome | `preview-{part}` | `preview-catalog-nav` | Owned by `orbital-preview-app`; `app-bar` is the one unprefixed exception |
+| Not found page | `preview-not-found` | | Preview host, unknown slug |
+| Teleported UI | inside portal content | | Dialog: put testids on `DialogContent`, not empty outer wrappers |
+
+### Placement
+
+- Orbital components do **not** forward arbitrary attributes. Wrap the control in a native element when you need a test hook.
+- Components that expose a `data_testid` prop (for example `DemoBox` and `ContentContainer`) apply it to their root element. Use the prop rather than adding a wrapper.
+- Put the id on the demo wrapper inside the preview area, not on the frame `Card`.
+
+### Using ids in Playwright
+
+- Locate with `page.getByTestId(...)`. Do not fall back to CSS class selectors for elements that already carry an id.
+- Do not use `.first()` to pick between duplicated ids. Give each instance its own suffix instead.
+- Click through Playwright locators, not `el.click()` in page JavaScript.
+
+### Checking ids
+
+`python3 scripts/maintainer/check_testids.py` scans string-literal `data-testid="..."` attributes in Rust sources and fails on ids that break the naming rules. A small allowlist in the script covers legacy ids (uppercase test-case ids such as `CA-02`, and `-VALUE` / `-LABEL` suffixes in the date-pickers previews). Renaming them also means changing the specs that read them, so they stay until that work is done. New ids must not be added to the allowlist.
 
 ### Layout: `Flex` vs wrapper `div`
 
