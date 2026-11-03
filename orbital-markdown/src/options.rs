@@ -9,6 +9,12 @@ pub struct OrbitalMarkdownOptions {
     pub enable_mention_refs: bool,
     /// Render `![alt](url)` as `<img>` (deduped against attachment URLs in context).
     pub enable_images: bool,
+    /// Restrict `<img src>` to these URL schemes (compared case-insensitively).
+    ///
+    /// `None` applies the same schemes as links (`http`, `https`, `mailto`,
+    /// `mention-ref`). `Some` can only narrow that set: a scheme outside it is
+    /// still dropped. Scheme-less (relative) sources are kept.
+    pub image_url_schemes: Option<Vec<String>>,
     /// Anchor/id template for citation superscript links.
     pub citation_style: CitationLinkStyle,
     /// Anchor template for mention links.
@@ -22,6 +28,7 @@ impl OrbitalMarkdownOptions {
             enable_citation_refs: true,
             enable_mention_refs: false,
             enable_images: true,
+            image_url_schemes: None,
             citation_style: CitationLinkStyle::discussion(),
             mention_style: MentionLinkStyle::default(),
         }
@@ -33,6 +40,7 @@ impl OrbitalMarkdownOptions {
             enable_citation_refs: true,
             enable_mention_refs: true,
             enable_images: true,
+            image_url_schemes: None,
             citation_style: CitationLinkStyle::history(),
             mention_style: MentionLinkStyle::history(),
         }
