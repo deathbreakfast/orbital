@@ -76,6 +76,7 @@ pub fn HistoryDialog(
                                 features,
                                 locale: Some(resolved_locale),
                                 max_height: Some(max_height),
+                                min_width: None,
                                 paging,
                                 loading,
                                 skeleton_row_count,

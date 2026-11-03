@@ -8,6 +8,7 @@ pub fn history_styles() -> &'static str {
     flex-direction: column;
     min-height: 0;
     width: 100%;
+    min-width: var(--orbital-history-min-width, 16rem);
     --orbital-history-time-rail-width: 4.5rem;
     --orbital-history-spine-size: 0.5rem;
     --orbital-history-row-padding-block: var(--orb-space-block-sm);
