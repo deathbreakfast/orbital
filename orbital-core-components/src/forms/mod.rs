@@ -64,7 +64,7 @@ pub use radio_group::{
     RadioGroup, RadioGroupBind, RadioGroupLayout, RadioGroupRule, RadioGroupRuleTrigger,
 };
 pub use search_box::{SearchBox, SearchBoxAppearance, SearchBoxBind, SearchBoxEvents};
-pub use select::{Select, SelectAppearance, SelectBind};
+pub use select::{Select, SelectAppearance, SelectBind, SelectOption};
 pub use slider::{Slider, SliderAppearance, SliderBind, SliderLabel};
 pub use swatch_picker::{
     SwatchPicker, SwatchPickerItem, SwatchPickerLayout, SwatchPickerShape, SwatchPickerSize,

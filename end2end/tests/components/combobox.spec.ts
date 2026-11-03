@@ -248,4 +248,32 @@ test.describe("combobox primitive preview", () => {
     await expect(first).toHaveValue("Apple");
     await expect(page.getByRole("listbox")).toHaveCount(0);
   });
+
+  test("CB-SEC-01: secondary line renders under the label and describes the option", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-secondary");
+    await scrollIntoPreviewView(root);
+    const input = root.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    const option = page.getByRole("option", { name: /Small pool/ });
+    const secondary = option.locator(".orbital-combobox-option__secondary");
+    await expect(secondary).toHaveText("2 vCPU, 4 GB, 3 workers");
+    const describedBy = await option.getAttribute("aria-describedby");
+    expect(describedBy).toEqual(await secondary.getAttribute("id"));
+    const labelBox = await option.locator(".orbital-combobox-option__label").boundingBox();
+    const secondaryBox = await secondary.boundingBox();
+    expect(secondaryBox!.y).toBeGreaterThan(labelBox!.y);
+  });
+
+  test("CB-SEC-02: keyboard still picks an option that has secondary text", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-secondary");
+    await scrollIntoPreviewView(root);
+    const input = root.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    await input.press("Enter");
+    await expect(input).toHaveValue("Small pool");
+  });
 });
