@@ -81,6 +81,10 @@ pub fn data_table_styles() -> &'static str {
     pointer-events: none;
 }
 
+.orbital-data-table__overlay-content--interactive {
+    pointer-events: auto;
+}
+
 .orbital-data-table__overlay-message {
     color: var(--orb-color-text-secondary);
     font-size: var(--orb-type-size-sm);

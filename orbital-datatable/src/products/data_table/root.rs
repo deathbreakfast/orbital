@@ -193,9 +193,11 @@ pub fn DataTableRoot(
         infinite_scroll_needs_bounded_scroll(paging, source_kind == DataTableSourceKind::Server);
     let bounded_scroll =
         row_pinning_enabled || height.is_some() || max_height.is_some() || force_bounded_scroll;
-    let list_view_enabled =
-        features.contains(DataTableFeatures::LIST_VIEW) && list_view.get_value().is_some();
-    let horizontal_scroll = !bounded_scroll && !list_view_enabled;
+    let list_view_always = features.contains(DataTableFeatures::LIST_VIEW)
+        && list_view
+            .get_value()
+            .is_some_and(|config| config.breakpoint_px.is_none());
+    let horizontal_scroll = !bounded_scroll && !list_view_always;
 
     let table_state = DataTableTableState {
         columns,
@@ -281,6 +283,7 @@ pub fn DataTableRoot(
         aggregation_position,
         pivot: pivot_signal,
         list_view,
+        measured_width,
         pivot_columns,
         footer_row,
         get_row_id,
@@ -509,7 +512,11 @@ pub fn DataTableRoot(
                 let _ = quick_search.get();
                 let _ = filter.get();
                 let _ = sort.get();
-                server_offset.set(0);
+                // Skip the write on mount: setting an unchanged offset still
+                // notifies the fetch effect and fetches the first page twice.
+                if server_offset.get_untracked() != 0 {
+                    server_offset.set(0);
+                }
             });
 
             Effect::new(move |_| {
@@ -658,7 +665,7 @@ pub fn DataTableRoot(
                     if force_bounded_scroll {
                         parts.push("orbital-data-table--infinite-scroll".to_string());
                     }
-                    if list_view_enabled {
+                    if table_state.list_view_enabled() {
                         parts.push("orbital-data-table--list-view".to_string());
                     }
                     if let Some(extra) = class.get() {
