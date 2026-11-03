@@ -47,7 +47,7 @@ pub use combobox::{
 pub use compound_button::{CompoundButton, CompoundButtonIconPosition};
 pub use date_picker::{DatePicker, DatePickerAppearance, DatePickerBind};
 pub use dropdown::Dropdown;
-pub use field::{Field, FieldOrientation};
+pub use field::{Field, FieldOrientation, FieldValidationMessage};
 pub use info_label::{InfoLabel, InfoLabelInfo, InfoLabelSize, InfoLabelWeight};
 pub use input::{
     input_styles, Input, InputAppearance, InputBind, InputEvents, InputPrefix, InputRef,
