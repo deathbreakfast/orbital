@@ -28,6 +28,7 @@ pub struct FilterChoice {
 }
 
 impl FilterChoice {
+    /// A choice whose `value` goes into the filter rule and whose `label` is what people see.
     pub fn new(value: impl Into<String>, label: impl Into<String>) -> Self {
         Self {
             value: value.into(),

@@ -22,7 +22,7 @@ test.describe("data-table header filters", () => {
 
     const status = preview.getByTestId("data-table-header-filter-status");
     await expect(status.getByRole("combobox")).toBeVisible();
-    await expect(status.getByRole("option")).toHaveText(["All", "Active", "Archived"]);
+    await expect(status.getByRole("option")).toHaveText(["Any value", "Active", "Archived"]);
     await selectPreviewOption(status, "Archived");
 
     await expect(preview.locator("tbody tr")).toHaveCount(1);

@@ -59,7 +59,8 @@ test.describe("data-table column menu", () => {
     await preview.scrollIntoViewIfNeeded();
 
     await preview.getByTestId("data-table-column-filter-role").click();
-    await expect(page.getByTestId("data-table-column-filter-value-role")).toHaveCount(0);
-    await expect(page.getByRole("textbox")).toBeVisible();
+    const panel = page.getByTestId("data-table-column-filter-panel-role");
+    await expect(panel.getByRole("textbox")).toBeVisible();
+    await expect(panel.getByTestId("data-table-column-filter-value-role")).toHaveCount(0);
   });
 });

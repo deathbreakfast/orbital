@@ -147,6 +147,7 @@ fn DataTableColumnFilterPanel(
         .map(|c| c.col_type)
         .unwrap_or(crate::types::ColumnType::Text);
     let choices = column.and_then(|c| c.filter_choices());
+    let field_id = field.clone();
 
     let apply_filter = {
         let field = field.clone();
@@ -176,7 +177,10 @@ fn DataTableColumnFilterPanel(
     };
 
     view! {
-        <div class="orbital-data-table__column-menu-filter-panel">
+        <div
+            class="orbital-data-table__column-menu-filter-panel"
+            data-testid=format!("data-table-column-filter-panel-{field_id}")
+        >
             <Select bind=operator_wire appearance=SelectSize::Small>
                 {FilterOperator::allowed_for(col_type)
                     .iter()

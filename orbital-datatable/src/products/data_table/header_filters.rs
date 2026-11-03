@@ -95,7 +95,7 @@ fn DataTableHeaderFilterCell(
                             attr:data-testid=testid.clone()
                             on:change=move |_| apply.run(())
                         >
-                            <option value="">"All"</option>
+                            <option value="">"Any value"</option>
                             {choices
                                 .into_iter()
                                 .map(|c| view! { <option value=c.value>{c.label}</option> })
