@@ -190,6 +190,24 @@ test.describe("combobox primitive preview", () => {
     await expect(selected).toHaveCount(0);
   });
 
+  test("CB-A7: Escape closes the multiselect listbox after Space-select", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const wrapper = page.getByTestId("combobox-clearable-multiselect");
+    await wrapper.scrollIntoViewIfNeeded();
+    const input = wrapper.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    await input.press(" ");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+
+    await input.press("Escape");
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await expect(input).toBeFocused();
+
+    await input.press("ArrowDown");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+  });
+
   test("CB-A6: Clear is disabled with a disabled combobox", async ({ page }) => {
     await openComponentPreview(page, "combobox");
     const wrapper = page.getByTestId("combobox-disabled-selected");

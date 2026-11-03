@@ -124,6 +124,10 @@ pub fn listbox_keyboard_event(
             e.prevent_default();
             active_descendant_controller.last();
         }
-        DropdownAction::Tab | DropdownAction::Close | DropdownAction::None => {}
+        DropdownAction::Close => {
+            e.prevent_default();
+            set_open.set(false);
+        }
+        DropdownAction::Tab | DropdownAction::None => {}
     };
 }
