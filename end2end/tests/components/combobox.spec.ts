@@ -26,6 +26,20 @@ test.describe("combobox primitive preview", () => {
     await expect(input).toHaveValue("Apple");
   });
 
+  test("CB-filter: disable_filter keeps non-matching options visible and focusable", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const wrapper = page.getByTestId("combobox-no-local-filter");
+    await wrapper.scrollIntoViewIfNeeded();
+    const input = wrapper.locator("input[role='combobox']");
+    await input.fill("ap");
+    const zucchini = page.locator(".orbital-listbox .orbital-combobox-option", { hasText: "Zucchini" });
+    await expect(zucchini).toBeVisible();
+    await expect(zucchini).not.toHaveClass(/orbital-combobox-option--hidden/);
+    await input.press("ArrowDown");
+    await input.press("ArrowDown");
+    await expect(zucchini).toHaveAttribute("data-activedescendant-focusvisible", /.*/);
+  });
+
   test("CB-04: clearable combobox clears current selection", async ({ page }) => {
     await openComponentPreview(page, "combobox");
     await page.getByTestId("combobox-clearable").scrollIntoViewIfNeeded();

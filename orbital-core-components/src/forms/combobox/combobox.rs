@@ -91,6 +91,7 @@ impl ComboboxInjection {
 ///
 /// - Bind both `ComboboxBind.value` (filter/display string) and `ComboboxBind.selected_options` (stable option ids).
 /// - Declare options as slot children via [`ComboboxOption`] — there is no data-prop options array.
+/// - Typing filters options by title locally. Set `ComboboxAppearance.disable_filter` to show every option, for example when results come from a server search.
 /// - Free text entry is not supported — use [`AutoComplete`](crate::AutoComplete) when users may type arbitrary values.
 ///
 /// See the crate README for picker vs combobox selection.
@@ -185,6 +186,25 @@ impl ComboboxInjection {
 ///         >
 ///             <ComboboxOption value="apple".to_string() text="Apple" />
 ///             <ComboboxOption value="banana".to_string() text="Banana" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Server-side filtering
+/// Set `disable_filter` when the product filters on the server. Options whose title lacks the typed text stay visible and reachable with the arrow keys.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// view! {
+///     <div data-testid="combobox-no-local-filter">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance { disable_filter: true, ..Default::default() }
+///         >
+///             <ComboboxOption value="apple".to_string() text="Apple" />
+///             <ComboboxOption value="zucchini".to_string() text="Zucchini" />
 ///         </Combobox>
 ///     </div>
 /// }
@@ -386,6 +406,7 @@ pub fn Combobox(
         disabled,
         clearable,
         clear_label,
+        disable_filter,
         multiselect,
         size,
     } = appearance;
@@ -407,7 +428,13 @@ pub fn Combobox(
 
     let filter_needle = Signal::derive({
         let value = value.clone();
-        move || value.get().trim().to_ascii_lowercase()
+        move || {
+            if disable_filter {
+                String::new()
+            } else {
+                value.get().trim().to_ascii_lowercase()
+            }
+        }
     });
 
     let combobox_injection = ComboboxInjection {
