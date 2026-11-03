@@ -18,3 +18,4 @@ __dev_scripts/
 *.pem
 leptos.log
 Cargo.toml.tmp
+/end2end/lanes-out/
