@@ -190,14 +190,17 @@ fn menu_overlay_width_style(min_width: Option<String>, max_width: Option<String>
 /// ```
 ///
 /// ## Keyboard navigation
-/// Arrow keys move focus between items; Enter selects the focused item.
+/// The first item takes focus when the menu opens. Arrow keys, Home and End move focus between
+/// enabled items; Enter or Space selects the focused item.
 /// <!-- preview -->
 /// ```rust
 /// use crate::{Button, MenuItem};
 ///
+/// let selected = RwSignal::new(String::from("none"));
 /// view! {
 ///     <div data-testid="menu-keyboard">
-///         <Menu on_select=|_value: String| {}>
+///         <p data-testid="menu-keyboard-selected">{move || selected.get()}</p>
+///         <Menu on_select=move |value: String| selected.set(value)>
 ///             <MenuTrigger slot>
 ///                 <Button>"Keyboard menu"</Button>
 ///             </MenuTrigger>
