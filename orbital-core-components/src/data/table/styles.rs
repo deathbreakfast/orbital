@@ -15,6 +15,7 @@ pub fn table_styles() -> &'static str {
     position: relative;
     display: table-cell;
     vertical-align: middle;
+    box-sizing: border-box;
     font-weight: var(--orb-type-weight-regular);
     padding: 0px var(--orb-space-inline-sm);
 }
@@ -91,6 +92,7 @@ pub fn table_styles() -> &'static str {
     height: 44px;
     display: table-cell;
     vertical-align: middle;
+    box-sizing: border-box;
     padding: 0px var(--orb-space-inline-sm);
 }
 .orbital-table-cell-layout {
