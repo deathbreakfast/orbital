@@ -140,15 +140,15 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use std::collections::HashMap;
-/// use crate::{DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel};
+/// use crate::{ColumnType, DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel, FilterChoice};
 /// let items = RwSignal::new(vec![
 ///     DataTableRowModel::from_text_cells("1", HashMap::from([
 ///         ("name".into(), "Ada".into()),
-///         ("role".into(), "Editor".into()),
+///         ("role".into(), "Editor".into()), ("status".into(), "Archived".into()),
 ///     ])),
 ///     DataTableRowModel::from_text_cells("2", HashMap::from([
 ///         ("name".into(), "Grace".into()),
-///         ("role".into(), "Admin".into()),
+///         ("role".into(), "Admin".into()), ("status".into(), "Active".into()),
 ///     ])),
 /// ]);
 /// view! {
@@ -157,7 +157,7 @@ use orbital_macros::component_doc;
 ///             features=DataTableFeatures::COLUMN_PINNING
 ///             columns=vec![
 ///                 DataTableColumnDef::new("name", "Name"),
-///                 DataTableColumnDef::new("role", "Role"),
+///                 DataTableColumnDef::new("role", "Role"), DataTableColumnDef::new("status", "Status").with_col_type(ColumnType::SingleSelect).with_filter_options(["Active", "Archived"].map(FilterChoice::same)),
 ///             ]
 ///             items=items
 ///         />

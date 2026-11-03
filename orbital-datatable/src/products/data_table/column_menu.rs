@@ -41,7 +41,19 @@ pub fn DataTableColumnMenu(
 
     let field_stored = StoredValue::new(field.clone());
     let filter_value = RwSignal::new(String::new());
-    let operator_wire = RwSignal::new(operator_to_wire(FilterOperator::Contains).to_string());
+    let has_choices = state
+        .columns
+        .get_value()
+        .iter()
+        .any(|c| c.field == field && c.filter_choices().is_some());
+    let operator_wire = RwSignal::new(
+        operator_to_wire(if has_choices {
+            FilterOperator::Equals
+        } else {
+            FilterOperator::Contains
+        })
+        .to_string(),
+    );
 
     let on_menu_select = Callback::new(move |action: ColumnMenuAction| {
         let field = field_stored.get_value();
@@ -124,13 +136,17 @@ fn DataTableColumnFilterPanel(
     operator_wire: RwSignal<String>,
 ) -> impl IntoView {
     let dismiss = expect_context::<OverlayDismiss>();
-    let col_type = state
+    let column = state
         .columns
         .get_value()
         .iter()
         .find(|c| c.field == field)
+        .cloned();
+    let col_type = column
+        .as_ref()
         .map(|c| c.col_type)
         .unwrap_or(crate::types::ColumnType::Text);
+    let choices = column.and_then(|c| c.filter_choices());
 
     let apply_filter = {
         let field = field.clone();
@@ -171,7 +187,22 @@ fn DataTableColumnFilterPanel(
                     })
                     .collect_view()}
             </Select>
-            <Input bind=filter_value />
+            {match choices {
+                Some(choices) => view! {
+                    <Select
+                        bind=filter_value
+                        appearance=SelectSize::Small
+                        attr:data-testid=format!("data-table-column-filter-value-{field}")
+                    >
+                        <option value="">"Any value"</option>
+                        {choices
+                            .into_iter()
+                            .map(|c| view! { <option value=c.value>{c.label}</option> })
+                            .collect_view()}
+                    </Select>
+                }.into_any(),
+                None => view! { <Input bind=filter_value /> }.into_any(),
+            }}
             <Button appearance=ButtonAppearance::Primary on_click=apply_filter>
                 "Apply"
             </Button>

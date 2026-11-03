@@ -100,14 +100,14 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use std::collections::HashMap;
-/// use crate::{DataTable, DataTableColumnDef, DataTableRowModel, PagingMode};
+/// use crate::{ColumnType, DataTable, DataTableColumnDef, DataTableRowModel, FilterChoice, PagingMode};
 /// let items = RwSignal::new(vec![
-///     DataTableRowModel::from_text_cells("1", HashMap::from([("name".into(), "Ada".into()), ("role".into(), "Admin".into())])),
-///     DataTableRowModel::from_text_cells("2", HashMap::from([("name".into(), "Grace".into()), ("role".into(), "Editor".into())])),
+///     DataTableRowModel::from_text_cells("1", HashMap::from([("name".into(), "Ada".into()), ("role".into(), "Admin".into()), ("status".into(), "Active".into())])),
+///     DataTableRowModel::from_text_cells("2", HashMap::from([("name".into(), "Grace".into()), ("role".into(), "Editor".into()), ("status".into(), "Archived".into())])),
 /// ]);
 /// view! {
 ///     <div data-testid="data-table-filter-panel-preview">
-///         <DataTable paging=PagingMode::None columns=vec![DataTableColumnDef::new("name", "Name"), DataTableColumnDef::new("role", "Role")] items=items />
+///         <DataTable paging=PagingMode::None columns=vec![DataTableColumnDef::new("name", "Name"), DataTableColumnDef::new("role", "Role"), DataTableColumnDef::new("status", "Status").with_col_type(ColumnType::SingleSelect).with_filter_options(["Active", "Archived"].map(FilterChoice::same))] items=items />
 ///     </div>
 /// }
 /// ```
@@ -136,14 +136,14 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use std::collections::HashMap;
-/// use crate::{DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel, PagingMode};
+/// use crate::{ColumnType, DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel, FilterChoice, PagingMode};
 /// let items = RwSignal::new(vec![
-///     DataTableRowModel::from_text_cells("1", HashMap::from([("name".into(), "Ada".into()), ("role".into(), "Admin".into())])),
-///     DataTableRowModel::from_text_cells("2", HashMap::from([("name".into(), "Grace".into()), ("role".into(), "Editor".into())])),
+///     DataTableRowModel::from_text_cells("1", HashMap::from([("name".into(), "Ada".into()), ("role".into(), "Admin".into()), ("status".into(), "Active".into())])),
+///     DataTableRowModel::from_text_cells("2", HashMap::from([("name".into(), "Grace".into()), ("role".into(), "Editor".into()), ("status".into(), "Archived".into())])),
 /// ]);
 /// view! {
 ///     <div data-testid="data-table-header-filters-preview">
-///         <DataTable features=DataTableFeatures::HEADER_FILTERS paging=PagingMode::None columns=vec![DataTableColumnDef::new("name", "Name"), DataTableColumnDef::new("role", "Role")] items=items />
+///         <DataTable features=DataTableFeatures::HEADER_FILTERS paging=PagingMode::None columns=vec![DataTableColumnDef::new("name", "Name"), DataTableColumnDef::new("role", "Role"), DataTableColumnDef::new("status", "Status").with_col_type(ColumnType::SingleSelect).with_filter_options(["Active", "Archived"].map(FilterChoice::same))] items=items />
 ///     </div>
 /// }
 /// ```
