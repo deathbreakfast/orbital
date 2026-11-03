@@ -6,16 +6,24 @@ thread_local! {
     static STACK: std::cell::RefCell<Vec<uuid::Uuid>> = Default::default();
 }
 
+/// Called by a menu item as it is chosen, before the menu closes: remembers the
+/// menu's trigger for an overlay the choice opens, so closing that overlay can
+/// focus the trigger even after the item is gone.
+pub(crate) fn note_menu_activation() {
+    #[cfg(any(feature = "hydrate", not(feature = "ssr")))]
+    focus::note_menu_trigger();
+}
+
 /// Keyboard handling for an open overlay; only the topmost active trap reacts.
 ///
 /// Registers Escape-to-close unless `disabled`. With `contain_focus`, opening
 /// moves focus to the first focusable element inside `scope` (or to its
 /// `role="dialog"` surface when it has none), Tab and Shift+Tab wrap inside
-/// `scope`, and closing returns focus to the element that had it before. When that
-/// element was an item of a menu that has since closed, focus goes to the menu's
-/// trigger instead. Content
-/// that mounts or becomes enabled after the overlay opens still receives that
-/// initial focus, unless focus has already moved onto another element in `scope`.
+/// `scope`, and closing returns focus to the element that had it before. When
+/// that element was an item of a menu that has since closed, focus goes to the
+/// menu's trigger instead. Content that mounts or becomes enabled after the
+/// overlay opens still receives that initial focus, unless focus has already
+/// moved onto another element in `scope`.
 #[component]
 pub fn FocusTrap(
     disabled: bool,
@@ -189,12 +197,25 @@ mod focus {
     /// The portal can attach the overlay a frame or two after `active` turns on.
     const MOUNT_FRAMES: u8 = 10;
 
+    thread_local! {
+        /// Trigger of the menu whose item was just chosen; cleared on the next frame.
+        static MENU_TRIGGER: std::cell::RefCell<Option<HtmlElement>> = Default::default();
+    }
+
+    /// Records the open menu's trigger while it is still marked open.
+    pub(super) fn note_menu_trigger() {
+        MENU_TRIGGER.with_borrow_mut(|slot| *slot = open_menu_trigger());
+        request_animation_frame(|| {
+            MENU_TRIGGER.with_borrow_mut(|slot| *slot = None);
+        });
+    }
+
     /// Where focus goes when the overlay closes.
     pub(super) struct Restore {
         /// The element that had focus when the overlay opened.
         previous: HtmlElement,
-        /// The control of the menu that was open then; used when `previous` was a
-        /// menu item that left the page with its menu.
+        /// Trigger of the menu whose item opened the overlay, set when `previous`
+        /// is that item or the page body it fell back to.
         menu_trigger: Option<HtmlElement>,
     }
 
@@ -205,7 +226,10 @@ mod focus {
                 .dyn_into::<HtmlElement>()
                 .ok()?;
             let in_menu = previous.closest("[role=\"menu\"]").ok().flatten().is_some();
-            let menu_trigger = if in_menu { open_menu_trigger() } else { None };
+            let on_body = previous.tag_name() == "BODY";
+            let menu_trigger = MENU_TRIGGER
+                .with_borrow_mut(Option::take)
+                .filter(|_| in_menu || on_body);
             Some(Self {
                 previous,
                 menu_trigger,
@@ -213,10 +237,10 @@ mod focus {
         }
 
         pub(super) fn apply(&self) {
-            if self.previous.is_connected() {
-                let _ = self.previous.focus();
-            } else if let Some(trigger) = self.menu_trigger.as_ref().filter(|t| t.is_connected()) {
+            if let Some(trigger) = self.menu_trigger.as_ref().filter(|t| t.is_connected()) {
                 let _ = trigger.focus();
+            } else if self.previous.is_connected() {
+                let _ = self.previous.focus();
             }
         }
     }
