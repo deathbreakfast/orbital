@@ -122,7 +122,7 @@ Run `python3 scripts/maintainer/check_testids.py` when a change adds or renames 
 |--------|---------|---------|-------|
 | Default preview wrapper | `{slug}-preview` | `persona-preview` | On a **native** HTML element (`div`, `span`) |
 | Named variant | `{slug}-{variant-kebab}` | `button-secondary` | One wrapper per visible variant |
-| Sub-part of a wrapper | `{owner-id}-{part}` | `date-field-preview-value` | Readouts and labels next to a demo |
+| Sub-part of a wrapper | `{owner-id}-{part}` | `scheduler-timezone-event-label` | Readouts and labels next to a demo |
 | Product-prefixed hook | `{product}-{area}-{role}` | `discussion-composer-send` | `scheduler-`, `discussion-`, `spotlight-`, `orbital-boot-` |
 | Preview shell chrome | `preview-{part}` | `preview-catalog-nav` | Owned by `orbital-preview-app`; `app-bar` is the one unprefixed exception |
 | Not found page | `preview-not-found` | | Preview host, unknown slug |
