@@ -88,7 +88,7 @@ pub use forms::{
     NumericStepperBind, NumericStepperRule, NumericStepperRuleTrigger, NumericStepperSize,
     OptionBind, PickerShortcut, PickerShortcutsBar, Radio, RadioGroup, RadioGroupBind,
     RadioGroupLayout, RadioGroupRule, RadioGroupRuleTrigger, SearchBox, SearchBoxAppearance,
-    SearchBoxBind, SearchBoxEvents, Select, SelectAppearance, SelectBind, SelectRule,
+    SearchBoxBind, SearchBoxEvents, Select, SelectAppearance, SelectBind, SelectOption, SelectRule,
     SelectRuleTrigger, SelectSize, Slider, SliderAppearance, SliderBind, SliderLabel, SliderRule,
     SliderRuleTrigger, SwatchPicker, SwatchPickerItem, SwatchPickerLayout, SwatchPickerShape,
     SwatchPickerSize, Switch, SwitchBind, SwitchLabel, SwitchRule, SwitchRuleTrigger, Textarea,

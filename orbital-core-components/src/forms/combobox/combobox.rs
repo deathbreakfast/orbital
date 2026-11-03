@@ -11,7 +11,7 @@ use std::collections::HashMap;
 
 use super::styles::combobox_styles;
 use super::types::{ComboboxAppearance, ComboboxBind};
-use crate::Icon;
+use crate::{Caption1, Icon};
 
 #[derive(Clone)]
 struct ComboboxOptionRecord {
@@ -242,6 +242,22 @@ impl ComboboxInjection {
 ///             appearance=ComboboxAppearance { clearable: true, disabled: Signal::from(true), ..Default::default() }
 ///         >
 ///             <ComboboxOption value="apple".to_string() text="Apple" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Options with secondary text
+/// Add `secondary` to show a `Caption1` line under the label, for example a description or hardware summary. The line is announced with the option and the type-ahead filter matches it.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// view! {
+///     <div data-testid="combobox-secondary">
+///         <Combobox bind=ComboboxBind::new(value, selected)>
+///             <ComboboxOption value="small".to_string() text="Small pool" secondary="2 vCPU, 4 GB, 3 workers" />
+///             <ComboboxOption value="large".to_string() text="Large pool" secondary="16 vCPU, 64 GB, 1 worker" />
 ///         </Combobox>
 ///     </div>
 /// }
@@ -599,6 +615,10 @@ pub fn ComboboxOption(
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(into)] text: String,
     #[prop(optional, into, default = text.clone())] value: String,
+    /// Second line under the label, rendered as `Caption1` and announced as the option's
+    /// description. The type-ahead filter matches it too.
+    #[prop(optional, into)]
+    secondary: MaybeProp<String>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let combobox = ComboboxInjection::expect_context();
@@ -611,6 +631,8 @@ pub fn ComboboxOption(
         move |_| value.with_value(|v| combobox.is_selected(v))
     });
     let id = new_field_id();
+    let secondary_id = format!("{id}-secondary");
+    let secondary_for_attr = secondary_id.clone();
 
     {
         let combobox_insert = combobox.clone();
@@ -661,7 +683,11 @@ pub fn ComboboxOption(
         let filter_needle = combobox.filter_needle;
         move |_| {
             let needle = filter_needle.get();
-            needle.is_empty() || text.with_value(|t| t.to_ascii_lowercase().contains(&needle))
+            needle.is_empty()
+                || text.with_value(|t| t.to_ascii_lowercase().contains(&needle))
+                || secondary
+                    .get()
+                    .is_some_and(|s| s.to_ascii_lowercase().contains(&needle))
         }
     });
 
@@ -670,6 +696,7 @@ pub fn ComboboxOption(
             role="option"
             aria-disabled=move || if disabled.get() { "true" } else { "false" }
             aria-selected=move || is_selected.get().to_string()
+            aria-describedby=move || secondary.get().map(|_| secondary_for_attr.clone())
             id=id
             class=move || {
                 let mut parts = option_class.get().split_whitespace().map(str::to_string).collect::<Vec<_>>();
@@ -694,7 +721,23 @@ pub fn ComboboxOption(
                         </Show>
                     </span>
                 </Show>
-                {children.map(|c| c()).unwrap_or_else(|| text.get_value().into_any())}
+                <span class="orbital-combobox-option__text">
+                    <span class="orbital-combobox-option__label">
+                        {children.map(|c| c()).unwrap_or_else(|| text.get_value().into_any())}
+                    </span>
+                    {move || {
+                        secondary.get().map(|line| {
+                            view! {
+                                <span
+                                    id=secondary_id.clone()
+                                    class="orbital-combobox-option__secondary"
+                                >
+                                    <Caption1>{line}</Caption1>
+                                </span>
+                            }
+                        })
+                    }}
+                </span>
         </div>
     }
 }

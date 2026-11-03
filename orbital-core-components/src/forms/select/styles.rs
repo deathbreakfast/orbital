@@ -152,5 +152,11 @@ pub fn select_styles() -> &'static str {
 .orbital-select--disabled > .orbital-select__icon {
     color: var(--orb-color-text-disabled);
 }
+
+.orbital-select__secondary {
+    display: block;
+    margin-top: var(--orb-space-block-xs);
+    color: var(--orb-color-text-secondary);
+}
 "#
 }
