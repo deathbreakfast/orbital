@@ -1,40 +1,110 @@
-import { test, expect } from "@playwright/test";
-import { openComponentPreview, expectPreviewVariants } from "../lib/preview/navigation";
+import { test, expect, type Locator, type Page } from "@playwright/test";
+import { openComponentPreview, scrollIntoPreviewView } from "../lib/preview/navigation";
+import { setViewportPreset } from "../lib/preview/mobile";
 
-test.describe("diff-view primitive preview", () => {
-  test.beforeEach(async ({ page }) => {
+async function openVariant(page: Page, testId: string): Promise<Locator> {
+  await openComponentPreview(page, "diff-view");
+  const variant = page.getByTestId(testId);
+  await scrollIntoPreviewView(variant);
+  await expect(variant).toBeVisible({ timeout: 10_000 });
+  return variant;
+}
+
+async function box(locator: Locator) {
+  const rect = await locator.boundingBox();
+  expect(rect).not.toBeNull();
+  return rect!;
+}
+
+test.describe("diff-view preview", () => {
+  test("renders preview page", async ({ page }) => {
     await openComponentPreview(page, "diff-view");
   });
 
-  test("DV-01 renders default preview", async ({ page }) => {
-    await expect(page.getByTestId("diff-view-preview")).toBeVisible({ timeout: 30_000 });
+  test("side by side names each side and aligns paired rows", async ({ page }) => {
+    const variant = await openVariant(page, "diff-view-side-by-side");
+    const from = variant.getByRole("group", { name: "From: v2" });
+    const to = variant.getByRole("group", { name: "To: v3" });
+    await expect(from).toHaveCount(1);
+    await expect(to).toHaveCount(1);
+
+    const removed = from.locator('[data-diff-kind="delete"]', { hasText: "90 days" });
+    const added = to.locator('[data-diff-kind="insert"]', { hasText: "30 days" });
+    await expect(removed).toBeVisible();
+    await expect(added).toBeVisible();
+    await expect(removed).toContainText("Removed: ");
+    await expect(added).toContainText("Added: ");
+    await expect(removed.locator(".orbital-diff-view__marker")).toHaveText("-");
+    await expect(added.locator(".orbital-diff-view__marker")).toHaveText("+");
+
+    const oldRect = await box(removed);
+    const newRect = await box(added);
+    expect(Math.abs(oldRect.y - newRect.y)).toBeLessThan(1);
+    expect(newRect.x).toBeGreaterThan(oldRect.x);
+
+    // The long added line has no partner; its filler keeps the next row aligned.
+    const nextOld = from.locator('[data-diff-kind="equal"]', { hasText: "## Contacts" });
+    const nextNew = to.locator('[data-diff-kind="equal"]', { hasText: "## Contacts" });
+    const nextOldRect = await box(nextOld);
+    const nextNewRect = await box(nextNew);
+    expect(Math.abs(nextOldRect.y - nextNewRect.y)).toBeLessThan(1);
   });
 
-  test("DV-02 shows all variants", async ({ page }) => {
-    await expectPreviewVariants(page, ["diff-view-preview", "diff-view-identical", "diff-view-added"]);
+  test("layout switch shows the unified view", async ({ page }) => {
+    const variant = await openVariant(page, "diff-view-side-by-side");
+    await variant.getByRole("tab", { name: "Unified" }).click();
+    const body = variant.getByRole("group", { name: "Changes from v2 to v3" });
+    await expect(body).toBeVisible();
+    await expect(variant.getByRole("group", { name: "From: v2" })).toHaveCount(0);
+
+    const removed = body.locator('[data-diff-kind="delete"]', { hasText: "90 days" });
+    const added = body.locator('[data-diff-kind="insert"]', { hasText: "30 days" });
+    expect((await box(removed)).y).toBeLessThan((await box(added)).y);
+    await expect(body.getByText("Unchanged lines skipped")).toHaveCount(1);
+    await expect(variant.getByText("From: v2")).toBeVisible();
+    await expect(variant.getByText("To: v3")).toBeVisible();
   });
 
-  test("DV-03 marks removed and added lines", async ({ page }) => {
-    const diff = page.getByTestId("diff-view-preview");
-    const removed = diff.locator('[data-diff-kind="removed"]');
-    const added = diff.locator('[data-diff-kind="added"]');
-    await expect(removed).toHaveCount(1);
-    await expect(added).toHaveCount(2);
-    await expect(removed).toContainText("allow write");
-    await expect(added.nth(0)).toContainText("deny write");
-    await expect(removed.locator("[aria-hidden]")).toHaveText("-");
-    await expect(added.nth(0).locator("[aria-hidden]")).toHaveText("+");
+  test("phone width stacks From above To", async ({ page }) => {
+    await setViewportPreset(page, "phone");
+    const variant = await openVariant(page, "diff-view-side-by-side");
+    const from = variant.getByRole("group", { name: "From: v2" });
+    const to = variant.getByRole("group", { name: "To: v3" });
+    const fromRect = await box(from);
+    const toRect = await box(to);
+    expect(toRect.y).toBeGreaterThanOrEqual(fromRect.y + fromRect.height);
+    expect(Math.abs(toRect.x - fromRect.x)).toBeLessThan(1);
+
+    const fillersHidden = await variant
+      .locator(".orbital-diff-view__cell--empty")
+      .evaluateAll((els) => els.length > 0 && els.every((el) => getComputedStyle(el).display === "none"));
+    expect(fillersHidden).toBe(true);
   });
 
-  test("DV-04 identical inputs show no changes", async ({ page }) => {
-    const diff = page.getByTestId("diff-view-identical");
-    await expect(diff).toContainText("No changes");
-    await expect(diff.locator("[data-diff-kind]")).toHaveCount(0);
+  test("word spans mark the changed words", async ({ page }) => {
+    const variant = await openVariant(page, "diff-view-words");
+    await expect(variant.locator("del.orbital-diff-view__span")).toHaveText("30");
+    await expect(variant.locator("ins.orbital-diff-view__span")).toHaveText("45");
   });
 
-  test("DV-05 renders in monospace", async ({ page }) => {
-    const root = page.getByTestId("diff-view-preview").getByRole("figure");
-    const family = await root.evaluate((el) => getComputedStyle(el).fontFamily);
-    expect(family.toLowerCase()).toMatch(/mono|courier|consolas/);
+  test("identical and empty states", async ({ page }) => {
+    const identical = await openVariant(page, "diff-view-identical");
+    await expect(identical.getByText("No differences.")).toBeVisible();
+    await expect(identical.getByText("From: v3")).toBeVisible();
+    const empty = page.getByTestId("diff-view-empty");
+    await scrollIntoPreviewView(empty);
+    await expect(empty.getByText("Pick a From and a To version.")).toBeVisible();
+    await expect(empty.getByRole("group")).toHaveCount(0);
+  });
+
+  test("dark mode swaps the status backgrounds", async ({ page }) => {
+    const variant = await openVariant(page, "diff-view-words");
+    const added = variant.locator('[data-diff-kind="insert"]');
+    const background = () => added.evaluate((el) => getComputedStyle(el).backgroundColor);
+    const light = await background();
+    expect(light).not.toBe("rgba(0, 0, 0, 0)");
+    await page.getByTestId("preview-theme-toggle").locator("input").click();
+    await expect.poll(background).not.toBe(light);
+    expect(await background()).not.toBe("rgba(0, 0, 0, 0)");
   });
 });

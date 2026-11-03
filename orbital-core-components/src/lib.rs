@@ -61,7 +61,7 @@ pub use data::{
     PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout, TableCellLayoutConfig,
     TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
 };
-pub use diff_view::DiffView;
+pub use diff_view::{diff_text, DiffHunk, DiffLayout, DiffLine, DiffLineKind, DiffSpan, DiffView};
 pub use divider::Divider;
 pub use extensions::ThemeDensityStepper;
 #[cfg(feature = "preview")]

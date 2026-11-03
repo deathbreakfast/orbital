@@ -1,40 +1,120 @@
 .orbital-diff-view {
-    display: block;
-    box-sizing: border-box;
-    overflow-x: auto;
-    font-size: var(--orb-type-size-sm);
-    font-family: var(--orb-type-family-mono);
-    line-height: var(--orb-type-line-md);
-    color: var(--orb-color-code-fg);
-    background: var(--orb-color-code-bg);
-    border-radius: var(--orb-radius-md);
-}
-
-.orbital-diff-view__body {
-    width: max-content;
-    min-width: 100%;
-}
-
-.orbital-diff-view__row {
     display: flex;
-    padding: 0 var(--orb-space-inline-md);
-    white-space: pre;
+    flex-direction: column;
+    gap: var(--orb-space-block-sm);
+    min-width: 0;
+    color: var(--orb-color-text-primary);
 }
 
-.orbital-diff-view__marker {
-    flex: none;
-    width: 2ch;
+.orbital-diff-view__body,
+.orbital-diff-view__sides {
+    font-family: var(--orb-type-family-mono);
+    font-size: var(--orb-type-size-sm);
+    line-height: var(--orb-type-line-md);
+    border: 1px solid var(--orb-color-border-subtle);
+    border-radius: var(--orb-radius-md);
+    overflow: hidden;
+}
+
+/* Desktop side by side: both columns join one grid so paired rows share a
+   height when long lines wrap. Dense flow fills column 2 from the top. */
+.orbital-diff-view__sides {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+}
+
+.orbital-diff-view__side {
+    display: contents;
+}
+
+.orbital-diff-view__side--old > * {
+    grid-column: 1;
+}
+
+.orbital-diff-view__side--new > * {
+    grid-column: 2;
+    border-left: 1px solid var(--orb-color-border-subtle);
+}
+
+.orbital-diff-view__side-label {
+    font-family: var(--orb-type-family-sans);
+    padding: var(--orb-space-block-xs) var(--orb-space-inline-sm);
+    background: var(--orb-color-surface-subtle);
+    border-bottom: 1px solid var(--orb-color-border-subtle);
+}
+
+.orbital-diff-view__line,
+.orbital-diff-view__cell {
+    display: grid;
+    column-gap: var(--orb-space-inline-xs);
+    padding: 0 var(--orb-space-inline-sm);
+}
+
+.orbital-diff-view__line {
+    grid-template-columns: auto auto auto minmax(0, 1fr);
+}
+
+.orbital-diff-view__cell {
+    grid-template-columns: auto auto minmax(0, 1fr);
+}
+
+.orbital-diff-view__num {
+    min-width: 4ch;
+    text-align: right;
+    color: var(--orb-color-text-secondary);
     user-select: none;
 }
 
-.orbital-diff-view__row--added {
-    color: var(--orb-color-status-success-fg);
+.orbital-diff-view__marker {
+    width: 1ch;
+    user-select: none;
+}
+
+.orbital-diff-view__text {
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.orbital-diff-view__line--insert {
     background: var(--orb-color-status-success-bg);
 }
 
-.orbital-diff-view__row--removed {
-    color: var(--orb-color-status-danger-fg);
+.orbital-diff-view__line--insert .orbital-diff-view__marker {
+    color: var(--orb-color-status-success-fg);
+}
+
+.orbital-diff-view__line--delete {
     background: var(--orb-color-status-danger-bg);
+}
+
+.orbital-diff-view__line--delete .orbital-diff-view__marker {
+    color: var(--orb-color-status-danger-fg);
+}
+
+.orbital-diff-view__span {
+    text-decoration: none;
+    border-radius: var(--orb-radius-sm);
+}
+
+ins.orbital-diff-view__span {
+    background: color-mix(in srgb, var(--orb-color-status-success-border) 45%, transparent);
+}
+
+del.orbital-diff-view__span {
+    background: color-mix(in srgb, var(--orb-color-status-danger-border) 45%, transparent);
+}
+
+.orbital-diff-view__cell--empty {
+    background: var(--orb-color-surface-subtle);
+}
+
+.orbital-diff-view__separator {
+    padding: 0 var(--orb-space-inline-sm);
+    text-align: center;
+    color: var(--orb-color-text-secondary);
+    background: var(--orb-color-surface-subtle);
 }
 
 .orbital-diff-view__sr {
@@ -46,7 +126,29 @@
     white-space: nowrap;
 }
 
-.orbital-diff-view__empty {
-    padding: var(--orb-space-block-sm) var(--orb-space-inline-md);
-    font-family: inherit;
+/* Below Md (Breakpoint::Md.down_max_px()): From stacks above To. */
+@media (max-width: 1023px) {
+    .orbital-diff-view__sides {
+        display: flex;
+        flex-direction: column;
+        gap: var(--orb-space-block-sm);
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    .orbital-diff-view__side {
+        display: block;
+        border: 1px solid var(--orb-color-border-subtle);
+        border-radius: var(--orb-radius-md);
+        overflow: hidden;
+    }
+
+    .orbital-diff-view__side--new > * {
+        border-left: none;
+    }
+
+    .orbital-diff-view__cell--empty {
+        display: none;
+    }
 }
