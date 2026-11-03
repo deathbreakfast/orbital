@@ -208,6 +208,45 @@ fn menu_overlay_width_style(min_width: Option<String>, max_width: Option<String>
 ///     </div>
 /// }
 /// ```
+/// ## Item that opens a dialog
+/// Closing the dialog returns focus to the menu button; the dialog's field takes focus when it opens.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Button, ButtonAppearance, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Field, Input, InputAppearance, MenuItem};
+///
+/// let open = RwSignal::new(false);
+/// let name = RwSignal::new(String::new());
+/// view! {
+///     <div data-testid="menu-dialog">
+///         <Menu on_select=move |_value: String| open.set(true)>
+///             <MenuTrigger slot>
+///                 <Button>"Row actions"</Button>
+///             </MenuTrigger>
+///             <MenuItem value=String::from("rename")>"Rename"</MenuItem>
+///         </Menu>
+///         <Dialog open=open>
+///             <DialogSurface>
+///                 <DialogBody>
+///                     <DialogTitle>"Rename"</DialogTitle>
+///                     <DialogContent>
+///                         <Field label="Name">
+///                             <Input bind=name appearance=InputAppearance::with_placeholder("New name") />
+///                         </Field>
+///                     </DialogContent>
+///                     <DialogActions>
+///                         <Button
+///                             appearance=ButtonAppearance::Secondary
+///                             on_click=Callback::new(move |_| open.set(false))
+///                         >
+///                             "Cancel"
+///                         </Button>
+///                     </DialogActions>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Navigation",
     preview_slug = "menu",

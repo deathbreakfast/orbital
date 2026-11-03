@@ -11,7 +11,9 @@ thread_local! {
 /// Registers Escape-to-close unless `disabled`. With `contain_focus`, opening
 /// moves focus to the first focusable element inside `scope` (or to its
 /// `role="dialog"` surface when it has none), Tab and Shift+Tab wrap inside
-/// `scope`, and closing returns focus to the element that had it before. Content
+/// `scope`, and closing returns focus to the element that had it before. When that
+/// element was an item of a menu that has since closed, focus goes to the menu's
+/// trigger instead. Content
 /// that mounts or becomes enabled after the overlay opens still receives that
 /// initial focus, unless focus has already moved onto another element in `scope`.
 #[component]
@@ -34,7 +36,7 @@ pub fn FocusTrap(
 
         let key_handle = StoredValue::new(None::<WindowListenerHandle>);
         let id = StoredValue::new(uuid::Uuid::new_v4());
-        let restore = StoredValue::new(None::<SendWrapper<web_sys::HtmlElement>>);
+        let restore = StoredValue::new(None::<SendWrapper<focus::Restore>>);
         let late = StoredValue::new(None::<SendWrapper<focus::LateFocus>>);
         let scope = scope.filter(|_| contain_focus);
 
@@ -49,7 +51,7 @@ pub fn FocusTrap(
             STACK.with_borrow_mut(|stack| stack.retain(|value| id.with_value(|id| id != value)));
             drop(late.try_update_value(Option::take));
             if let Some(previous) = restore.try_update_value(Option::take).flatten() {
-                focus::restore(&previous);
+                previous.apply();
             }
         };
 
@@ -74,7 +76,7 @@ pub fn FocusTrap(
                     stack.push(id.get_value());
                 });
                 if let Some(scope) = scope {
-                    restore.set_value(focus::active_html_element().map(SendWrapper::new));
+                    restore.set_value(focus::Restore::capture().map(SendWrapper::new));
                     focus::move_in_when_mounted(scope, late, 0);
                 }
             } else {
@@ -187,14 +189,49 @@ mod focus {
     /// The portal can attach the overlay a frame or two after `active` turns on.
     const MOUNT_FRAMES: u8 = 10;
 
-    pub(super) fn active_html_element() -> Option<HtmlElement> {
-        document().active_element()?.dyn_into::<HtmlElement>().ok()
+    /// Where focus goes when the overlay closes.
+    pub(super) struct Restore {
+        /// The element that had focus when the overlay opened.
+        previous: HtmlElement,
+        /// The control of the menu that was open then; used when `previous` was a
+        /// menu item that left the page with its menu.
+        menu_trigger: Option<HtmlElement>,
     }
 
-    pub(super) fn restore(previous: &HtmlElement) {
-        if previous.is_connected() {
-            let _ = previous.focus();
+    impl Restore {
+        pub(super) fn capture() -> Option<Self> {
+            let previous = document()
+                .active_element()?
+                .dyn_into::<HtmlElement>()
+                .ok()?;
+            let in_menu = previous.closest("[role=\"menu\"]").ok().flatten().is_some();
+            let menu_trigger = if in_menu { open_menu_trigger() } else { None };
+            Some(Self {
+                previous,
+                menu_trigger,
+            })
         }
+
+        pub(super) fn apply(&self) {
+            if self.previous.is_connected() {
+                let _ = self.previous.focus();
+            } else if let Some(trigger) = self.menu_trigger.as_ref().filter(|t| t.is_connected()) {
+                let _ = trigger.focus();
+            }
+        }
+    }
+
+    /// The first control inside the one trigger currently marked open, or `None`
+    /// when no trigger or several are open and the owner can't be told.
+    fn open_menu_trigger() -> Option<HtmlElement> {
+        let open = document()
+            .query_selector_all(".orbital-overlay-trigger--open")
+            .ok()?;
+        if open.length() != 1 {
+            return None;
+        }
+        let wrapper = open.item(0)?.dyn_into::<Element>().ok()?;
+        focusables(&wrapper).into_iter().next()
     }
 
     /// Waits for `scope` to connect, moves focus in, and parks a `LateFocus` in
