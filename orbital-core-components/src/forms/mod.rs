@@ -13,6 +13,7 @@ pub mod field;
 pub mod info_label;
 pub mod input;
 pub mod label;
+pub mod markdown_editor;
 pub mod menu_button;
 pub mod numeric_stepper;
 pub mod picker_shortcuts;
@@ -54,6 +55,7 @@ pub use input::{
     InputSuffix,
 };
 pub use label::Label;
+pub use markdown_editor::{MarkdownEditor, OrbitalMarkdownOptions};
 pub use menu_button::MenuButton;
 pub use numeric_stepper::{
     NumericStepper, NumericStepperAppearance, NumericStepperBind, NumericStepperSize,
@@ -113,6 +115,8 @@ pub use info_label::INFOLABEL_PREVIEW_REGISTRATION;
 pub use input::INPUT_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use label::LABEL_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+pub use markdown_editor::MARKDOWNEDITOR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use menu_button::MENUBUTTON_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]

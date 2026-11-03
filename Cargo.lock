@@ -2205,6 +2205,7 @@ dependencies = [
  "leptos",
  "orbital-base-components",
  "orbital-macros",
+ "orbital-markdown",
  "orbital-motion",
  "orbital-style",
  "orbital-theme",

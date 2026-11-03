@@ -64,6 +64,8 @@ use crate::forms::input::INPUT_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::label::LABEL_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::forms::markdown_editor::MARKDOWNEDITOR_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::forms::menu_button::MENUBUTTON_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::numeric_stepper::NUMERICSTEPPER_PREVIEW_REGISTRATION;
@@ -181,6 +183,7 @@ orbital_macros::preview_registrations! {
     &SLIDER_PREVIEW_REGISTRATION,
     &NUMERICSTEPPER_PREVIEW_REGISTRATION,
     &TEXTAREA_PREVIEW_REGISTRATION,
+    &MARKDOWNEDITOR_PREVIEW_REGISTRATION,
     &SEARCHBOX_PREVIEW_REGISTRATION,
     &DROPDOWN_PREVIEW_REGISTRATION,
     &ACCORDION_PREVIEW_REGISTRATION,
