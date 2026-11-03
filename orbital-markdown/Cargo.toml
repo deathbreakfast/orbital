@@ -16,7 +16,7 @@ workspace = true
 
 [dependencies]
 ammonia = "4.2.4"
-pulldown-cmark = "0.13"
+pulldown-cmark = "0.13.6"
 regex = "1"
 
 [package.metadata.docs.rs]
