@@ -27,9 +27,27 @@ pub enum StepStatus {
 pub struct Step {
     #[prop(into)]
     pub label: String,
-    pub status: StepStatus,
+    /// Step state. Pass a plain [`StepStatus`] or a signal to update it live.
+    #[prop(into)]
+    pub status: Signal<StepStatus>,
     #[prop(optional, into)]
-    pub message: Option<String>,
+    pub message: MaybeProp<String>,
+}
+
+/// Screen-reader text appended to a step's label.
+fn status_label(status: StepStatus) -> &'static str {
+    match status {
+        StepStatus::Pending => "not started",
+        StepStatus::Active => "current step",
+        StepStatus::Done => "completed",
+        StepStatus::Failed => "failed",
+        StepStatus::Skipped => "skipped",
+    }
+}
+
+/// `aria-current` value for a step: `"step"` only for the active one.
+fn aria_current(status: StepStatus) -> Option<&'static str> {
+    (status == StepStatus::Active).then_some("step")
 }
 
 /// A status-driven timeline for wizards, deployments, and onboarding flows.
@@ -45,6 +63,7 @@ pub struct Step {
 /// # Don't
 ///
 /// - **Not for carousel slide dots** — use `CarouselStepper` inside a `Carousel` instead
+/// - Renders an ordered list; the active step gets `aria-current="step"` and each step's state is read out after its label
 /// - Display-only today — parent drives `status` updates; steps are not clickable navigation
 ///
 /// # Examples
@@ -116,6 +135,28 @@ pub struct Step {
 ///         <Step slot:steps label="Installing" status=StepStatus::Active message="Package 3/5" />
 ///         <Step slot:steps label="Configuring" status=StepStatus::Pending />
 ///     </Stepper>
+/// }
+/// ```
+///
+/// ## Reactive Status
+/// Each step's `status` accepts a signal, so the flow updates in place as the parent advances it. The current step carries `aria-current="step"` and a ring marker instead of a spinner, so it reads as "you are here" rather than "loading". Use for wizards driven by a signal; the list announces each step's state, so no separate "Step n of N" text is needed.
+/// <!-- preview -->
+/// ```rust
+/// let current = RwSignal::new(0usize);
+/// let status = move |i: usize| Signal::derive(move || match current.get() {
+///     c if c > i => StepStatus::Done,
+///     c if c == i => StepStatus::Active,
+///     _ => StepStatus::Pending,
+/// });
+/// view! {
+///     <div data-testid="stepper-reactive-preview">
+///         <Stepper vertical=false>
+///             <Step slot:steps label="Account" status=status(0) />
+///             <Step slot:steps label="Profile" status=status(1) />
+///             <Step slot:steps label="Review" status=status(2) />
+///         </Stepper>
+///         <Button on_click=Callback::new(move |_| current.update(|c| *c = (*c + 1).min(3)))>"Next step"</Button>
+///     </div>
 /// }
 /// ```
 ///
@@ -294,9 +335,36 @@ pub fn Stepper(
         .Message {
             color: var(--orb-color-text-tertiary);
         }
+
+        .CurrentMarker {
+            box-sizing: border-box;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            background: radial-gradient(circle, currentColor 0 35%, transparent 40%);
+        }
+
+        .VisuallyHidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .List {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
     };
 
-    let icon_class = |status: StepStatus| -> String {
+    let icon_class = move |status: StepStatus| -> String {
         let base = &class_names.icon_wrap;
         let modifier = match status {
             StepStatus::Done => &class_names.status_done,
@@ -308,7 +376,7 @@ pub fn Stepper(
         format!("{base} {modifier}")
     };
 
-    let connector_v_class = |status: StepStatus| -> String {
+    let connector_v_class = move |status: StepStatus| -> String {
         let base = &class_names.connector_v;
         let modifier = match status {
             StepStatus::Done => &class_names.connector_solid,
@@ -320,7 +388,7 @@ pub fn Stepper(
         format!("{base} {modifier}")
     };
 
-    let connector_h_class = |status: StepStatus| -> String {
+    let connector_h_class = move |status: StepStatus| -> String {
         let base = &class_names.connector_h;
         let modifier = match status {
             StepStatus::Done => &class_names.connector_h_solid,
@@ -332,14 +400,14 @@ pub fn Stepper(
         format!("{base} {modifier}")
     };
 
-    let step_icon = |status: StepStatus| -> AnyView {
+    let step_icon = move |status: StepStatus| -> AnyView {
         match status {
             StepStatus::Done => view! {
                 <Icon icon=icondata::AiCheckCircleOutlined width="20px" height="20px" />
             }
             .into_any(),
             StepStatus::Active => view! {
-                <Spinner size=SpinnerSize::ExtraTiny />
+                <span class=class_names.current_marker></span>
             }
             .into_any(),
             StepStatus::Failed => view! {
@@ -359,60 +427,81 @@ pub fn Stepper(
 
     let steps_view = if vertical {
         view! {
-            <div class=class_names.vertical>
+            <ol role="list" class=format!("{} {}", class_names.vertical, class_names.list)>
                 {steps.into_iter().enumerate().map(|(i, step)| {
                     let is_last = i == total - 1;
-                    let ic = icon_class(step.status);
-                    let cc = connector_v_class(step.status);
+                    let status = step.status;
+                    let message = step.message;
                     view! {
-                        <div class=class_names.step_row_v>
+                        <li
+                            class=class_names.step_row_v
+                            aria-current=move || aria_current(status.get())
+                        >
                             <div class=class_names.icon_column_v>
-                                <div class=ic>{step_icon(step.status)}</div>
+                                <div class=move || icon_class(status.get()) aria-hidden="true">
+                                    {move || step_icon(status.get())}
+                                </div>
                                 {if !is_last {
-                                    view! { <div class=cc></div> }.into_any()
+                                    view! { <div class=move || connector_v_class(status.get()) aria-hidden="true"></div> }.into_any()
                                 } else {
                                     ().into_any()
                                 }}
                             </div>
                             <div class=class_names.content_v>
-                                <Body1>{step.label}</Body1>
-                                {step.message.map(|msg| view! {
+                                <Body1>
+                                    {step.label}
+                                    <span class=class_names.visually_hidden>
+                                        {move || format!(", {}", status_label(status.get()))}
+                                    </span>
+                                </Body1>
+                                {move || message.get().map(|msg| view! {
                                     <Caption1 class=class_names.message>{msg}</Caption1>
                                 })}
                             </div>
-                        </div>
+                        </li>
                     }
                 }).collect::<Vec<_>>()}
-            </div>
+            </ol>
         }
         .into_any()
     } else {
         view! {
-            <div class=class_names.horizontal>
+            <ol role="list" class=format!("{} {}", class_names.horizontal, class_names.list)>
                 {steps.into_iter().enumerate().map(|(i, step)| {
                     let is_last = i == total - 1;
-                    let ic = icon_class(step.status);
-                    let cc = connector_h_class(step.status);
+                    let status = step.status;
+                    let message = step.message;
                     view! {
-                        <div class=class_names.step_item_h style="flex: 1;">
+                        <li
+                            class=class_names.step_item_h
+                            style="flex: 1;"
+                            aria-current=move || aria_current(status.get())
+                        >
                             <div class=class_names.icon_row_h>
-                                <div class=ic>{step_icon(step.status)}</div>
+                                <div class=move || icon_class(status.get()) aria-hidden="true">
+                                    {move || step_icon(status.get())}
+                                </div>
                                 {if !is_last {
-                                    view! { <div class=cc></div> }.into_any()
+                                    view! { <div class=move || connector_h_class(status.get()) aria-hidden="true"></div> }.into_any()
                                 } else {
                                     ().into_any()
                                 }}
                             </div>
                             <div class=class_names.content_h>
-                                <Body1>{step.label}</Body1>
-                                {step.message.map(|msg| view! {
+                                <Body1>
+                                    {step.label}
+                                    <span class=class_names.visually_hidden>
+                                        {move || format!(", {}", status_label(status.get()))}
+                                    </span>
+                                </Body1>
+                                {move || message.get().map(|msg| view! {
                                     <Caption1 class=class_names.message>{msg}</Caption1>
                                 })}
                             </div>
-                        </div>
+                        </li>
                     }
                 }).collect::<Vec<_>>()}
-            </div>
+            </ol>
         }
         .into_any()
     };
@@ -425,5 +514,39 @@ pub fn Stepper(
                 <ProgressBar value=Signal::derive(move || p.get() as f64 / 100.0) />
             })}
         </div>
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_active_step_is_current() {
+        assert_eq!(aria_current(StepStatus::Active), Some("step"));
+        for s in [
+            StepStatus::Pending,
+            StepStatus::Done,
+            StepStatus::Failed,
+            StepStatus::Skipped,
+        ] {
+            assert_eq!(aria_current(s), None);
+        }
+    }
+
+    #[test]
+    fn every_status_has_distinct_label() {
+        let labels = [
+            StepStatus::Pending,
+            StepStatus::Active,
+            StepStatus::Done,
+            StepStatus::Failed,
+            StepStatus::Skipped,
+        ]
+        .map(status_label);
+        for (i, a) in labels.iter().enumerate() {
+            assert!(!a.is_empty());
+            assert!(labels[i + 1..].iter().all(|b| a != b));
+        }
     }
 }
