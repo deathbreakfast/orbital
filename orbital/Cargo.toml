@@ -56,7 +56,7 @@ orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-featur
 
 wasm-bindgen = { workspace = true }
 js-sys = { workspace = true }
-web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "Window", "MediaQueryList", "Event", "Storage", "History"] }
+web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "Window", "MediaQueryList", "Event", "Storage", "History", "DataTransfer", "DragEvent", "KeyboardEvent", "NodeList", "PointerEvent", "TouchEvent"] }
 
 [build-dependencies]
 orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false }
