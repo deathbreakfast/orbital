@@ -76,6 +76,35 @@ use orbital_macros::component_doc;
 /// ```
 ///
 ///
+/// ## Column fill
+/// Columns with no width set default to `Flex(1.0)` and share the table width.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use crate::{DataTable, DataTableColumnDef, DataTableRowModel};
+/// let items = RwSignal::new(vec![
+///     DataTableRowModel::from_text_cells("1", HashMap::from([
+///         ("name".into(), "Ada Lovelace".into()),
+///         ("email".into(), "ada@example.com".into()),
+///         ("role".into(), "Admin".into()),
+///     ])),
+/// ]);
+/// view! {
+///     <div data-testid="data-table-fill-preview">
+///         <DataTable
+///             resizable_columns=true
+///             columns=vec![
+///                 DataTableColumnDef::new("name", "Name"),
+///                 DataTableColumnDef::new("email", "Email"),
+///                 DataTableColumnDef::new("role", "Role"),
+///             ]
+///             items=items
+///         />
+///     </div>
+/// }
+/// ```
+///
+///
 /// ## Column visibility
 /// Hide columns via initial state (`column_visibility`).
 /// <!-- preview -->
