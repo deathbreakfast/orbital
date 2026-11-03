@@ -97,6 +97,24 @@ pub fn button_styles() -> &'static str {
                 }
             }
 
+            &--danger {
+                background-color: var(--orb-color-palette-red-bg);
+                color: var(--orb-color-text-on-brand);
+                border-color: transparent;
+
+                &:hover {
+                    background-color: color-mix(in oklab, var(--orb-color-palette-red-bg) 88%, black);
+                    color: var(--orb-color-text-on-brand);
+                    border-color: transparent;
+                }
+
+                &:hover:active {
+                    background-color: color-mix(in oklab, var(--orb-color-palette-red-bg) 76%, black);
+                    color: var(--orb-color-text-on-brand);
+                    border-color: transparent;
+                }
+            }
+
             &--circular {
                 border-radius: var(--orb-radius-circular);
             }
@@ -164,7 +182,10 @@ pub fn button_styles() -> &'static str {
 
             &--primary.orbital-button--disabled:hover:active,
             &--primary.orbital-button--disabled:hover,
-            &--primary.orbital-button--disabled {
+            &--primary.orbital-button--disabled,
+            &--danger.orbital-button--disabled:hover:active,
+            &--danger.orbital-button--disabled:hover,
+            &--danger.orbital-button--disabled {
                 border-color: transparent;
             }
 

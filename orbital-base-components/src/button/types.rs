@@ -9,6 +9,8 @@ pub enum ButtonAppearance {
     Subtle,
     /// Removes background and border styling.
     Transparent,
+    /// Marks a destructive or irreversible action, such as a delete confirmation.
+    Danger,
 }
 
 impl ButtonAppearance {
@@ -18,6 +20,7 @@ impl ButtonAppearance {
             ButtonAppearance::Primary => "primary",
             ButtonAppearance::Subtle => "subtle",
             ButtonAppearance::Transparent => "transparent",
+            ButtonAppearance::Danger => "danger",
         }
     }
 }
