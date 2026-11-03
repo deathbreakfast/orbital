@@ -59,11 +59,11 @@ fn aria_current(status: StepStatus) -> Option<&'static str> {
 /// - Setup wizards, deployment pipelines, and onboarding flows
 /// - Vertical timelines (default) or horizontal wizard headers via `vertical=false`
 /// - Optional `progress` bar (0–100) for long-running operations
+/// - Renders an ordered list; the active step gets `aria-current="step"` and each step's state is read out after its label
 ///
 /// # Don't
 ///
 /// - **Not for carousel slide dots** — use `CarouselStepper` inside a `Carousel` instead
-/// - Renders an ordered list; the active step gets `aria-current="step"` and each step's state is read out after its label
 /// - Display-only today — parent drives `status` updates; steps are not clickable navigation
 ///
 /// # Examples
