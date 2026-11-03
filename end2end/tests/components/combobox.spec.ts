@@ -167,6 +167,14 @@ test.describe("combobox primitive preview", () => {
     await expect(input).toBeFocused();
   });
 
+  test("CB-A6: clear_label overrides the Clear button name", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const wrapper = page.getByTestId("combobox-clear-label");
+    await wrapper.scrollIntoViewIfNeeded();
+    await expect(wrapper.getByRole("button", { name: "Effacer" })).toBeVisible();
+    await expect(wrapper.getByRole("button", { name: "Clear" })).toHaveCount(0);
+  });
+
   test("CB-A5: keyboard Clear empties a multiselect selection", async ({ page }) => {
     await openComponentPreview(page, "combobox");
     const wrapper = page.getByTestId("combobox-clearable-multiselect");

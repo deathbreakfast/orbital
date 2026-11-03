@@ -103,8 +103,9 @@ impl ComboboxInjection {
 /// - The chevron on the right is decorative. It is hidden from assistive technology and only
 ///   duplicates what the input already does.
 /// - With `clearable` set and a value selected, a button named "Clear" joins the Tab order.
-///   Enter or Space resets the field and returns focus to the input. The name is fixed English
-///   text, and the button is disabled together with the Combobox.
+///   Enter or Space resets the field and returns focus to the input. The name defaults to
+///   "Clear"; set `clear_label` on [`ComboboxAppearance`] to translate it. The button is
+///   disabled together with the Combobox.
 ///
 /// # Form picker controls
 ///
@@ -158,6 +159,29 @@ impl ComboboxInjection {
 ///         <Combobox
 ///             bind=ComboboxBind::new(value, selected)
 ///             appearance=ComboboxAppearance { clearable: true, ..Default::default() }
+///         >
+///             <ComboboxOption value="apple".to_string() text="Apple" />
+///             <ComboboxOption value="banana".to_string() text="Banana" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Custom clear label
+/// Sets the clear button's accessible name with `clear_label`, for products that are not in English.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new("Apple".to_string());
+/// let selected = RwSignal::new(vec!["apple".to_string()]);
+/// view! {
+///     <div data-testid="combobox-clear-label">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance {
+///                 clearable: true,
+///                 clear_label: "Effacer".to_string().into(),
+///                 ..Default::default()
+///             }
 ///         >
 ///             <ComboboxOption value="apple".to_string() text="Apple" />
 ///             <ComboboxOption value="banana".to_string() text="Banana" />
@@ -361,6 +385,7 @@ pub fn Combobox(
         placeholder,
         disabled,
         clearable,
+        clear_label,
         multiselect,
         size,
     } = appearance;
@@ -595,7 +620,7 @@ pub fn Combobox(
                 }>
                     <button
                         type="button"
-                        aria-label="Clear"
+                        aria-label=move || clear_label.get().unwrap_or_else(|| "Clear".to_string())
                         class="orbital-combobox__clear-icon"
                         disabled=move || disabled.get()
                         on:mousedown=|e| e.prevent_default()
