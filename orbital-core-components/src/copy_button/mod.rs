@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use leptos::{leptos_dom::helpers::set_timeout, prelude::*, task::spawn_local};
+use leptos::{leptos_dom::helpers::set_timeout, prelude::*, task::spawn_local_scoped};
 use orbital_macros::component_doc;
 
 use crate::{Button, ButtonAppearance, ButtonSize};
@@ -96,7 +96,7 @@ pub fn CopyButton(
 
     let on_click = Callback::new(move |_| {
         let value = text.get_untracked();
-        spawn_local(async move {
+        spawn_local_scoped(async move {
             if write_clipboard(&value).await {
                 copied.set(true);
                 set_timeout(move || copied.set(false), COPIED_RESET);
