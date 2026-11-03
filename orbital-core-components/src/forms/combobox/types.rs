@@ -36,6 +36,8 @@ pub struct ComboboxAppearance {
     pub disabled: Signal<bool>,
     /// Shows a clear icon when there is a selection.
     pub clearable: bool,
+    /// Accessible name of the clear button. Defaults to "Clear".
+    pub clear_label: MaybeProp<String>,
     /// Supports toggling multiple selected options.
     pub multiselect: Signal<bool>,
     /// Visual size of the input control.
