@@ -78,8 +78,7 @@ fn split_segments(points: &[PlotPoint], connect_nulls: bool) -> Vec<Vec<PlotPoin
     for p in points {
         if p.y.is_none() {
             if !current.is_empty() {
-                segments.push(current);
-                current = Vec::new();
+                segments.push(std::mem::take(&mut current));
             }
         } else {
             current.push(*p);
