@@ -151,11 +151,11 @@ pub fn Board(
 
         .Lanes {
             display: flex;
-            gap: 12px;
+            gap: var(--orb-space-inline-md);
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             overscroll-behavior-x: contain;
-            padding: 4px;
+            padding: var(--orb-space-block-xs);
         }
 
         .Lane {
@@ -178,7 +178,7 @@ pub fn Board(
         .Cards {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--orb-space-block-sm);
             min-height: 48px;
         }
 
