@@ -32,7 +32,7 @@ orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-featur
 wasm-bindgen = { workspace = true }
 web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement"] }
 inventory = { version = "0.3", optional = true }
-pulldown-cmark = { version = "0.13", optional = true }
+pulldown-cmark = { version = "0.13.6", optional = true }
 palette = "0.7"
 
 [features]

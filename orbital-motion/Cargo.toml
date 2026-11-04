@@ -27,7 +27,7 @@ parcel_selectors = { workspace = true }
 icondata.workspace = true
 icondata_core.workspace = true
 inventory = "0.3"
-pulldown-cmark = { version = "0.13", optional = true }
+pulldown-cmark = { version = "0.13.6", optional = true }
 wasm-bindgen = { workspace = true, optional = true }
 web-sys = { workspace = true, features = ["CssStyleDeclaration", "Element", "EventTarget", "HtmlElement", "MediaQueryList", "Window"] }
 send_wrapper = { version = "0.6", optional = true }
