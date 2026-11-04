@@ -81,8 +81,8 @@ fn diff_lines<'a>(before: &'a str, after: &'a str) -> Vec<(LineKind, &'a str)> {
 ///
 /// # When to use
 ///
-/// - Showing what a policy, config, or document edit changed - Reviewing a proposed change
-///   before it is applied
+/// - Showing what a policy, config, or document edit changed
+/// - Reviewing a proposed change before it is applied
 ///
 /// # Examples
 ///
