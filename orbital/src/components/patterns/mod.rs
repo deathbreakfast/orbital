@@ -1,8 +1,12 @@
+pub mod board;
 pub mod coachmark;
 pub mod identity_card;
 pub mod marketing;
 
 // Re-export patterns
+pub use board::{Board, BoardCard, BoardColumn};
+#[cfg(feature = "preview")]
+pub use board::{BoardPreview, BOARD_DOC, BOARD_PREVIEW_REGISTRATION, BOARD_PROPS};
 pub use coachmark::{OrbitalCoachmark, RememberMode};
 pub use identity_card::IdentityCard;
 #[cfg(feature = "preview")]
