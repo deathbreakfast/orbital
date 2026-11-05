@@ -226,7 +226,7 @@ pub fn AnchoredCounterBadge(
     };
 
     view! {
-        <ThemedPortal>
+        <ThemedPortal immediate=true>
             <button
                 type="button"
                 class="orbital-anchored-counter-badge"
