@@ -213,8 +213,8 @@ pub fn data_table_row_view(
             attr:aria-selected=move || {
                 if is_row_selected.get() { "true".to_string() } else { "false".to_string() }
             }
-            attr:aria-current=move || is_row_active.get().then_some("true")
-            attr:data-active-row=move || is_row_active.get().then_some("true")
+            aria-current=move || is_row_active.get().then_some("true")
+            data-active-row=move || is_row_active.get().then_some("true")
             style=move || pin_style_stored.get_value().unwrap_or_default()
             data-testid=row_testid
             on:click=move |ev: leptos::ev::MouseEvent| {
