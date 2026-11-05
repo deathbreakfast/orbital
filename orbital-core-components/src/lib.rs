@@ -8,6 +8,7 @@
 pub mod app_bar;
 pub mod button;
 pub mod code;
+pub mod copy_button;
 pub mod data;
 pub mod divider;
 pub mod extensions;
@@ -49,6 +50,7 @@ pub use text::*;
 
 pub use button::{Button, ButtonAppearance, ButtonRef, ButtonShape, ButtonSize, ButtonType};
 pub use code::Code;
+pub use copy_button::CopyButton;
 pub use data::{
     link_styles, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
     AvatarGroupSize, AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,
