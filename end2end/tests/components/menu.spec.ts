@@ -66,14 +66,41 @@ test.describe("menu primitive preview", () => {
     await expect(disabledItem).toBeVisible();
   });
 
-  test("MN-09: keyboard ArrowDown and Enter selects menu item", async ({ page }) => {
+  test("MN-09: keyboard ArrowDown and Enter selects the next menu item", async ({ page }) => {
     await openComponentPreview(page, "menu");
     await page.getByTestId("menu-keyboard").scrollIntoViewIfNeeded();
     await clickMenuTriggerInPreview(page, "menu-keyboard", "Keyboard menu");
-    await expect(page.getByRole("menuitem", { name: "Edit" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "Edit" })).toBeFocused();
     await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("menuitem", { name: "Copy" })).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("menuitem", { name: "Edit" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "Copy" })).toHaveCount(0);
+    await expect(page.getByTestId("menu-keyboard-selected")).toHaveText("copy");
+  });
+
+  test("MN-13: ArrowUp wraps, Home and End jump to the first and last item", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await page.getByTestId("menu-keyboard").scrollIntoViewIfNeeded();
+    await clickMenuTriggerInPreview(page, "menu-keyboard", "Keyboard menu");
+    await expect(page.getByRole("menuitem", { name: "Edit" })).toBeFocused();
+    await page.keyboard.press("ArrowUp");
+    await expect(page.getByRole("menuitem", { name: "Delete" })).toBeFocused();
+    await page.keyboard.press("Home");
+    await expect(page.getByRole("menuitem", { name: "Edit" })).toBeFocused();
+    await page.keyboard.press("End");
+    await expect(page.getByRole("menuitem", { name: "Delete" })).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("menuitem", { name: "Edit" })).toBeFocused();
+  });
+
+  test("MN-14: arrow keys skip disabled items", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await page.getByTestId("menu-disabled").scrollIntoViewIfNeeded();
+    await clickMenuTriggerInPreview(page, "menu-disabled", "Actions");
+    await expect(page.getByRole("menuitem", { name: "OK" })).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("menuitem", { name: "OK" })).toBeFocused();
+    await expect(page.getByRole("menuitem", { name: "Blocked" })).not.toBeFocused();
   });
 
   test("MN-10: Enter on a focused item selects it and closes the menu", async ({ page }) => {
