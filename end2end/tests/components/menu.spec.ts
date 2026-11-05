@@ -134,4 +134,36 @@ test.describe("menu primitive preview", () => {
     await page.keyboard.press("Enter");
     await expect(blocked).toBeVisible();
   });
+
+  test("MN-13: closing a dialog opened from a menu item returns focus to the menu button", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    const section = page.getByTestId("menu-dialog");
+    await section.scrollIntoViewIfNeeded();
+    const trigger = section.getByRole("button", { name: "Row actions" });
+    await trigger.click();
+    await page.getByRole("menuitem", { name: "Rename" }).click();
+    const dialog = page.getByRole("dialog", { name: "Rename" });
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+
+    await page.keyboard.press("Enter");
+    await page.getByRole("menuitem", { name: "Rename" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Cancel" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test("MN-14: a dialog opened from a menu item still focuses its field", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    const section = page.getByTestId("menu-dialog");
+    await section.scrollIntoViewIfNeeded();
+    await section.getByRole("button", { name: "Row actions" }).click();
+    await page.getByRole("menuitem", { name: "Rename" }).click();
+    const dialog = page.getByRole("dialog", { name: "Rename" });
+    await expect(dialog.getByRole("textbox")).toBeFocused();
+  });
 });
