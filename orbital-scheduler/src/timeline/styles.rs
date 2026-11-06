@@ -246,15 +246,17 @@ pub fn scheduler_timeline_styles() -> &'static str {
     bottom: 0;
     width: 2px;
     margin-inline-start: -1px;
-    z-index: 2;
+    z-index: 0;
     background: var(--orb-color-status-danger-fg, #b91c1c);
     pointer-events: none;
 }
 
 .orb-scheduler-timeline__today-label {
     position: absolute;
-    top: 2px;
-    left: 4px;
+    bottom: 2px;
+    z-index: 1;
+    margin-inline-start: 4px;
+    pointer-events: none;
     padding: 0 var(--orb-space-inline-xs, 0.25rem);
     border-radius: var(--orb-radius-sm, 0.25rem);
     font-size: var(--orb-font-size-xs, 0.75rem);

@@ -378,22 +378,32 @@ pub fn SchedulerTimelineBody(
                     let range_end_unix = range.range_end.to_unix_seconds().to_string();
                     let content_style = preset_scrolls_horizontally(preset.get())
                         .then(|| format!("min-width: {}px;", timeline_total_width(range)));
-                    let today_line = today
-                        .get()
-                        .and_then(|at| timeline_x_pct(at, range, tz))
-                        .map(|left_pct| {
-                            let label = locale_string(|l| &l.today_marker, "Today");
-                            view! {
-                                <div
-                                    class="orb-scheduler-timeline__today"
-                                    data-testid="scheduler-timeline-today"
-                                    aria-hidden="true"
-                                    style=format!("left: {left_pct}%;")
-                                >
-                                    <span class="orb-scheduler-timeline__today-label">{label}</span>
-                                </div>
-                            }
-                        });
+                    let today_x = today.get().and_then(|at| timeline_x_pct(at, range, tz));
+                    // The label sits in the sticky header; the line is drawn after the
+                    // rows so it paints over the lane backgrounds but under the chips.
+                    let today_label = today_x.map(|left_pct| {
+                        let label = locale_string(|l| &l.today_marker, "Today");
+                        view! {
+                            <span
+                                class="orb-scheduler-timeline__today-label"
+                                data-testid="scheduler-timeline-today-label"
+                                aria-hidden="true"
+                                style=format!("left: {left_pct}%;")
+                            >
+                                {label}
+                            </span>
+                        }
+                    });
+                    let today_line = today_x.map(|left_pct| {
+                        view! {
+                            <div
+                                class="orb-scheduler-timeline__today"
+                                data-testid="scheduler-timeline-today"
+                                aria-hidden="true"
+                                style=format!("left: {left_pct}%;")
+                            />
+                        }
+                    });
 
                     view! {
                         <div
@@ -404,8 +414,8 @@ pub fn SchedulerTimelineBody(
                         >
                             <div class="orb-scheduler-timeline__time-header">
                                 {time_column_cells(columns)}
+                                {today_label}
                             </div>
-                            {today_line}
 
                             {if row_vp.padding_top_px > 0.0 {
                                 view! {
@@ -470,6 +480,7 @@ pub fn SchedulerTimelineBody(
                             } else {
                                 ().into_any()
                             }}
+                            {today_line}
                         </div>
                     }
                     .into_any()

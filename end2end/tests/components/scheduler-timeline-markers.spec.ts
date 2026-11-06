@@ -45,7 +45,11 @@ test.describe("scheduler-timeline-markers preview", () => {
     const line = wrapper.getByTestId("scheduler-timeline-today");
     await expect(line).toHaveCount(1);
     await expect(line).toHaveAttribute("aria-hidden", "true");
-    await expect(line).toContainText("Today");
+    const label = wrapper.getByTestId("scheduler-timeline-today-label");
+    await expect(label).toHaveText("Today");
+    await expect(label).toHaveAttribute("aria-hidden", "true");
+    // The label sits in the time header, next to the line.
+    await expect(wrapper.locator(".orb-scheduler-timeline__time-header")).toContainText("Today");
 
     const left = await line.evaluate((el) => parseFloat((el as HTMLElement).style.left));
     expect(left).toBeGreaterThanOrEqual(0);
