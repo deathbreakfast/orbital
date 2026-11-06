@@ -48,9 +48,10 @@ test.describe("table primitive preview", () => {
     if (box) {
       const x = box.x + box.width / 2;
       const y = box.y + box.height / 2;
-      await handle.dispatchEvent("pointerdown", { clientX: x, clientY: y, button: 0, pointerId: 1, pointerType: "mouse" });
+      await page.mouse.move(x, y);
+      await page.mouse.down();
       await page.mouse.move(x - 50, y, { steps: 8 });
-      await page.dispatchEvent("body", "pointerup", { clientX: x - 50, clientY: y, button: 0, pointerId: 1, pointerType: "mouse" });
+      await page.mouse.up();
     }
     await expect
       .poll(async () => th.evaluate((el) => el.getBoundingClientRect().width), {

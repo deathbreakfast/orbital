@@ -8,6 +8,8 @@ const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
 ];
 const TOLERANCE_PX = 1.5;
+// The fill preview's cell text (see docs/columns.rs, "Column fill") must fit a third of the table at 390px.
+// A longer value, such as a full example.com address, makes the table wider than its container and fails the fill checks.
 
 async function openFill(page: Page) {
   await openComponentPreview(page, "data-table-columns", "data-table-fill-preview");
