@@ -10,7 +10,8 @@ use orbital_macros::component_doc;
 /// - Org charts and nested categories (`TREE_DATA`)
 /// - Group-by reports with subtotals (`ROW_GROUPING`, `AGGREGATION`)
 /// - Cross-tab analysis (`PIVOTING`)
-/// - Mobile-friendly card lists (`LIST_VIEW`)
+/// - Mobile-friendly card lists (`LIST_VIEW`); call `ListViewConfig::with_breakpoint_px` to show the
+///   cards only below a table width and the grid above it
 ///
 /// # Usage
 ///

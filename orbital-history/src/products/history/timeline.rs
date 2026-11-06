@@ -133,6 +133,10 @@ pub fn HistoryTimeline(
     /// e.g. Some("320px"). None = flex-fill (`min-height: 0`) in parent.
     #[prop(optional)]
     max_height: Option<String>,
+    /// Minimum width of the timeline, e.g. Some("20rem"), so short rows don't shrink the parent.
+    /// None uses the stylesheet default (`--orbital-history-min-width`, 16rem); Some("0") opts out.
+    #[prop(optional)]
+    min_width: Option<String>,
     #[prop(optional, default = HistoryPagingMode::InfiniteScroll)] paging: HistoryPagingMode,
     /// Host override for loading. When `None`, Server derives from the paging hook.
     #[prop(optional)]
@@ -654,6 +658,7 @@ pub fn HistoryTimeline(
         classes.join(" ")
     });
 
+    let root_style = root_min_width_style(min_width.as_deref());
     let scroll_style = max_height.map(|h| format!("max-height:{h};"));
 
     let header_view = move || {
@@ -669,7 +674,7 @@ pub fn HistoryTimeline(
             let entries = Signal::derive(move || items.get());
             view! {
                 <Provider value=history_ctx>
-                    <div class=move || root_class.get() data-orbital-history data-testid="history-timeline">
+                    <div class=move || root_class.get() data-orbital-history data-testid="history-timeline" style=root_style.clone()>
                         {header_view()}
                         <HistoryClientPanel
                             entries=entries
@@ -693,7 +698,7 @@ pub fn HistoryTimeline(
         }
         HistorySource::Server { fetcher, page_size } => view! {
             <Provider value=history_ctx>
-                <div class=move || root_class.get() data-orbital-history data-testid="history-timeline">
+                <div class=move || root_class.get() data-orbital-history data-testid="history-timeline" style=root_style.clone()>
                     {header_view()}
                     <HistoryServerPanel
                     fetcher=fetcher
@@ -1278,5 +1283,31 @@ fn HistoryServerPanel(
                 {pagination_view()}
             </Show>
         </Flex>
+    }
+}
+
+fn root_min_width_style(min_width: Option<&str>) -> Option<String> {
+    min_width
+        .map(str::trim)
+        .filter(|w| !w.is_empty())
+        .map(|w| format!("min-width:{w};"))
+}
+
+#[cfg(test)]
+mod min_width_tests {
+    use super::root_min_width_style;
+
+    #[test]
+    fn builds_inline_min_width() {
+        assert_eq!(
+            root_min_width_style(Some("20rem")).as_deref(),
+            Some("min-width:20rem;")
+        );
+    }
+
+    #[test]
+    fn ignores_missing_or_blank() {
+        assert_eq!(root_min_width_style(None), None);
+        assert_eq!(root_min_width_style(Some("  ")), None);
     }
 }

@@ -24,4 +24,27 @@ test.describe("data-table column sizing", () => {
       .poll(async () => nameHeader.getAttribute("style"))
       .not.toBe(styleBefore);
   });
+
+  test("columns fit the table width without sideways scroll", async ({ page }) => {
+    await openComponentPreview(page, "data-table-columns", "data-table-column-sizing-preview");
+    const preview = page.getByTestId("data-table-column-sizing-preview");
+    await preview.scrollIntoViewIfNeeded();
+
+    const scroll = preview.getByTestId("data-table-scroll");
+    const { scrollWidth, clientWidth } = await scroll.evaluate((el) => ({
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+    }));
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
+
+    const headerWidths = await preview
+      .locator("thead th")
+      .evaluateAll((cells) => cells.map((c) => c.getBoundingClientRect().width));
+    const tableWidth = await preview
+      .locator("table")
+      .first()
+      .evaluate((t) => t.getBoundingClientRect().width);
+    const sum = headerWidths.reduce((a, b) => a + b, 0);
+    expect(Math.abs(sum - tableWidth)).toBeLessThanOrEqual(1);
+  });
 });

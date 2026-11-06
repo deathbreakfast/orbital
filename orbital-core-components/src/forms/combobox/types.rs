@@ -36,6 +36,11 @@ pub struct ComboboxAppearance {
     pub disabled: Signal<bool>,
     /// Shows a clear icon when there is a selection.
     pub clearable: bool,
+    /// Accessible name of the clear button. Defaults to "Clear".
+    pub clear_label: MaybeProp<String>,
+    /// Turns off the local title filter so every option stays visible and focusable.
+    /// Use it when the product filters on the server and supplies matching options.
+    pub disable_filter: bool,
     /// Supports toggling multiple selected options.
     pub multiselect: Signal<bool>,
     /// Visual size of the input control.

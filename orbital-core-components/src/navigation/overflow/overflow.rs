@@ -94,13 +94,7 @@ pub fn Overflow(
     let measured_overflow = RwSignal::new(false);
     let items_ref = NodeRef::<html::Div>::new();
 
-    let measure_overflow = move || {
-        if let Some(el) = items_ref.get() {
-            let scroll = el.scroll_width();
-            let client = el.client_width();
-            measured_overflow.set(scroll > client);
-        }
-    };
+    let measure_overflow = move || measure_into(items_ref, measured_overflow);
 
     Effect::new(move |_| {
         let _ = items_ref.get();
@@ -148,5 +142,44 @@ pub fn Overflow(
                 </Menu>
             </div>
         </BaseOverflow>
+    }
+}
+
+/// Record whether the items row clips its content.
+///
+/// The animation frames scheduled on mount can run after the component unmounts, when
+/// `items_ref` and `measured` are already disposed; then this does nothing instead of
+/// panicking.
+fn measure_into(items_ref: NodeRef<html::Div>, measured: RwSignal<bool>) {
+    if let Some(el) = items_ref.try_get().flatten() {
+        let _ = measured.try_set(el.scroll_width() > el.client_width());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use leptos::{html, prelude::*};
+
+    use super::measure_into;
+
+    #[test]
+    fn measure_after_unmount_is_a_no_op_sad() {
+        let owner = Owner::new();
+        let (items_ref, measured) =
+            owner.with(|| (NodeRef::<html::Div>::new(), RwSignal::new(false)));
+        owner.cleanup();
+        // A frame scheduled on mount runs now; it must not touch the disposed values.
+        measure_into(items_ref, measured);
+        assert_eq!(measured.try_get(), None);
+    }
+
+    #[test]
+    fn measure_before_mount_leaves_state_happy() {
+        Owner::new().with(|| {
+            let items_ref = NodeRef::<html::Div>::new();
+            let measured = RwSignal::new(false);
+            measure_into(items_ref, measured);
+            assert!(!measured.get_untracked());
+        });
     }
 }

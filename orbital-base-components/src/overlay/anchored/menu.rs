@@ -39,6 +39,8 @@ where
         None,
     );
 
+    let autofocus = config.trigger_type != OverlayTriggerType::Hover;
+
     let menu_injection = MenuInjection {
         has_icon: RwSignal::new(false),
         on_select,
@@ -58,7 +60,7 @@ where
         <Provider value=menu_injection>
             <AnchoredOverlay config=config overlay_trigger=overlay_trigger>
                 <OverlaySurface class=shell_class role="menu" style=style data_testid=data_testid>
-                    <MenuKeyboardRegion>
+                    <MenuKeyboardRegion autofocus=autofocus>
                         {children()}
                     </MenuKeyboardRegion>
                 </OverlaySurface>

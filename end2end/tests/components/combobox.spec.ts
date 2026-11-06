@@ -26,6 +26,20 @@ test.describe("combobox primitive preview", () => {
     await expect(input).toHaveValue("Apple");
   });
 
+  test("CB-filter: disable_filter keeps non-matching options visible and focusable", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const wrapper = page.getByTestId("combobox-no-local-filter");
+    await wrapper.scrollIntoViewIfNeeded();
+    const input = wrapper.locator("input[role='combobox']");
+    await input.fill("ap");
+    const zucchini = page.locator(".orbital-listbox .orbital-combobox-option", { hasText: "Zucchini" });
+    await expect(zucchini).toBeVisible();
+    await expect(zucchini).not.toHaveClass(/orbital-combobox-option--hidden/);
+    await input.press("ArrowDown");
+    await input.press("ArrowDown");
+    await expect(zucchini).toHaveAttribute("data-activedescendant-focusvisible", /.*/);
+  });
+
   test("CB-04: clearable combobox clears current selection", async ({ page }) => {
     await openComponentPreview(page, "combobox");
     await page.getByTestId("combobox-clearable").scrollIntoViewIfNeeded();
@@ -167,6 +181,14 @@ test.describe("combobox primitive preview", () => {
     await expect(input).toBeFocused();
   });
 
+  test("CB-A6: clear_label overrides the Clear button name", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const wrapper = page.getByTestId("combobox-clear-label");
+    await wrapper.scrollIntoViewIfNeeded();
+    await expect(wrapper.getByRole("button", { name: "Effacer" })).toBeVisible();
+    await expect(wrapper.getByRole("button", { name: "Clear" })).toHaveCount(0);
+  });
+
   test("CB-A5: keyboard Clear empties a multiselect selection", async ({ page }) => {
     await openComponentPreview(page, "combobox");
     const wrapper = page.getByTestId("combobox-clearable-multiselect");
@@ -188,6 +210,24 @@ test.describe("combobox primitive preview", () => {
     await expect(clear).toHaveCount(0);
     await input.click();
     await expect(selected).toHaveCount(0);
+  });
+
+  test("CB-A7: Escape closes the multiselect listbox after Space-select", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const wrapper = page.getByTestId("combobox-clearable-multiselect");
+    await wrapper.scrollIntoViewIfNeeded();
+    const input = wrapper.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    await input.press(" ");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+
+    await input.press("Escape");
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await expect(input).toBeFocused();
+
+    await input.press("ArrowDown");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
   });
 
   test("CB-A6: Clear is disabled with a disabled combobox", async ({ page }) => {
@@ -247,5 +287,33 @@ test.describe("combobox primitive preview", () => {
     await expect(city).toHaveValue("Portland");
     await expect(first).toHaveValue("Apple");
     await expect(page.getByRole("listbox")).toHaveCount(0);
+  });
+
+  test("CB-SEC-01: secondary line renders under the label and describes the option", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-secondary");
+    await scrollIntoPreviewView(root);
+    const input = root.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    const option = page.getByRole("option", { name: /Small pool/ });
+    const secondary = option.locator(".orbital-combobox-option__secondary");
+    await expect(secondary).toHaveText("2 vCPU, 4 GB, 3 workers");
+    const describedBy = await option.getAttribute("aria-describedby");
+    expect(describedBy).toEqual(await secondary.getAttribute("id"));
+    const labelBox = await option.locator(".orbital-combobox-option__label").boundingBox();
+    const secondaryBox = await secondary.boundingBox();
+    expect(secondaryBox!.y).toBeGreaterThan(labelBox!.y);
+  });
+
+  test("CB-SEC-02: keyboard still picks an option that has secondary text", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-secondary");
+    await scrollIntoPreviewView(root);
+    const input = root.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    await input.press("Enter");
+    await expect(input).toHaveValue("Small pool");
   });
 });

@@ -36,10 +36,10 @@ test.describe("table primitive preview", () => {
     await expect(main).toHaveCSS("overflow-x", "hidden");
   });
 
-    test("TB-05 resizable columns", async ({ page }) => {
+  test("TB-05 resizable columns", async ({ page }) => {
     await expectPreviewVariants(page, ["table-resizable"]);
     const wrapper = page.getByTestId("table-resizable");
-    const handle = wrapper.locator(".orbital-table-header-cell__aside").first();
+    const handle = wrapper.locator(".orbital-table-resize-handle").first();
     await expect(handle).toBeAttached();
     const th = wrapper.locator("th").first();
     const before = await th.evaluate((el) => el.getBoundingClientRect().width);
@@ -54,7 +54,7 @@ test.describe("table primitive preview", () => {
       await page.mouse.up();
     }
     await expect
-      .poll(async () => th.evaluate((el) => parseFloat(getComputedStyle(el).width)), {
+      .poll(async () => th.evaluate((el) => el.getBoundingClientRect().width), {
         timeout: 5_000,
       })
       .toBeLessThan(before - 5);

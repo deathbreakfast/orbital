@@ -37,6 +37,7 @@ pub fn render_history_markdown(
             enable_citation_refs: options.enable_citations && !citations.is_empty(),
             enable_mention_refs: options.enable_mentions,
             enable_images: options.enable_images,
+            image_url_schemes: None,
             citation_style: orbital_markdown::CitationLinkStyle::history(),
             mention_style: MentionLinkStyle::history(),
         },
