@@ -20,7 +20,19 @@ pub struct SchedulerLocaleText {
     pub preset_business_day: String,
     pub preset_week: String,
     pub preset_business_week: String,
+    /// Label for [`TimelinePreset::Month`].
+    pub preset_month: String,
+    /// Label for [`TimelinePreset::Quarter`].
+    pub preset_quarter: String,
     pub preferences: String,
+    /// Label on the timeline's today line, in the time header.
+    pub today_marker: String,
+    /// Verb in a resource row's collapse button name ("Collapse Design").
+    pub collapse_resource: String,
+    /// Verb in a resource row's expand button name ("Expand Design").
+    pub expand_resource: String,
+    /// Word after the percentage in a timeline bar's progress ("40% done").
+    pub progress_done: String,
 }
 
 impl SchedulerLocaleText {
@@ -39,7 +51,13 @@ impl SchedulerLocaleText {
             preset_business_day: "Business day".into(),
             preset_week: "Week".into(),
             preset_business_week: "Business week".into(),
+            preset_month: "Month".into(),
+            preset_quarter: "Quarter".into(),
             preferences: "Preferences".into(),
+            today_marker: "Today".into(),
+            collapse_resource: "Collapse".into(),
+            expand_resource: "Expand".into(),
+            progress_done: "done".into(),
         }
     }
 
@@ -58,7 +76,13 @@ impl SchedulerLocaleText {
             preset_business_day: "Journée ouvrée".into(),
             preset_week: "Semaine".into(),
             preset_business_week: "Semaine ouvrée".into(),
+            preset_month: "Mois".into(),
+            preset_quarter: "Trimestre".into(),
             preferences: "Préférences".into(),
+            today_marker: "Aujourd'hui".into(),
+            collapse_resource: "Replier".into(),
+            expand_resource: "Déplier".into(),
+            progress_done: "terminé".into(),
         }
     }
 
@@ -77,6 +101,8 @@ impl SchedulerLocaleText {
             TimelinePreset::BusinessDay => &self.preset_business_day,
             TimelinePreset::Week => &self.preset_week,
             TimelinePreset::BusinessWeek => &self.preset_business_week,
+            TimelinePreset::Month => &self.preset_month,
+            TimelinePreset::Quarter => &self.preset_quarter,
         }
     }
 }

@@ -1,17 +1,22 @@
-//! Virtualized timeline lane body (SC-24).
+//! Virtualized timeline lane body (SC-24), with the today line and
+//! collapsible parent rows.
+
+use std::collections::HashSet;
 
 use leptos::html::Div;
 use leptos::prelude::*;
-use orbital_base_components::{DatetimeTimezone, ToUnixSeconds};
+use orbital_base_components::{new_field_id, DatetimeTimezone, OrbitalDateTime, ToUnixSeconds};
 
 use crate::timeline::engine::{
-    compute_row_viewport, event_layout_in_range, events_for_lane, timeline_visible_range,
-    RowViewport, TimelineColumn, TimelineVisibleRange, DEFAULT_ROW_OVERSCAN,
+    compute_row_viewport, events_for_lane, preset_scrolls_horizontally, timeline_event_placement,
+    timeline_total_width, timeline_visible_range, timeline_x_pct, RowViewport, TimelineColumn,
+    TimelineVisibleRange, DEFAULT_ROW_OVERSCAN,
 };
 use crate::timeline::event_chip::TimelineEventChip;
 use crate::use_scheduler_chrome;
 use crate::PlannedEvent;
 use crate::ResourceRow;
+use crate::ScheduleResource;
 use crate::TimelinePreset;
 
 const DEFAULT_VIEWPORT_HEIGHT: f64 = 400.0;
@@ -24,11 +29,17 @@ fn set_metric(signal: RwSignal<f64>, next: f64) {
     }
 }
 
+/// Columns share the row in proportion to their width, so clipped quarter weeks
+/// stay narrower and bars (placed by time) line up with the grid.
+fn column_flex_style(col: &TimelineColumn) -> String {
+    format!("flex-grow: {};", col.width_px)
+}
+
 fn time_column_cells(cols: &[TimelineColumn]) -> impl IntoView {
     cols.iter()
         .map(|col| {
             view! {
-                <div class="orb-scheduler-timeline__time-column">
+                <div class="orb-scheduler-timeline__time-column" style=column_flex_style(col)>
                     {col.label.clone()}
                 </div>
             }
@@ -38,10 +49,28 @@ fn time_column_cells(cols: &[TimelineColumn]) -> impl IntoView {
 
 fn lane_column_cells(cols: &[TimelineColumn]) -> impl IntoView {
     cols.iter()
-        .map(|_| {
-            view! { <div class="orb-scheduler-timeline__lane-column" /> }
+        .map(|col| {
+            view! { <div class="orb-scheduler-timeline__lane-column" style=column_flex_style(col) /> }
         })
         .collect_view()
+}
+
+/// Ids of the direct children of `parent_id` anywhere in the resource tree.
+fn child_resource_ids(resources: &[ScheduleResource], parent_id: &str) -> Vec<String> {
+    for resource in resources {
+        if resource.id == parent_id {
+            return resource.children.iter().map(|c| c.id.clone()).collect();
+        }
+        let found = child_resource_ids(&resource.children, parent_id);
+        if !found.is_empty() {
+            return found;
+        }
+    }
+    Vec::new()
+}
+
+fn row_dom_id(prefix: &str, resource_id: &str) -> String {
+    format!("{prefix}-row-{resource_id}")
 }
 
 struct TimelineBodyLayout {
@@ -78,6 +107,12 @@ pub fn SchedulerTimelineBody(
     visible_date: RwSignal<orbital_base_components::OrbitalDateTime>,
     display_timezone: RwSignal<DatetimeTimezone>,
     preset: RwSignal<TimelinePreset>,
+    /// The resource tree, for the collapse buttons' `aria-controls`.
+    resources: RwSignal<Vec<ScheduleResource>>,
+    /// Instant the today line marks; `None` draws no line.
+    today: Signal<Option<OrbitalDateTime>>,
+    /// Parent resource ids whose children are hidden.
+    collapsed_resources: RwSignal<HashSet<String>>,
 ) -> impl IntoView {
     let scroll_top = RwSignal::new(0.0_f64);
     let viewport_height = RwSignal::new(DEFAULT_VIEWPORT_HEIGHT);
@@ -88,6 +123,18 @@ pub fn SchedulerTimelineBody(
     #[cfg(feature = "hydrate")]
     let did_initial_measure = StoredValue::new(false);
     let chrome = use_scheduler_chrome();
+    // Row ids for `aria-controls`. Random ids differ between the server render and
+    // hydration, so pick the prefix in the browser and leave the attributes off in SSR.
+    let id_prefix = RwSignal::new(None::<String>);
+    Effect::new(move |_| {
+        id_prefix.set(Some(format!("orb-scheduler-timeline-{}", new_field_id())));
+    });
+
+    let locale_string = move |pick: fn(&crate::SchedulerLocaleText) -> &String, fallback: &str| {
+        chrome
+            .and_then(|c| c.locale_text.try_get().map(|locale| pick(&locale).clone()))
+            .unwrap_or_else(|| fallback.to_string())
+    };
 
     let body_layout = move || {
         let rows = resource_rows.get();
@@ -227,13 +274,64 @@ pub fn SchedulerTimelineBody(
                                         "padding-inline-start: calc(var(--orb-space-inline-sm, 0.5rem) * {});",
                                         row.depth + 1
                                     );
+                                    let prefix = id_prefix.get();
+                                    let dom_id = prefix.as_deref().map(|p| row_dom_id(p, &row.id));
+                                    let toggle = row.has_children.then(|| {
+                                        let id = row.id.clone();
+                                        let expanded = !collapsed_resources
+                                            .with(|set| set.contains(&row.id));
+                                        let verb = if expanded {
+                                            locale_string(|l| &l.collapse_resource, "Collapse")
+                                        } else {
+                                            locale_string(|l| &l.expand_resource, "Expand")
+                                        };
+                                        let label = format!("{verb} {}", row.title);
+                                        let controls = prefix.as_deref().map(|p| {
+                                            resources.with(|tree| {
+                                                child_resource_ids(tree, &row.id)
+                                                    .iter()
+                                                    .map(|child| row_dom_id(p, child))
+                                                    .collect::<Vec<_>>()
+                                                    .join(" ")
+                                            })
+                                        });
+                                        let on_click = move |_| {
+                                            collapsed_resources.update(|set| {
+                                                if !set.remove(&id) {
+                                                    set.insert(id.clone());
+                                                }
+                                            });
+                                        };
+                                        view! {
+                                            <button
+                                                type="button"
+                                                class="orb-scheduler-timeline__toggle"
+                                                data-testid=format!("scheduler-timeline-toggle-{}", row.id)
+                                                aria-expanded=expanded.to_string()
+                                                aria-controls=controls
+                                                aria-label=label
+                                                on:click=on_click
+                                            >
+                                                <span
+                                                    class="orb-scheduler-timeline__chevron"
+                                                    class:orb-scheduler-timeline__chevron--collapsed=!expanded
+                                                    aria-hidden="true"
+                                                />
+                                            </button>
+                                        }
+                                    });
                                     view! {
                                         <div
                                             class="orb-scheduler-timeline__resource-cell"
+                                            class:orb-scheduler-timeline__resource-cell--parent=row.has_children
+                                            id=dom_id
                                             data-testid=format!("scheduler-resource-{}", row.id)
                                             style=indent
                                         >
-                                            {row.title.clone()}
+                                            {toggle}
+                                            <span class="orb-scheduler-timeline__resource-title">
+                                                {row.title.clone()}
+                                            </span>
                                         </div>
                                     }
                                 })
@@ -258,6 +356,8 @@ pub fn SchedulerTimelineBody(
             <div
                 node_ref=time_scroll_ref
                 class="orb-scheduler-timeline__time-scroll"
+                // Month and quarter scroll sideways; let keyboard users focus and scroll the lanes.
+                tabindex=move || preset_scrolls_horizontally(preset.get()).then_some("0")
                 on:scroll=on_time_scroll
             >
                 {move || {
@@ -272,21 +372,40 @@ pub fn SchedulerTimelineBody(
                     let tz = display_timezone.get();
                     let row_vp = body.row_vp;
                     let columns = &body.range.columns;
-                    let _range = &body.range;
 
                     let range = &body.range;
                     let range_start_unix = range.range_start.to_unix_seconds().to_string();
                     let range_end_unix = range.range_end.to_unix_seconds().to_string();
+                    let content_style = preset_scrolls_horizontally(preset.get())
+                        .then(|| format!("min-width: {}px;", timeline_total_width(range)));
+                    let today_line = today
+                        .get()
+                        .and_then(|at| timeline_x_pct(at, range, tz))
+                        .map(|left_pct| {
+                            let label = locale_string(|l| &l.today_marker, "Today");
+                            view! {
+                                <div
+                                    class="orb-scheduler-timeline__today"
+                                    data-testid="scheduler-timeline-today"
+                                    aria-hidden="true"
+                                    style=format!("left: {left_pct}%;")
+                                >
+                                    <span class="orb-scheduler-timeline__today-label">{label}</span>
+                                </div>
+                            }
+                        });
 
                     view! {
                         <div
                             class="orb-scheduler-timeline__time-content"
                             data-range-start-unix=range_start_unix
                             data-range-end-unix=range_end_unix
+                            style=content_style
                         >
                             <div class="orb-scheduler-timeline__time-header">
                                 {time_column_cells(columns)}
                             </div>
+                            {today_line}
 
                             {if row_vp.padding_top_px > 0.0 {
                                 view! {
@@ -307,14 +426,14 @@ pub fn SchedulerTimelineBody(
                                     let chips = lane_events
                                         .iter()
                                         .filter_map(|event| {
-                                            event_layout_in_range(event, range, tz)
-                                                .map(|layout| ((*event).clone(), layout))
+                                            timeline_event_placement(event, range, tz)
+                                                .map(|placement| ((*event).clone(), placement))
                                         })
-                                        .map(|(event, layout)| {
+                                        .map(|(event, placement)| {
                                             view! {
                                                 <TimelineEventChip
                                                     event=event
-                                                    layout=layout
+                                                    placement=placement
                                                     resource_id=Some(row.id.clone())
                                                 />
                                             }
