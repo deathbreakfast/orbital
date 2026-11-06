@@ -1,0 +1,32 @@
+[package]
+name = "orbital-graph"
+version = "0.1.4"
+edition = "2021"
+categories = ["web-programming", "gui"]
+keywords = ["leptos", "ui", "wasm", "graph", "design-system"]
+authors = ["Sean O'Rourke"]
+documentation = "https://docs.rs/orbital-graph"
+homepage = "https://unified-field-dev.github.io/orbital/"
+repository = "https://github.com/unified-field-dev/orbital"
+description = "Dependency graph layout for Orbital"
+license = "MIT"
+
+[lints]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies]
+leptos.workspace = true
+inventory = { version = "0.3", optional = true }
+
+[features]
+default = ["preview"]
+preview = ["dep:inventory"]
+hydrate = ["leptos/hydrate", "preview"]
+ssr = ["leptos/ssr", "preview"]
+
+[package.metadata.docs.rs]
+all-features = false
+rustdoc-args = ["--cfg", "docsrs"]
