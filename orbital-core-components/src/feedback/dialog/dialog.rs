@@ -459,7 +459,9 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 /// Set `size` to `DialogSize::Large` for a form that lays fields out in two columns. The surface grows to 960px and shrinks to the viewport less a 24px margin.
 /// <!-- preview -->
 /// ```rust
-/// use crate::{Button, DialogSize, Flex, FlexGap, Input};
+/// use crate::{Button, DialogSize, Flex, FlexGap, Input, InputAppearance};
+/// let assignee = RwSignal::new(String::new());
+/// let project = RwSignal::new(String::new());
 /// let open = RwSignal::new(false);
 /// view! {
 ///     <div data-testid="dialog-large">
@@ -471,8 +473,8 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 ///                     <DialogContent>
 ///                         <div data-testid="dialog-large-content">
 ///                             <Flex gap=FlexGap::Medium>
-///                                 <Input placeholder="Assignee" />
-///                                 <Input placeholder="Project" />
+///                                 <Input bind=assignee appearance=InputAppearance::with_placeholder("Assignee") />
+///                                 <Input bind=project appearance=InputAppearance::with_placeholder("Project") />
 ///                             </Flex>
 ///                         </div>
 ///                     </DialogContent>
