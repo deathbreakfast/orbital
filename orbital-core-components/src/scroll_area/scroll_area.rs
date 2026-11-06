@@ -142,22 +142,23 @@ pub fn ScrollArea(
 ) -> impl IntoView {
     inject_style("orbital-scroll-area", scroll_area_styles());
 
-    let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Vertical {
+    // Stable `orbital-scroll-area*` names so static HTML mocks can reuse these rules.
+    let (style_sheet, _) = inline_style_sheet_values! {
+        .orbital-scroll-area--vertical {
             overflow: auto;
         }
 
-        .Horizontal {
+        .orbital-scroll-area--horizontal {
             overflow-x: auto;
             overflow-y: hidden;
         }
 
-        .Content {
+        .orbital-scroll-area__content--sized {
             min-height: 0;
             min-width: 0;
         }
 
-        .ContentHorizontal {
+        .orbital-scroll-area__content--horizontal {
             min-width: max-content;
             width: max-content;
         }
@@ -166,9 +167,9 @@ pub fn ScrollArea(
     let root_class = move || {
         let mut parts = vec!["orbital-scroll-area".to_string()];
         if horizontal {
-            parts.push(class_names.horizontal.to_string());
+            parts.push("orbital-scroll-area--horizontal".to_string());
         } else {
-            parts.push(class_names.vertical.to_string());
+            parts.push("orbital-scroll-area--vertical".to_string());
         }
         if !show_scrollbar {
             parts.push("orbital-scroll-area--hide-chrome".to_string());
@@ -192,12 +193,10 @@ pub fn ScrollArea(
 
     let content_class = move || {
         if horizontal {
-            format!(
-                "orbital-scroll-area__content {} {}",
-                class_names.content, class_names.content_horizontal
-            )
+            "orbital-scroll-area__content orbital-scroll-area__content--sized orbital-scroll-area__content--horizontal"
+                .to_string()
         } else {
-            format!("orbital-scroll-area__content {}", class_names.content)
+            "orbital-scroll-area__content orbital-scroll-area__content--sized".to_string()
         }
     };
 
