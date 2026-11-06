@@ -38,13 +38,14 @@ icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }
 wasm-bindgen = { workspace = true, optional = true }
 wasm-bindgen-futures = { workspace = true, optional = true }
-web-sys = { workspace = true, optional = true, features = ["Blob", "BlobPropertyBag", "HtmlAnchorElement", "Url", "Window", "Document", "Navigator", "Clipboard"] }
+web-sys = { workspace = true, optional = true, features = ["Blob", "BlobPropertyBag", "HtmlAnchorElement", "Url", "Window", "Document", "Navigator", "Clipboard", "Element", "ResizeObserver", "ResizeObserverEntry", "DomRect"] }
 js-sys = { workspace = true, optional = true }
+send_wrapper = { version = "0.6", optional = true }
 
 [features]
 default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]
-hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "orbital-theme/hydrate", "orbital-paging/hydrate", "preview", "dep:inventory", "dep:wasm-bindgen", "dep:web-sys", "dep:js-sys", "dep:wasm-bindgen-futures"]
+hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "orbital-theme/hydrate", "orbital-paging/hydrate", "preview", "dep:inventory", "dep:wasm-bindgen", "dep:web-sys", "dep:js-sys", "dep:wasm-bindgen-futures", "dep:send_wrapper"]
 ssr = ["leptos/ssr", "orbital-core-components/ssr", "orbital-theme/ssr", "orbital-paging/ssr", "preview", "dep:inventory"]
 
 [package.metadata.docs.rs]

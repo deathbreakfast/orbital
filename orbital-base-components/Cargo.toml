@@ -27,7 +27,8 @@ chrono.workspace = true
 reactive_stores = { version = "0.2", default-features = false }
 uuid = { workspace = true }
 wasm-bindgen = { workspace = true }
-web-sys = { version = "0.3", features = ["CssStyleDeclaration", "DataTransfer", "Document", "DomRect", "DomRectList", "Element", "Event", "EventTarget", "FileList", "HtmlDivElement", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement", "KeyboardEvent", "MediaQueryList", "Node", "NodeFilter", "NodeList", "Performance", "ScrollBehavior", "ScrollIntoViewOptions", "ScrollLogicalPosition", "ScrollToOptions", "TreeWalker", "Window"] }
+js-sys = { workspace = true }
+web-sys = { version = "0.3", features = ["CssStyleDeclaration", "DataTransfer", "Document", "DomRect", "DomRectList", "Element", "Event", "EventTarget", "FileList", "HtmlDivElement", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement", "KeyboardEvent", "MediaQueryList", "MutationObserver", "MutationObserverInit", "MutationRecord", "Node", "NodeFilter", "NodeList", "Performance", "ScrollBehavior", "ScrollIntoViewOptions", "ScrollLogicalPosition", "ScrollToOptions", "TreeWalker", "Window"] }
 orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false }
 orbital-style = { path = "../orbital-style", version = "0.1.4", default-features = false }
 orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-features = false }

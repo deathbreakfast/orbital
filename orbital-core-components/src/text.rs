@@ -14,10 +14,18 @@
 //! | Content section / card title | [`Subtitle1`] | `md` + semibold | Card headers, preview sections, entity display names |
 //! | Form / utility group label | [`SectionTitle`] | `2xs` + semibold | Form clusters, TOC rail headings, dense settings |
 //! | Body copy | [`Body1`] / [`Body2`] | `sm` / `md` regular | Paragraphs, descriptions |
-//! | Metadata | [`Caption1`] / [`Caption2`] | `2xs` / `xs` | Timestamps, badges, hints |
+//! | Metadata | [`Caption1`] / [`Caption2`] | `2xs` (10px) / `xs` (12px) | Timestamps, badges, hints |
 //!
 //! **Floor rule:** Named section labels (nav groups, card titles, author names, persona primary
 //! line) must not render below **Body1** (`--orb-type-size-sm`, 14px).
+//!
+//! **Caption ramp:** The two caption presets run opposite to Fluent, where `Caption1` is 12px and
+//! `Caption2` is 10px. Here [`Caption1`] is the smaller step (`2xs`, 10px) and [`Caption2`] is
+//! `xs` (12px). The sizes stay as they are because [`FormLabel`], [`FormHint`] and existing call
+//! sites depend on them, and swapping would change downstream apps without a compile error.
+//! Use the 10px [`Caption1`] family only for non-essential metadata such as timestamps and
+//! badges. Status messages, help text and anything the reader needs should use [`Caption2`] or
+//! [`Body1`].
 //!
 //! **Naming rule:** [`Subtitle1`] and [`Subtitle2`] are identical (S400 / semibold). Prefer
 //! [`Subtitle1`] for section and card titles; reserve [`Subtitle2`] for empty-state headlines.

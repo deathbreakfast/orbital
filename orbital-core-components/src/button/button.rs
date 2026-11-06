@@ -21,7 +21,7 @@ fn button_icon_view(icon: IconData) -> impl IntoView {
 
 /// Runs a single command when activated — form submits, dialog confirmations, toolbar actions, and inline commands.
 ///
-/// Pick [`ButtonAppearance::Primary`] for the one main action on a surface. Wire async work with `loading` and `on_click`. For navigation, use [`Link`](crate::Link) instead.
+/// Pick [`ButtonAppearance::Primary`] for the one main action on a surface, or [`ButtonAppearance::Danger`] for the confirm step of a destructive action. Wire async work with `loading` and `on_click`. For navigation, use [`Link`](crate::Link) instead.
 ///
 /// # When to use
 ///
@@ -29,7 +29,7 @@ fn button_icon_view(icon: IconData) -> impl IntoView {
 ///
 /// # Usage
 ///
-/// 1. Pick an [`ButtonAppearance`] — `Primary` for the main action, `Secondary` for alternatives. 2. Wire `on_click` with [`Callback`] when the button should run logic (not submit a native form). 3. Set `loading` while async work runs; disable the control when input is invalid or work is in-flight. 4. For E2E hooks, wrap the button in a native element with `data-testid` (see project UI rules).
+/// 1. Pick an [`ButtonAppearance`] — `Primary` for the main action, `Danger` for destructive confirms, `Secondary` for alternatives. 2. Wire `on_click` with [`Callback`] when the button should run logic (not submit a native form). 3. Set `loading` while async work runs; disable the control when input is invalid or work is in-flight. 4. For E2E hooks, wrap the button in a native element with `data-testid` (see project UI rules).
 ///
 /// # Best Practices
 ///
@@ -71,6 +71,18 @@ fn button_icon_view(icon: IconData) -> impl IntoView {
 ///         <Button appearance=ButtonAppearance::Secondary>
 ///             "Cancel"
 ///         </Button>
+///     </div>
+/// }
+/// ```
+///
+/// ## Danger
+/// The confirm step of a destructive or irreversible action, such as deleting an account. Keep Cancel beside it as Secondary.
+/// <!-- preview -->
+/// ```rust
+/// view! {
+///     <div data-testid="button-danger">
+///         <Button appearance=ButtonAppearance::Secondary>"Cancel"</Button>
+///         <Button appearance=ButtonAppearance::Danger>"Delete account"</Button>
 ///     </div>
 /// }
 /// ```

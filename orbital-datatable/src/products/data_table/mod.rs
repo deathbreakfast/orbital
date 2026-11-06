@@ -36,6 +36,7 @@ mod styles;
 mod toolbar;
 mod toolbar_overflow;
 mod tree_grouping_cell;
+mod width_observer;
 
 pub use body::DataTableBody;
 pub use cell::data_table_cell_view;
@@ -414,6 +415,10 @@ pub fn DataTable(
     /// Per-row CSS class callback.
     #[prop(optional)]
     get_row_class: Option<Callback<(DataTableRowModel, usize), String>>,
+    /// Id of the row to mark active (highlight and `aria-current`), independent of selection.
+    /// Works without a selection column, e.g. for the row open in a side peek.
+    #[prop(optional, into)]
+    active_row_id: Option<Signal<Option<String>>>,
     /// Custom row id resolver (default: [`DataRecord::id`]).
     #[prop(optional)]
     get_row_id: Option<GetRowId>,
@@ -519,6 +524,7 @@ pub fn DataTable(
     let direction_override = StoredValue::new(dir);
     let toolbar_config = StoredValue::new(toolbar_config);
     let header_chrome = StoredValue::new(header_chrome);
+    let active_row_id = active_row_id.unwrap_or_else(|| Signal::derive(|| None));
     let client_loading = loading.unwrap_or_else(|| RwSignal::new(false));
     let sort = sort.unwrap_or_else(|| Signal::derive(|| None));
     let filter = filter.unwrap_or_else(|| Signal::derive(|| None));
@@ -556,6 +562,7 @@ pub fn DataTable(
             slots=slots_for_root
             get_row_class=get_row_class
             direction_override=direction_override
+            active_row_id=active_row_id
             client_loading=client_loading
             selection_mode=selection_mode
             initial_state=initial_state

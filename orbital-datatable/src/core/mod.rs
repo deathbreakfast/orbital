@@ -53,6 +53,8 @@ pub struct DataTableContext {
     pub page_size_options: StoredValue<Option<Vec<u32>>>,
     pub get_row_class: StoredValue<Option<Callback<(DataTableRowModel, usize), String>>>,
     pub direction: Signal<Direction>,
+    /// Id of the row to highlight as active (independent of selection).
+    pub active_row_id: Signal<Option<String>>,
     pub toolbar_config: StoredValue<DataTableToolbarConfig>,
     pub header_chrome: StoredValue<DataTableHeaderChromeConfig>,
     /// Fallback drag source when `dataTransfer` is empty (e.g. synthetic DnD in tests).
@@ -78,6 +80,7 @@ pub fn DataTableProvider(
     page_size_options: StoredValue<Option<Vec<u32>>>,
     get_row_class: StoredValue<Option<Callback<(DataTableRowModel, usize), String>>>,
     direction: Signal<Direction>,
+    active_row_id: Signal<Option<String>>,
     toolbar_config: StoredValue<DataTableToolbarConfig>,
     header_chrome: StoredValue<DataTableHeaderChromeConfig>,
     children: Children,
@@ -94,6 +97,7 @@ pub fn DataTableProvider(
         page_size_options,
         get_row_class,
         direction,
+        active_row_id,
         toolbar_config,
         header_chrome,
         drag_column_field: RwSignal::new(None),

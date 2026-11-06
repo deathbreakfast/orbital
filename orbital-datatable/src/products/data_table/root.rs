@@ -21,6 +21,7 @@ use super::overlays::DataTableOverlays;
 use super::row_reorder::DataTableRowDragGhost;
 use super::styles::{data_table_styles, density_modifier_class};
 use super::toolbar::DataTableToolbar;
+use super::width_observer::use_table_width;
 use crate::core::{provide_chart_binding, use_data_table_context, DataTableProvider};
 use crate::engine::build_page_request;
 use crate::engine::ExportRowScope;
@@ -68,6 +69,7 @@ pub fn DataTableRoot(
     slots: DataTableSlots,
     get_row_class: StoredValue<Option<Callback<(DataTableRowModel, usize), String>>>,
     direction_override: StoredValue<Option<Direction>>,
+    active_row_id: Signal<Option<String>>,
     client_loading: RwSignal<bool>,
     selection_mode: Signal<Option<DataTableSelectionMode>>,
     initial_state: StoredValue<Option<DataTableInitialState>>,
@@ -150,6 +152,17 @@ pub fn DataTableRoot(
     let virtual_scroll_target = RwSignal::new(None::<usize>);
     let horizontal_scroll_target = RwSignal::new(None::<String>);
 
+    let measured_width = use_table_width(scroll_el);
+    let table_width = Signal::derive(move || {
+        let leading = crate::engine::LeadingColumnLayout::new(
+            features,
+            features.contains(DataTableFeatures::ROW_DETAIL),
+            selection_mode.get().is_some(),
+        );
+        measured_width
+            .get()
+            .map(|w| (w - leading.width_px()).max(0.0))
+    });
     let column_layout = create_column_layout_memo(
         columns,
         pivot_columns,
@@ -158,6 +171,7 @@ pub fn DataTableRoot(
         column_widths,
         pinned_columns,
         features,
+        table_width,
     );
 
     let source = data_source.get_value();
@@ -180,9 +194,11 @@ pub fn DataTableRoot(
         infinite_scroll_needs_bounded_scroll(paging, source_kind == DataTableSourceKind::Server);
     let bounded_scroll =
         row_pinning_enabled || height.is_some() || max_height.is_some() || force_bounded_scroll;
-    let list_view_enabled =
-        features.contains(DataTableFeatures::LIST_VIEW) && list_view.get_value().is_some();
-    let horizontal_scroll = !bounded_scroll && !list_view_enabled;
+    let list_view_always = features.contains(DataTableFeatures::LIST_VIEW)
+        && list_view
+            .get_value()
+            .is_some_and(|config| config.breakpoint_px.is_none());
+    let horizontal_scroll = !bounded_scroll && !list_view_always;
 
     let table_state = DataTableTableState {
         columns,
@@ -268,6 +284,7 @@ pub fn DataTableRoot(
         aggregation_position,
         pivot: pivot_signal,
         list_view,
+        measured_width,
         pivot_columns,
         footer_row,
         get_row_id,
@@ -496,7 +513,11 @@ pub fn DataTableRoot(
                 let _ = quick_search.get();
                 let _ = filter.get();
                 let _ = sort.get();
-                server_offset.set(0);
+                // Skip the write on mount: setting an unchanged offset still
+                // notifies the fetch effect and fetches the first page twice.
+                if server_offset.get_untracked() != 0 {
+                    server_offset.set(0);
+                }
             });
 
             Effect::new(move |_| {
@@ -613,6 +634,7 @@ pub fn DataTableRoot(
             page_size_options=page_size_options
             get_row_class=get_row_class
             direction=direction
+            active_row_id=active_row_id
             toolbar_config=toolbar_config
             header_chrome=header_chrome
         >
@@ -645,7 +667,7 @@ pub fn DataTableRoot(
                     if force_bounded_scroll {
                         parts.push("orbital-data-table--infinite-scroll".to_string());
                     }
-                    if list_view_enabled {
+                    if table_state.list_view_enabled() {
                         parts.push("orbital-data-table--list-view".to_string());
                     }
                     if let Some(extra) = class.get() {

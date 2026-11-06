@@ -29,6 +29,21 @@ impl LeadingColumnLayout {
         usize::from(self.reorder) + usize::from(self.detail) + usize::from(self.selection)
     }
 
+    /// Total width of the leading columns, which sit outside the data columns.
+    pub fn width_px(&self) -> f64 {
+        let mut w = 0.0;
+        if self.reorder {
+            w += REORDER_COLUMN_WIDTH_PX;
+        }
+        if self.detail {
+            w += DETAIL_COLUMN_WIDTH_PX;
+        }
+        if self.selection {
+            w += super::SELECTION_COLUMN_WIDTH_PX;
+        }
+        w
+    }
+
     pub fn selection_left_px(&self) -> f64 {
         let mut left = 0.0;
         if self.reorder {

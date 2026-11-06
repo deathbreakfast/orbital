@@ -89,11 +89,8 @@ fn TimedDayColumn(
         #[cfg(feature = "hydrate")]
         let resource_id = resource_id.clone();
         move |ev: leptos::ev::PointerEvent| {
-            if !creation_enabled || ev.button() != 0 {
-                return;
-            }
             #[cfg(feature = "hydrate")]
-            {
+            if creation_enabled && ev.button() == 0 {
                 let Some(ctx) = ctx.clone() else {
                     return;
                 };
@@ -111,6 +108,8 @@ fn TimedDayColumn(
                     }
                 }
             }
+            #[cfg(not(feature = "hydrate"))]
+            let _ = (ev, creation_enabled);
         }
     };
 
