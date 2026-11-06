@@ -69,6 +69,7 @@ pub fn DataTableRoot(
     slots: DataTableSlots,
     get_row_class: StoredValue<Option<Callback<(DataTableRowModel, usize), String>>>,
     direction_override: StoredValue<Option<Direction>>,
+    active_row_id: Signal<Option<String>>,
     client_loading: RwSignal<bool>,
     selection_mode: Signal<Option<DataTableSelectionMode>>,
     initial_state: StoredValue<Option<DataTableInitialState>>,
@@ -633,6 +634,7 @@ pub fn DataTableRoot(
             page_size_options=page_size_options
             get_row_class=get_row_class
             direction=direction
+            active_row_id=active_row_id
             toolbar_config=toolbar_config
             header_chrome=header_chrome
         >

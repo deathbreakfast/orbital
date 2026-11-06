@@ -228,6 +228,11 @@ pub fn data_table_styles() -> &'static str {
     background: var(--orb-color-surface-canvas-selected);
 }
 
+.orbital-data-table__row--active {
+    background: var(--orb-color-surface-canvas-selected);
+    box-shadow: inset 3px 0 0 var(--orb-color-brand-stroke);
+}
+
 .orbital-data-table th.orbital-data-table__pinned-left,
 .orbital-data-table td.orbital-data-table__pinned-left,
 .orbital-data-table th.orbital-data-table__pinned-right,
