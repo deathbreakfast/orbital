@@ -184,11 +184,15 @@ test.describe("scheduler-timeline-markers preview", () => {
   test("TM-09: axe finds no violations on the markers preview", async ({ page }) => {
     await openComponentPreview(page, SLUG, "scheduler-timeline-markers-today");
     await expectPreviewVariants(page, EXAMPLES);
+    const found: string[] = [];
     for (const testId of EXAMPLES) {
       const results = await new AxeBuilder({ page })
         .include(`[data-testid='${testId}']`)
         .analyze();
-      expect(results.violations, testId).toEqual([]);
+      for (const v of results.violations) {
+        found.push(`${testId}: ${v.id} (${v.impact}) ${v.nodes.map((n) => n.html.slice(0, 120)).join(" | ")}`);
+      }
     }
+    expect(found).toEqual([]);
   });
 });

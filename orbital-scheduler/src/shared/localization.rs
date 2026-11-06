@@ -24,6 +24,8 @@ pub struct SchedulerLocaleText {
     pub preset_month: String,
     /// Label for [`TimelinePreset::Quarter`].
     pub preset_quarter: String,
+    /// Accessible name of the timeline's preset select.
+    pub preset_select: String,
     pub preferences: String,
     /// Label on the timeline's today line, in the time header.
     pub today_marker: String,
@@ -53,6 +55,7 @@ impl SchedulerLocaleText {
             preset_business_week: "Business week".into(),
             preset_month: "Month".into(),
             preset_quarter: "Quarter".into(),
+            preset_select: "Zoom".into(),
             preferences: "Preferences".into(),
             today_marker: "Today".into(),
             collapse_resource: "Collapse".into(),
@@ -78,6 +81,7 @@ impl SchedulerLocaleText {
             preset_business_week: "Semaine ouvrée".into(),
             preset_month: "Mois".into(),
             preset_quarter: "Trimestre".into(),
+            preset_select: "Zoom".into(),
             preferences: "Préférences".into(),
             today_marker: "Aujourd'hui".into(),
             collapse_resource: "Replier".into(),
