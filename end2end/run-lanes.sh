@@ -58,6 +58,7 @@ case $target in /*) ;; *) target=$root/$target ;; esac
 bin=$target/${PROFILE:-debug}/$SERVER_BIN
 leptos_env=DEV
 [ "${PROFILE:-debug}" = release ] && leptos_env=PROD
+leptos_env=${LEPTOS_ENV_MODE:-$leptos_env}   # lanes.conf may force PROD for a debug-profile server
 port_of() { echo $((PORT + 100 + $1)); }
 port_busy() { ss -ltnH "sport = :$1" 2>/dev/null | grep -q .; }
 
