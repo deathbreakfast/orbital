@@ -16,5 +16,6 @@ mod products;
 mod types;
 
 pub use core::*;
+pub use engine::{SortDirection, SortState};
 pub use products::*;
 pub use types::*;

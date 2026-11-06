@@ -254,6 +254,20 @@ button.orbital-combobox__clear-icon {
     background-color: var(--orb-color-brand-compound-bg);
 }
 
+.orbital-combobox-option__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.orbital-combobox-option__secondary {
+    color: var(--orb-color-text-secondary);
+}
+
+.orbital-combobox-option--disabled .orbital-combobox-option__secondary {
+    color: var(--orb-color-text-disabled);
+}
+
 .orbital-combobox-option--disabled {
     color: var(--orb-color-text-disabled);
 }

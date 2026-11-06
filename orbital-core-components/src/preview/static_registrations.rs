@@ -13,6 +13,8 @@ use crate::card::{
 #[cfg(feature = "preview")]
 use crate::code::CODE_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::copy_button::COPYBUTTON_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::data::{
     AVATARGROUP_PREVIEW_REGISTRATION, AVATAR_PREVIEW_REGISTRATION, BREADCRUMB_PREVIEW_REGISTRATION,
     IMAGE_PREVIEW_REGISTRATION, LINK_PREVIEW_REGISTRATION, LIST_PREVIEW_REGISTRATION,
@@ -63,6 +65,8 @@ use crate::forms::info_label::INFOLABEL_PREVIEW_REGISTRATION;
 use crate::forms::input::INPUT_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::label::LABEL_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+use crate::forms::markdown_editor::MARKDOWNEDITOR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::menu_button::MENUBUTTON_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
@@ -153,6 +157,7 @@ orbital_macros::preview_registrations! {
     &NAVIGATION_PREVIEW_REGISTRATION,
     &TABLIST_PREVIEW_REGISTRATION,
     &CODE_PREVIEW_REGISTRATION,
+    &COPYBUTTON_PREVIEW_REGISTRATION,
     &CARD_PREVIEW_REGISTRATION,
     &CARDHEADER_PREVIEW_REGISTRATION,
     &CARDMEDIA_PREVIEW_REGISTRATION,
@@ -181,6 +186,7 @@ orbital_macros::preview_registrations! {
     &SLIDER_PREVIEW_REGISTRATION,
     &NUMERICSTEPPER_PREVIEW_REGISTRATION,
     &TEXTAREA_PREVIEW_REGISTRATION,
+    &MARKDOWNEDITOR_PREVIEW_REGISTRATION,
     &SEARCHBOX_PREVIEW_REGISTRATION,
     &DROPDOWN_PREVIEW_REGISTRATION,
     &ACCORDION_PREVIEW_REGISTRATION,

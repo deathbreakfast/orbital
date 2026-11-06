@@ -76,6 +76,35 @@ use orbital_macros::component_doc;
 /// ```
 ///
 ///
+/// ## Column fill
+/// Columns with no width set default to `Flex(1.0)` and share the table width.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use crate::{DataTable, DataTableColumnDef, DataTableRowModel};
+/// let items = RwSignal::new(vec![
+///     DataTableRowModel::from_text_cells("1", HashMap::from([
+///         ("name".into(), "Ada Lovelace".into()),
+///         ("email".into(), "ada@ex.com".into()),
+///         ("role".into(), "Admin".into()),
+///     ])),
+/// ]);
+/// view! {
+///     <div data-testid="data-table-fill-preview">
+///         <DataTable
+///             resizable_columns=true
+///             columns=vec![
+///                 DataTableColumnDef::new("name", "Name"),
+///                 DataTableColumnDef::new("email", "Email"),
+///                 DataTableColumnDef::new("role", "Role"),
+///             ]
+///             items=items
+///         />
+///     </div>
+/// }
+/// ```
+///
+///
 /// ## Column visibility
 /// Hide columns via initial state (`column_visibility`).
 /// <!-- preview -->
@@ -140,15 +169,15 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use std::collections::HashMap;
-/// use crate::{DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel};
+/// use crate::{ColumnType, DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel, FilterChoice};
 /// let items = RwSignal::new(vec![
 ///     DataTableRowModel::from_text_cells("1", HashMap::from([
 ///         ("name".into(), "Ada".into()),
-///         ("role".into(), "Editor".into()),
+///         ("role".into(), "Editor".into()), ("status".into(), "Archived".into()),
 ///     ])),
 ///     DataTableRowModel::from_text_cells("2", HashMap::from([
 ///         ("name".into(), "Grace".into()),
-///         ("role".into(), "Admin".into()),
+///         ("role".into(), "Admin".into()), ("status".into(), "Active".into()),
 ///     ])),
 /// ]);
 /// view! {
@@ -157,7 +186,7 @@ use orbital_macros::component_doc;
 ///             features=DataTableFeatures::COLUMN_PINNING
 ///             columns=vec![
 ///                 DataTableColumnDef::new("name", "Name"),
-///                 DataTableColumnDef::new("role", "Role"),
+///                 DataTableColumnDef::new("role", "Role"), DataTableColumnDef::new("status", "Status").with_col_type(ColumnType::SingleSelect).with_filter_options(["Active", "Archived"].map(FilterChoice::same)),
 ///             ]
 ///             items=items
 ///         />

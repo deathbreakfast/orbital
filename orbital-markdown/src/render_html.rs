@@ -45,7 +45,11 @@ pub fn render_to_html(
         html = replace_mention_links(&html, options.mention_style);
     }
 
-    html = sanitize_html(&html, options.enable_images);
+    html = sanitize_html(
+        &html,
+        options.enable_images,
+        options.image_url_schemes.as_deref(),
+    );
 
     if options.enable_images {
         html = html.replace(
@@ -92,6 +96,7 @@ mod tests {
                 enable_citation_refs: true,
                 enable_mention_refs: false,
                 enable_images: false,
+                image_url_schemes: None,
                 citation_style: CitationLinkStyle::discussion(),
                 mention_style: Default::default(),
             },
@@ -120,6 +125,7 @@ mod tests {
                 enable_citation_refs: false,
                 enable_mention_refs: true,
                 enable_images: false,
+                image_url_schemes: None,
                 citation_style: CitationLinkStyle::history(),
                 mention_style: crate::MentionLinkStyle::history(),
             },
@@ -128,5 +134,56 @@ mod tests {
         assert!(html.contains("data-mention-id=\"u1\""));
         assert!(html.contains("orbital-history__mention-ref"));
         assert!(html.contains("orbital-link orbital-link--inline"));
+    }
+
+    fn render_images(md: &str, schemes: Option<&[&str]>) -> String {
+        render_to_html(
+            md,
+            &OrbitalMarkdownOptions {
+                enable_images: true,
+                image_url_schemes: schemes.map(|s| s.iter().map(|s| s.to_string()).collect()),
+                ..Default::default()
+            },
+            &RenderContext::default(),
+        )
+    }
+
+    #[test]
+    fn image_schemes_none_keeps_default_set() {
+        assert!(render_images("![a](https://x.test/a.png)", None).contains("<img"));
+        assert!(render_images("![a](mailto:a@x.test)", None).contains("src=\"mailto:"));
+    }
+
+    #[test]
+    fn image_schemes_https_only() {
+        let s = Some(&["https"][..]);
+        assert!(render_images("![a](https://x.test/a.png)", s).contains("src=\"https://"));
+        assert!(render_images("![a](HTTPS://x.test/a.png)", s).contains("<img"));
+        for url in [
+            "http://x.test/a.png",
+            "mailto:a@x.test",
+            "data:image/png;base64,AA",
+        ] {
+            let html = render_images(&format!("![a]({url})"), s);
+            assert!(!html.contains("src="), "{url} kept: {html}");
+        }
+    }
+
+    #[test]
+    fn image_schemes_keep_relative_src() {
+        let s = Some(&["https"][..]);
+        assert!(render_images("![a](/files/a.png)", s).contains("src=\"/files/a.png\""));
+    }
+
+    #[test]
+    fn image_schemes_leave_links_alone() {
+        let html = render_images("[l](http://x.test)", Some(&["https"][..]));
+        assert!(html.contains("href=\"http://x.test\""));
+    }
+
+    #[test]
+    fn image_schemes_cannot_widen() {
+        let html = render_images("![a](ftp://x.test/a.png)", Some(&["ftp"][..]));
+        assert!(!html.contains("src="));
     }
 }

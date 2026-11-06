@@ -8,6 +8,9 @@ use orbital_style::inject_style;
 use super::styles::drawer_styles;
 use crate::overlay::backdrop::backdrop_styles;
 
+/// `OverlayDrawer` slides a panel over the page, with an optional scrim and focus containment.
+///
+/// Children stay mounted after the drawer closes and are hidden with `display: none`. A role query skips them, but a test-id count such as `toHaveCount(0)` still finds them. Wrap the body in `<Show when=move || open.get()>` when it should be out of the page while closed.
 #[component]
 pub fn OverlayDrawer(
     #[prop(optional, into)] class: MaybeProp<String>,
