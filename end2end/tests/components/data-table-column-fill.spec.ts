@@ -8,6 +8,8 @@ const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
 ];
 const TOLERANCE_PX = 1.5;
+// The fill preview's cell text (see docs/columns.rs, "Column fill") must fit a third of the table at 390px.
+// A longer value, such as a full example.com address, makes the table wider than its container and fails the fill checks.
 
 async function openFill(page: Page) {
   await openComponentPreview(page, "data-table-columns", "data-table-fill-preview");
@@ -19,9 +21,9 @@ async function openFill(page: Page) {
 async function widths(preview: Locator): Promise<number[]> {
   return Promise.all(
     FIELDS.map(async (f) => {
+      // A header is briefly absent while the layout remounts across the sidebar breakpoint; NaN keeps the caller polling.
       const box = await preview.getByTestId(`data-table-header-${f}`).boundingBox();
-      expect(box).not.toBeNull();
-      return box!.width;
+      return box ? box.width : Number.NaN;
     }),
   );
 }
