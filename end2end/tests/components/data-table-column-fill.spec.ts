@@ -19,9 +19,9 @@ async function openFill(page: Page) {
 async function widths(preview: Locator): Promise<number[]> {
   return Promise.all(
     FIELDS.map(async (f) => {
+      // A header is briefly absent while the layout remounts across the sidebar breakpoint; NaN keeps the caller polling.
       const box = await preview.getByTestId(`data-table-header-${f}`).boundingBox();
-      expect(box).not.toBeNull();
-      return box!.width;
+      return box ? box.width : Number.NaN;
     }),
   );
 }

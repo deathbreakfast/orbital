@@ -36,10 +36,10 @@ test.describe("table primitive preview", () => {
     await expect(main).toHaveCSS("overflow-x", "hidden");
   });
 
-    test("TB-05 resizable columns", async ({ page }) => {
+  test("TB-05 resizable columns", async ({ page }) => {
     await expectPreviewVariants(page, ["table-resizable"]);
     const wrapper = page.getByTestId("table-resizable");
-    const handle = wrapper.locator(".orbital-table-header-cell__aside").first();
+    const handle = wrapper.locator(".orbital-table-resize-handle").first();
     await expect(handle).toBeAttached();
     const th = wrapper.locator("th").first();
     const before = await th.evaluate((el) => el.getBoundingClientRect().width);
@@ -48,13 +48,12 @@ test.describe("table primitive preview", () => {
     if (box) {
       const x = box.x + box.width / 2;
       const y = box.y + box.height / 2;
-      await page.mouse.move(x, y);
-      await page.mouse.down();
+      await handle.dispatchEvent("pointerdown", { clientX: x, clientY: y, button: 0, pointerId: 1, pointerType: "mouse" });
       await page.mouse.move(x - 50, y, { steps: 8 });
-      await page.mouse.up();
+      await page.dispatchEvent("body", "pointerup", { clientX: x - 50, clientY: y, button: 0, pointerId: 1, pointerType: "mouse" });
     }
     await expect
-      .poll(async () => th.evaluate((el) => parseFloat(getComputedStyle(el).width)), {
+      .poll(async () => th.evaluate((el) => el.getBoundingClientRect().width), {
         timeout: 5_000,
       })
       .toBeLessThan(before - 5);

@@ -85,7 +85,7 @@ use orbital_macros::component_doc;
 /// let items = RwSignal::new(vec![
 ///     DataTableRowModel::from_text_cells("1", HashMap::from([
 ///         ("name".into(), "Ada Lovelace".into()),
-///         ("email".into(), "ada@example.com".into()),
+///         ("email".into(), "ada@ex.com".into()),
 ///         ("role".into(), "Admin".into()),
 ///     ])),
 /// ]);

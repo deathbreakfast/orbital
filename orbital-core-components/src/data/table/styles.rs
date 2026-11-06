@@ -54,6 +54,9 @@ pub fn table_styles() -> &'static str {
     opacity: 0;
     cursor: col-resize;
 }
+.orbital-table-header-cell:last-child .orbital-table-resize-handle {
+    margin-right: 0px;
+}
 .orbital-table-resize-handle:hover {
     opacity: 1;
 }
