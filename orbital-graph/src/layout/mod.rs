@@ -392,8 +392,62 @@ impl Grid {
 #[must_use]
 pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
     let mut out = GraphLayout::default();
+    let (nodes, edges) = clean_input(input, options, &mut out);
+    if nodes.is_empty() {
+        return out;
+    }
 
-    // Nodes: first entry per id wins, then cut to `max_nodes`.
+    let back = cycles::back_edges(nodes.len(), &edges);
+    let mut kept = Vec::with_capacity(edges.len());
+    for (edge, is_back) in edges.iter().zip(&back) {
+        if *is_back {
+            out.broken_cycles
+                .push((nodes[edge.from].id.clone(), nodes[edge.to].id.clone()));
+        } else {
+            kept.push(*edge);
+        }
+    }
+    let (column, column_count) = columns(&cycles::depths(nodes.len(), &kept));
+
+    let group_of = group_of(input, &nodes);
+    let row = rows::assign(
+        &nodes,
+        &kept,
+        &column,
+        &group_of,
+        input.groups.len(),
+        options.stub_gap_rows,
+    );
+
+    let grid = grid(&nodes, &column, column_count, options);
+    out.nodes = nodes
+        .iter()
+        .enumerate()
+        .map(|(i, n)| NodePlacement {
+            id: n.id.clone(),
+            x: grid.x(column[i]),
+            y: grid.centre(row[i]) - n.size.height / 2.0,
+            width: n.size.width,
+            height: n.size.height,
+            column: column[i],
+            row: row[i],
+            stub: n.external,
+        })
+        .collect();
+    out.groups = group_boxes(input, &out.nodes, &group_of, options.group_padding);
+    out.edges = route::routes(&nodes, &kept, &column, &row, &grid);
+    extent(&mut out);
+    out
+}
+
+/// Keeps the first entry per node id, cuts to `max_nodes`, and drops edges to
+/// unknown ids, self loops and repeats. Records `truncated` and `dropped` on
+/// `out`; edges touching a node cut by truncation are left out silently.
+fn clean_input<'a>(
+    input: &'a GraphInput,
+    options: &LayoutOptions,
+    out: &mut GraphLayout,
+) -> (Vec<&'a GraphNode>, Vec<Edge>) {
     let mut seen_ids: BTreeSet<&str> = BTreeSet::new();
     let mut index: BTreeMap<&str, usize> = BTreeMap::new();
     let mut nodes: Vec<&GraphNode> = Vec::new();
@@ -408,12 +462,7 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
         index.insert(node.id.as_str(), nodes.len());
         nodes.push(node);
     }
-    if nodes.is_empty() {
-        out.dropped = drop_all(input, &seen_ids);
-        return out;
-    }
 
-    // Edges: drop unknown ids, self loops and repeats.
     let mut seen_edges: BTreeSet<(usize, usize, EdgeKind)> = BTreeSet::new();
     let mut edges: Vec<Edge> = Vec::new();
     for edge in &input.edges {
@@ -446,93 +495,84 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
             });
         }
     }
+    (nodes, edges)
+}
 
-    // Cycles, then depths over what's left.
-    let back = cycles::back_edges(nodes.len(), &edges);
-    let mut kept = Vec::with_capacity(edges.len());
-    for (edge, is_back) in edges.iter().zip(&back) {
-        if *is_back {
-            out.broken_cycles
-                .push((nodes[edge.from].id.clone(), nodes[edge.to].id.clone()));
-        } else {
-            kept.push(*edge);
-        }
-    }
-    let depth = cycles::depths(nodes.len(), &kept);
-    let mut used = depth.clone();
+/// Maps each depth to its column, leaving out depths no node sits at.
+/// Returns the columns and how many there are.
+fn columns(depth: &[u32]) -> (Vec<u32>, usize) {
+    let mut used = depth.to_vec();
     used.sort_unstable();
     used.dedup();
-    let column: Vec<u32> = depth
+    let column = depth
         .iter()
         .map(|d| used.partition_point(|u| u < d) as u32)
         .collect();
+    (column, used.len())
+}
 
-    // Group of each internal node, as an index into `input.groups`.
-    let mut group_index: BTreeMap<&str, usize> = BTreeMap::new();
-    for (i, group) in input.groups.iter().enumerate() {
-        group_index.entry(group.id.as_str()).or_insert(i);
-    }
-    let group_of: Vec<Option<usize>> = nodes
+/// Group of each internal node, as an index into `input.groups`. External
+/// nodes and unknown group ids get `None`; a repeated group id keeps its
+/// first entry.
+fn group_of(input: &GraphInput, nodes: &[&GraphNode]) -> Vec<Option<usize>> {
+    let index = group_index(input);
+    nodes
         .iter()
         .map(|n| {
             if n.external {
                 None
             } else {
-                n.group.as_deref().and_then(|g| group_index.get(g).copied())
+                n.group.as_deref().and_then(|g| index.get(g).copied())
             }
         })
-        .collect();
+        .collect()
+}
 
-    let row = rows::assign(
-        &nodes,
-        &kept,
-        &column,
-        &group_of,
-        input.groups.len(),
-        options.stub_gap_rows,
-    );
+fn group_index(input: &GraphInput) -> BTreeMap<&str, usize> {
+    let mut index = BTreeMap::new();
+    for (i, group) in input.groups.iter().enumerate() {
+        index.entry(group.id.as_str()).or_insert(i);
+    }
+    index
+}
 
+fn grid(
+    nodes: &[&GraphNode],
+    column: &[u32],
+    column_count: usize,
+    options: &LayoutOptions,
+) -> Grid {
     let max_height = nodes.iter().map(|n| n.size.height).fold(0.0, f64::max);
-    let mut column_width = vec![0.0_f64; used.len()];
-    for (n, &c) in nodes.iter().zip(&column) {
+    let mut column_width = vec![0.0_f64; column_count];
+    for (n, &c) in nodes.iter().zip(column) {
         let w = &mut column_width[c as usize];
         *w = w.max(n.size.width);
     }
     let pad = options.group_padding;
-    let grid = Grid {
+    Grid {
         side: pad.side,
         column_pitch: options.column_pitch,
         row_pitch: options.row_pitch,
         centre0: pad.top + max_height / 2.0,
         column_width,
-    };
+    }
+}
 
-    out.nodes = nodes
-        .iter()
-        .enumerate()
-        .map(|(i, n)| NodePlacement {
-            id: n.id.clone(),
-            x: grid.x(column[i]),
-            y: grid.centre(row[i]) - n.size.height / 2.0,
-            width: n.size.width,
-            height: n.size.height,
-            column: column[i],
-            row: row[i],
-            stub: n.external,
-        })
-        .collect();
-
+/// One box per group with at least one internal node, in input order.
+fn group_boxes(
+    input: &GraphInput,
+    placed: &[NodePlacement],
+    group_of: &[Option<usize>],
+    pad: GroupPadding,
+) -> Vec<GroupBox> {
+    let index = group_index(input);
+    let mut boxes = Vec::new();
     for (g, group) in input.groups.iter().enumerate() {
-        if group_index.get(group.id.as_str()) != Some(&g) {
+        if index.get(group.id.as_str()) != Some(&g) {
             continue;
         }
         let mut bounds: Option<(f64, f64, f64, f64)> = None;
-        for (p, _) in out
-            .nodes
-            .iter()
-            .zip(&group_of)
-            .filter(|(_, o)| **o == Some(g))
-        {
+        for (p, _) in placed.iter().zip(group_of).filter(|(_, o)| **o == Some(g)) {
             let (x0, y0, x1, y1) = (p.x, p.y, p.x + p.width, p.y + p.height);
             bounds = Some(match bounds {
                 None => (x0, y0, x1, y1),
@@ -540,7 +580,7 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
             });
         }
         if let Some((x0, y0, x1, y1)) = bounds {
-            out.groups.push(GroupBox {
+            boxes.push(GroupBox {
                 id: group.id.clone(),
                 label: group.label.clone(),
                 x: x0 - pad.side,
@@ -550,9 +590,11 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
             });
         }
     }
+    boxes
+}
 
-    out.edges = route::routes(&nodes, &kept, &column, &row, &grid);
-
+/// Sets `width` and `height` to the far edges of every node, box and point.
+fn extent(out: &mut GraphLayout) {
     for p in &out.nodes {
         out.width = out.width.max(p.x + p.width);
         out.height = out.height.max(p.y + p.height);
@@ -565,19 +607,4 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
         out.width = out.width.max(point.x);
         out.height = out.height.max(point.y);
     }
-    out
-}
-
-/// With no nodes laid out, every edge is either unknown or cut.
-fn drop_all(input: &GraphInput, seen_ids: &BTreeSet<&str>) -> Vec<DroppedEdge> {
-    input
-        .edges
-        .iter()
-        .filter(|e| !(seen_ids.contains(e.from.as_str()) && seen_ids.contains(e.to.as_str())))
-        .map(|e| DroppedEdge {
-            from: e.from.clone(),
-            to: e.to.clone(),
-            reason: DropReason::UnknownNode,
-        })
-        .collect()
 }
