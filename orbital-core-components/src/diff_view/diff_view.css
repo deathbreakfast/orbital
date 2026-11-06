@@ -1,0 +1,52 @@
+.orbital-diff-view {
+    display: block;
+    box-sizing: border-box;
+    overflow-x: auto;
+    font-size: var(--orb-type-size-sm);
+    font-family: var(--orb-type-family-mono);
+    line-height: var(--orb-type-line-md);
+    color: var(--orb-color-code-fg);
+    background: var(--orb-color-code-bg);
+    border-radius: var(--orb-radius-md);
+}
+
+.orbital-diff-view__body {
+    width: max-content;
+    min-width: 100%;
+}
+
+.orbital-diff-view__row {
+    display: flex;
+    padding: 0 var(--orb-space-inline-md);
+    white-space: pre;
+}
+
+.orbital-diff-view__marker {
+    flex: none;
+    width: 2ch;
+    user-select: none;
+}
+
+.orbital-diff-view__row--added {
+    color: var(--orb-color-status-success-fg);
+    background: var(--orb-color-status-success-bg);
+}
+
+.orbital-diff-view__row--removed {
+    color: var(--orb-color-status-danger-fg);
+    background: var(--orb-color-status-danger-bg);
+}
+
+.orbital-diff-view__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.orbital-diff-view__empty {
+    padding: var(--orb-space-block-sm) var(--orb-space-inline-md);
+    font-family: inherit;
+}
