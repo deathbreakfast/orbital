@@ -194,7 +194,14 @@ test.describe("scheduler-timeline-markers preview", () => {
         .include(`[data-testid='${testId}']`)
         .analyze();
       for (const v of results.violations) {
-        found.push(`${testId}: ${v.id} (${v.impact}) ${v.nodes.map((n) => n.html.slice(0, 120)).join(" | ")}`);
+        const nodes = v.nodes.map((n) => {
+          const data = n.any.find((c) => c.data)?.data as Record<string, unknown> | undefined;
+          const colours = data
+            ? ` fg=${data.fgColor} bg=${data.bgColor} ratio=${data.contrastRatio} ${data.messageKey ?? ""}`
+            : "";
+          return `${n.target.join(" ")} :: ${n.html.slice(0, 160)}${colours}`;
+        });
+        found.push(`${testId}: ${v.id} (${v.impact})\n  ${nodes.join("\n  ")}`);
       }
     }
     expect(found).toEqual([]);

@@ -128,7 +128,8 @@ impl EventTone {
             Self::Brand => EventToneTokens {
                 background: "var(--orb-color-brand-bg)",
                 border: "var(--orb-color-brand-stroke)",
-                foreground: "var(--orb-color-text-primary)",
+                // brand-bg is the solid brand fill; body text on it fails contrast.
+                foreground: "var(--orb-color-text-on-brand)",
             },
             Self::Success => EventToneTokens {
                 background: "var(--orb-color-status-success-bg)",
@@ -167,6 +168,10 @@ mod tests {
         assert_eq!(
             EventTone::Brand.tokens().border,
             "var(--orb-color-brand-stroke)"
+        );
+        assert_eq!(
+            EventTone::Brand.tokens().foreground,
+            "var(--orb-color-text-on-brand)"
         );
         assert_eq!(
             EventTone::Neutral.tokens().background,
