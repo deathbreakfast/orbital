@@ -31,6 +31,42 @@ pub fn dialog_styles() -> &'static str {
     color: var(--orb-color-text-primary);
 }
 
+.orbital-dialog-surface--small {
+    max-width: 400px;
+}
+
+.orbital-dialog-surface--medium {
+    max-width: 600px;
+}
+
+.orbital-dialog-surface--large {
+    max-width: 960px;
+    width: calc(100% - 48px);
+}
+
+.orbital-dialog-surface--full {
+    max-width: none;
+    width: calc(100% - 48px);
+    height: calc(100% - 48px);
+    max-height: none;
+    overflow: auto;
+}
+
+@media (max-width: 639px) {
+    .orbital-dialog-surface--small,
+    .orbital-dialog-surface--medium,
+    .orbital-dialog-surface--large,
+    .orbital-dialog-surface--full {
+        width: calc(100% - 32px);
+        max-height: calc(100% - 32px);
+        overflow: auto;
+    }
+
+    .orbital-dialog-surface--full {
+        height: calc(100% - 32px);
+    }
+}
+
 .orbital-dialog-surface[hidden] {
     display: none !important;
 }

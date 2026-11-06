@@ -455,6 +455,73 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 /// }
 /// ```
 ///
+/// ## Large dialog
+/// Set `size` to `DialogSize::Large` for a form that lays fields out in two columns. The surface grows to 960px and shrinks to the viewport less a 24px margin.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Button, DialogSize, Flex, FlexGap, Input};
+/// let open = RwSignal::new(false);
+/// view! {
+///     <div data-testid="dialog-large">
+///         <Button on_click=Callback::new(move |_| open.set(true))>"Open large dialog"</Button>
+///         <Dialog open=open>
+///             <DialogSurface size=DialogSize::Large>
+///                 <DialogBody>
+///                     <DialogTitle>"New task"</DialogTitle>
+///                     <DialogContent>
+///                         <div data-testid="dialog-large-content">
+///                             <Flex gap=FlexGap::Medium>
+///                                 <Input placeholder="Assignee" />
+///                                 <Input placeholder="Project" />
+///                             </Flex>
+///                         </div>
+///                     </DialogContent>
+///                 </DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
+/// ## Sizes
+/// Small suits confirmations, medium short forms, large forms with two columns, and full editors that need the screen. Full keeps a 24px margin so the scrim stays clickable.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Button, DialogSize};
+/// let small = RwSignal::new(false);
+/// let medium = RwSignal::new(false);
+/// let large = RwSignal::new(false);
+/// let full = RwSignal::new(false);
+/// view! {
+///     <div data-testid="dialog-sizes">
+///         <Button on_click=Callback::new(move |_| small.set(true))>"Open small"</Button>
+///         <Button on_click=Callback::new(move |_| medium.set(true))>"Open medium"</Button>
+///         <Button on_click=Callback::new(move |_| large.set(true))>"Open large"</Button>
+///         <Button on_click=Callback::new(move |_| full.set(true))>"Open full"</Button>
+///         <Dialog open=small>
+///             <DialogSurface size=DialogSize::Small>
+///                 <DialogBody><DialogContent><div data-testid="dialog-size-small">"Small"</div></DialogContent></DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///         <Dialog open=medium>
+///             <DialogSurface size=DialogSize::Medium>
+///                 <DialogBody><DialogContent><div data-testid="dialog-size-medium">"Medium"</div></DialogContent></DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///         <Dialog open=large>
+///             <DialogSurface size=DialogSize::Large>
+///                 <DialogBody><DialogContent><div data-testid="dialog-size-large">"Large"</div></DialogContent></DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///         <Dialog open=full>
+///             <DialogSurface size=DialogSize::Full>
+///                 <DialogBody><DialogContent><div data-testid="dialog-size-full">"Full"</div></DialogContent></DialogBody>
+///             </DialogSurface>
+///         </Dialog>
+///     </div>
+/// }
+/// ```
+///
 /// ## Theme token
 /// Dialog surfaces inherit neutral background tokens from the Orbital theme provider.
 /// <!-- preview -->
