@@ -84,7 +84,7 @@ pub enum EventTone {
     /// Subtle surface with the default border.
     #[default]
     Neutral,
-    /// Brand colour, for highlighted or primary work.
+    /// Brand tint, for highlighted or primary work.
     Brand,
     /// Done or on track.
     Success,
@@ -126,10 +126,11 @@ impl EventTone {
                 foreground: "var(--orb-color-text-primary)",
             },
             Self::Brand => EventToneTokens {
-                background: "var(--orb-color-brand-bg)",
+                // The subtle tint, not the solid brand fill: body text under the
+                // 0.55 progress fill fails contrast on the solid fill in dark mode.
+                background: "var(--orb-color-brand-bg-subtle)",
                 border: "var(--orb-color-brand-stroke)",
-                // brand-bg is the solid brand fill; body text on it fails contrast.
-                foreground: "var(--orb-color-text-on-brand)",
+                foreground: "var(--orb-color-text-primary)",
             },
             Self::Success => EventToneTokens {
                 background: "var(--orb-color-status-success-bg)",
@@ -166,12 +167,16 @@ mod tests {
             "var(--orb-color-status-danger-bg)"
         );
         assert_eq!(
+            EventTone::Brand.tokens().background,
+            "var(--orb-color-brand-bg-subtle)"
+        );
+        assert_eq!(
             EventTone::Brand.tokens().border,
             "var(--orb-color-brand-stroke)"
         );
         assert_eq!(
             EventTone::Brand.tokens().foreground,
-            "var(--orb-color-text-on-brand)"
+            "var(--orb-color-text-primary)"
         );
         assert_eq!(
             EventTone::Neutral.tokens().background,

@@ -263,8 +263,10 @@ pub fn scheduler_timeline_styles() -> &'static str {
     font-weight: 600;
     line-height: 1.4;
     white-space: nowrap;
-    color: var(--orb-color-status-danger-fg, #b91c1c);
+    /* Body text keeps 4.5:1 in both themes; the red edge ties it to the line. */
+    color: var(--orb-color-text-primary, inherit);
     background: var(--orb-color-surface-canvas, #fff);
+    border-inline-start: 2px solid var(--orb-color-status-danger-fg, #b91c1c);
 }
 
 .orb-scheduler-timeline__lane .orb-scheduler-event__content {

@@ -197,7 +197,7 @@ test.describe("scheduler-timeline-markers preview", () => {
         const nodes = v.nodes.map((n) => {
           const data = n.any.find((c) => c.data)?.data as Record<string, unknown> | undefined;
           const colours = data
-            ? ` fg=${data.fgColor} bg=${data.bgColor} ratio=${data.contrastRatio} ${data.messageKey ?? ""}`
+            ? ` fg=${data.fgColor} bg=${data.bgColor} ratio=${data.contrastRatio} expected=${data.expectedContrastRatio} size=${data.fontSize} ${data.messageKey ?? ""}`
             : "";
           return `${n.target.join(" ")} :: ${n.html.slice(0, 160)}${colours}`;
         });
