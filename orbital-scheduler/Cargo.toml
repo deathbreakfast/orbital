@@ -38,6 +38,9 @@ icondata_core.workspace = true
 inventory = { version = "0.3", optional = true }
 futures = { version = "0.3", default-features = false, features = ["std"] }
 
+[dev-dependencies]
+any_spawner = { version = "0.3", features = ["futures-executor"] }
+
 [features]
 default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]

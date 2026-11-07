@@ -1,10 +1,11 @@
 //! Preset-aware navigation stepping and range labels.
 
-use chrono::{Local, NaiveDate, Utc};
+use chrono::{Datelike, Local, Months, NaiveDate, Utc};
 use orbital_base_components::{format_datetime, DatetimeFormat, DatetimeTimezone, OrbitalDateTime};
 
 use crate::timeline::engine::{
-    align_anchor_to_window, timeline_visible_range, BUSINESS_WEEK_DAYS, WEEK_PRESET_DAYS,
+    align_anchor_to_window, timeline_visible_range, BUSINESS_WEEK_DAYS, QUARTER_PRESET_MONTHS,
+    WEEK_PRESET_DAYS,
 };
 use crate::NavDirection;
 use crate::TimelinePreset;
@@ -21,6 +22,17 @@ fn today_for_timezone(timezone: DatetimeTimezone) -> NaiveDate {
 
 fn orbital_from_date(date: NaiveDate, timezone: DatetimeTimezone) -> Option<OrbitalDateTime> {
     OrbitalDateTime::from_naive_date(date, timezone)
+}
+
+fn add_months(dt: OrbitalDateTime, months: i64) -> Option<OrbitalDateTime> {
+    let date = dt.wall_date()?;
+    let step = Months::new(months.unsigned_abs() as u32);
+    let next = if months >= 0 {
+        date.checked_add_months(step)?
+    } else {
+        date.checked_sub_months(step)?
+    };
+    orbital_from_date(next, dt.timezone())
 }
 
 fn add_days(dt: OrbitalDateTime, days: i64) -> Option<OrbitalDateTime> {
@@ -45,6 +57,8 @@ pub fn advance_visible_date_by_preset(
         TimelinePreset::Day | TimelinePreset::BusinessDay => add_days(aligned, signed),
         TimelinePreset::Week => add_days(aligned, signed * WEEK_PRESET_DAYS as i64),
         TimelinePreset::BusinessWeek => add_days(aligned, signed * BUSINESS_WEEK_DAYS as i64),
+        TimelinePreset::Month => add_months(aligned, signed),
+        TimelinePreset::Quarter => add_months(aligned, signed * QUARTER_PRESET_MONTHS as i64),
     }
 }
 
@@ -65,6 +79,22 @@ pub fn format_timeline_range_label(date: OrbitalDateTime, preset: TimelinePreset
             format_datetime(range.range_start, DatetimeFormat::IsoDate),
             format_datetime(range.range_end, DatetimeFormat::IsoDate)
         ),
+        TimelinePreset::Month => range
+            .range_start
+            .wall_date()
+            .map(|d| d.format("%B %Y").to_string())
+            .unwrap_or_default(),
+        TimelinePreset::Quarter => {
+            match (range.range_start.wall_date(), range.range_end.wall_date()) {
+                (Some(start), Some(end)) => format!(
+                    "{} – {} {}",
+                    start.format("%b"),
+                    end.format("%b"),
+                    end.year()
+                ),
+                _ => String::new(),
+            }
+        }
     }
 }
 
@@ -143,6 +173,111 @@ mod tests {
         .expect("next");
         let label = format_timeline_range_label(next, TimelinePreset::BusinessWeek);
         assert!(!label.is_empty());
+    }
+
+    fn utc_date(y: i32, m: u32, d: u32) -> OrbitalDateTime {
+        OrbitalDateTime::from_naive_date(
+            NaiveDate::from_ymd_opt(y, m, d).expect("date"),
+            DatetimeTimezone::Utc,
+        )
+        .expect("valid")
+    }
+
+    #[test]
+    fn preset_month_align_and_step_happy() {
+        let next = advance_visible_date_by_preset(
+            utc_date(2027, 1, 31),
+            TimelinePreset::Month,
+            NavDirection::Next,
+        )
+        .expect("next");
+        assert_eq!(next, utc_date(2027, 2, 1));
+        let range =
+            timeline_visible_range(next, TimelinePreset::Month, DatetimeTimezone::Utc, true)
+                .expect("range");
+        assert_eq!(range.range_start, utc_date(2027, 2, 1));
+        assert_eq!(range.columns.len(), 28);
+        let prev = advance_visible_date_by_preset(
+            utc_date(2027, 1, 15),
+            TimelinePreset::Month,
+            NavDirection::Previous,
+        )
+        .expect("prev");
+        assert_eq!(prev, utc_date(2026, 12, 1));
+        assert_eq!(
+            format_timeline_range_label(utc_date(2026, 11, 20), TimelinePreset::Month),
+            "November 2026"
+        );
+    }
+
+    #[test]
+    fn preset_quarter_range_label_happy() {
+        assert_eq!(
+            format_timeline_range_label(utc_date(2026, 11, 20), TimelinePreset::Quarter),
+            "Oct – Dec 2026"
+        );
+        let next = advance_visible_date_by_preset(
+            utc_date(2026, 11, 20),
+            TimelinePreset::Quarter,
+            NavDirection::Next,
+        )
+        .expect("next");
+        assert_eq!(next, utc_date(2027, 1, 1));
+        assert_eq!(
+            format_timeline_range_label(next, TimelinePreset::Quarter),
+            "Jan – Mar 2027"
+        );
+        let prev = advance_visible_date_by_preset(
+            utc_date(2026, 11, 20),
+            TimelinePreset::Quarter,
+            NavDirection::Previous,
+        )
+        .expect("prev");
+        assert_eq!(prev, utc_date(2026, 7, 1));
+    }
+
+    #[test]
+    fn preset_wire_values_round_trip_happy() {
+        for preset in TimelinePreset::all() {
+            assert_eq!(
+                TimelinePreset::from_wire_value(preset.wire_value()),
+                Some(*preset)
+            );
+        }
+        assert_eq!(TimelinePreset::Month.label(), "Month");
+        assert_eq!(TimelinePreset::Quarter.label(), "Quarter");
+        let all = TimelinePreset::all();
+        let bw = all
+            .iter()
+            .position(|p| *p == TimelinePreset::BusinessWeek)
+            .expect("business week");
+        assert_eq!(
+            &all[bw + 1..],
+            &[TimelinePreset::Month, TimelinePreset::Quarter]
+        );
+    }
+
+    #[test]
+    fn preset_legacy_month_year_map_to_new_presets_happy() {
+        assert_eq!(
+            TimelinePreset::from_wire_value("month"),
+            Some(TimelinePreset::Month)
+        );
+        assert_eq!(
+            TimelinePreset::from_wire_value("year"),
+            Some(TimelinePreset::Quarter)
+        );
+        assert_eq!(
+            TimelinePreset::from_wire_value("hour"),
+            Some(TimelinePreset::Day)
+        );
+    }
+
+    #[test]
+    fn preset_unknown_wire_value_none_sad() {
+        assert_eq!(TimelinePreset::from_wire_value("decade"), None);
+        assert_eq!(TimelinePreset::from_wire_value(""), None);
+        assert_eq!(TimelinePreset::from_wire_value("Month"), None);
     }
 
     #[test]

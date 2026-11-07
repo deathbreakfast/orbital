@@ -15,14 +15,26 @@ use crate::preview::fixtures::{sample_nested_schedule_resources, sample_timeline
 #[cfg(feature = "preview")]
 use crate::preview_anchor_date;
 
-/// Switch timeline zoom between day, business-day, week, and business-week presets.
+/// Switch timeline zoom between day, business-day, week, business-week, month and quarter presets.
 ///
 /// [`TimelinePreset`] controls column width and navigation step size on [`SchedulerTimeline`].
+///
+/// | Preset | Window | One column per | Previous / Next steps |
+/// |--------|--------|----------------|-----------------------|
+/// | `Day` | one day | hour | one day |
+/// | `BusinessDay` | 08:00–18:00 | hour | one day |
+/// | `Week` | Sunday to Saturday | day | one week |
+/// | `BusinessWeek` | Monday to Friday | day | one week |
+/// | `Month` | one calendar month (28–31 columns) | day | one month |
+/// | `Quarter` | three calendar months | week starting Monday | one quarter |
+///
+/// Month and quarter keep their column widths and scroll sideways on narrow screens.
 ///
 /// # When to use
 ///
 /// - Hourly detail for single-day planning
 /// - Multi-day or multi-week overviews for capacity planning
+/// - Month or quarter views of a project plan
 ///
 /// # Usage
 ///
