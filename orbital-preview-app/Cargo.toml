@@ -29,6 +29,7 @@ orbital-datatable = { path = "../orbital-datatable", version = "0.1.4", default-
 orbital-date-pickers = { path = "../orbital-date-pickers", version = "0.1.4", default-features = false }
 orbital-charts = { path = "../orbital-charts", version = "0.1.4", default-features = false }
 orbital-tree = { path = "../orbital-tree", version = "0.1.4", default-features = false }
+orbital-graph = { path = "../orbital-graph", version = "0.1.4", default-features = false }
 orbital-scheduler = { path = "../orbital-scheduler", version = "0.1.4", default-features = false }
 orbital-discussion = { path = "../orbital-discussion", version = "0.1.4", default-features = false }
 orbital-history = { path = "../orbital-history", version = "0.1.4", default-features = false }
@@ -57,6 +58,8 @@ hydrate = [
     "orbital-charts/datatable-integration",
     "orbital-tree/hydrate",
     "orbital-tree/preview",
+    "orbital-graph/hydrate",
+    "orbital-graph/preview",
     "orbital-scheduler/hydrate",
     "orbital-scheduler/preview",
     "orbital-discussion/hydrate",
@@ -88,6 +91,8 @@ ssr = [
     "orbital-charts/datatable-integration",
     "orbital-tree/ssr",
     "orbital-tree/preview",
+    "orbital-graph/ssr",
+    "orbital-graph/preview",
     "orbital-scheduler/ssr",
     "orbital-scheduler/preview",
     "orbital-discussion/ssr",

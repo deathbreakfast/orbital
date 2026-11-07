@@ -2,7 +2,7 @@
 
 Layered layout for dependency graphs: columns by how deep each node waits, rows that keep chains straight, a box per group, stubs for nodes from outside the group, and right-angled lines that never pass behind a node.
 
-The crate is the layout only. It returns positions and line points and draws nothing.
+The layout returns positions and line points and draws nothing. The `Graph` and `GraphLegend` components draw it as SVG.
 
 ## Quick start
 
@@ -26,17 +26,82 @@ let graph = layout(&input, &LayoutOptions::default());
 assert_eq!(graph.nodes[1].column, 1);
 ```
 
-The layout needs only `std`. Use `default-features = false` unless you need the graph components' `ssr` / `hydrate` wiring.
+Use `default-features = false` unless you want the preview pages; turn on `ssr` / `hydrate` when you render the components.
 
 ## Key types
 
 - `layout(&GraphInput, &LayoutOptions) -> GraphLayout`
 - Input: `GraphInput`, `GraphNode`, `GraphEdge` (`from` is the blocker, `to` waits), `GraphGroup`, `NodeSize`
 - Output: `NodePlacement`, `GroupBox`, `EdgeRoute`, `Point`, plus `broken_cycles`, `dropped` and `truncated` for input the layout had to repair
+- Components: `Graph`, `GraphLegend`, with `GraphNodeView`, `GraphFill`, `GraphLegendItem`, `GraphLegendLine` and `GraphHandle`
 
-## Deferred (not in current charter)
+## Drawing a graph
 
-- `Graph` and `GraphLegend` Leptos components that draw a `GraphLayout` as SVG, with a preview page
+`Graph` takes the layout input and the view data separately, so recolouring a node never moves it:
+
+```rust
+use std::collections::HashSet;
+use leptos::prelude::*;
+use orbital_graph::{
+    Graph, GraphEdge, GraphFill, GraphInput, GraphLegend, GraphLegendItem, GraphNode,
+    GraphNodeView,
+};
+
+#[component]
+fn TaskGraph() -> impl IntoView {
+    let input = RwSignal::new(GraphInput {
+        nodes: vec![
+            GraphNode { id: "schema".into(), ..GraphNode::default() },
+            GraphNode { id: "api".into(), ..GraphNode::default() },
+        ],
+        edges: vec![GraphEdge { from: "schema".into(), to: "api".into(), ..GraphEdge::default() }],
+        groups: vec![],
+    });
+    let nodes = RwSignal::new(vec![
+        GraphNodeView {
+            id: "schema".into(),
+            fill: GraphFill::Green,
+            lines: vec!["Schema migration".into(), "Done".into()],
+            set: Some("done".into()),
+            ..GraphNodeView::default()
+        },
+        GraphNodeView {
+            id: "api".into(),
+            lines: vec!["Invoice API".into(), "To do".into()],
+            set: Some("todo".into()),
+            ..GraphNodeView::default()
+        },
+    ]);
+    let items = RwSignal::new(vec![GraphLegendItem {
+        set: "done".into(),
+        label: "Done".into(),
+        fill: GraphFill::Green,
+        count: Some(1),
+    }]);
+    let hidden_sets = RwSignal::new(HashSet::new());
+    let selected = RwSignal::new(None::<String>);
+
+    view! {
+        <GraphLegend items=items hidden_sets=hidden_sets />
+        <div style="height: 480px;">
+            <Graph
+                input=input
+                nodes=nodes
+                selected=selected
+                hidden_sets=hidden_sets
+                label="Billing task graph"
+            />
+        </div>
+    }
+}
+```
+
+- Click a node, or press Enter or Space on it, to select it; the rest dims. Pass `chain=true` to keep the whole chain of predecessors and successors bright.
+- Drag the background to pan and scroll to zoom (20% to 220%). Keep the `GraphHandle` from `on_handle` to wire a Fit button.
+- The graph is one tab stop: arrow keys move between nodes, Escape clears the selection, `+` and `-` zoom and `0` fits.
+- `GraphFill` has six fills (`neutral`, `brand`, `red`, `orange`, `yellow`, `green`), each mapped to theme tokens. Store `wire_value()` if you save colour choices; the strings don't change.
+
+Enable `ssr` on the server build and `hydrate` on the client build, like the other Orbital crates.
 
 ## Docs
 

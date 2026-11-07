@@ -2302,8 +2302,16 @@ dependencies = [
 name = "orbital-graph"
 version = "0.1.4"
 dependencies = [
+ "icondata",
  "inventory",
  "leptos",
+ "orbital-base-components",
+ "orbital-core-components",
+ "orbital-macros",
+ "orbital-style",
+ "orbital-theme",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -2408,6 +2416,7 @@ dependencies = [
  "orbital-datatable",
  "orbital-date-pickers",
  "orbital-discussion",
+ "orbital-graph",
  "orbital-history",
  "orbital-macros",
  "orbital-motion",
@@ -2464,6 +2473,7 @@ dependencies = [
  "orbital-datatable",
  "orbital-date-pickers",
  "orbital-discussion",
+ "orbital-graph",
  "orbital-history",
  "orbital-macros",
  "orbital-motion",

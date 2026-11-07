@@ -19,13 +19,21 @@ doctest = false
 
 [dependencies]
 leptos.workspace = true
+wasm-bindgen.workspace = true
+web-sys = { workspace = true, features = ["DomRect", "Element", "SvgElement"] }
+orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
+orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false }
+orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
+orbital-style = { path = "../orbital-style", version = "0.1.4" }
+orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false }
+icondata.workspace = true
 inventory = { version = "0.3", optional = true }
 
 [features]
 default = ["preview"]
-preview = ["dep:inventory"]
-hydrate = ["leptos/hydrate", "preview"]
-ssr = ["leptos/ssr", "preview"]
+preview = ["dep:inventory", "orbital-core-components/preview"]
+hydrate = ["leptos/hydrate", "orbital-core-components/hydrate", "orbital-theme/hydrate", "preview"]
+ssr = ["leptos/ssr", "orbital-core-components/ssr", "orbital-theme/ssr", "preview"]
 
 [package.metadata.docs.rs]
 all-features = false
