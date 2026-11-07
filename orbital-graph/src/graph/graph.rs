@@ -886,6 +886,9 @@ mod tests {
     use crate::preview::fixtures::{sample_project_input, sample_project_views};
 
     fn render(hidden: HashSet<String>) -> (String, GraphLayout) {
+        // The workspace test build also enables leptos csr (component-preview-e2e),
+        // so Effects spawn and need an executor even while rendering on the server.
+        let _ = any_spawner::Executor::init_futures_executor();
         let owner = Owner::new();
         owner.with(|| {
             let input = sample_project_input();
