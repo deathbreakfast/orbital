@@ -189,9 +189,18 @@ pub fn StatCard(
 
     let value_class = match variant {
         StatCardVariant::Default => class_names.orbital_stat_card_value.to_string(),
-        StatCardVariant::Success => format!("{} {}", class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_success),
-        StatCardVariant::Danger => format!("{} {}", class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_danger),
-        StatCardVariant::Warning => format!("{} {}", class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_warning),
+        StatCardVariant::Success => format!(
+            "{} {}",
+            class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_success
+        ),
+        StatCardVariant::Danger => format!(
+            "{} {}",
+            class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_danger
+        ),
+        StatCardVariant::Warning => format!(
+            "{} {}",
+            class_names.orbital_stat_card_value, class_names.orbital_stat_card_value_warning
+        ),
     };
 
     view! {
