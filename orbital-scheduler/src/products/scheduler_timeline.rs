@@ -1,7 +1,9 @@
 //! [`SchedulerTimeline`] product — resource timeline with presets (SC rollup).
 
+use std::collections::HashSet;
+
 use leptos::prelude::*;
-use orbital_base_components::DatetimeTimezone;
+use orbital_base_components::{DatetimeTimezone, OrbitalDateTime};
 use orbital_core_components::{MessageBar, MessageBarBody, MessageBarIntent, MessageBarTitle};
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
@@ -9,16 +11,16 @@ use orbital_theme::use_theme_options;
 
 use crate::{
     advance_visible_date_by_preset, clear_drag_listeners, expand_recurring_events,
-    flatten_resource_rows, mount_lazy_load, resolve_scheduler_chrome, scheduler_calendar_styles,
-    scheduler_timeline_density_class, scheduler_timeline_styles, timeline_visible_range,
-    today_anchor, EventDialogRequest, EventDragGhost, EventDragSession, NavDirection, PlannedEvent,
-    ScheduleResource, SchedulerAgendaEventRow, SchedulerDataSourceMode, SchedulerEditingTools,
-    SchedulerErrorView, SchedulerEventContent, SchedulerEventDialog, SchedulerEventDragGhost,
-    SchedulerEvents, SchedulerFeatures, SchedulerInteractionContext, SchedulerLazyLoadOverlays,
-    SchedulerLoadingView, SchedulerLocaleText, SchedulerPreferences, SchedulerPreferencesSnapshot,
-    SchedulerRenderers, SchedulerResourceHeader, SchedulerResourceLabel, SchedulerSlots,
-    SchedulerTimelineBody, SchedulerTimelineHandle, SchedulerTimelineToolbar, SchedulerToolbar,
-    TimelinePreset,
+    flatten_visible_resource_rows, mount_lazy_load, resolve_scheduler_chrome,
+    scheduler_calendar_styles, scheduler_timeline_density_class, scheduler_timeline_styles,
+    timeline_visible_range, today_anchor, EventDialogRequest, EventDragGhost, EventDragSession,
+    NavDirection, PlannedEvent, ScheduleResource, SchedulerAgendaEventRow, SchedulerDataSourceMode,
+    SchedulerEditingTools, SchedulerErrorView, SchedulerEventContent, SchedulerEventDialog,
+    SchedulerEventDragGhost, SchedulerEvents, SchedulerFeatures, SchedulerInteractionContext,
+    SchedulerLazyLoadOverlays, SchedulerLoadingView, SchedulerLocaleText, SchedulerPreferences,
+    SchedulerPreferencesSnapshot, SchedulerRenderers, SchedulerResourceHeader,
+    SchedulerResourceLabel, SchedulerSlots, SchedulerTimelineBody, SchedulerTimelineHandle,
+    SchedulerTimelineToolbar, SchedulerToolbar, TimelinePreset,
 };
 
 /// Root scheduler timeline product composing presets, resource lanes, and navigation.
@@ -38,6 +40,12 @@ use crate::{
 /// 3. Enable [`SchedulerFeatures::TIMELINE`] in `features`.
 ///
 /// Events without a `resource_id` are not shown on the timeline.
+///
+/// Resources with `children` show as parent rows with a collapse button; the
+/// parent's own events draw on its row. Pass `today` to draw the today line
+/// during server rendering too; without it the line appears after hydration.
+/// See [`SchedulerTimelineMarkers`](crate::SchedulerTimelineMarkers) for the
+/// today line, point events, tone, progress and collapsible rows.
 ///
 /// # Best Practices
 ///
@@ -98,6 +106,20 @@ pub fn SchedulerTimeline(
     #[prop(optional)] visible_date: Option<RwSignal<orbital_base_components::OrbitalDateTime>>,
     #[prop(optional)] display_timezone: Option<RwSignal<DatetimeTimezone>>,
     #[prop(optional)] preset: Option<RwSignal<TimelinePreset>>,
+    /// Date the today line marks. When unset, the browser computes today after
+    /// mount (start of day in `display_timezone`), so server-rendered HTML has no
+    /// line. Pass it from the server to draw the line in the first paint, or to
+    /// pin the date in tests.
+    #[prop(optional, into)]
+    today: Option<Signal<OrbitalDateTime>>,
+    /// Draw the today line when today is inside the visible range. Defaults to `true`.
+    #[prop(default = true)]
+    show_today: bool,
+    /// Ids of parent resources whose children are folded away. Bind it to keep
+    /// the state outside the timeline (for example per user); without it each
+    /// timeline keeps its own state, starting with every row expanded.
+    #[prop(optional)]
+    collapsed_resources: Option<RwSignal<HashSet<String>>>,
     #[prop(default = SchedulerFeatures::empty())] features: SchedulerFeatures,
     #[prop(optional)] data_source: Option<SchedulerDataSourceMode>,
     #[prop(optional)] lazy_reload_key: Option<RwSignal<u32>>,
@@ -263,7 +285,29 @@ pub fn SchedulerTimeline(
     let lazy_loading = lazy_load.loading.read_only();
     let load_error = lazy_load.load_error.read_only();
 
-    let resource_rows = Signal::derive(move || flatten_resource_rows(&resources.get()));
+    let collapsed_resources = collapsed_resources.unwrap_or_else(|| RwSignal::new(HashSet::new()));
+    let resource_rows = Signal::derive(move || {
+        collapsed_resources
+            .with(|collapsed| flatten_visible_resource_rows(&resources.get(), collapsed))
+    });
+
+    // Without a host-supplied `today`, compute it in the browser only: the server's
+    // clock and time zone can differ from the browser's, which would break hydration.
+    let browser_today = RwSignal::new(None::<OrbitalDateTime>);
+    if today.is_none() && show_today {
+        Effect::new(move |_| {
+            browser_today.set(today_anchor(display_timezone.get()));
+        });
+    }
+    let today_marker = Signal::derive(move || {
+        if !show_today {
+            return None;
+        }
+        match today {
+            Some(today) => Some(today.get()),
+            None => browser_today.get(),
+        }
+    });
 
     let display_events = Signal::derive(move || {
         let masters = events.get();
@@ -380,6 +424,9 @@ pub fn SchedulerTimeline(
                             visible_date=visible_date
                             display_timezone=display_timezone
                             preset=active_preset
+                            resources=resources
+                            today=today_marker
+                            collapsed_resources=collapsed_resources
                         />
                         <SchedulerLazyLoadOverlays loading=lazy_loading.into() error=load_error.into() />
                     </div>
@@ -400,5 +447,73 @@ pub fn SchedulerTimeline(
                 {legacy_editing_view.unwrap_or_else(|| ().into_any())}
             </div>
         </div>
+    }
+}
+
+/// Server-render tests. They need the `ssr` feature (the theme provider touches
+/// the DOM otherwise): `cargo test -p orbital-scheduler --features ssr --lib timeline_ssr`.
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::*;
+    use crate::preview::fixtures::{sample_point_events, sample_schedule_resources};
+    use crate::preview_anchor_date;
+    use orbital_theme::OrbitalThemeProvider;
+
+    fn render_timeline(with_today: bool) -> String {
+        let owner = Owner::new();
+        owner.with(|| {
+            let events = RwSignal::new(sample_point_events());
+            let resources = RwSignal::new(sample_schedule_resources());
+            let visible_date = RwSignal::new(preview_anchor_date());
+            if with_today {
+                view! {
+                    <OrbitalThemeProvider>
+                        <SchedulerTimeline
+                            events=events
+                            resources=resources
+                            visible_date=visible_date
+                            today=preview_anchor_date()
+                            features=SchedulerFeatures::TIMELINE
+                        />
+                    </OrbitalThemeProvider>
+                }
+                .to_html()
+            } else {
+                view! {
+                    <OrbitalThemeProvider>
+                        <SchedulerTimeline
+                            events=events
+                            resources=resources
+                            visible_date=visible_date
+                            features=SchedulerFeatures::TIMELINE
+                        />
+                    </OrbitalThemeProvider>
+                }
+                .to_html()
+            }
+        })
+    }
+
+    #[test]
+    fn timeline_ssr_with_today_prop_renders_line_happy() {
+        let html = render_timeline(true);
+        assert!(
+            html.contains("data-testid=\"scheduler-timeline-today\""),
+            "{html}"
+        );
+        assert!(html.contains("orb-scheduler-timeline__today-label"));
+        // Point events render as diamonds named by their title.
+        assert!(html.contains("data-testid=\"scheduler-event-diamond-pt-contract\""));
+        assert!(html.contains("aria-label=\"Contract due\""));
+    }
+
+    #[test]
+    fn timeline_ssr_without_today_renders_no_line_happy() {
+        let html = render_timeline(false);
+        assert!(
+            html.contains("data-testid=\"scheduler-timeline-lane-room-a\""),
+            "{html}"
+        );
+        assert!(!html.contains("scheduler-timeline-today"));
     }
 }

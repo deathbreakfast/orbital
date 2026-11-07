@@ -9,6 +9,7 @@ mod filtering;
 mod import_export;
 mod lazy_loading;
 mod localization;
+mod markers;
 mod navigation;
 #[cfg(feature = "preview")]
 mod navigation_preview;
@@ -29,6 +30,7 @@ pub use filtering::*;
 pub use import_export::*;
 pub use lazy_loading::*;
 pub use localization::*;
+pub use markers::*;
 pub use navigation::*;
 #[cfg(feature = "preview")]
 pub use navigation_preview::*;
