@@ -29,6 +29,9 @@ orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features
 icondata.workspace = true
 inventory = { version = "0.3", optional = true }
 
+[dev-dependencies]
+any_spawner = { version = "0.3", features = ["futures-executor"] }
+
 [features]
 default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]
