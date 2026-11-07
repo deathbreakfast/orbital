@@ -33,8 +33,10 @@ pub struct NavigationClassNames {
 }
 
 pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
-    let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Surface {
+    // Stable `orbital-navigation__*` names (excluded from turf hashing) so static HTML
+    // mocks can reuse these rules.
+    let (style_sheet, _) = inline_style_sheet_values! {
+        .orbital-navigation__surface {
             width: var(--orbital-navigation-width, 260px);
             max-width: 100%;
             height: 100%;
@@ -42,28 +44,28 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             transition: width 0.3s ease;
         }
 
-        .RootColumn {
+        .orbital-navigation__root-column {
             height: 100%;
             min-height: 0;
         }
 
-        .Header {
+        .orbital-navigation__header {
             flex-shrink: 0;
             padding: var(--orb-space-block-sm) var(--orb-space-inline-mnudge);
         }
 
-        .Body {
+        .orbital-navigation__body {
             flex: 1;
             min-height: 0;
             padding: 0 var(--orb-space-block-mnudge);
         }
 
-        .Footer {
+        .orbital-navigation__footer {
             flex-shrink: 0;
             padding: 0 var(--orb-space-block-mnudge);
         }
 
-        .ItemRow {
+        .orbital-navigation__item-row {
             display: flex;
             align-items: center;
             gap: var(--orb-space-inline-sm);
@@ -75,12 +77,12 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             box-sizing: border-box;
         }
 
-        .orbital-navigation-item--focused > .Item {
+        .orbital-navigation-item--focused > .orbital-navigation__item-button {
             outline: 2px solid var(--orb-color-brand-stroke);
             outline-offset: -2px;
         }
 
-        .Item, .CategoryHeader, .AppItem {
+        .orbital-navigation__item-button, .orbital-navigation__category-header, .orbital-navigation__app-item {
             display: flex;
             text-transform: none;
             position: relative;
@@ -102,16 +104,16 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             box-sizing: border-box;
         }
 
-        .Item:hover, .CategoryHeader:hover, .AppItem:hover {
+        .orbital-navigation__item-button:hover, .orbital-navigation__category-header:hover, .orbital-navigation__app-item:hover {
             background-color: var(--orb-color-surface-overlay-hover);
         }
 
-        .Item:active, .CategoryHeader:active, .AppItem:active {
+        .orbital-navigation__item-button:active, .orbital-navigation__category-header:active, .orbital-navigation__app-item:active {
             background-color: var(--orb-color-surface-overlay-pressed);
         }
 
-        .ItemSelected::after,
-        .CategoryHeaderSelected[aria-expanded="false"]::after {
+        .orbital-navigation__item-selected::after,
+        .orbital-navigation__category-header-selected[aria-expanded="false"]::after {
             content: "";
             position: absolute;
             width: 4px;
@@ -121,26 +123,26 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             margin-inline-start: -18px;
         }
 
-        .ItemSub {
+        .orbital-navigation__item-sub {
             padding-inline-start: 46px;
         }
 
-        .ItemSub.ItemSelected::after {
+        .orbital-navigation__item-sub.orbital-navigation__item-selected::after {
             margin-inline-start: -54px;
         }
 
-        .ItemDisabled {
+        .orbital-navigation__item-disabled {
             opacity: 0.5;
             cursor: not-allowed;
             pointer-events: none;
         }
 
-        .AppItem {
+        .orbital-navigation__app-item {
             font-weight: var(--orb-type-weight-semibold);
             color: var(--orb-color-text-primary);
         }
 
-        .CategoryChevron {
+        .orbital-navigation__category-chevron {
             margin-inline-start: auto;
             height: 20px;
             display: flex;
@@ -148,29 +150,29 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             transition: transform var(--orb-motion-duration-md) var(--orb-motion-ease-emphasis);
         }
 
-        .CategoryChevronOpen {
+        .orbital-navigation__category-chevron-open {
             transform: rotate(90deg);
         }
 
-        .CategoryLabel {
+        .orbital-navigation__category-label {
             flex: 1;
             text-align: start;
         }
 
-        .CategoryIcon {
+        .orbital-navigation__category-icon {
             display: flex;
             align-items: center;
         }
 
-        .CategoryRoot {
+        .orbital-navigation__category-root {
             position: relative;
         }
 
-        .CollapsedTrigger {
+        .orbital-navigation__collapsed-trigger {
             box-sizing: border-box;
         }
 
-        .CategorySubitems {
+        .orbital-navigation__category-subitems {
             box-sizing: border-box;
         }
 
@@ -206,15 +208,15 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             display: block;
         }
 
-        .SubItemGroup {
+        .orbital-navigation__sub-item-group {
             overflow: hidden;
         }
 
-        .SubItemGroupHidden {
+        .orbital-navigation__sub-item-group-hidden {
             display: none;
         }
 
-        .SectionHeader {
+        .orbital-navigation__section-header {
             padding: var(--orb-space-block-sm) var(--orb-space-block-mnudge);
             font-size: var(--orb-type-size-md);
             font-weight: var(--orb-type-weight-semibold);
@@ -222,30 +224,30 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             text-transform: none;
         }
 
-        .SectionHeaderBand {
+        .orbital-navigation__section-header-band {
             color: var(--orb-color-text-quaternary);
             font-weight: var(--orb-type-weight-semibold);
             text-transform: uppercase;
             font-size: var(--orb-type-size-sm);
         }
 
-        .CategoryHeaderSectionFolder {
+        .orbital-navigation__category-header-section-folder {
             font-weight: var(--orb-type-weight-semibold);
             color: var(--orb-color-text-primary);
         }
 
-        .CategoryHeaderSectionFolder .CategoryLabel {
+        .orbital-navigation__category-header-section-folder .orbital-navigation__category-label {
             flex: 1;
         }
 
-        .Divider {
+        .orbital-navigation__divider {
             height: 1px;
             background: var(--orb-color-border-subtle);
             margin: var(--orb-space-block-sm) 0;
             border: none;
         }
 
-        .ItemBadge {
+        .orbital-navigation__item-badge {
             margin-inline-start: auto;
             font-size: var(--orb-type-size-xs);
             background: var(--orb-color-brand-bg);
@@ -256,44 +258,44 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
             text-align: center;
         }
 
-        .CollapseFooter {
+        .orbital-navigation__collapse-footer {
             padding: var(--orb-space-block-sm) 0;
         }
 
-        .orbital-navigation--density-compact .Item,
-        .orbital-navigation--density-compact .CategoryHeader,
-        .orbital-navigation--density-compact .AppItem {
+        .orbital-navigation--density-compact .orbital-navigation__item-button,
+        .orbital-navigation--density-compact .orbital-navigation__category-header,
+        .orbital-navigation--density-compact .orbital-navigation__app-item {
             padding: var(--orb-space-block-snudge) var(--orb-space-block-mnudge);
         }
 
-        .orbital-navigation--collapsed .Surface {
+        .orbital-navigation--collapsed .orbital-navigation__surface {
             width: var(--orbital-navigation-collapsed-width, 48px);
         }
 
-        .orbital-navigation--collapsed .Body {
+        .orbital-navigation--collapsed .orbital-navigation__body {
             padding: 0;
         }
 
-        .orbital-navigation--collapsed .CategoryLabel,
-        .orbital-navigation--collapsed .CategoryChevron,
-        .orbital-navigation--collapsed .SectionHeader,
-        .orbital-navigation--collapsed .ItemBadge,
-        .orbital-navigation--collapsed .CollapseFooter span {
+        .orbital-navigation--collapsed .orbital-navigation__category-label,
+        .orbital-navigation--collapsed .orbital-navigation__category-chevron,
+        .orbital-navigation--collapsed .orbital-navigation__section-header,
+        .orbital-navigation--collapsed .orbital-navigation__item-badge,
+        .orbital-navigation--collapsed .orbital-navigation__collapse-footer span {
             display: none;
         }
 
-        .orbital-navigation--collapsed .CategoryHeader,
-        .orbital-navigation--collapsed .Item,
-        .orbital-navigation--collapsed .AppItem {
+        .orbital-navigation--collapsed .orbital-navigation__category-header,
+        .orbital-navigation--collapsed .orbital-navigation__item-button,
+        .orbital-navigation--collapsed .orbital-navigation__app-item {
             justify-content: center;
             padding-inline: var(--orb-space-block-mnudge);
         }
 
-        .orbital-navigation--collapsed .ItemSub {
+        .orbital-navigation--collapsed .orbital-navigation__item-sub {
             padding-inline-start: var(--orb-space-block-mnudge);
         }
 
-        .orbital-navigation--collapsed .CollapsedFlyout .ItemSub {
+        .orbital-navigation--collapsed .orbital-navigation__collapsed-flyout .orbital-navigation__item-sub {
             padding-inline-start: var(--orb-space-block-mnudge);
         }
 
@@ -305,34 +307,34 @@ pub fn navigation_styles() -> (&'static str, NavigationClassNames) {
     (
         style_sheet,
         NavigationClassNames {
-            surface: class_names.surface,
-            root_column: class_names.root_column,
-            header: class_names.header,
-            body: class_names.body,
-            footer: class_names.footer,
-            item: class_names.item,
-            item_selected: class_names.item_selected,
-            item_disabled: class_names.item_disabled,
-            item_sub: class_names.item_sub,
-            item_app: class_names.app_item,
-            category_header: class_names.category_header,
-            category_header_selected: class_names.category_header_selected,
-            category_chevron: class_names.category_chevron,
-            category_chevron_open: class_names.category_chevron_open,
-            category_label: class_names.category_label,
-            category_icon: class_names.category_icon,
-            category_root: class_names.category_root,
-            collapsed_trigger: class_names.collapsed_trigger,
-            category_subitems: class_names.category_subitems,
-            sub_item_group: class_names.sub_item_group,
-            sub_item_group_hidden: class_names.sub_item_group_hidden,
-            section_header: class_names.section_header,
-            section_header_band: class_names.section_header_band,
-            category_header_section_folder: class_names.category_header_section_folder,
-            divider: class_names.divider,
-            item_row: class_names.item_row,
-            item_badge: class_names.item_badge,
-            collapse_footer: class_names.collapse_footer,
+            surface: "orbital-navigation__surface",
+            root_column: "orbital-navigation__root-column",
+            header: "orbital-navigation__header",
+            body: "orbital-navigation__body",
+            footer: "orbital-navigation__footer",
+            item: "orbital-navigation__item-button",
+            item_selected: "orbital-navigation__item-selected",
+            item_disabled: "orbital-navigation__item-disabled",
+            item_sub: "orbital-navigation__item-sub",
+            item_app: "orbital-navigation__app-item",
+            category_header: "orbital-navigation__category-header",
+            category_header_selected: "orbital-navigation__category-header-selected",
+            category_chevron: "orbital-navigation__category-chevron",
+            category_chevron_open: "orbital-navigation__category-chevron-open",
+            category_label: "orbital-navigation__category-label",
+            category_icon: "orbital-navigation__category-icon",
+            category_root: "orbital-navigation__category-root",
+            collapsed_trigger: "orbital-navigation__collapsed-trigger",
+            category_subitems: "orbital-navigation__category-subitems",
+            sub_item_group: "orbital-navigation__sub-item-group",
+            sub_item_group_hidden: "orbital-navigation__sub-item-group-hidden",
+            section_header: "orbital-navigation__section-header",
+            section_header_band: "orbital-navigation__section-header-band",
+            category_header_section_folder: "orbital-navigation__category-header-section-folder",
+            divider: "orbital-navigation__divider",
+            item_row: "orbital-navigation__item-row",
+            item_badge: "orbital-navigation__item-badge",
+            collapse_footer: "orbital-navigation__collapse-footer",
         },
     )
 }

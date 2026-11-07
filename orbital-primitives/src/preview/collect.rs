@@ -23,7 +23,7 @@ fn push_unique(
 /// static table (SSR + WASM identical).
 ///
 /// Includes core components, primitives locals, datatable, date-pickers, charts,
-/// tree, scheduler, discussion, history, and motion.
+/// tree, graph, scheduler, discussion, history, and motion.
 ///
 /// For host composition with product crates, prefer
 /// [`PreviewCatalog::orbital`](super::PreviewCatalog::orbital).
@@ -51,6 +51,10 @@ pub fn collect_all_preview_registrations() -> Vec<&'static PreviewRegistration> 
     push_unique(
         &mut items,
         orbital_tree::preview::static_registrations::all(),
+    );
+    push_unique(
+        &mut items,
+        orbital_graph::preview::static_registrations::all(),
     );
     push_unique(
         &mut items,

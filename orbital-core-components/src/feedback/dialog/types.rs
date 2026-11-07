@@ -17,3 +17,47 @@ impl Default for DialogDismissConfig {
         }
     }
 }
+
+/// Width of a [`DialogSurface`](super::surface::DialogSurface).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum DialogSize {
+    /// Up to 400px, for confirmations.
+    Small,
+    /// Up to 600px, for short forms.
+    #[default]
+    Medium,
+    /// Up to 960px, for forms with two columns.
+    Large,
+    /// The viewport less a 24px margin, for editors that need the screen.
+    Full,
+}
+
+impl DialogSize {
+    /// Suffix of the `orbital-dialog-surface--<suffix>` class.
+    pub fn class_suffix(&self) -> &'static str {
+        match self {
+            Self::Small => "small",
+            Self::Medium => "medium",
+            Self::Large => "large",
+            Self::Full => "full",
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn dialog_size_default_is_medium_happy() {
+        assert_eq!(DialogSize::default(), DialogSize::Medium);
+    }
+
+    #[test]
+    fn dialog_size_class_suffixes_happy() {
+        assert_eq!(DialogSize::Small.class_suffix(), "small");
+        assert_eq!(DialogSize::Medium.class_suffix(), "medium");
+        assert_eq!(DialogSize::Large.class_suffix(), "large");
+        assert_eq!(DialogSize::Full.class_suffix(), "full");
+    }
+}
