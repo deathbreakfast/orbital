@@ -187,3 +187,112 @@ pub fn sample_recurring_standup() -> PlannedEvent {
     event.color = Some("#059669".into());
     event
 }
+
+/// Event from `start_day` 09:00 to `end_day` 17:00, offsets from the preview anchor.
+fn span_at(id: &str, title: &str, start_day: i64, end_day: i64, resource_id: &str) -> PlannedEvent {
+    let mut event = event_at(
+        id,
+        title,
+        start_day,
+        (9, 0, 0),
+        (9, 0, 0),
+        Some(resource_id),
+    );
+    let end_base = OrbitalDateTime::try_from_unix_seconds(
+        day_anchor().to_unix_seconds() + 86_400 * end_day,
+        tz(),
+    )
+    .expect("valid day");
+    event.end = end_base.apply_hms(17, 0, 0).expect("valid end");
+    event
+}
+
+/// Event with `start == end` at `day` 12:00: the timeline draws a diamond.
+fn point_at(id: &str, title: &str, day: i64, resource_id: &str) -> PlannedEvent {
+    event_at(id, title, day, (12, 0, 0), (12, 0, 0), Some(resource_id))
+}
+
+/// Bars and point events (deadlines) around the preview anchor week.
+pub fn sample_point_events() -> Vec<PlannedEvent> {
+    vec![
+        span_at("pt-prep", "Kickoff prep", -2, 0, "room-a"),
+        point_at("pt-contract", "Contract due", 1, "room-a"),
+        span_at("pt-review", "Vendor review", -1, 1, "room-b"),
+        point_at("pt-gate", "Go/no-go", 2, "room-b"),
+    ]
+}
+
+/// Events in each [`EventTone`](crate::EventTone), most with progress, plus one
+/// whose explicit `color` wins over its tone.
+pub fn sample_toned_events() -> Vec<PlannedEvent> {
+    use crate::EventTone;
+    let mut legacy =
+        span_at("tone-legacy", "Custom colour", 2, 3, "room-b").with_tone(EventTone::Danger);
+    legacy.color = Some("#7c3aed".into());
+    vec![
+        span_at("tone-done", "Research", -3, -2, "room-a")
+            .with_tone(EventTone::Success)
+            .with_progress(1.0),
+        span_at("tone-late", "Design review", -1, 1, "room-a")
+            .with_tone(EventTone::Danger)
+            .with_progress(0.3),
+        span_at("tone-risk", "QA pass", -3, -1, "room-b")
+            .with_tone(EventTone::Warning)
+            .with_progress(0.6),
+        span_at("tone-brand", "Docs", 0, 1, "room-b")
+            .with_tone(EventTone::Brand)
+            .with_progress(0.25),
+        span_at("tone-neutral", "Backlog grooming", 2, 3, "room-a").with_tone(EventTone::Neutral),
+        legacy,
+    ]
+}
+
+/// Project-plan resource tree: milestones as parent rows, tasks as their children.
+pub fn sample_milestone_resources() -> Vec<ScheduleResource> {
+    vec![
+        ScheduleResource {
+            id: "ms-design".into(),
+            title: "Design".into(),
+            children: vec![
+                ScheduleResource::new("task-wireframes", "Wireframes"),
+                ScheduleResource::new("task-signoff", "Design sign-off"),
+            ],
+        },
+        ScheduleResource {
+            id: "ms-build".into(),
+            title: "Build".into(),
+            children: vec![
+                ScheduleResource::new("task-api", "API"),
+                ScheduleResource::new("task-ui", "UI"),
+            ],
+        },
+    ]
+}
+
+/// Milestone bars with progress on the parent rows, and task bars and
+/// due-date diamonds on the child rows, for [`sample_milestone_resources`].
+pub fn sample_milestone_events() -> Vec<PlannedEvent> {
+    use crate::EventTone;
+    vec![
+        span_at("ms-design-bar", "Design", -2, 16, "ms-design")
+            .with_tone(EventTone::Brand)
+            .with_progress(0.75),
+        span_at(
+            "task-wireframes-bar",
+            "Wireframes",
+            -2,
+            6,
+            "task-wireframes",
+        )
+        .with_tone(EventTone::Success)
+        .with_progress(1.0),
+        point_at("task-signoff-due", "Design sign-off", 16, "task-signoff"),
+        span_at("ms-build-bar", "Build", 12, 51, "ms-build")
+            .with_tone(EventTone::Brand)
+            .with_progress(0.2),
+        span_at("task-api-bar", "API", 12, 40, "task-api")
+            .with_tone(EventTone::Danger)
+            .with_progress(0.4),
+        span_at("task-ui-bar", "UI", 20, 51, "task-ui"),
+    ]
+}

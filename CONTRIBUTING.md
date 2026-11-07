@@ -82,6 +82,7 @@ The preview workflow publishes `target/site-preview/` to [Component preview](htt
 - Run the verify commands above (or explain what you could not run)
 - Update docs and preview examples when behavior or public API changes
 - Product / customer components belong in the customer’s crate + host `PreviewCatalog::extend` — do not ask integrators to patch Orbital leaf `static_registrations` for their own widgets (see [docs/component-testing.md](docs/component-testing.md#external-product-catalogs))
+- Components whose classes HTML mocks use (through `orbital-mock-export`) keep stable `orbital-*` class names, listed in the crate's turf `excludes` in `Cargo.toml`, so a hashed name never changes between builds. Use `.orbital-<component>__<part>` instead of local names like `.Root` there
 - Do not commit secrets, credentials, or large binaries
 
 ## Code of conduct

@@ -103,6 +103,12 @@ excludes = ["^orbital-.*"]
 [package.metadata.turf-dev]
 minify = false
 
+# Keep stable `orbital-*` names in debug builds too, so dev pages and exported mock
+# CSS use the same class names as release.
+[package.metadata.turf-dev.class_names]
+template = "class-<id>"
+excludes = ["^orbital-.*"]
+
 [package.metadata.docs.rs]
 all-features = false
 rustdoc-args = ["--cfg", "docsrs"]

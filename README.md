@@ -267,6 +267,14 @@ cd end2end && npm test
 
 Runs a workspace build (deny warnings) then full release-mode E2E (~1–2 hours). PR CI already runs the Playwright suite; this is a maintainer convenience before tagging. Tag deploy publishes via [`.github/workflows/preview-pages.yml`](.github/workflows/preview-pages.yml). Maintainers: see [CONTRIBUTING.md — Publishing preview](CONTRIBUTING.md#publishing-preview).
 
+### Exporting CSS for HTML mocks
+
+```bash
+cargo run -p orbital-mock-export -- <out-dir> [<previews-dir>]
+```
+
+This renders every preview on the server and writes `orbital.css` (component styles), `tokens.css` (fonts plus light and dark `--orb-*` variables) and `fonts/` into `<out-dir>`, so a static HTML page can link both stylesheets and look like Orbital in either theme. With `<previews-dir>`, it also writes each preview's rendered HTML there as reference markup. Previews that fail to render on the server are skipped and listed on stderr. Both CSS files name the Orbital revision they came from. See the [`orbital-mock-export` crate docs](orbital-mock-export/src/lib.rs) for details.
+
 ## Verify
 
 Same commands as [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
