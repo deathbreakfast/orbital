@@ -2351,6 +2351,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "orbital-mock-export"
+version = "0.1.0"
+dependencies = [
+ "any_spawner",
+ "leptos",
+ "leptos_meta",
+ "orbital-preview-app",
+ "orbital-style",
+ "orbital-theme",
+]
+
+[[package]]
 name = "orbital-motion"
 version = "0.1.4"
 dependencies = [

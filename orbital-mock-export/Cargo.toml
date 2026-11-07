@@ -1,0 +1,22 @@
+[package]
+name = "orbital-mock-export"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+description = "Exports Orbital component CSS and light/dark theme tokens as static files for HTML mocks."
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "orbital-mock-export"
+path = "src/main.rs"
+
+[dependencies]
+orbital-preview-app = { path = "../orbital-preview-app", version = "0.1.4", default-features = false, features = ["ssr"] }
+orbital-style = { path = "../orbital-style", version = "0.1.4", default-features = false, features = ["ssr"] }
+orbital-theme = { path = "../orbital-theme", version = "0.1.4", default-features = false, features = ["ssr"] }
+leptos = { workspace = true, features = ["ssr"] }
+leptos_meta = { workspace = true, features = ["ssr"] }
+any_spawner = { version = "0.3", features = ["futures-executor"] }

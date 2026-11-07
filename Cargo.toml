@@ -25,6 +25,7 @@ members = [
     "orbital-preview-app",
     "orbital-preview-frontend",
     "orbital-preview-server",
+    "orbital-mock-export",
     "examples/minimal-ssr-hydrate",
     "examples/authenticated-dashboard",
     "examples/server-paged-analytics",
