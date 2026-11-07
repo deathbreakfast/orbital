@@ -12,7 +12,7 @@ pub use badge::{Badge, BadgeAppearance, BadgeColor, BadgeSize};
 pub use counter_badge::CounterBadge;
 pub use dialog::{
     Dialog, DialogActions, DialogBody, DialogContent, DialogDismiss, DialogDismissConfig,
-    DialogSurface, DialogTitle, OpenBind,
+    DialogSize, DialogSurface, DialogTitle, OpenBind,
 };
 pub use message_bar::{
     MessageBar, MessageBarActions, MessageBarBody, MessageBarIntent, MessageBarLayout,

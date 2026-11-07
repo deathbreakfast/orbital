@@ -101,6 +101,12 @@ pub fn use_hotkeys(bindings: Vec<Hotkey>, enabled: impl Into<Signal<bool>>) {
 mod tests {
     use super::*;
 
+    // Hotkey holds a Callback, which needs an active Owner when leptos's
+    // sandboxed-arenas feature is unified in (e.g. by orbital-mock-export).
+    fn with_owner<F: FnOnce()>(f: F) {
+        Owner::new().with(f);
+    }
+
     fn ctx(key: &str) -> KeyContext<'_> {
         KeyContext {
             key,
@@ -110,40 +116,46 @@ mod tests {
 
     #[test]
     fn matches_key_ignoring_case() {
-        let b = Hotkey::new("j", || {});
-        assert!(hotkey_applies(&b, ctx("j")));
-        assert!(hotkey_applies(&b, ctx("J")));
-        assert!(!hotkey_applies(&b, ctx("k")));
+        with_owner(|| {
+            let b = Hotkey::new("j", || {});
+            assert!(hotkey_applies(&b, ctx("j")));
+            assert!(hotkey_applies(&b, ctx("J")));
+            assert!(!hotkey_applies(&b, ctx("k")));
+        });
     }
 
     #[test]
     fn skips_modified_and_prevented_events() {
-        let b = Hotkey::new("o", || {});
-        assert!(!hotkey_applies(
-            &b,
-            KeyContext {
-                modified: true,
-                ..ctx("o")
-            }
-        ));
-        assert!(!hotkey_applies(
-            &b,
-            KeyContext {
-                default_prevented: true,
-                ..ctx("o")
-            }
-        ));
+        with_owner(|| {
+            let b = Hotkey::new("o", || {});
+            assert!(!hotkey_applies(
+                &b,
+                KeyContext {
+                    modified: true,
+                    ..ctx("o")
+                }
+            ));
+            assert!(!hotkey_applies(
+                &b,
+                KeyContext {
+                    default_prevented: true,
+                    ..ctx("o")
+                }
+            ));
+        });
     }
 
     #[test]
     fn skips_text_fields_unless_opted_in() {
-        let plain = Hotkey::new("Escape", || {});
-        let anywhere = Hotkey::new("Escape", || {}).in_inputs();
-        let typing = KeyContext {
-            in_editable: true,
-            ..ctx("Escape")
-        };
-        assert!(!hotkey_applies(&plain, typing));
-        assert!(hotkey_applies(&anywhere, typing));
+        with_owner(|| {
+            let plain = Hotkey::new("Escape", || {});
+            let anywhere = Hotkey::new("Escape", || {}).in_inputs();
+            let typing = KeyContext {
+                in_editable: true,
+                ..ctx("Escape")
+            };
+            assert!(!hotkey_applies(&plain, typing));
+            assert!(hotkey_applies(&anywhere, typing));
+        });
     }
 }

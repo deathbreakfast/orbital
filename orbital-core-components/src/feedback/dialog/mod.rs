@@ -13,7 +13,7 @@ pub use content::DialogContent;
 pub use dialog::Dialog;
 pub use surface::DialogSurface;
 pub use title::DialogTitle;
-pub use types::DialogDismissConfig;
+pub use types::{DialogDismissConfig, DialogSize};
 
 pub use styles::dialog_styles;
 
