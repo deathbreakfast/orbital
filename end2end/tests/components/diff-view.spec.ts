@@ -1,5 +1,9 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import { openComponentPreview, scrollIntoPreviewView } from "../lib/preview/navigation";
+import {
+  expectPreviewVariants,
+  openComponentPreview,
+  scrollIntoPreviewView,
+} from "../lib/preview/navigation";
 import { setViewportPreset } from "../lib/preview/mobile";
 import { WasmPanicGuard } from "../lib/preview/wasm-panics";
 
@@ -112,7 +116,7 @@ test.describe("diff-view preview", () => {
 
   test("identical and empty states", async ({ page }) => {
     const identical = await openVariant(page, "diff-view-identical");
-    await expect(identical.getByText("No differences.")).toBeVisible();
+    await expect(identical.getByText("No changes.")).toBeVisible();
     await expect(identical.getByText("From: v3")).toBeVisible();
     const empty = page.getByTestId("diff-view-empty");
     await scrollIntoPreviewView(empty);
@@ -132,5 +136,41 @@ test.describe("diff-view preview", () => {
     await expect.poll(background).not.toBe(light);
     expect(await background()).not.toBe("rgba(0, 0, 0, 0)");
     panics.assertClean();
+  });
+
+  test("DV-02 shows the text diff variants", async ({ page }) => {
+    await openComponentPreview(page, "diff-view");
+    await expectPreviewVariants(page, ["diff-view-text", "diff-view-identical", "diff-view-added"]);
+  });
+
+  test("DV-03 before and after text marks removed and added lines", async ({ page }) => {
+    const diff = await openVariant(page, "diff-view-text");
+    const removed = diff.locator('[data-diff-kind="delete"]');
+    const added = diff.locator('[data-diff-kind="insert"]');
+    await expect(removed).toHaveCount(1);
+    await expect(added).toHaveCount(2);
+    await expect(removed).toContainText("allow write");
+    await expect(added.nth(0)).toContainText("deny write");
+    await expect(removed.locator(".orbital-diff-view__marker")).toHaveText("-");
+    await expect(added.nth(0).locator(".orbital-diff-view__marker")).toHaveText("+");
+  });
+
+  test("DV-03b empty before text marks every line as added", async ({ page }) => {
+    const diff = await openVariant(page, "diff-view-added");
+    await expect(diff.locator('[data-diff-kind="insert"]')).toHaveCount(2);
+    await expect(diff.locator('[data-diff-kind="delete"], [data-diff-kind="equal"]')).toHaveCount(0);
+  });
+
+  test("DV-04 identical inputs show no changes", async ({ page }) => {
+    const diff = await openVariant(page, "diff-view-identical");
+    await expect(diff).toContainText("No changes");
+    await expect(diff.locator("[data-diff-kind]")).toHaveCount(0);
+  });
+
+  test("DV-05 renders lines in monospace", async ({ page }) => {
+    const diff = await openVariant(page, "diff-view-text");
+    const body = diff.getByRole("group", { name: "Changes" });
+    const family = await body.evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(family.toLowerCase()).toMatch(/mono|courier|consolas/);
   });
 });
