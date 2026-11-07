@@ -1,6 +1,17 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { openComponentPreview, scrollIntoPreviewView } from "../lib/preview/navigation";
+import { WasmPanicGuard } from "../lib/preview/wasm-panics";
+
+let panicGuard: WasmPanicGuard;
+
+test.beforeEach(({ page }) => {
+  panicGuard = new WasmPanicGuard(page);
+});
+
+test.afterEach(() => {
+  panicGuard.assertClean();
+});
 
 const PROJECT_NODES = 11;
 
