@@ -4,7 +4,8 @@
 //! Use it to draw tasks and what blocks them, left to right by how deep each
 //! task waits, with a project drawn as a box and tasks from other projects as
 //! stubs just outside it. The layout is pure geometry and has no UI of its
-//! own; a renderer turns the result into SVG.
+//! own; the [`Graph`] component draws the result as SVG and [`GraphLegend`]
+//! hides and shows sets of its nodes.
 //!
 //! # Getting started
 //!
@@ -67,6 +68,9 @@
 //!   just above the box they connect to, marked [`NodePlacement::stub`].
 //! - **Orthogonal routes** — each [`EdgeRoute`] is a right-angled polyline
 //!   that never passes behind a node.
+//! - **Graph component** — [`Graph`] draws a layout with selection, chain
+//!   mode, pan, zoom, Fit and keyboard navigation, and [`GraphLegend`] toggles
+//!   sets of nodes. See the [`Graph`] docs for the wiring.
 //! - **Bad input reporting** — cycles are broken into
 //!   [`GraphLayout::broken_cycles`], invalid edges go to
 //!   [`GraphLayout::dropped`], and [`LayoutOptions::max_nodes`] caps the
@@ -74,16 +78,23 @@
 //!
 //! # Feature flags
 //!
-//! The layout needs only `std` and builds with `default-features = false`.
-//! `preview`, `ssr` and `hydrate` are reserved for the graph components and
-//! enable nothing in the layout.
+//! The layout needs only `std`; the components need Leptos and Orbital.
+//! Everything builds with `default-features = false`.
+//!
+//! - `preview` (default) — the catalog pages and their sample graphs.
+//! - `ssr` — server rendering for the components.
+//! - `hydrate` — client hydration for the components.
 
+#[cfg(feature = "preview")]
+pub mod preview;
+
+#[cfg(feature = "preview")]
+pub(crate) mod components {
+    pub use crate::preview::{ComponentPreviewCard, OrbitalComponentView};
+}
+
+mod graph;
 pub mod layout;
 
+pub use graph::*;
 pub use layout::*;
-
-// Wired for the graph components that build on this layout; nothing uses
-// them yet.
-#[cfg(feature = "preview")]
-use inventory as _;
-use leptos as _;

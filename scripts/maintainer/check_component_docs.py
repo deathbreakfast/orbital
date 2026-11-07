@@ -16,6 +16,7 @@ CRATE_PATHS: dict[str, list[str]] = {
     "orbital-datatable": ["orbital-datatable/src"],
     "orbital-charts": ["orbital-charts/src"],
     "orbital-scheduler": ["orbital-scheduler/src"],
+    "orbital-graph": ["orbital-graph/src"],
     "orbital-date-pickers": ["orbital-date-pickers/src"],
     "orbital-primitives": ["orbital-primitives/src"],
 }
