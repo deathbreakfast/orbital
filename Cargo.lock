@@ -2299,6 +2299,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "orbital-graph"
+version = "0.1.4"
+dependencies = [
+ "inventory",
+ "leptos",
+]
+
+[[package]]
 name = "orbital-history"
 version = "0.1.4"
 dependencies = [

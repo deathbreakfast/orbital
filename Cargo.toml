@@ -17,6 +17,7 @@ members = [
     "orbital-date-pickers",
     "orbital-scheduler",
     "orbital-tree",
+    "orbital-graph",
     "orbital-paging",
     "orbital-data",
     "component-preview-e2e",
