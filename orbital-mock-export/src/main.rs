@@ -79,7 +79,8 @@ fn run(out_dir: &Path, previews_dir: Option<&Path>) -> Result<(), String> {
         return Err("no component styles collected; did the previews render?".into());
     }
 
-    std::fs::create_dir_all(out_dir).map_err(|err| format!("create {}: {err}", out_dir.display()))?;
+    std::fs::create_dir_all(out_dir)
+        .map_err(|err| format!("create {}: {err}", out_dir.display()))?;
     write(&out_dir.join("orbital.css"), &collector.to_css(&header))?;
 
     let light = theme_scoped_vars_css("0", &Theme::light());
@@ -166,7 +167,8 @@ fn write(path: &Path, contents: &str) -> Result<(), String> {
 
 fn copy_dir(from: &Path, to: &Path) -> Result<(), String> {
     std::fs::create_dir_all(to).map_err(|err| format!("create {}: {err}", to.display()))?;
-    let entries = std::fs::read_dir(from).map_err(|err| format!("read {}: {err}", from.display()))?;
+    let entries =
+        std::fs::read_dir(from).map_err(|err| format!("read {}: {err}", from.display()))?;
     for entry in entries {
         let entry = entry.map_err(|err| format!("read {}: {err}", from.display()))?;
         let target = to.join(entry.file_name());

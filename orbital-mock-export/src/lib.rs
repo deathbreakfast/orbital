@@ -61,7 +61,8 @@ fn attr_value(attrs: &str, name: &str) -> Option<String> {
 pub fn is_theme_block(block: &StyleBlock) -> bool {
     match block.id.as_deref() {
         Some(id) => {
-            id.starts_with("orbital-style-orbital-theme-") || id == "orbital-style-orbital-font-faces"
+            id.starts_with("orbital-style-orbital-theme-")
+                || id == "orbital-style-orbital-font-faces"
         }
         None => false,
     }
