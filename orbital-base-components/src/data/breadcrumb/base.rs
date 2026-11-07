@@ -6,7 +6,10 @@ pub fn BaseBreadcrumb(
     children: Children,
 ) -> impl IntoView {
     view! {
+        // Labelled so the trail is a named navigation landmark, per the WAI-ARIA
+        // breadcrumb pattern.
         <nav
+            aria-label="Breadcrumb"
             class=move || {
                 let mut parts = vec!["orbital-breadcrumb".to_string()];
                 if let Some(extra) = class.get() {

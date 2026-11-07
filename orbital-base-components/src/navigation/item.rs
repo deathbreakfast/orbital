@@ -68,8 +68,11 @@ pub fn BaseNavigationItem(
         on_select,
     );
 
-    let aria_selected =
-        Signal::derive(move || Some(if selected.get() { "true" } else { "false" }.to_string()));
+    // A navigation item is a link in a nav landmark, not a menu item: no role, and the
+    // current page is marked with aria-current rather than aria-selected (which a
+    // menuitem doesn't allow, and which needs a menu parent anyway).
+    let aria_selected = Signal::derive(|| None::<String>);
+    let aria_current = Signal::derive(move || selected.get().then(|| "page".to_string()));
 
     let aria_expanded = Signal::derive(|| None::<String>);
     let style = Signal::derive(move || item_style.get().map(|s| s.to_string()).unwrap_or_default());
@@ -77,13 +80,14 @@ pub fn BaseNavigationItem(
     view! {
         <BaseCollectionItem
             class=item_class
-            role="menuitem"
+            role=""
             base_class="orbital-navigation-item"
             item_id=Signal::derive(move || item_id.get())
             style=style
             signals=signals
             aria_expanded=aria_expanded
             aria_selected=aria_selected
+            aria_current=aria_current
             on_click=Callback::new(move |ev: ev::MouseEvent| {
                 if disabled.get_untracked() {
                     return;

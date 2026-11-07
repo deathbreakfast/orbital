@@ -20,4 +20,18 @@ test.describe("data-table event callbacks", () => {
     await checkbox.click({ force: true });
     await expect(log).toContainText("selection:");
   });
+
+  test("a first click on a cell's text fires row and cell click", async ({ page }) => {
+    await openComponentPreview(page, "data-table-state", "data-table-events-preview");
+    const preview = page.getByTestId("data-table-events-preview");
+    await preview.scrollIntoViewIfNeeded();
+    const log = preview.getByTestId("event-log");
+
+    // The press focuses the cell; the click must still reach the row and the cell.
+    const cell = preview.getByTestId("data-table-cell-2-name");
+    await cell.locator(".orbital-data-table__cell-focus").click();
+    await expect(log).toContainText("row_click: 2");
+    await expect(log).toContainText("cell_click: 2-name");
+    await expect(cell.locator(".orbital-data-table__cell-focus")).toHaveAttribute("tabindex", "0");
+  });
 });

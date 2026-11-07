@@ -15,13 +15,17 @@ use orbital_macros::component_doc;
 ///
 /// 1. Enable `COLUMN_PINNING`, `COLUMN_REORDER`, or related flags on `features`.
 /// 2. Set column widths with [`ColumnWidth::Fixed`] or [`ColumnWidth::Flex`].
+///    Columns default to `Flex(1.0)`: the table measures its container and shares
+///    the width left over by fixed columns by weight, refilling on window resize.
+///    Until the first measurement (server render) it assumes 800px.
 /// 3. Gate toolbar picker and header menu via `toolbar_config` and `header_chrome`.
 ///
 /// # Best Practices
 ///
 /// ## Do's
 ///
-/// * Use `resizable_columns=true` with explicit initial widths
+/// * Use `resizable_columns=true`; dragging a flex column pins it at the dragged
+///   width while the other flex columns keep filling the table
 /// * Pin identifier columns left in horizontally scrollable tables
 /// * Use [`DataTableColumnGroupDef`] for two-level headers only when needed
 ///
@@ -64,6 +68,35 @@ use orbital_macros::component_doc;
 ///             columns=vec![
 ///                 DataTableColumnDef::new("name", "Name").with_width(ColumnWidth::Fixed(180.0)),
 ///                 DataTableColumnDef::new("role", "Role").with_width(ColumnWidth::Flex(1.0)),
+///             ]
+///             items=items
+///         />
+///     </div>
+/// }
+/// ```
+///
+///
+/// ## Column fill
+/// Columns with no width set default to `Flex(1.0)` and share the table width.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use crate::{DataTable, DataTableColumnDef, DataTableRowModel};
+/// let items = RwSignal::new(vec![
+///     DataTableRowModel::from_text_cells("1", HashMap::from([
+///         ("name".into(), "Ada Lovelace".into()),
+///         ("email".into(), "ada@ex.com".into()),
+///         ("role".into(), "Admin".into()),
+///     ])),
+/// ]);
+/// view! {
+///     <div data-testid="data-table-fill-preview">
+///         <DataTable
+///             resizable_columns=true
+///             columns=vec![
+///                 DataTableColumnDef::new("name", "Name"),
+///                 DataTableColumnDef::new("email", "Email"),
+///                 DataTableColumnDef::new("role", "Role"),
 ///             ]
 ///             items=items
 ///         />
@@ -136,15 +169,15 @@ use orbital_macros::component_doc;
 /// <!-- preview -->
 /// ```rust,ignore
 /// use std::collections::HashMap;
-/// use crate::{DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel};
+/// use crate::{ColumnType, DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel, FilterChoice};
 /// let items = RwSignal::new(vec![
 ///     DataTableRowModel::from_text_cells("1", HashMap::from([
 ///         ("name".into(), "Ada".into()),
-///         ("role".into(), "Editor".into()),
+///         ("role".into(), "Editor".into()), ("status".into(), "Archived".into()),
 ///     ])),
 ///     DataTableRowModel::from_text_cells("2", HashMap::from([
 ///         ("name".into(), "Grace".into()),
-///         ("role".into(), "Admin".into()),
+///         ("role".into(), "Admin".into()), ("status".into(), "Active".into()),
 ///     ])),
 /// ]);
 /// view! {
@@ -153,7 +186,7 @@ use orbital_macros::component_doc;
 ///             features=DataTableFeatures::COLUMN_PINNING
 ///             columns=vec![
 ///                 DataTableColumnDef::new("name", "Name"),
-///                 DataTableColumnDef::new("role", "Role"),
+///                 DataTableColumnDef::new("role", "Role"), DataTableColumnDef::new("status", "Status").with_col_type(ColumnType::SingleSelect).with_filter_options(["Active", "Archived"].map(FilterChoice::same)),
 ///             ]
 ///             items=items
 ///         />

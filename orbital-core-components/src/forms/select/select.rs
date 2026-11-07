@@ -5,7 +5,9 @@ use orbital_style::inject_style;
 
 use super::styles::select_styles;
 use super::types::{SelectAppearance, SelectBind};
-use crate::Icon;
+use crate::{Caption1, Icon};
+use orbital_base_components::new_field_id;
+use std::collections::HashMap;
 
 /// Select is a styled native dropdown for short, fixed option lists — status, role,
 /// category — where search is unnecessary and native form submission matters.
@@ -65,6 +67,23 @@ use crate::Icon;
 ///         <Select bind=value>
 ///             <option value="a">"Option A"</option>
 ///             <option value="b">"Option B"</option>
+///         </Select>
+///     </div>
+/// }
+/// ```
+///
+/// ## Options with secondary text
+/// Use `SelectOption` to add a description to each choice. The native menu shows it after the label; the selected option's description appears as `Caption1` under the control and is read as the select's description.
+/// <!-- preview -->
+/// ```rust
+/// use crate::SelectOption;
+/// let value = RwSignal::new("small".to_string());
+/// view! {
+///     <div data-testid="select-secondary">
+///         <Select bind=value>
+///             <SelectOption value="small" label="Small pool" secondary="2 vCPU, 4 GB, 3 workers" />
+///             <SelectOption value="large" label="Large pool" secondary="16 vCPU, 64 GB, 1 worker" />
+///             <SelectOption value="plain" label="No description" />
 ///         </Select>
 ///     </div>
 /// }
@@ -222,6 +241,18 @@ pub fn Select(
         validate.run(Some(SelectRuleTrigger::Change));
     });
 
+    let secondaries = RwSignal::new(HashMap::<String, String>::new());
+    provide_context(SelectSecondaries(secondaries));
+    let secondary_id = format!("{}-secondary", new_field_id());
+    let current_secondary = Memo::new(move |_| {
+        let current = value.get_value().get();
+        secondaries.with(|all| all.get(&current).cloned())
+    });
+    let describedby = {
+        let secondary_id = secondary_id.clone();
+        Signal::derive(move || current_secondary.get().map(|_| secondary_id.clone()))
+    };
+
     let size_class = Memo::new(move |_| format!("orbital-select--{}", size.get().as_str()));
 
     let wrapper_class = Memo::new(move |_| {
@@ -245,6 +276,7 @@ pub fn Select(
                 name=name
                 value=value.get_value()
                 disabled=disabled
+                aria_describedby=describedby
             >
                 {children()}
             </BaseSelect>
@@ -252,5 +284,63 @@ pub fn Select(
                 <Icon icon=icondata::BiChevronDownRegular />
             </span>
         </span>
+        {move || {
+            current_secondary.get().map(|line| {
+                view! {
+                    <span id=secondary_id.clone() class="orbital-select__secondary">
+                        <Caption1>{line}</Caption1>
+                    </span>
+                }
+            })
+        }}
+    }
+}
+
+#[derive(Clone, Copy)]
+struct SelectSecondaries(RwSignal<HashMap<String, String>>);
+
+/// A native `<option>` for [`Select`] and [`Dropdown`](crate::Dropdown) with an optional
+/// secondary line.
+///
+/// Browsers draw `<option>` as plain text, so the open menu shows `label — secondary`. The
+/// selected option's secondary text also appears as `Caption1` under the control and is
+/// linked to the `<select>` with `aria-describedby`.
+#[component]
+pub fn SelectOption(
+    /// Value submitted with the form and matched against the bound value.
+    #[prop(into)]
+    value: String,
+    /// Primary text of the option.
+    #[prop(into)]
+    label: String,
+    /// Description shown after the label in the menu and as `Caption1` under the control.
+    #[prop(optional, into)]
+    secondary: Option<String>,
+    /// Prevents picking this option.
+    #[prop(optional, into)]
+    disabled: Signal<bool>,
+) -> impl IntoView {
+    if let (Some(line), Some(SelectSecondaries(all))) =
+        (secondary.clone(), use_context::<SelectSecondaries>())
+    {
+        let key = value.clone();
+        all.update(|m| {
+            m.insert(key.clone(), line);
+        });
+        on_cleanup(move || {
+            all.update(|m| {
+                m.remove(&key);
+            });
+        });
+    }
+    let text = match &secondary {
+        Some(line) => format!("{label} \u{2014} {line}"),
+        None => label,
+    };
+    let text_node = text.clone();
+    view! {
+        <option value=value disabled=disabled title=text>
+            {text_node}
+        </option>
     }
 }

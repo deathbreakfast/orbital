@@ -116,6 +116,18 @@ pub fn combobox_styles() -> &'static str {
     font-size: 20px;
 }
 
+button.orbital-combobox__clear-icon {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.orbital-combobox__clear-icon:focus-visible {
+    outline: 2px solid var(--orb-color-border-focus);
+    outline-offset: 1px;
+}
+
 .orbital-combobox--small .orbital-combobox__clear-icon,
 .orbital-combobox--small .orbital-combobox__expand-icon {
     font-size: 16px;
@@ -240,6 +252,20 @@ pub fn combobox_styles() -> &'static str {
     border-color: var(--orb-color-brand-compound-bg);
     color: var(--orb-color-text-inverted);
     background-color: var(--orb-color-brand-compound-bg);
+}
+
+.orbital-combobox-option__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.orbital-combobox-option__secondary {
+    color: var(--orb-color-text-secondary);
+}
+
+.orbital-combobox-option--disabled .orbital-combobox-option__secondary {
+    color: var(--orb-color-text-disabled);
 }
 
 .orbital-combobox-option--disabled {

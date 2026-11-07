@@ -75,6 +75,12 @@ pub fn data_table_row_view(
             if state.selected.with(|s| s.contains(&id)) {
                 parts.push("orbital-data-table__row--selected".to_string());
             }
+            if ctx
+                .active_row_id
+                .with(|a| a.as_deref() == Some(id.as_str()))
+            {
+                parts.push("orbital-data-table__row--active".to_string());
+            }
             if ctx.drag_row_id.get().as_deref() == Some(id.as_str()) {
                 parts.push("orbital-data-table__row--drag-source".to_string());
             }
@@ -101,6 +107,14 @@ pub fn data_table_row_view(
     let is_row_selected = {
         let id = row_id.clone();
         Signal::derive(move || state.selected.with(|s| s.contains(&id)))
+    };
+
+    let is_row_active = {
+        let id = row_id.clone();
+        Signal::derive(move || {
+            ctx.active_row_id
+                .with(|a| a.as_deref() == Some(id.as_str()))
+        })
     };
 
     let pin_cell_style = match pin_position {
@@ -199,6 +213,8 @@ pub fn data_table_row_view(
             attr:aria-selected=move || {
                 if is_row_selected.get() { "true".to_string() } else { "false".to_string() }
             }
+            aria-current=move || is_row_active.get().then_some("true")
+            data-active-row=move || is_row_active.get().then_some("true")
             style=move || pin_style_stored.get_value().unwrap_or_default()
             data-testid=row_testid
             on:click=move |ev: leptos::ev::MouseEvent| {

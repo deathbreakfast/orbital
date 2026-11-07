@@ -31,7 +31,8 @@ pub struct ColumnLayout {
 /// Selection checkbox column width when present.
 pub const SELECTION_COLUMN_WIDTH_PX: f64 = 40.0;
 
-/// Default table width used for flex distribution when container width is unknown.
+/// Table width used for flex distribution until the container has been measured
+/// (server render and first paint).
 const DEFAULT_TABLE_WIDTH_PX: f64 = 800.0;
 
 pub struct ColumnLayoutInput<'a> {
@@ -68,7 +69,7 @@ fn base_width(def: &DataTableColumnDef, override_width: Option<f64>) -> f64 {
     }
     match def.width {
         ColumnWidth::Fixed(w) => w,
-        ColumnWidth::Flex(_) => 100.0,
+        ColumnWidth::Flex(_) => def.min_width.unwrap_or(100.0),
         ColumnWidth::Auto => def.min_width.unwrap_or(50.0),
     }
 }
@@ -79,37 +80,56 @@ fn resolve_widths(
     table_width_px: f64,
 ) -> HashMap<String, f64> {
     let mut widths = HashMap::new();
-    let mut flex_total: f32 = 0.0;
+    // Flex columns without a user override: (field, weight).
+    let mut flex: Vec<(&DataTableColumnDef, f64)> = Vec::new();
     let mut fixed_total = 0.0;
 
     for def in defs {
         let override_w = column_widths.get(&def.field).copied();
         match def.width {
             ColumnWidth::Flex(ratio) if override_w.is_none() => {
-                flex_total += ratio;
+                flex.push((def, f64::from(ratio)));
             }
             _ => {
-                fixed_total += base_width(def, override_w);
+                let w = clamp_width(base_width(def, override_w), def.min_width, def.max_width);
+                fixed_total += w;
+                widths.insert(def.field.clone(), w);
             }
         }
     }
 
-    let remaining = (table_width_px - fixed_total).max(0.0);
-
-    for def in defs {
-        let override_w = column_widths.get(&def.field).copied();
-        let w = match def.width {
-            ColumnWidth::Flex(ratio) if override_w.is_none() => {
-                if flex_total > 0.0 {
-                    remaining * (f64::from(ratio) / f64::from(flex_total))
-                } else {
-                    100.0
+    // Share the remaining width by weight. A column that hits its min or max is
+    // frozen at that bound and the rest are re-shared, so the row still fills.
+    let mut remaining = (table_width_px - fixed_total).max(0.0);
+    while !flex.is_empty() {
+        let weight_total: f64 = flex.iter().map(|(_, w)| w).sum();
+        if weight_total <= 0.0 {
+            for (def, _) in flex.drain(..) {
+                widths.insert(
+                    def.field.clone(),
+                    clamp_width(100.0, def.min_width, def.max_width),
+                );
+            }
+            break;
+        }
+        let frozen = flex.iter().position(|(def, weight)| {
+            let share = remaining * weight / weight_total;
+            clamp_width(share, def.min_width, def.max_width) != share
+        });
+        match frozen {
+            Some(i) => {
+                let (def, weight) = flex.remove(i);
+                let share = remaining * weight / weight_total;
+                let w = clamp_width(share, def.min_width, def.max_width);
+                remaining = (remaining - w).max(0.0);
+                widths.insert(def.field.clone(), w);
+            }
+            None => {
+                for (def, weight) in flex.drain(..) {
+                    widths.insert(def.field.clone(), remaining * weight / weight_total);
                 }
             }
-            _ => base_width(def, override_w),
-        };
-        let clamped = clamp_width(w, def.min_width, def.max_width);
-        widths.insert(def.field.clone(), clamped);
+        }
     }
 
     widths
@@ -314,5 +334,106 @@ mod tests {
         assert!(layout.columns[0].pin.is_some());
         assert_eq!(layout.columns[0].pin.unwrap().offset_px, 0.0);
         assert!(layout.columns[1].pin.is_none());
+    }
+
+    fn flex_def(field: &str, weight: f32) -> DataTableColumnDef {
+        DataTableColumnDef::new(field, field).with_width(ColumnWidth::Flex(weight))
+    }
+
+    fn total(widths: &HashMap<String, f64>) -> f64 {
+        widths.values().sum()
+    }
+
+    #[test]
+    fn default_columns_fill_measured_width() {
+        for table_width in [390.0, 1024.0, 1440.0] {
+            let defs = vec![
+                DataTableColumnDef::new("a", "A"),
+                DataTableColumnDef::new("b", "B"),
+                DataTableColumnDef::new("c", "C"),
+            ];
+            let widths = resolve_widths(&defs, &HashMap::new(), table_width);
+            assert!((total(&widths) - table_width).abs() < 1e-6, "{table_width}");
+        }
+    }
+
+    #[test]
+    fn flex_weights_split_proportionally() {
+        let defs = vec![flex_def("a", 1.0), flex_def("b", 3.0)];
+        let widths = resolve_widths(&defs, &HashMap::new(), 400.0);
+        assert_eq!(widths["a"], 100.0);
+        assert_eq!(widths["b"], 300.0);
+    }
+
+    #[test]
+    fn dragged_column_keeps_width_and_others_refill() {
+        let defs = vec![flex_def("a", 1.0), flex_def("b", 1.0), flex_def("c", 1.0)];
+        let dragged = HashMap::from([("a".to_string(), 150.0)]);
+        let before = resolve_widths(&defs, &dragged, 900.0);
+        let after = resolve_widths(&defs, &dragged, 600.0);
+        assert_eq!(before["a"], 150.0);
+        assert_eq!(after["a"], 150.0);
+        assert_eq!(before["b"], 375.0);
+        assert_eq!(after["b"], 225.0);
+        assert!((total(&after) - 600.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn fixed_columns_are_subtracted_before_flex_share() {
+        let defs = vec![
+            DataTableColumnDef::new("a", "A").with_width(ColumnWidth::Fixed(200.0)),
+            flex_def("b", 1.0),
+            flex_def("c", 1.0),
+        ];
+        let widths = resolve_widths(&defs, &HashMap::new(), 600.0);
+        assert_eq!(widths["a"], 200.0);
+        assert_eq!(widths["b"], 200.0);
+        assert_eq!(widths["c"], 200.0);
+    }
+
+    #[test]
+    fn clamped_flex_column_leaves_the_rest_to_its_siblings() {
+        let mut capped = flex_def("a", 1.0);
+        capped.max_width = Some(100.0);
+        let defs = vec![capped, flex_def("b", 1.0)];
+        let widths = resolve_widths(&defs, &HashMap::new(), 600.0);
+        assert_eq!(widths["a"], 100.0);
+        assert_eq!(widths["b"], 500.0);
+
+        let mut floored = flex_def("a", 1.0);
+        floored.min_width = Some(400.0);
+        let defs = vec![floored, flex_def("b", 1.0)];
+        let widths = resolve_widths(&defs, &HashMap::new(), 600.0);
+        assert_eq!(widths["a"], 400.0);
+        assert_eq!(widths["b"], 200.0);
+    }
+
+    #[test]
+    fn narrow_container_never_goes_below_min_width() {
+        let mut a = flex_def("a", 1.0);
+        a.min_width = Some(120.0);
+        let widths = resolve_widths(&[a], &HashMap::new(), 50.0);
+        assert_eq!(widths["a"], 120.0);
+    }
+
+    #[test]
+    fn build_layout_uses_measured_width_and_falls_back() {
+        let defs = vec![flex_def("a", 1.0), flex_def("b", 1.0)];
+        let layout_for = |table_width_px| {
+            build_column_layout(&ColumnLayoutInput {
+                defs: &defs,
+                column_order: &[],
+                column_visibility: &HashMap::new(),
+                column_widths: &HashMap::new(),
+                pinned_columns: &PinnedColumnsState::default(),
+                features: DataTableFeatures::empty(),
+                table_width_px,
+            })
+        };
+        assert_eq!(layout_for(Some(1000.0)).columns[0].width_px, 500.0);
+        assert_eq!(
+            layout_for(None).columns[0].width_px,
+            DEFAULT_TABLE_WIDTH_PX / 2.0
+        );
     }
 }

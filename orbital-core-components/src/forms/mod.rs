@@ -13,6 +13,7 @@ pub mod field;
 pub mod info_label;
 pub mod input;
 pub mod label;
+pub mod markdown_editor;
 pub mod menu_button;
 pub mod numeric_stepper;
 pub mod picker_shortcuts;
@@ -47,13 +48,14 @@ pub use combobox::{
 pub use compound_button::{CompoundButton, CompoundButtonIconPosition};
 pub use date_picker::{DatePicker, DatePickerAppearance, DatePickerBind};
 pub use dropdown::Dropdown;
-pub use field::{Field, FieldOrientation};
+pub use field::{Field, FieldOrientation, FieldValidationMessage};
 pub use info_label::{InfoLabel, InfoLabelInfo, InfoLabelSize, InfoLabelWeight};
 pub use input::{
     input_styles, Input, InputAppearance, InputBind, InputEvents, InputPrefix, InputRef,
     InputSuffix,
 };
 pub use label::Label;
+pub use markdown_editor::{MarkdownEditor, OrbitalMarkdownOptions};
 pub use menu_button::MenuButton;
 pub use numeric_stepper::{
     NumericStepper, NumericStepperAppearance, NumericStepperBind, NumericStepperSize,
@@ -64,7 +66,7 @@ pub use radio_group::{
     RadioGroup, RadioGroupBind, RadioGroupLayout, RadioGroupRule, RadioGroupRuleTrigger,
 };
 pub use search_box::{SearchBox, SearchBoxAppearance, SearchBoxBind, SearchBoxEvents};
-pub use select::{Select, SelectAppearance, SelectBind};
+pub use select::{Select, SelectAppearance, SelectBind, SelectOption};
 pub use slider::{Slider, SliderAppearance, SliderBind, SliderLabel};
 pub use swatch_picker::{
     SwatchPicker, SwatchPickerItem, SwatchPickerLayout, SwatchPickerShape, SwatchPickerSize,
@@ -113,6 +115,8 @@ pub use info_label::INFOLABEL_PREVIEW_REGISTRATION;
 pub use input::INPUT_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use label::LABEL_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+pub use markdown_editor::MARKDOWNEDITOR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use menu_button::MENUBUTTON_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
