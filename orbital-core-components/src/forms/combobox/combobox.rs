@@ -11,7 +11,7 @@ use std::collections::HashMap;
 
 use super::styles::combobox_styles;
 use super::types::{ComboboxAppearance, ComboboxBind};
-use crate::Icon;
+use crate::{Caption1, Icon};
 
 #[derive(Clone)]
 struct ComboboxOptionRecord {
@@ -91,6 +91,7 @@ impl ComboboxInjection {
 ///
 /// - Bind both `ComboboxBind.value` (filter/display string) and `ComboboxBind.selected_options` (stable option ids).
 /// - Declare options as slot children via [`ComboboxOption`] — there is no data-prop options array.
+/// - Typing filters options by title locally. Set `ComboboxAppearance.disable_filter` to show every option, for example when results come from a server search.
 /// - Free text entry is not supported — use [`AutoComplete`](crate::AutoComplete) when users may type arbitrary values.
 ///
 /// See the crate README for picker vs combobox selection.
@@ -103,8 +104,9 @@ impl ComboboxInjection {
 /// - The chevron on the right is decorative. It is hidden from assistive technology and only
 ///   duplicates what the input already does.
 /// - With `clearable` set and a value selected, a button named "Clear" joins the Tab order.
-///   Enter or Space resets the field and returns focus to the input. The name is fixed English
-///   text, and the button is disabled together with the Combobox.
+///   Enter or Space resets the field and returns focus to the input. The name defaults to
+///   "Clear"; set `clear_label` on [`ComboboxAppearance`] to translate it. The button is
+///   disabled together with the Combobox.
 ///
 /// # Form picker controls
 ///
@@ -161,6 +163,48 @@ impl ComboboxInjection {
 ///         >
 ///             <ComboboxOption value="apple".to_string() text="Apple" />
 ///             <ComboboxOption value="banana".to_string() text="Banana" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Custom clear label
+/// Sets the clear button's accessible name with `clear_label`, for products that are not in English.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new("Apple".to_string());
+/// let selected = RwSignal::new(vec!["apple".to_string()]);
+/// view! {
+///     <div data-testid="combobox-clear-label">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance {
+///                 clearable: true,
+///                 clear_label: "Effacer".to_string().into(),
+///                 ..Default::default()
+///             }
+///         >
+///             <ComboboxOption value="apple".to_string() text="Apple" />
+///             <ComboboxOption value="banana".to_string() text="Banana" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Server-side filtering
+/// Set `disable_filter` when the product filters on the server. Options whose title lacks the typed text stay visible and reachable with the arrow keys.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// view! {
+///     <div data-testid="combobox-no-local-filter">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance { disable_filter: true, ..Default::default() }
+///         >
+///             <ComboboxOption value="apple".to_string() text="Apple" />
+///             <ComboboxOption value="zucchini".to_string() text="Zucchini" />
 ///         </Combobox>
 ///     </div>
 /// }
@@ -242,6 +286,22 @@ impl ComboboxInjection {
 ///             appearance=ComboboxAppearance { clearable: true, disabled: Signal::from(true), ..Default::default() }
 ///         >
 ///             <ComboboxOption value="apple".to_string() text="Apple" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Options with secondary text
+/// Add `secondary` to show a `Caption1` line under the label, for example a description or hardware summary. The line is announced with the option and the type-ahead filter matches it.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// view! {
+///     <div data-testid="combobox-secondary">
+///         <Combobox bind=ComboboxBind::new(value, selected)>
+///             <ComboboxOption value="small".to_string() text="Small pool" secondary="2 vCPU, 4 GB, 3 workers" />
+///             <ComboboxOption value="large".to_string() text="Large pool" secondary="16 vCPU, 64 GB, 1 worker" />
 ///         </Combobox>
 ///     </div>
 /// }
@@ -345,6 +405,8 @@ pub fn Combobox(
         placeholder,
         disabled,
         clearable,
+        clear_label,
+        disable_filter,
         multiselect,
         size,
     } = appearance;
@@ -366,7 +428,13 @@ pub fn Combobox(
 
     let filter_needle = Signal::derive({
         let value = value.clone();
-        move || value.get().trim().to_ascii_lowercase()
+        move || {
+            if disable_filter {
+                String::new()
+            } else {
+                value.get().trim().to_ascii_lowercase()
+            }
+        }
     });
 
     let combobox_injection = ComboboxInjection {
@@ -579,7 +647,7 @@ pub fn Combobox(
                 }>
                     <button
                         type="button"
-                        aria-label="Clear"
+                        aria-label=move || clear_label.get().unwrap_or_else(|| "Clear".to_string())
                         class="orbital-combobox__clear-icon"
                         disabled=move || disabled.get()
                         on:mousedown=|e| e.prevent_default()
@@ -599,6 +667,10 @@ pub fn ComboboxOption(
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(into)] text: String,
     #[prop(optional, into, default = text.clone())] value: String,
+    /// Second line under the label, rendered as `Caption1` and announced as the option's
+    /// description. The type-ahead filter matches it too.
+    #[prop(optional, into)]
+    secondary: MaybeProp<String>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let combobox = ComboboxInjection::expect_context();
@@ -611,6 +683,8 @@ pub fn ComboboxOption(
         move |_| value.with_value(|v| combobox.is_selected(v))
     });
     let id = new_field_id();
+    let secondary_id = format!("{id}-secondary");
+    let secondary_for_attr = secondary_id.clone();
 
     {
         let combobox_insert = combobox.clone();
@@ -661,7 +735,11 @@ pub fn ComboboxOption(
         let filter_needle = combobox.filter_needle;
         move |_| {
             let needle = filter_needle.get();
-            needle.is_empty() || text.with_value(|t| t.to_ascii_lowercase().contains(&needle))
+            needle.is_empty()
+                || text.with_value(|t| t.to_ascii_lowercase().contains(&needle))
+                || secondary
+                    .get()
+                    .is_some_and(|s| s.to_ascii_lowercase().contains(&needle))
         }
     });
 
@@ -670,6 +748,7 @@ pub fn ComboboxOption(
             role="option"
             aria-disabled=move || if disabled.get() { "true" } else { "false" }
             aria-selected=move || is_selected.get().to_string()
+            aria-describedby=move || secondary.get().map(|_| secondary_for_attr.clone())
             id=id
             class=move || {
                 let mut parts = option_class.get().split_whitespace().map(str::to_string).collect::<Vec<_>>();
@@ -694,7 +773,23 @@ pub fn ComboboxOption(
                         </Show>
                     </span>
                 </Show>
-                {children.map(|c| c()).unwrap_or_else(|| text.get_value().into_any())}
+                <span class="orbital-combobox-option__text">
+                    <span class="orbital-combobox-option__label">
+                        {children.map(|c| c()).unwrap_or_else(|| text.get_value().into_any())}
+                    </span>
+                    {move || {
+                        secondary.get().map(|line| {
+                            view! {
+                                <span
+                                    id=secondary_id.clone()
+                                    class="orbital-combobox-option__secondary"
+                                >
+                                    <Caption1>{line}</Caption1>
+                                </span>
+                            }
+                        })
+                    }}
+                </span>
         </div>
     }
 }

@@ -39,6 +39,7 @@ where
         if disabled.get_untracked() {
             return;
         }
+        crate::overlay::focus_trap::note_menu_activation();
         on_select.run(value.clone());
         if let Some(dismiss) = use_context::<OverlayDismiss>() {
             dismiss.close.run(());

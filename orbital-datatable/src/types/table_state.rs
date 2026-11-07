@@ -75,6 +75,8 @@ pub struct DataTableTableState {
     pub aggregation_position: StoredValue<AggregationPosition>,
     pub pivot: RwSignal<DataTablePivotModel>,
     pub list_view: StoredValue<Option<ListViewConfig>>,
+    /// Measured table width in px; `None` until the first measurement.
+    pub measured_width: Signal<Option<f64>>,
     pub pivot_columns: RwSignal<Vec<DataTableColumnDef>>,
     pub footer_row: RwSignal<Option<DataTableRowModel>>,
     pub get_row_id: StoredValue<Option<GetRowId>>,
@@ -821,7 +823,14 @@ impl DataTableTableState {
     }
 
     pub fn list_view_enabled(&self) -> bool {
-        self.features.contains(DataTableFeatures::LIST_VIEW) && self.list_view.get_value().is_some()
+        if !self.features.contains(DataTableFeatures::LIST_VIEW) {
+            return false;
+        }
+        let Some(config) = self.list_view.get_value() else {
+            return false;
+        };
+        let measured = self.measured_width.get();
+        config.shows_list_at(measured)
     }
 
     pub fn reorder_row(&self, source_id: &str, target_id: &str, before: bool) {

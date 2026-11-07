@@ -15,6 +15,7 @@ pub fn table_styles() -> &'static str {
     position: relative;
     display: table-cell;
     vertical-align: middle;
+    box-sizing: border-box;
     font-weight: var(--orb-type-weight-regular);
     padding: 0px var(--orb-space-inline-sm);
 }
@@ -52,6 +53,9 @@ pub fn table_styles() -> &'static str {
     transition-property: opacity;
     opacity: 0;
     cursor: col-resize;
+}
+.orbital-table-header-cell:last-child .orbital-table-resize-handle {
+    margin-right: 0px;
 }
 .orbital-table-resize-handle:hover {
     opacity: 1;
@@ -91,6 +95,7 @@ pub fn table_styles() -> &'static str {
     height: 44px;
     display: table-cell;
     vertical-align: middle;
+    box-sizing: border-box;
     padding: 0px var(--orb-space-inline-sm);
 }
 .orbital-table-cell-layout {

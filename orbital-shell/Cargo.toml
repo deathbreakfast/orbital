@@ -24,7 +24,7 @@ icondata.workspace = true
 icondata_core.workspace = true
 turf.workspace = true
 parcel_selectors = { workspace = true }
-pulldown-cmark = "0.13"
+pulldown-cmark = "0.13.6"
 
 orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
 orbital-primitives = { path = "../orbital-primitives", version = "0.1.4", default-features = false }
