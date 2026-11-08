@@ -47,7 +47,8 @@ impl SchedulerView {
 
 /// Timeline zoom presets for [`SchedulerTimeline`](crate::SchedulerTimeline).
 ///
-/// Presets are capped at one week of wall time — wider spans are hard to read on a timeline.
+/// Hour and day presets cover up to one week. [`Month`](Self::Month) and
+/// [`Quarter`](Self::Quarter) zoom out for project plans.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TimelinePreset {
     /// One day at hourly resolution.
@@ -58,6 +59,13 @@ pub enum TimelinePreset {
     Week,
     /// One business week (Mon–Fri) at daily resolution.
     BusinessWeek,
+    /// One calendar month, one column per day.
+    Month,
+    /// Three calendar months (a quarter), one column per week starting Monday.
+    ///
+    /// The first and last columns are clipped to the quarter, so they can be
+    /// shorter than seven days; their width shrinks to match.
+    Quarter,
 }
 
 impl TimelinePreset {
@@ -68,6 +76,8 @@ impl TimelinePreset {
             Self::BusinessDay => "Business day",
             Self::Week => "Week",
             Self::BusinessWeek => "Business week",
+            Self::Month => "Month",
+            Self::Quarter => "Quarter",
         }
     }
 
@@ -78,6 +88,8 @@ impl TimelinePreset {
             Self::BusinessDay => "business_day",
             Self::Week => "week",
             Self::BusinessWeek => "business_week",
+            Self::Month => "month",
+            Self::Quarter => "quarter",
         }
     }
 
@@ -88,15 +100,24 @@ impl TimelinePreset {
             "business_day" => Some(Self::BusinessDay),
             "week" => Some(Self::Week),
             "business_week" => Some(Self::BusinessWeek),
+            "month" => Some(Self::Month),
+            "quarter" => Some(Self::Quarter),
             // Legacy wire values from removed presets.
             "hour" => Some(Self::Day),
-            "month" | "year" => Some(Self::Week),
+            "year" => Some(Self::Quarter),
             _ => None,
         }
     }
 
     /// All presets in display order.
     pub fn all() -> &'static [Self] {
-        &[Self::Day, Self::BusinessDay, Self::Week, Self::BusinessWeek]
+        &[
+            Self::Day,
+            Self::BusinessDay,
+            Self::Week,
+            Self::BusinessWeek,
+            Self::Month,
+            Self::Quarter,
+        ]
     }
 }

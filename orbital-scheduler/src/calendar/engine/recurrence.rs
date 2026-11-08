@@ -209,6 +209,8 @@ fn make_instance(master: &PlannedEvent, occurrence_start: OrbitalDateTime) -> Pl
         resource_id: master.resource_id.clone(),
         recurrence_rule: None,
         color: master.color.clone(),
+        tone: master.tone,
+        progress: master.progress,
         is_draggable: master.is_draggable,
         is_resizable: master.is_resizable,
         is_editable: master.is_editable,

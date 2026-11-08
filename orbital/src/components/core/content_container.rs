@@ -76,8 +76,9 @@ pub fn Container(
     /// Child content.
     children: Children,
 ) -> impl IntoView {
+    // Stable `orbital-*` names so static HTML mocks can reuse these rules.
     let (style_sheet, class_names) = inline_style_sheet_values! {
-        .Container {
+        .orbital-content-container {
             margin-inline: auto;
             box-sizing: border-box;
         }
@@ -93,7 +94,7 @@ pub fn Container(
     });
 
     let container_class = {
-        let base = class_names.container.to_string();
+        let base = class_names.orbital_content_container.to_string();
         match class.get() {
             Some(extra) if !extra.trim().is_empty() => format!("{} {}", base, extra),
             _ => base,

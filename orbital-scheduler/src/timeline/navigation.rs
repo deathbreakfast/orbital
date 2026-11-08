@@ -104,6 +104,12 @@ pub fn SchedulerTimelineToolbar(
             .and_then(|c| c.locale_text.try_get().map(|locale| locale.next.clone()))
             .unwrap_or_else(|| "Next".to_string())
     };
+    let label_zoom = move || {
+        chrome
+            .and_then(|c| c.locale_text.try_get().map(|l| l.preset_select.clone()))
+            .unwrap_or_else(|| "Zoom".to_string())
+    };
+
     let preset_labels = move || {
         chrome.and_then(|c| {
             c.locale_text.try_get().map(|locale| {
@@ -151,7 +157,9 @@ pub fn SchedulerTimelineToolbar(
                 <span class="orb-scheduler-toolbar__title" data-testid="scheduler-timeline-header-title">
                     {title}
                 </span>
-                <div class="orb-scheduler-toolbar__view" data-testid="scheduler-timeline-preset-select">
+                // The wrapping label names the select for assistive tech.
+                <label class="orb-scheduler-toolbar__view" data-testid="scheduler-timeline-preset-select">
+                    <span class="orb-scheduler-event__sr">{label_zoom}</span>
                     <Select
                         bind=preset_select
                         appearance=SelectAppearance {
@@ -176,7 +184,7 @@ pub fn SchedulerTimelineToolbar(
                                 .collect_view()
                         }}
                     </Select>
-                </div>
+                </label>
             </Toolbar>
         </div>
     }
