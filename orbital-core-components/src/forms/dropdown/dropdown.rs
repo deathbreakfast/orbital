@@ -57,6 +57,22 @@ use crate::{Select, SelectAppearance, SelectBind};
 /// }
 /// ```
 ///
+/// ## Options with secondary text
+/// `SelectOption` adds a description to each choice; the selected one shows as `Caption1` under the control.
+/// <!-- preview -->
+/// ```rust
+/// use crate::SelectOption;
+/// let value = RwSignal::new("a".to_string());
+/// view! {
+///     <div data-testid="dropdown-secondary">
+///         <Dropdown bind=value>
+///             <SelectOption value="a" label="Standard" secondary="Shared hardware, 2 workers" />
+///             <SelectOption value="b" label="Dedicated" secondary="Reserved 8 vCPU, 5 workers" />
+///         </Dropdown>
+///     </div>
+/// }
+/// ```
+///
 /// ## In Field
 /// Field supplies the visible label and id association; Dropdown holds the options and two-way value.
 /// <!-- preview -->

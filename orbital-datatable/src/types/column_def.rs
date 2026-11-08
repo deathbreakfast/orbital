@@ -18,6 +18,34 @@ pub enum ColumnType {
     Actions,
 }
 
+/// One entry in the choice list a `SingleSelect` filter editor offers.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FilterChoice {
+    /// Text stored in the filter rule.
+    pub value: String,
+    /// Text the person sees in the list.
+    pub label: String,
+}
+
+impl FilterChoice {
+    /// A choice whose `value` goes into the filter rule and whose `label` is what people see.
+    pub fn new(value: impl Into<String>, label: impl Into<String>) -> Self {
+        Self {
+            value: value.into(),
+            label: label.into(),
+        }
+    }
+
+    /// A choice whose value and label are the same text.
+    pub fn same(text: impl Into<String>) -> Self {
+        let text = text.into();
+        Self {
+            value: text.clone(),
+            label: text,
+        }
+    }
+}
+
 /// Column width mode.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColumnWidth {
@@ -99,6 +127,9 @@ pub struct DataTableColumnDef {
     pub editable: bool,
     /// Select options for editable `SingleSelect` columns.
     pub edit_options: Option<Vec<String>>,
+    /// Choices the filter editors offer for a `SingleSelect` column. Falls back to
+    /// `edit_options` when `None`; see [`DataTableColumnDef::filter_choices`].
+    pub filter_options: Option<Vec<FilterChoice>>,
     /// Optional per-field validator run before row commit.
     pub validate_value: Option<Callback<(DataValue,), Result<DataValue, DataTableError>>>,
     /// Custom inline edit renderer (default: typed Input/Select/Checkbox/DatePicker).
@@ -150,6 +181,7 @@ impl DataTableColumnDef {
             compare_values: None,
             editable: false,
             edit_options: None,
+            filter_options: None,
             validate_value: None,
             edit_view: None,
             cell_class: None,
@@ -188,6 +220,7 @@ impl DataTableColumnDef {
             compare_values: None,
             editable: false,
             edit_options: None,
+            filter_options: None,
             validate_value: None,
             edit_view: None,
             cell_class: None,
@@ -302,6 +335,27 @@ impl DataTableColumnDef {
         self
     }
 
+    /// Choices for the filter editors of a `SingleSelect` column. They can differ
+    /// from the editable values.
+    pub fn with_filter_options(mut self, options: impl IntoIterator<Item = FilterChoice>) -> Self {
+        self.filter_options = Some(options.into_iter().collect());
+        self
+    }
+
+    /// Choice list for filter editors: `filter_options`, else `edit_options`
+    /// (value = label). `None` for other column types or when no choices exist.
+    pub fn filter_choices(&self) -> Option<Vec<FilterChoice>> {
+        if self.col_type != ColumnType::SingleSelect {
+            return None;
+        }
+        let choices = match (&self.filter_options, &self.edit_options) {
+            (Some(options), _) => options.clone(),
+            (None, Some(options)) => options.iter().cloned().map(FilterChoice::same).collect(),
+            (None, None) => return None,
+        };
+        (!choices.is_empty()).then_some(choices)
+    }
+
     pub fn with_validate_value(
         mut self,
         cb: Callback<(DataValue,), Result<DataValue, DataTableError>>,
@@ -321,5 +375,45 @@ impl DataTableColumnDef {
     /// Whether this column can enter inline edit mode.
     pub fn is_editable(&self) -> bool {
         self.editable && self.col_type != ColumnType::Actions
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn select() -> DataTableColumnDef {
+        DataTableColumnDef::new("status", "Status").with_col_type(ColumnType::SingleSelect)
+    }
+
+    #[test]
+    fn filter_choices_prefer_filter_options_happy() {
+        let col = select()
+            .with_edit_options(vec!["Open".into()])
+            .with_filter_options([FilterChoice::new("archived", "Archived")]);
+        assert_eq!(
+            col.filter_choices(),
+            Some(vec![FilterChoice::new("archived", "Archived")])
+        );
+    }
+
+    #[test]
+    fn filter_choices_fall_back_to_edit_options_happy() {
+        let col = select().with_edit_options(vec!["Admin".into(), "Member".into()]);
+        assert_eq!(
+            col.filter_choices(),
+            Some(vec![
+                FilterChoice::same("Admin"),
+                FilterChoice::same("Member")
+            ])
+        );
+    }
+
+    #[test]
+    fn filter_choices_none_for_plain_single_select_sad() {
+        assert_eq!(select().filter_choices(), None);
+        assert_eq!(select().with_filter_options([]).filter_choices(), None);
+        let text = DataTableColumnDef::new("n", "N").with_filter_options([FilterChoice::same("a")]);
+        assert_eq!(text.filter_choices(), None);
     }
 }

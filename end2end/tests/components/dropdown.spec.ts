@@ -23,4 +23,13 @@ test.describe("dropdown primitive preview", () => {
     expect(labelFor).toEqual(selectId);
     await expect(page.getByTestId("dropdown-field").locator("label")).toContainText("Status");
   });
+
+  test("DD-SEC-01: dropdown shows the selected option's secondary text", async ({ page }) => {
+    await openComponentPreview(page, "dropdown");
+    const root = page.getByTestId("dropdown-secondary");
+    await root.scrollIntoViewIfNeeded();
+    await expect(root.locator(".orbital-select__secondary")).toHaveText("Shared hardware, 2 workers");
+    await root.locator("select").selectOption("b");
+    await expect(root.locator(".orbital-select__secondary")).toHaveText("Reserved 8 vCPU, 5 workers");
+  });
 });

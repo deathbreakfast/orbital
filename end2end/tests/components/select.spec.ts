@@ -44,4 +44,19 @@ test.describe("select primitive preview", () => {
     const largeH = await large.evaluate((el) => el.getBoundingClientRect().height);
     expect(largeH).toBeGreaterThan(smallH);
   });
+
+  test("S-SEC-01: selected option's secondary text shows as a caption and describes the select", async ({ page }) => {
+    await openComponentPreview(page, "select");
+    const root = page.getByTestId("select-secondary");
+    await root.scrollIntoViewIfNeeded();
+    const select = root.locator("select");
+    const caption = root.locator(".orbital-select__secondary");
+    await expect(caption).toHaveText("2 vCPU, 4 GB, 3 workers");
+    expect(await select.getAttribute("aria-describedby")).toEqual(await caption.getAttribute("id"));
+    await select.selectOption("large");
+    await expect(caption).toHaveText("16 vCPU, 64 GB, 1 worker");
+    await select.selectOption("plain");
+    await expect(caption).toHaveCount(0);
+    await expect(select).not.toHaveAttribute("aria-describedby", /.+/);
+  });
 });

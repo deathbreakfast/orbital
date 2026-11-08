@@ -312,6 +312,7 @@ pub fn content_with_aside_styles() -> &'static str {
         @media (max-width: 1023px) {
             .orbital-content-with-aside {
                 flex-direction: column;
+                align-items: stretch;
             }
 
             .orbital-content-with-aside__aside {

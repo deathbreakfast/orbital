@@ -140,6 +140,15 @@ pub fn DataTableFilterRuleEditor(
         }
     });
 
+    let choices = Memo::new(move |_| {
+        let field = field.get();
+        columns
+            .get_value()
+            .iter()
+            .find(|c| c.field == field)
+            .and_then(|c| c.filter_choices())
+    });
+
     let idx = rule_index.get().unwrap_or(0);
     let field_testid = format!("data-table-filter-rule-{idx}-field");
     let operator_testid = format!("data-table-filter-rule-{idx}-operator");
@@ -187,7 +196,17 @@ pub fn DataTableFilterRuleEditor(
                         _ => InputType::Text,
                     };
                     let value_testid = format!("data-table-filter-rule-{idx}-value");
-                    if col == ColumnType::Boolean {
+                    if let Some(choices) = choices.get() {
+                        view! {
+                            <Select bind=value_text attr:data-testid=value_testid appearance=SelectSize::Small>
+                                <option value="">"Any value"</option>
+                                {choices
+                                    .into_iter()
+                                    .map(|c| view! { <option value=c.value>{c.label}</option> })
+                                    .collect_view()}
+                            </Select>
+                        }.into_any()
+                    } else if col == ColumnType::Boolean {
                         view! {
                             <Select bind=value_text attr:data-testid=value_testid appearance=SelectSize::Small>
                                 <option value="true">"True"</option>

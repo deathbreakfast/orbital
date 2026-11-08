@@ -32,6 +32,12 @@ pub fn DataTableOverlays(
                     OverlayState::None => "data-table-overlay",
                 }
             >
+                <div class=move || match overlay.get() {
+                    OverlayState::Empty | OverlayState::NoResults => {
+                        "orbital-data-table__overlay-content orbital-data-table__overlay-content--interactive"
+                    }
+                    _ => "orbital-data-table__overlay-content",
+                }>
                 {move || match overlay.get() {
                     OverlayState::Loading => loading_view.with_value(|slot| {
                         render_loading_overlay(slot.as_ref(), &ctx)
@@ -44,6 +50,7 @@ pub fn DataTableOverlays(
                     }),
                     OverlayState::None => ().into_any(),
                 }}
+                </div>
             </div>
         </Show>
     }

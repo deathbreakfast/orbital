@@ -2,8 +2,8 @@ use leptos::prelude::*;
 use leptos_router::components::Outlet;
 use orbital::components::{
     AppBar, AppBarDensity, AppBarLeading, AppBarMaterial, AppBarPosition, AppBarTrailing,
-    BackToTop, Container, Layout, LayoutHeader, LayoutMain, LayoutSidebar, MaterialCorners,
-    MaterialElevation, MaterialVariant, Title3,
+    BackToTop, Container, Layout, LayoutHeader, LayoutMain, LayoutSidebar, LayoutSidebarToggle,
+    MaterialCorners, MaterialElevation, MaterialVariant, SidebarPresentation, Title3,
 };
 use orbital::{init_auth_resource, provide_auth_context, AuthSession};
 use orbital_theme::{Density, OrbitalThemeProvider, Theme, ThemeMode, ThemeOverrides};
@@ -28,6 +28,7 @@ pub fn PreviewCatalogShell() -> impl IntoView {
             <Layout
                 overlay_header=true
                 header_inset=AppBarDensity::Compact
+                sidebar_presentation=SidebarPresentation::Auto
                 data_testid="preview-catalog-shell"
             >
                 <LayoutHeader slot>
@@ -39,6 +40,7 @@ pub fn PreviewCatalogShell() -> impl IntoView {
                             slot
                         />
                         <AppBarLeading slot>
+                            <LayoutSidebarToggle />
                             <Title3>"Orbital Components"</Title3>
                         </AppBarLeading>
                         <PreviewCatalogSearch />

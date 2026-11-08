@@ -81,6 +81,10 @@ pub fn data_table_styles() -> &'static str {
     pointer-events: none;
 }
 
+.orbital-data-table__overlay-content--interactive {
+    pointer-events: auto;
+}
+
 .orbital-data-table__overlay-message {
     color: var(--orb-color-text-secondary);
     font-size: var(--orb-type-size-sm);
@@ -222,6 +226,11 @@ pub fn data_table_styles() -> &'static str {
 
 .orbital-data-table__row--selected {
     background: var(--orb-color-surface-canvas-selected);
+}
+
+.orbital-data-table__row--active {
+    background: var(--orb-color-surface-canvas-selected);
+    box-shadow: inset 3px 0 0 var(--orb-color-brand-stroke);
 }
 
 .orbital-data-table th.orbital-data-table__pinned-left,

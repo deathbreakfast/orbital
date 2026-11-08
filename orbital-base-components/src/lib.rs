@@ -22,6 +22,7 @@ pub mod flex;
 pub mod floating_button;
 pub mod form;
 pub mod grid;
+pub mod hotkeys;
 pub mod icon;
 pub mod layout;
 pub mod loading_bar;
@@ -95,6 +96,7 @@ pub use form::{
     TryFromDataValue, TryFromIso8601, TryFromUnixSeconds,
 };
 pub use grid::{use_grid, BaseGrid, BaseGridItem, GridInjection};
+pub use hotkeys::{use_hotkeys, Hotkey};
 pub use icon::BaseIcon;
 pub use layout::{
     AppBarInset, BaseLayout, BaseLayoutBody, BaseLayoutHeaderInset, BaseLayoutMain,

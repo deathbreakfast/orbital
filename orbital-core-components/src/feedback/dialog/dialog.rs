@@ -42,11 +42,16 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 /// * Pair primary and secondary actions in [`DialogActions`] for destructive flows
 /// * Set `dismiss.mask_closeable` to false when accidental backdrop clicks would be harmful
 /// * Share one `open` signal between trigger, backdrop dismiss, and footer buttons
+/// * Wrap the body in `<Show when=move || open.get()>` when it must leave the page while closed
 ///
 /// ## Don'ts
 ///
 /// * Do not use Dialog for brief hints — wrap the trigger with [`Tooltip`](crate::Tooltip) instead
 /// * Do not use Dialog for non-blocking status — use [`MessageBar`](crate::MessageBar) or [`Toast`](crate::Toast)
+///
+/// # Closed content
+///
+/// Children stay mounted after the dialog closes and are hidden with `display: none`. A role query skips them, but a test-id count such as `toHaveCount(0)` still finds them, and effects inside the body keep running. Wrap the body in `<Show when=move || open.get()>` when it should be out of the page while closed.
 ///
 /// # Examples
 ///
