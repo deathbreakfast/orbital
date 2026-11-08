@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
 import { expectTeleportedRole } from "../lib/preview/overlays";
 test.describe("dialog primitive preview", () => {
@@ -195,5 +195,83 @@ test.describe("dialog primitive preview", () => {
   test("DL-16: an element made reachable by a tabindex change receives focus", async ({ page }) => {
     const { dialog } = await openLate(page, "dialog-late-tabindex");
     await expect(dialog.getByTestId("dialog-late-tabbable")).toBeFocused();
+  });
+
+  async function openSized(page: Page, slug: string, size: string) {
+    await openComponentPreview(page, "dialog", slug);
+    const root = page.getByTestId(slug);
+    await root.scrollIntoViewIfNeeded();
+    await root.getByRole("button", { name: `Open ${size}` }).click();
+    const content = page.getByTestId(`dialog-size-${size}`);
+    await expect(content).toBeVisible();
+    return page.locator(".orbital-dialog-surface").filter({ has: content });
+  }
+
+  async function width(surface: Locator) {
+    const box = await surface.boundingBox();
+    expect(box).not.toBeNull();
+    return box!.width;
+  }
+
+  test("DL-17: a large dialog is wider than 600px and at most 960px", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const surface = await openSized(page, "dialog-sizes", "large");
+    const w = await width(surface);
+    expect(w).toBeGreaterThan(600);
+    expect(w).toBeLessThanOrEqual(960);
+  });
+
+  test("DL-18: a dialog without a size keeps the 600px maximum", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openComponentPreview(page, "dialog", "dialog-basic");
+    await page.getByTestId("dialog-basic").getByRole("button", { name: "Open dialog" }).click();
+    const surface = page.getByRole("dialog", { name: "Confirm" });
+    await expect(surface).toBeVisible();
+    expect(await width(surface)).toBeLessThanOrEqual(600);
+  });
+
+  test("DL-19: a full dialog fills the viewport less its margin", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const surface = await openSized(page, "dialog-sizes", "full");
+    await expect
+      .poll(async () => (await surface.boundingBox())?.width ?? 0)
+      .toBeGreaterThanOrEqual(1280 - 48 - 1);
+    const box = (await surface.boundingBox())!;
+    expect(box.width).toBeLessThanOrEqual(1280 - 48 + 1);
+    expect(box.height).toBeGreaterThanOrEqual(800 - 48 - 1);
+    expect(box.height).toBeLessThanOrEqual(800 - 48 + 1);
+  });
+
+  test("DL-20: on a phone a large dialog fits the screen width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const surface = await openSized(page, "dialog-sizes", "large");
+    expect(await width(surface)).toBeLessThanOrEqual(390 - 32);
+    const overflows = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(overflows).toBe(false);
+  });
+
+  test("DL-21: the large dialog keeps its theme background in dark mode", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openComponentPreview(page, "dialog", "dialog-sizes");
+    await page.getByTestId("preview-theme-toggle").locator("input").click();
+    const root = page.getByTestId("dialog-sizes");
+    await root.scrollIntoViewIfNeeded();
+    await root.getByRole("button", { name: "Open large" }).click();
+    const surface = page
+      .locator(".orbital-dialog-surface")
+      .filter({ has: page.getByTestId("dialog-size-large") });
+    await expect(surface).toBeVisible();
+    const { bg, canvas } = await surface.evaluate((el) => {
+      const probe = document.createElement("div");
+      probe.style.backgroundColor = "var(--orb-color-surface-canvas)";
+      el.parentElement!.appendChild(probe);
+      const canvas = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return { bg: getComputedStyle(el).backgroundColor, canvas };
+    });
+    expect(bg).not.toBe("rgba(0, 0, 0, 0)");
+    expect(bg).toBe(canvas);
   });
 });
