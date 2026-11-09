@@ -33,7 +33,7 @@ pub fn mount_anchor_scroll_spy(
         let scroll_listener_target = offset_target.as_ref().and_then(|target| target.element());
 
         let on_scroll = move || {
-            let next_active = element_ids.with(|ids| {
+            let next_active = element_ids.with_untracked(|ids| {
                 let offset_target_top = if let Some(offset_target) = offset_target.as_ref() {
                     offset_target.bounding_client_rect()?.top()
                 } else {

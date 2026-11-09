@@ -54,7 +54,7 @@ impl CarouselState {
     }
 
     pub fn register_slide(&self) -> i32 {
-        let index = self.next_index.get();
+        let index = self.next_index.get_untracked();
         self.next_index.update(|value| *value += 1);
         self.slide_count.update(|count| *count += 1);
         index

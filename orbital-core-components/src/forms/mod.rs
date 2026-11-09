@@ -9,6 +9,7 @@ pub mod compound_button;
 pub mod date_picker;
 pub mod datetime_bridge;
 pub mod dropdown;
+pub mod emoji_picker;
 pub mod field;
 pub mod info_label;
 pub mod input;
@@ -48,6 +49,7 @@ pub use combobox::{
 pub use compound_button::{CompoundButton, CompoundButtonIconPosition};
 pub use date_picker::{DatePicker, DatePickerAppearance, DatePickerBind};
 pub use dropdown::Dropdown;
+pub use emoji_picker::{default_emojis, Emoji, EmojiPicker, EmojiPickerButton, EmojiPickerRef};
 pub use field::{Field, FieldOrientation, FieldValidationMessage};
 pub use info_label::{InfoLabel, InfoLabelInfo, InfoLabelSize, InfoLabelWeight};
 pub use input::{
@@ -107,6 +109,8 @@ pub use compound_button::COMPOUNDBUTTON_PREVIEW_REGISTRATION;
 pub use date_picker::DATEPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use dropdown::DROPDOWN_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+pub use emoji_picker::{EMOJIPICKERBUTTON_PREVIEW_REGISTRATION, EMOJIPICKER_PREVIEW_REGISTRATION};
 #[cfg(feature = "preview")]
 pub use field::FIELD_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]

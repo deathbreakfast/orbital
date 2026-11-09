@@ -320,13 +320,13 @@ pub fn DataTableRoot(
 
     if table_state.is_server() {
         if let Some(p) = &init.pagination {
-            let size = table_state.page_size.get() as u32;
+            let size = table_state.page_size.get_untracked() as u32;
             table_state
                 .server_offset
                 .set((p.page as u32).saturating_mul(size.max(1)));
         }
     } else {
-        table_state.recompute_client_processed();
+        untrack(|| table_state.recompute_client_processed());
     }
 
     Effect::new(move |_| {
