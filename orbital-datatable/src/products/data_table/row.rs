@@ -39,7 +39,7 @@ pub fn data_table_row_view(
     let layout = leading_column_layout(state, ctx);
 
     if matches!(row.kind, DataTableRowKind::GroupHeader { .. }) {
-        let col_count = layout.count() + state.column_layout.get().columns.len();
+        let col_count = layout.count() + state.column_layout.with_untracked(|l| l.columns.len());
         return view! {
             <tr
                 class="orbital-table-row orbital-data-table__group-row"
@@ -125,7 +125,7 @@ pub fn data_table_row_view(
     };
     let pin_style_stored = StoredValue::new(pin_cell_style);
 
-    let resolved_cols = state.column_layout.get().columns;
+    let resolved_cols = state.column_layout.get_untracked().columns;
     let mut cell_views: Vec<AnyView> = Vec::new();
     let mut skip = 0usize;
     let mut col_index = 0usize;

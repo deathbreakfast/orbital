@@ -10,7 +10,7 @@ pub fn DataTablePaginationBar(state: DataTableTableState) -> impl IntoView {
     let ui_page = RwSignal::new(1usize);
 
     if state.source_kind == DataTableSourceKind::Server {
-        let limit = state.page_size.get() as u32;
+        let limit = state.page_size.get_untracked() as u32;
 
         Effect::new(move |_| {
             let offset = state.server_offset.get();

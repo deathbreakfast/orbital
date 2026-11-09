@@ -130,7 +130,7 @@ pub fn DiscussionReplyHeader(
                         config=PersonaConfig {
                             name: Some(display_name.clone()),
                             avatar_src: avatar_url.clone(),
-                            size: persona_size.get(),
+                            size: persona_size.get_untracked(),
                             text_alignment: PersonaTextAlignment::Center,
                             ..Default::default()
                         }

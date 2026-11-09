@@ -199,7 +199,7 @@ where
         }
     };
 
-    if let Some(mount_el) = mount.as_ref().and_then(|r| r.try_get().flatten()) {
+    if let Some(mount_el) = mount.as_ref().and_then(|r| r.try_get_untracked().flatten()) {
         view! {
             {trigger_view}
             <super::portal::Portal immediate=panel_show mount=mount_el.into()>

@@ -49,9 +49,9 @@ impl SchedulerPreferences {
 
     pub fn try_snapshot(&self) -> Option<SchedulerPreferencesSnapshot> {
         Some(SchedulerPreferencesSnapshot {
-            show_weekends: self.show_weekends.try_get()?,
-            ampm: self.ampm.try_get()?,
-            week_starts_on: self.week_starts_on.try_get()?,
+            show_weekends: self.show_weekends.try_get_untracked()?,
+            ampm: self.ampm.try_get_untracked()?,
+            week_starts_on: self.week_starts_on.try_get_untracked()?,
         })
     }
 
