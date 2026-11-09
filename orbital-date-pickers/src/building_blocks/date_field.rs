@@ -121,7 +121,7 @@ pub fn DateField(
         disabled,
     } = appearance;
 
-    let locale = use_datetime_locale();
+    let locale = untrack(use_datetime_locale);
     let theme_options = use_theme_options();
     let resolved_format = Signal::derive(move || match format.get() {
         DatetimeFormat::Time24 | DatetimeFormat::Time12 => locale.default_format,

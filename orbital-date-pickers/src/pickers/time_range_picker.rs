@@ -100,7 +100,7 @@ pub fn TimeRangePicker(
         disabled,
     } = appearance;
 
-    let locale = crate::use_datetime_locale();
+    let locale = untrack(crate::use_datetime_locale);
     let theme_options = use_theme_options();
     let value_stored = StoredValue::new(value);
     let coordinator = use_range_coordinator(value_stored.with_value(|v| v.clone()));

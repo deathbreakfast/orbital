@@ -392,7 +392,7 @@ pub fn SchedulerTimeline(
                         </MessageBar>
                     </div>
                 }.into_any()
-            } else if resources.get().is_empty() {
+            } else if resources.with_untracked(|r| r.is_empty()) {
                 view! {
                     <div class="orb-scheduler-timeline__empty">
                         <MessageBar intent=MessageBarIntent::Info>

@@ -154,7 +154,7 @@ jobs:
         run: cargo dylint --all
 
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5

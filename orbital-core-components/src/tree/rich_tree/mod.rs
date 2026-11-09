@@ -272,7 +272,7 @@ pub fn RichTree<T: Clone + Send + Sync + 'static>(
 
     let disabled_items = RwSignal::new(merge_disabled(
         &nodes.get_untracked(),
-        &behavior.disabled_items.get(),
+        &behavior.disabled_items.get_untracked(),
     ));
     let editable_items = RwSignal::new(collect_editable(&nodes.get_untracked()));
     let editable =
