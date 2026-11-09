@@ -8,7 +8,8 @@
 #   ./run-lanes.sh --project phone a.spec.ts b.spec.ts
 #   ./run-lanes.sh --serial              one server, every test in order (baseline)
 #
-# Options: --no-build, --no-install, --out DIR. Env: LANES, LANE_BUDGET
+# Options: --no-build, --no-install, --out DIR. lanes.conf may set BASE_PATH
+# (URL prefix the app is mounted under). Env: LANES, LANE_BUDGET
 # (seconds per lane, default 1200), LANES_OUT, CARGO_TARGET_DIR.
 #
 # Output in $LANES_OUT (default lanes-out/<stamp>): lane-<i>/{timing.tsv,
@@ -57,6 +58,7 @@ case $target in /*) ;; *) target=$root/$target ;; esac
 bin=$target/${PROFILE:-debug}/$SERVER_BIN
 leptos_env=DEV
 [ "${PROFILE:-debug}" = release ] && leptos_env=PROD
+leptos_env=${LEPTOS_ENV_MODE:-$leptos_env}   # lanes.conf may force PROD for a debug-profile server
 port_of() { echo $((PORT + 100 + $1)); }
 port_busy() { ss -ltnH "sport = :$1" 2>/dev/null | grep -q .; }
 
@@ -123,11 +125,7 @@ run_lane() {
   local lane_env=${LANE_ENV:-}
   lane_env=${lane_env//\{port\}/$port}
   t0=$(now)
-  # SERVER_CWD=root runs the server from the repo root, for hosts that read
-  # Cargo.toml at startup and keep no files of their own.
-  local cwd=$o/srv
-  [ "${SERVER_CWD:-}" = root ] && cwd=$root
-  ( cd "$cwd" && exec env ${SERVER_ENV:-} $lane_env \
+  ( cd "$o/srv" && exec env ${SERVER_ENV:-} $lane_env \
       LEPTOS_OUTPUT_NAME="$OUTPUT_NAME" LEPTOS_SITE_ROOT="$site" LEPTOS_SITE_PKG_DIR=pkg \
       LEPTOS_SITE_ADDR="127.0.0.1:$port" LEPTOS_ENV=$leptos_env \
       "$bin" >"$o/server.log" 2>&1 </dev/null ) &
@@ -143,9 +141,7 @@ run_lane() {
     if [ "$serial" = 0 ] && [ "$targeted" = 0 ]; then
       if [ -f "$o/list.txt" ]; then args=(--test-list="$o/list.txt"); else args=(--shard="$i/$lanes"); fi
     fi
-    # SERVER_ENV reaches the specs too, as a CI step's env does (some read
-    # the seed token from it).
-    env ${SERVER_ENV:-} "${BASE_URL_VAR:-PLAYWRIGHT_BASE_URL}=http://${BASE_HOST:-127.0.0.1}:$port" \
+    env "${BASE_URL_VAR:-PLAYWRIGHT_BASE_URL}=http://${BASE_HOST:-127.0.0.1}:$port${BASE_PATH:-}" \
         PLAYWRIGHT_JSON_OUTPUT_FILE="$o/results.json" \
       timeout --kill-after=30 "$budget" \
       npx playwright test --workers=1 --retries=0 --reporter=list,json --output="$o/test-results" \
