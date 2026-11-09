@@ -10,6 +10,7 @@ pub mod button;
 pub mod code;
 pub mod copy_button;
 pub mod data;
+pub mod diff_view;
 pub mod divider;
 pub mod extensions;
 pub mod feedback;
@@ -60,6 +61,7 @@ pub use data::{
     PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout, TableCellLayoutConfig,
     TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
 };
+pub use diff_view::{diff_text, DiffHunk, DiffLayout, DiffLine, DiffLineKind, DiffSpan, DiffView};
 pub use divider::Divider;
 pub use extensions::ThemeDensityStepper;
 #[cfg(feature = "preview")]
@@ -181,6 +183,8 @@ pub use data::{
     LINK_PREVIEW_REGISTRATION, LIST_PREVIEW_REGISTRATION, PERSONA_PREVIEW_REGISTRATION,
     TABLE_PREVIEW_REGISTRATION,
 };
+#[cfg(feature = "preview")]
+pub use diff_view::DIFFVIEW_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use divider::DIVIDER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]

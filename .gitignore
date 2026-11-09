@@ -7,6 +7,7 @@
 /examples/*/site/
 /end2end/node_modules/
 /end2end/test-results/
+/end2end/lanes-out/
 /end2end/playwright-report/
 /end2end/blob-report/
 /end2end/lanes-out/
