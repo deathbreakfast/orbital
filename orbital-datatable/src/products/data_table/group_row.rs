@@ -40,7 +40,7 @@ pub fn group_header_cells(
     let testid = format!("data-table-group-toggle-{group_key}");
     let indent = depth as f64 * GROUP_INDENT_PX;
 
-    let resolved_cols = state.column_layout.get().columns;
+    let resolved_cols = state.column_layout.get_untracked().columns;
     let mut cells = Vec::new();
 
     for (i, col) in resolved_cols.iter().enumerate() {

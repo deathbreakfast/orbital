@@ -97,7 +97,7 @@ pub fn TimeRangeField(
         disabled,
     } = appearance;
 
-    let locale = use_datetime_locale();
+    let locale = untrack(use_datetime_locale);
     let theme_options = use_theme_options();
     let coordinator = use_range_coordinator(value);
     let resolved_reference = Signal::derive(move || {

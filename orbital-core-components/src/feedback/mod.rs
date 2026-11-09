@@ -1,3 +1,4 @@
+pub mod anchored_counter_badge;
 pub mod badge;
 pub mod counter_badge;
 pub mod dialog;
@@ -8,6 +9,7 @@ pub mod skeleton;
 pub mod spinner;
 pub mod toast;
 
+pub use anchored_counter_badge::{AnchoredCounterBadge, BadgeCorner};
 pub use badge::{Badge, BadgeAppearance, BadgeColor, BadgeSize};
 pub use counter_badge::CounterBadge;
 pub use dialog::{
@@ -28,6 +30,8 @@ pub use toast::{
     ToasterProvider,
 };
 
+#[cfg(feature = "preview")]
+pub use anchored_counter_badge::ANCHOREDCOUNTERBADGE_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use badge::BADGE_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]

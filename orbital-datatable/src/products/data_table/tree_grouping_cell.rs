@@ -17,7 +17,7 @@ pub fn tree_grouping_cell(
     extra_style: Option<String>,
 ) -> impl IntoView {
     let get_tree_path = state.get_tree_path.get_value().expect("tree path required");
-    let all_rows = state.client_items.get();
+    let all_rows = state.client_items.get_untracked();
     let row_id = state.resolve_id(&row);
     let index = build_tree_index(
         &all_rows,

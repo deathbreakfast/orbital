@@ -109,7 +109,7 @@ pub fn TimeField(
         minute_step: _,
     } = appearance;
 
-    let _locale = use_datetime_locale();
+    let _locale = untrack(use_datetime_locale);
     let theme_options = use_theme_options();
     let resolved_format = Signal::derive(move || format.get());
     let resolved_timezone = Signal::derive(move || timezone.get());

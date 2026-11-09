@@ -176,7 +176,7 @@ pub fn ChartRoot(
     let tooltip_cfg = tooltip.clone();
     let on_zoom_change_cb = on_zoom_change;
 
-    let chart_state = state.get();
+    let chart_state = state.get_untracked();
     let area = chart_state.context.drawing_area;
     let plot_transform = format!("translate({}, {})", area.left, area.top);
     let skip_animation_flag = chart_state.context.skip_animation;
