@@ -58,7 +58,11 @@ pub fn GaugeContainer(
     let density_class =
         Memo::new(move |_| density_modifier_class(theme_options.get().density).to_string());
     let prefers_reduced = use_reduced_motion();
-    let skip = effective_skip_animation(skip_animation, motion.as_ref(), prefers_reduced.get());
+    let skip = effective_skip_animation(
+        skip_animation,
+        motion.as_ref(),
+        prefers_reduced.get_untracked(),
+    );
     let fill_color =
         value_color.unwrap_or_else(|| "var(--orb-color-accent-primary, #2563eb)".into());
 
@@ -78,7 +82,7 @@ pub fn GaugeContainer(
     let aria_value_text_attr = aria_value_text.clone();
 
     view! {
-        <GaugeContextProvider state=gauge_state.get()>
+        <GaugeContextProvider state=gauge_state.get_untracked()>
             <div
                 class=move || {
                     let mut classes = vec!["orb-gauge-root".to_string()];
@@ -108,9 +112,9 @@ pub fn GaugeContainer(
                     height=height
                     viewBox=format!("0 0 {width} {height}")
                 >
-                    <GaugeReferenceArc layout=layout.get() />
+                    <GaugeReferenceArc layout=layout.get_untracked() />
                     {value.is_some().then(|| {
-                        let layout_snapshot = layout.get();
+                        let layout_snapshot = layout.get_untracked();
                         view! {
                             <GaugeValueArcMotion
                                 layout=layout_snapshot

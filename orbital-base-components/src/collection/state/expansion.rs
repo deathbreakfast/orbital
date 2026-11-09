@@ -29,7 +29,7 @@ impl CollectionExpansionState {
     }
 
     pub fn with_default_open(mut self, default_open: Vec<String>) -> Self {
-        if self.open_items.get().is_empty() && !default_open.is_empty() {
+        if self.open_items.get_untracked().is_empty() && !default_open.is_empty() {
             self.open_items
                 .update(|open| open.extend(default_open.iter().cloned()));
         }

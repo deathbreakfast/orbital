@@ -6,9 +6,7 @@ use orbital_core_components::{
     Checkbox, CheckboxSize, List, ListItem, Material, MaterialElevation,
 };
 
-use crate::context::{
-    is_series_visible, toggle_series_visibility, use_chart_context, use_hidden_series,
-};
+use crate::context::{toggle_series_visibility, use_chart_context, use_hidden_series};
 use crate::engine::{resolve_series_color, resolve_series_label};
 use crate::{LabelLocation, LegendConfig, LegendDirection};
 
@@ -69,14 +67,14 @@ pub fn Legend(
                                             {(!disable_toggle).then(|| {
                                                 let sid = sid_toggle.clone();
                                                 let checked =
-                                                    RwSignal::new(is_series_visible(&sid));
+                                                    RwSignal::new(!hidden.with_untracked(|set| set.contains(&sid)));
                                                 view! {
                                                     <Checkbox
                                                         checked=checked
                                                         label=String::new()
                                                         size=Signal::from(CheckboxSize::Medium)
                                                         on_change=Callback::new(move |value| {
-                                                            let visible = is_series_visible(&sid);
+                                                            let visible = !hidden.with_untracked(|set| set.contains(&sid));
                                                             if value != visible {
                                                                 toggle_series_visibility(&sid);
                                                             }

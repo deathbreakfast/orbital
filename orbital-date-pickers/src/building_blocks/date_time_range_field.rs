@@ -96,7 +96,7 @@ pub fn DateTimeRangeField(
         disabled,
     } = appearance;
 
-    let _locale = use_datetime_locale();
+    let _locale = untrack(use_datetime_locale);
     let theme_options = use_theme_options();
     let coordinator = use_range_coordinator(value);
 

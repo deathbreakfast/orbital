@@ -34,7 +34,7 @@ fn DataTablePageSizeSelect(
     options: Vec<u32>,
     label: String,
 ) -> impl IntoView {
-    let selected_size = RwSignal::new(state.page_size.get().to_string());
+    let selected_size = RwSignal::new(state.page_size.get_untracked().to_string());
 
     Effect::new(move |_| {
         selected_size.set(state.page_size.get().to_string());

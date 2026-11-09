@@ -9,9 +9,8 @@ import {
 } from "../_reactive_warnings";
 import { previewUrl } from "../helpers";
 
-// Dev builds patch reactive_graph::log_warning (see vendor/reactive_graph and Cargo.toml
-// [patch.crates-io]). These tests remain as regression guards: if the patch is removed or
-// new real client-side violations appear, orbital-owned locations will fail the suite.
+// Dev builds use stock reactive_graph, so Leptos logs every read outside a tracking context.
+// Any orbital-owned location in those client warnings fails the suite.
 test.describe("reactive tracking warnings", () => {
   test("bare debug routes have no orbital-owned client warnings", async ({ page }) => {
     test.setTimeout(900_000);

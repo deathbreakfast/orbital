@@ -101,7 +101,7 @@ pub fn DateTimeField(
         disabled,
     } = appearance;
 
-    let locale = crate::use_datetime_locale();
+    let locale = untrack(crate::use_datetime_locale);
     let theme_options = use_theme_options();
     let fallback_reference = Signal::derive(move || locale.reference_date);
     let coordinator = use_datetime_field_coordinator(value, id, name, fallback_reference);

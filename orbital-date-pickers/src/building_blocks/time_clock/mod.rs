@@ -144,7 +144,7 @@ pub fn TimeClock(
 
     let value = StoredValue::new(value);
 
-    let locale = use_datetime_locale();
+    let locale = untrack(use_datetime_locale);
     let theme_options = use_theme_options();
 
     let resolved_timezone = Signal::derive(move || timezone.get());

@@ -15,7 +15,7 @@ pub fn RichTreeNodeView(node: RichTreeNode) -> impl IntoView {
         || !node.children.is_empty()
         || runtime
             .loading_ids
-            .with(|loading| loading.contains(&node.id))
+            .with_untracked(|loading| loading.contains(&node.id))
     {
         TreeItemType::Branch
     } else {

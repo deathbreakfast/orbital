@@ -44,7 +44,7 @@ impl CollectionSelectionState {
     }
 
     pub fn with_default_selected(mut self, default_selected: Vec<String>) -> Self {
-        if self.selected_items.get().is_empty() && !default_selected.is_empty() {
+        if self.selected_items.get_untracked().is_empty() && !default_selected.is_empty() {
             self.selected_items
                 .update(|selected| selected.extend(default_selected.iter().cloned()));
         }
@@ -74,7 +74,7 @@ impl CollectionSelectionState {
 
     pub fn notify_select(&self) {
         if let Some(handler) = &self.on_select {
-            handler.run(self.selected_items.get());
+            handler.run(self.selected_items.get_untracked());
         }
     }
 

@@ -263,7 +263,7 @@ fn PersonaAvatar(
             config=AvatarConfig {
                 name: name.with_value(|name| name.clone()),
                 src: avatar_src.with_value(|src| src.clone()),
-                size: Some(avatar_size.get()),
+                size: Some(avatar_size.get_untracked()),
                 color: avatar_color.with_value(|color| *color),
                 ..Default::default()
             }
