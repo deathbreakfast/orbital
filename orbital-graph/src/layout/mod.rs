@@ -27,16 +27,33 @@
 //! lane of the first internal node that waits on it, or failing that the
 //! first internal node it waits on, or failing that the first lane.
 //!
-//! Rows are filled one column at a time, left to right. The column's nodes
-//! are sorted by the mean row of their already placed blockers in the same
-//! band; nodes with none follow in input order. A node takes the row of its
-//! first placed blocker when that row is still free in its column, so chains
-//! run straight; the others take the lowest free rows in sorted order.
-//! [`NodePlacement::row`] counts rows across the whole drawing, so the
-//! empty rows between bands are numbered too.
+//! Each band is placed on its own, in three steps:
 //!
-//! Each node is centred vertically on its row, so two nodes on one row line
-//! up even when their heights differ.
+//! 1. An edge that skips columns gets a placeholder in every column it
+//!    crosses, so the line keeps a free slot there. The placeholders belong
+//!    to the band of the edge's source, even when the edge ends in another
+//!    band.
+//! 2. Each column is put in order. The first order comes from a depth-first
+//!    walk from the band's nodes with no blockers, in input order, following
+//!    edges in input order. Twelve barycenter sweeps follow, alternating left
+//!    to right (each node moves to the mean position of its blockers) and
+//!    right to left (the mean of what waits on it). The order with the fewest
+//!    crossings wins, and [`GraphLayout::crossings`] reports the total.
+//! 3. Brandes–Köpf coordinate assignment gives every node and placeholder a
+//!    position. Chains run straight, a node with one dependant sits level
+//!    with it, and a node with several sits midway between its middle
+//!    dependants or blockers. Two nodes in a column sit at least one
+//!    [`LayoutOptions::row_pitch`] apart. Placeholders sit an eighth of a
+//!    row apart and a little over half a row from any node.
+//!
+//! Positions are counted in ticks, 48 to a row, so a node can sit on a half
+//! row (centred on two dependants one row apart, say).
+//! [`NodePlacement::row`] is the row nearest the node's centre and counts
+//! rows across the whole drawing, so the empty rows between bands are
+//! numbered too. [`NodePlacement::y`] is exact.
+//!
+//! Each node is centred vertically on its position, so two nodes at one
+//! position line up even when their heights differ.
 //!
 //! # Group boxes and stubs
 //!
@@ -52,18 +69,17 @@
 //! at the middle of its target's left side, and every segment is horizontal
 //! or vertical.
 //!
-//! Vertical runs sit in the gap right of a column. Each source node gets its
-//! own track in that gap (in the order sources are first seen there, cycling
-//! through four tracks 8 px apart), so the lines leaving one node share a
-//! trunk. An edge to the next column is a single straight segment when the
-//! rows match, and right, down or up, right otherwise.
+//! A line runs straight across each column at the height its source, its
+//! placeholders and its target give it there. It changes height only in the
+//! gap right of a column, so an edge to the next column is a single straight
+//! segment when the heights match, and right, down or up, right otherwise.
+//! A long edge does the same at each placeholder.
 //!
-//! An edge that skips columns leaves its source the same way, then drops to
-//! the channel halfway between its source's row and the next row towards the
-//! target (offset by up to 6 px per source). It crosses the skipped columns
-//! in that channel and climbs or drops to the target in the gap left of the
-//! target's column. Channels lie between rows, so no line passes behind a
-//! node.
+//! Each source node gets its own vertical track in a gap (in the order
+//! sources first turn there, cycling through four tracks 8 px apart), so the
+//! lines leaving one node share a trunk. Vertical runs stay in the gaps and
+//! horizontal runs stay on node or placeholder heights, so no line passes
+//! behind a node.
 //!
 //! Lines stay clear of nodes as long as each node is narrower than
 //! `column_pitch - 36` and shorter than `row_pitch - 12`; the defaults leave
@@ -95,10 +111,14 @@
 //!
 //! The same input always gives the same output, bit for bit. The layout runs
 //! on the server and again in the browser during hydration, and the two must
-//! agree. Positions come straight from integer columns and rows, with no
-//! hashing order, randomness or clock involved.
+//! agree. Ordering and placement work on integers (columns, slots and ticks)
+//! with ties broken by input order, and each coordinate is converted to a
+//! float once at the end. No hashing order, randomness or clock is
+//! involved.
 
+mod bk;
 mod cycles;
+mod order;
 mod route;
 mod rows;
 
@@ -252,6 +272,9 @@ pub struct GraphLayout {
     /// More than [`LayoutOptions::max_nodes`] nodes came in and the rest
     /// were cut.
     pub truncated: bool,
+    /// Line crossings between neighbouring columns inside each band, after
+    /// ordering. Lines between bands aren't counted.
+    pub crossings: u64,
 }
 
 /// Where one node goes.
@@ -269,7 +292,9 @@ pub struct NodePlacement {
     pub height: f64,
     /// Column, counted from 0 at the left.
     pub column: u32,
-    /// Row, counted from 0 at the top of the whole drawing.
+    /// Row nearest the node's centre, counted from 0 at the top of the whole
+    /// drawing. A node centred halfway between two rows takes the upper one;
+    /// [`y`](Self::y) is exact.
     pub row: u32,
     /// The node is external and should be drawn as a stub.
     pub stub: bool,
@@ -362,14 +387,10 @@ impl Grid {
         self.side + f64::from(column) * self.column_pitch
     }
 
-    pub(crate) fn centre(&self, row: u32) -> f64 {
-        self.centre0 + f64::from(row) * self.row_pitch
-    }
-
-    /// The line halfway between rows: half row `2r + 1` lies between rows `r`
-    /// and `r + 1`, and `-1` lies above row 0.
-    pub(crate) fn half_row(&self, half: i64) -> f64 {
-        self.centre0 + half as f64 * self.row_pitch / 2.0
+    /// y of a centre given in half-ticks below the centre of row 0. One
+    /// multiply from the integer, so no error accumulates.
+    pub(crate) fn centre_at(&self, half_ticks: i64) -> f64 {
+        self.centre0 + half_ticks as f64 * self.row_pitch / rows::HALF_TICKS_PER_ROW as f64
     }
 
     /// x of vertical track `track` in the gap right of `column`.
@@ -383,8 +404,9 @@ impl Grid {
     }
 }
 
-/// Lays out `input`: columns by dependency depth, rows that keep chains
-/// straight, a box per group, stubs for external nodes and orthogonal routes.
+/// Lays out `input`: columns by dependency depth, Brandes–Köpf positions
+/// that keep chains straight, a box per group, stubs for external nodes and
+/// orthogonal routes.
 ///
 /// Never panics and never fails: cycles are broken and bad edges dropped,
 /// with both reported on the result. See the [module docs](self) for the
@@ -410,7 +432,7 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
     let (column, column_count) = columns(&cycles::depths(nodes.len(), &kept));
 
     let group_of = group_of(input, &nodes);
-    let row = rows::assign(
+    let placement = rows::assign(
         &nodes,
         &kept,
         &column,
@@ -426,16 +448,17 @@ pub fn layout(input: &GraphInput, options: &LayoutOptions) -> GraphLayout {
         .map(|(i, n)| NodePlacement {
             id: n.id.clone(),
             x: grid.x(column[i]),
-            y: grid.centre(row[i]) - n.size.height / 2.0,
+            y: grid.centre_at(placement.centre[i]) - n.size.height / 2.0,
             width: n.size.width,
             height: n.size.height,
             column: column[i],
-            row: row[i],
+            row: placement.row[i],
             stub: n.external,
         })
         .collect();
     out.groups = group_boxes(input, &out.nodes, &group_of, options.group_padding);
-    out.edges = route::routes(&nodes, &kept, &column, &row, &grid);
+    out.edges = route::routes(&nodes, &kept, &column, &placement, &grid);
+    out.crossings = placement.crossings;
     extent(&mut out);
     out
 }
