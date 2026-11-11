@@ -1,6 +1,6 @@
 # orbital-graph
 
-Layered layout for dependency graphs: columns by how deep each node waits, rows that keep chains straight, a box per group, stubs for nodes from outside the group, and right-angled lines that never pass behind a node.
+Layered layout for dependency graphs: columns by how deep each node waits, Brandes–Köpf placement that keeps chains straight and centres a node on what it leads to, a box per group, stubs for nodes from outside the group, and right-angled lines that never pass behind a node.
 
 The layout returns positions and line points and draws nothing. The `Graph` and `GraphLegend` components draw it as SVG.
 
@@ -32,8 +32,21 @@ Use `default-features = false` unless you want the preview pages; turn on `ssr` 
 
 - `layout(&GraphInput, &LayoutOptions) -> GraphLayout`
 - Input: `GraphInput`, `GraphNode`, `GraphEdge` (`from` is the blocker, `to` waits), `GraphGroup`, `NodeSize`
-- Output: `NodePlacement`, `GroupBox`, `EdgeRoute`, `Point`, plus `broken_cycles`, `dropped` and `truncated` for input the layout had to repair
+- Output: `NodePlacement`, `GroupBox`, `EdgeRoute`, `Point`, plus `broken_cycles`, `dropped` and `truncated` for input the layout had to repair, and `crossings` for the line crossings left after ordering
 - Components: `Graph`, `GraphLegend`, with `GraphNodeView`, `GraphFill`, `GraphLegendItem`, `GraphLegendLine` and `GraphHandle`
+
+## Placement
+
+Nodes sit in columns by depth: a node is one column right of its deepest blocker. Within each group's lane, every column is ordered to cut line crossings: a depth-first first order, then twelve barycenter sweeps, keeping the order with the fewest crossings. Brandes–Köpf coordinate assignment then places each node:
+
+```text
+          /[2]                       |-[2] - [5]
+ [1] -+ - [3]                        |       |-[6]
+          L[4]             [1] -+ - [3] - [7]
+                                     L[4]
+```
+
+A node with an odd number of dependants sits level with the middle one (1 with 3), a node with two sits midway between them (2 between 5 and 6, on a half row), and a chain runs straight (3 and 7). A line that skips columns keeps a slot free in each column it crosses, so it never runs behind a box. The same input always gives the same positions, so server rendering and hydration agree.
 
 ## Drawing a graph
 
@@ -97,7 +110,7 @@ fn TaskGraph() -> impl IntoView {
 ```
 
 - Click a node, or press Enter or Space on it, to select it; the rest dims. Pass `chain=true` to keep the whole chain of predecessors and successors bright.
-- Drag the background to pan and scroll to zoom (20% to 220%). Keep the `GraphHandle` from `on_handle` to wire a Fit button.
+- Drag the background, or middle-drag anywhere, to pan; scroll to zoom (20% to 220%). Keep the `GraphHandle` from `on_handle` to wire a Fit button.
 - The graph is one tab stop: arrow keys move between nodes, Escape clears the selection, `+` and `-` zoom and `0` fits.
 - `GraphFill` has six fills (`neutral`, `brand`, `red`, `orange`, `yellow`, `green`), each mapped to theme tokens. Store `wire_value()` if you save colour choices; the strings don't change.
 
@@ -105,4 +118,4 @@ Enable `ssr` on the server build and `hydrate` on the client build, like the oth
 
 ## Docs
 
-The rules for columns, rows, stubs, routing, cycles and truncation are in the `layout` module rustdoc. See [orbital-macros/README.md — consumer feature flags](../orbital-macros/README.md#consumer-feature-flags).
+The rules for columns, placement, stubs, routing, cycles and truncation are in the `layout` module rustdoc. See [orbital-macros/README.md — consumer feature flags](../orbital-macros/README.md#consumer-feature-flags).
