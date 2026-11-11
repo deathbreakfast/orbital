@@ -132,20 +132,21 @@ pub(crate) fn crossings(graph: &BandGraph, layers: &[Vec<usize>], pos: &[usize])
             targets.extend(graph.succs[u].iter().map(|&w| pos[w]));
             targets[start..].sort_unstable();
         }
-        let mut tree = vec![0_u64; pair[1].len() + 1];
+        // Zero-based Fenwick tree over the next layer's positions.
+        let mut tree = vec![0_u64; pair[1].len()];
         for (seen, &t) in targets.iter().enumerate() {
             // Earlier edges that end lower down than `t` cross this one.
             let mut at_or_above = 0;
             let mut i = t + 1;
             while i > 0 {
-                at_or_above += tree[i];
+                at_or_above += tree[i - 1];
                 i &= i - 1;
             }
             total += seen as u64 - at_or_above;
-            let mut i = t + 1;
+            let mut i = t;
             while i < tree.len() {
                 tree[i] += 1;
-                i += i.isolate_lowest_one();
+                i |= i + 1;
             }
         }
     }
