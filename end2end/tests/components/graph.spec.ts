@@ -191,6 +191,43 @@ test.describe("graph", () => {
     expect(await viewportScale(scope)).toBe(scaleBefore);
   });
 
+  test("GR-13: middle-drag over a node pans and doesn't select", async ({ page }) => {
+    await openComponentPreview(page, "graph", "graph-project");
+    const scope = await graphIn(page, "graph-fit");
+    const before = await viewportPan(scope);
+
+    const box = await scope.locator("[data-node-id]").first().boundingBox();
+    if (!box) throw new Error("node has no box");
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down({ button: "middle" });
+    await page.mouse.move(x + 60, y, { steps: 4 });
+    await page.mouse.move(x + 120, y, { steps: 4 });
+    await page.mouse.up({ button: "middle" });
+
+    const after = await viewportPan(scope);
+    expect(after.x - before.x).toBeCloseTo(120, 0);
+    await expect(scope.locator('[data-node-id][aria-pressed="true"]')).toHaveCount(0);
+  });
+
+  test("GR-14: middle-drag on the background pans", async ({ page }) => {
+    await openComponentPreview(page, "graph", "graph-project");
+    const scope = await graphIn(page, "graph-fit");
+    const before = await viewportPan(scope);
+
+    const start = await emptyPoint(scope);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down({ button: "middle" });
+    await page.mouse.move(start.x + 60, start.y + 20, { steps: 4 });
+    await page.mouse.move(start.x + 120, start.y + 60, { steps: 4 });
+    await page.mouse.up({ button: "middle" });
+
+    const after = await viewportPan(scope);
+    expect(after.x - before.x).toBeCloseTo(120, 0);
+    expect(after.y - before.y).toBeCloseTo(60, 0);
+  });
+
   test("GR-08: legend chip hides its set and shows the hidden count", async ({ page }) => {
     await openComponentPreview(page, "graph", "graph-project");
     const scope = await graphIn(page, "graph-legend-toggle");

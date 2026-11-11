@@ -4,7 +4,7 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use leptos::ev::{FocusEvent, KeyboardEvent, PointerEvent, WheelEvent};
+use leptos::ev::{FocusEvent, KeyboardEvent, MouseEvent, PointerEvent, WheelEvent};
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
@@ -35,12 +35,40 @@ pub struct GraphHandle {
 /// A pointer drag of less than this many px counts as a click.
 const CLICK_SLOP_PX: f64 = 4.0;
 
+/// `MouseEvent.button` value of the middle button.
+const MIDDLE_BUTTON: i16 = 1;
+
+/// What a pointer press on the graph starts.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DragKind {
+    /// Left button: pans, and a release under the click slop clears the selection.
+    Background,
+    /// Middle button: always pans and never selects.
+    Middle,
+}
+
+/// Maps a pressed button to the drag it starts; other buttons start none.
+fn drag_kind(button: i16) -> Option<DragKind> {
+    match button {
+        0 => Some(DragKind::Background),
+        MIDDLE_BUTTON => Some(DragKind::Middle),
+        _ => None,
+    }
+}
+
+/// A node keeps a press to itself (so it never starts a pan) unless it's the
+/// middle button, which pans from anywhere.
+fn node_swallows_pointerdown(button: i16) -> bool {
+    button != MIDDLE_BUTTON
+}
+
 /// Per-page counter for marker id prefixes; read only in the browser, after mount.
 static INSTANCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Debug, Clone, Copy)]
 struct Drag {
     pointer_id: i32,
+    kind: DragKind,
     start_x: f64,
     start_y: f64,
     origin: Viewport,
@@ -63,7 +91,8 @@ struct NodeCtx {
 /// elsewhere and right-angled lines between them.
 ///
 /// Click a node, or focus it and press Enter or Space, to select it; the rest
-/// dims. Drag the background to pan, scroll to zoom, and press `0` to fit.
+/// dims. Drag the background, or middle-drag anywhere, to pan; scroll to zoom;
+/// press `0` to fit.
 ///
 /// # When to use
 ///
@@ -465,8 +494,11 @@ pub fn Graph(
     };
 
     let on_pointerdown = move |ev: PointerEvent| {
-        if ev.button() != 0 {
+        let Some(kind) = drag_kind(ev.button()) else {
             return;
+        };
+        if kind == DragKind::Middle {
+            ev.prevent_default();
         }
         if let Some(target) = ev
             .current_target()
@@ -476,6 +508,7 @@ pub fn Graph(
         }
         drag.set_value(Some(Drag {
             pointer_id: ev.pointer_id(),
+            kind,
             start_x: f64::from(ev.client_x()),
             start_y: f64::from(ev.client_y()),
             origin: viewport.get_untracked(),
@@ -519,13 +552,26 @@ pub fn Graph(
 
     let on_pointerup = move |ev: PointerEvent| {
         if let Some(d) = end_drag(&ev) {
-            if !d.moved {
+            if d.kind == DragKind::Background && !d.moved {
                 select.run(None);
             }
         }
     };
     let on_pointercancel = move |ev: PointerEvent| {
         let _ = end_drag(&ev);
+    };
+
+    // Stops the browser's middle-click autoscroll and focus change.
+    let on_mousedown = move |ev: MouseEvent| {
+        if ev.button() == MIDDLE_BUTTON {
+            ev.prevent_default();
+        }
+    };
+    // Stops a middle drag from activating links hosted inside nodes.
+    let on_auxclick = move |ev: MouseEvent| {
+        if ev.button() == MIDDLE_BUTTON {
+            ev.prevent_default();
+        }
     };
 
     let on_keydown = move |ev: KeyboardEvent| {
@@ -588,6 +634,8 @@ pub fn Graph(
                 aria-label=label
                 on:wheel=on_wheel
                 on:pointerdown=on_pointerdown
+                on:mousedown=on_mousedown
+                on:auxclick=on_auxclick
                 on:pointermove=on_pointermove
                 on:pointerup=on_pointerup
                 on:pointercancel=on_pointercancel
@@ -869,7 +917,11 @@ fn node_view(
             data-node-id=id
             transform=format!("translate({} {})", placement.x, placement.y)
             style=view.fill.style_vars()
-            on:pointerdown=|ev: PointerEvent| ev.stop_propagation()
+            on:pointerdown=|ev: PointerEvent| {
+                if node_swallows_pointerdown(ev.button()) {
+                    ev.stop_propagation();
+                }
+            }
             on:click=on_click
             on:focus=on_focus
         >
@@ -932,6 +984,26 @@ mod tests {
         assert_eq!(html.matches("tabindex=\"0\"").count(), 1);
         // The server renders the identity viewport; the client fits after mount.
         assert!(html.contains("transform: translate(0px, 0px) scale(1);"));
+    }
+
+    #[test]
+    fn drag_kind_maps_buttons_happy() {
+        assert_eq!(drag_kind(0), Some(DragKind::Background));
+        assert_eq!(drag_kind(1), Some(DragKind::Middle));
+    }
+
+    #[test]
+    fn drag_kind_ignores_other_buttons_sad() {
+        for button in [-1, 2, 3, 4] {
+            assert_eq!(drag_kind(button), None);
+        }
+    }
+
+    #[test]
+    fn node_only_lets_middle_press_bubble_happy() {
+        assert!(node_swallows_pointerdown(0));
+        assert!(node_swallows_pointerdown(2));
+        assert!(!node_swallows_pointerdown(1));
     }
 
     #[test]
