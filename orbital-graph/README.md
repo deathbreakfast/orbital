@@ -97,7 +97,7 @@ fn TaskGraph() -> impl IntoView {
 ```
 
 - Click a node, or press Enter or Space on it, to select it; the rest dims. Pass `chain=true` to keep the whole chain of predecessors and successors bright.
-- Drag the background to pan and scroll to zoom (20% to 220%). Keep the `GraphHandle` from `on_handle` to wire a Fit button.
+- Drag the background, or middle-drag anywhere, to pan; scroll to zoom (20% to 220%). Keep the `GraphHandle` from `on_handle` to wire a Fit button.
 - The graph is one tab stop: arrow keys move between nodes, Escape clears the selection, `+` and `-` zoom and `0` fits.
 - `GraphFill` has six fills (`neutral`, `brand`, `red`, `orange`, `yellow`, `green`), each mapped to theme tokens. Store `wire_value()` if you save colour choices; the strings don't change.
 
