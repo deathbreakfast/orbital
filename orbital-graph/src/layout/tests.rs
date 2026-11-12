@@ -66,6 +66,75 @@ fn intersects(a: (f64, f64, f64, f64), b: (f64, f64, f64, f64)) -> bool {
     a.0 < b.0 + b.2 && b.0 < a.0 + a.2 && a.1 < b.1 + b.3 && b.1 < a.1 + a.3
 }
 
+fn centre(layout: &GraphLayout, id: &str) -> f64 {
+    let n = place(layout, id);
+    n.y + n.height / 2.0
+}
+
+fn assert_no_overlaps(out: &GraphLayout) {
+    for (i, a) in out.nodes.iter().enumerate() {
+        for b in &out.nodes[i + 1..] {
+            assert!(
+                !intersects((a.x, a.y, a.width, a.height), (b.x, b.y, b.width, b.height)),
+                "{} overlaps {}",
+                a.id,
+                b.id
+            );
+        }
+    }
+}
+
+/// Every route is orthogonal and no segment passes through a node other
+/// than its own ends.
+fn assert_routes_clear(out: &GraphLayout) {
+    for r in &out.edges {
+        for w in r.points.windows(2) {
+            let (a, b) = (w[0], w[1]);
+            assert!((a.x - b.x).abs() < EPS || (a.y - b.y).abs() < EPS);
+            let (x0, x1, y0, y1) = (a.x.min(b.x), a.x.max(b.x), a.y.min(b.y), a.y.max(b.y));
+            for n in out.nodes.iter().filter(|n| n.id != r.from && n.id != r.to) {
+                let crosses = x0 < n.x + n.width - EPS
+                    && x1 > n.x + EPS
+                    && y0 < n.y + n.height - EPS
+                    && y1 > n.y + EPS;
+                assert!(!crosses, "{} → {} passes behind {}", r.from, r.to, n.id);
+            }
+        }
+    }
+}
+
+/// Three layers of eight vertices with seeded random edges between
+/// neighbouring layers.
+fn seeded_band(seed: u64) -> rows::BandGraph {
+    let mut state = seed;
+    let mut next = move || {
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1);
+        (state >> 33) as usize
+    };
+    let n = 24;
+    let mut preds = vec![Vec::new(); n];
+    let mut succs = vec![Vec::new(); n];
+    for (v, vp) in preds.iter_mut().enumerate().skip(8) {
+        let base = v / 8 * 8 - 8;
+        for _ in 0..2 {
+            let u = base + next() % 8;
+            if !vp.contains(&u) {
+                vp.push(u);
+                succs[u].push(v);
+            }
+        }
+    }
+    rows::BandGraph {
+        layer: (0..n).map(|v| v / 8).collect(),
+        layer_count: 3,
+        preds,
+        succs,
+        dummy: vec![false; n],
+    }
+}
+
 #[test]
 fn layout_is_deterministic_happy() {
     let input = GraphInput {
@@ -143,7 +212,74 @@ fn layout_barycenter_orders_rows_happy() {
     assert_eq!(place(&out, "a2").row, place(&out, "a1").row);
     assert_eq!(place(&out, "b2").row, place(&out, "b1").row);
     assert_ne!(place(&out, "a1").row, place(&out, "b1").row);
-    assert_eq!(place(&out, "m").row, place(&out, "a2").row);
+    // m waits on both chains, so it sits halfway between them.
+    let mid = (centre(&out, "a2") + centre(&out, "b2")) / 2.0;
+    assert!((centre(&out, "m") - mid).abs() < EPS);
+    assert_eq!(out.crossings, 0);
+}
+
+/// 1 leads to 2, 3 and 4.
+#[test]
+fn layout_parent_level_with_middle_child_happy() {
+    let out = layout(
+        &graph(
+            vec![node("1"), node("2"), node("3"), node("4")],
+            vec![edge("1", "2"), edge("1", "3"), edge("1", "4")],
+        ),
+        &LayoutOptions::default(),
+    );
+    assert!((centre(&out, "1") - centre(&out, "3")).abs() < EPS);
+    assert!(centre(&out, "2") < centre(&out, "3"));
+    assert!(centre(&out, "3") < centre(&out, "4"));
+    assert_no_overlaps(&out);
+}
+
+/// 1 leads to 2, 3 and 4; 2 leads to 5 and 6; 3 leads to 7.
+#[test]
+fn layout_parent_centred_on_children_happy() {
+    let options = LayoutOptions::default();
+    let out = layout(
+        &graph(
+            ["1", "2", "3", "4", "5", "6", "7"].map(node).to_vec(),
+            vec![
+                edge("1", "2"),
+                edge("1", "3"),
+                edge("1", "4"),
+                edge("2", "5"),
+                edge("2", "6"),
+                edge("3", "7"),
+            ],
+        ),
+        &options,
+    );
+    let mid = (centre(&out, "5") + centre(&out, "6")) / 2.0;
+    assert!((centre(&out, "2") - mid).abs() < EPS);
+    assert!((centre(&out, "3") - centre(&out, "7")).abs() < EPS);
+    assert!((centre(&out, "1") - centre(&out, "3")).abs() < EPS);
+    // 2 sits on a half row, between the rows of 5 and 6.
+    assert!((centre(&out, "6") - centre(&out, "5") - options.row_pitch).abs() < EPS);
+    assert_eq!(place(&out, "2").row, place(&out, "5").row);
+    assert_no_overlaps(&out);
+    assert_eq!(out.crossings, 0);
+}
+
+#[test]
+fn layout_crossings_counted_sad() {
+    // Every order of two blockers and two dependants that both wait on
+    // both crosses once.
+    let out = layout(
+        &graph(
+            vec![node("a"), node("b"), node("c"), node("d")],
+            vec![
+                edge("a", "c"),
+                edge("a", "d"),
+                edge("b", "c"),
+                edge("b", "d"),
+            ],
+        ),
+        &LayoutOptions::default(),
+    );
+    assert_eq!(out.crossings, 1);
 }
 
 #[test]
@@ -207,32 +343,115 @@ fn layout_group_box_wraps_members_happy() {
 }
 
 #[test]
-fn layout_skip_edge_uses_row_channel_happy() {
+fn layout_long_edge_reserves_rows_happy() {
     let options = LayoutOptions::default();
+    // a → d skips columns 1 and 2, which also hold b, c, p and q.
     let out = layout(
         &graph(
-            vec![node("a"), node("b"), node("c"), node("d")],
+            ["a", "b", "c", "d", "p", "q"].map(node).to_vec(),
             vec![
                 edge("a", "b"),
                 edge("b", "c"),
                 edge("c", "d"),
+                edge("a", "p"),
+                edge("p", "q"),
                 edge("a", "d"),
             ],
         ),
         &options,
     );
-    let a = place(&out, "a");
     assert_eq!(place(&out, "d").column, 3);
     let skip = route(&out, "a", "d");
-    let crossing = skip
-        .points
-        .windows(2)
-        .find(|w| (w[0].y - w[1].y).abs() < EPS && (w[1].x - w[0].x) > options.column_pitch)
-        .expect("a long horizontal crossing");
-    let y = crossing[0].y;
-    // Row a sits on, and the row cell below it.
-    assert!(y > a.y + a.height);
-    assert!(y < a.y + options.row_pitch);
+    for column in [1_u32, 2] {
+        let left = options.group_padding.side + f64::from(column) * options.column_pitch;
+        let crossing = skip
+            .points
+            .windows(2)
+            .find(|w| {
+                (w[0].y - w[1].y).abs() < EPS
+                    && w[0].x.min(w[1].x) < left
+                    && w[0].x.max(w[1].x) > left + NodeSize::default().width
+            })
+            .unwrap_or_else(|| panic!("a → d crosses column {column} in one run"));
+        // The run's height is free in that column: no node within half a
+        // node of it.
+        for n in out.nodes.iter().filter(|n| n.column == column) {
+            let gap = (crossing[0].y - (n.y + n.height / 2.0)).abs();
+            assert!(gap > n.height / 2.0, "a → d passes behind {}", n.id);
+        }
+    }
+    assert_routes_clear(&out);
+}
+
+#[test]
+fn layout_stub_long_edge_stays_in_stub_band_happy() {
+    let input = GraphInput {
+        nodes: vec![
+            in_group("t1", "p"),
+            in_group("t2", "p"),
+            in_group("t3", "p"),
+            external("x"),
+        ],
+        edges: vec![edge("t1", "t2"), edge("t2", "t3"), edge("x", "t3")],
+        groups: vec![group("p")],
+    };
+    let out = layout(&input, &LayoutOptions::default());
+    let x = place(&out, "x");
+    let b = &out.groups[0];
+    assert_eq!((x.column, place(&out, "t3").column), (0, 2));
+    assert!(x.y + x.height < b.y);
+    // The skipped column is crossed above the box.
+    let skip = route(&out, "x", "t3");
+    assert!(skip.points[1].y < b.y);
+    assert_routes_clear(&out);
+}
+
+#[test]
+fn layout_band_with_empty_column_sad() {
+    // Group p holds columns 0 and 2; its middle column is empty.
+    let input = GraphInput {
+        nodes: vec![in_group("a", "p"), in_group("b", "q"), in_group("c", "p")],
+        edges: vec![edge("a", "b"), edge("b", "c")],
+        groups: vec![group("p"), group("q")],
+    };
+    let out = layout(&input, &LayoutOptions::default());
+    assert_eq!(place(&out, "c").column, 2);
+    assert_eq!(place(&out, "a").row, place(&out, "c").row);
+    assert!(place(&out, "b").row > place(&out, "a").row);
+    assert_no_overlaps(&out);
+    assert_routes_clear(&out);
+}
+
+#[test]
+fn order_sweeps_cut_crossings_happy() {
+    let graph = seeded_band(7);
+    let first = order::initial(&graph);
+    let before = order::crossings(&graph, &first, &order::positions(&graph, &first));
+    let ordered = order::order(&graph);
+    assert_eq!(
+        ordered.crossings,
+        order::crossings(
+            &graph,
+            &ordered.layers,
+            &order::positions(&graph, &ordered.layers)
+        )
+    );
+    assert_eq!((before, ordered.crossings), (51, 35));
+}
+
+#[test]
+fn order_keeps_crossing_free_order_sad() {
+    // A chain has nothing to reorder; the first order stands.
+    let graph = rows::BandGraph {
+        layer: vec![0, 1, 2],
+        layer_count: 3,
+        preds: vec![vec![], vec![0], vec![1]],
+        succs: vec![vec![1], vec![2], vec![]],
+        dummy: vec![false; 3],
+    };
+    let ordered = order::order(&graph);
+    assert_eq!(ordered.crossings, 0);
+    assert_eq!(ordered.layers, vec![vec![0], vec![1], vec![2]]);
 }
 
 #[test]
