@@ -22,4 +22,21 @@ test.describe("discussion reply anchor", () => {
     await expect(preview.locator("[data-reply-id='d-l2']")).toBeVisible({ timeout: 10_000 });
     await expect(preview.locator("[data-reply-id='d-root']")).toBeVisible();
   });
+
+  test("highlighted marks only the linked reply", async ({ page }) => {
+    await openComponentPreview(page, "discussion-reply-anchor");
+    const preview = page.getByTestId("discussion-reply-anchor-preview");
+    await expect(preview).toBeVisible({ timeout: 30_000 });
+
+    await expect(preview.locator("[data-highlighted='true']")).toHaveCount(0);
+    await preview.getByTestId("discussion-reply-anchor-d-l2").click();
+
+    const target = preview.locator("[data-reply-id='d-l2']");
+    await expect(target).toHaveAttribute("data-highlighted", "true", { timeout: 10_000 });
+    await expect(preview.locator("[data-highlighted='true']")).toHaveCount(1);
+    await expect(preview.locator("[data-reply-id='d-root']")).toHaveAttribute(
+      "data-highlighted",
+      "false",
+    );
+  });
 });

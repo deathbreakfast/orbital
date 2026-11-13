@@ -10,6 +10,10 @@ bitflags! {
         const CUSTOM_PARTS = 1 << 3;
         const FOCUS_NAVIGATION = 1 << 4;
         const AGENT_PARTS = 1 << 5;
+        /// The host draws its own Reply control (for example in the footer slot), so the
+        /// built-in Reply button is hidden. Use it when only some replies accept replies,
+        /// such as a locked thread.
+        const HOST_REPLY_ACTION = 1 << 6;
     }
 }
 

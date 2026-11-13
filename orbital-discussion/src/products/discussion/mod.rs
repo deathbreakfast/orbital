@@ -35,7 +35,7 @@ pub use thread::DiscussionThread;
 pub use thread::DISCUSSIONTHREAD_PREVIEW_REGISTRATION;
 pub use thread_empty::DiscussionDefaultEmptyView;
 pub use thread_loading::DiscussionThreadLoadingOverlay;
-pub use thread_root::DiscussionThreadRoot;
+pub use thread_root::{DiscussionThreadRoot, DEFAULT_THREAD_SCROLL_HEIGHT};
 pub use thread_toolbar::DiscussionDefaultThreadToolbar;
 
 #[cfg(feature = "preview")]

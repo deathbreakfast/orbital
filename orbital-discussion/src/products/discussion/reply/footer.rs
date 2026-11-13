@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use orbital_core_components::{Divider, FlexGap, Stack, StackConfig};
 
-use crate::{use_discussion, DiscussionReply, ReplyRenderContext};
+use crate::{use_discussion, DiscussionFeatures, DiscussionReply, ReplyRenderContext};
 
 use super::{DiscussionReplyActionMenu, DiscussionReplyButton};
 
@@ -18,7 +18,8 @@ pub fn DiscussionReplyFooter(reply: DiscussionReply) -> impl IntoView {
             <Divider />
             <Stack config=StackConfig::horizontal(FlexGap::Medium)>
                 <Stack config=StackConfig::horizontal(FlexGap::Small)>
-                    <DiscussionReplyButton reply=reply_for_button />
+                    {(!ctx.features.contains(DiscussionFeatures::HOST_REPLY_ACTION))
+                        .then(|| view! { <DiscussionReplyButton reply=reply_for_button /> })}
                     <DiscussionReplyActionMenu reply=reply_for_menu />
                 </Stack>
                 {move || {

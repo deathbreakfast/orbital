@@ -182,9 +182,9 @@ impl ColorTheme {
     pub fn custom_dark(brand_colors: &HashMap<i32, String>) -> Self {
         Self::validate_palette(brand_colors);
         let mut theme = Self::dark();
-        theme.color_brand_background = Self::shade(brand_colors, 70);
+        theme.color_brand_background = Self::shade(brand_colors, 80);
         theme.color_brand_background_2 = Self::shade(brand_colors, 20);
-        theme.color_brand_background_hover = Self::shade(brand_colors, 80);
+        theme.color_brand_background_hover = Self::shade(brand_colors, 50);
         theme.color_brand_background_pressed = Self::shade(brand_colors, 40);
         theme.color_brand_foreground_1 = Self::shade(brand_colors, 110);
         theme.color_brand_foreground_2 = Self::shade(brand_colors, 120);
@@ -398,8 +398,9 @@ impl ColorTheme {
             color_compound_brand_stroke: "#51b5e1".into(),
             color_compound_brand_stroke_pressed: "#2fa6da".into(),
 
-            color_brand_background: "#1e82ae".into(),
-            color_brand_background_hover: "#1a6f94".into(),
+            // White text needs 4.5:1 on primary buttons: #1a6f94 is 5.6:1.
+            color_brand_background: "#1a6f94".into(),
+            color_brand_background_hover: "#155b79".into(),
             color_brand_background_pressed: "#11485f".into(),
             color_brand_background_2: "#092734".into(),
             color_brand_foreground_1: "#74c4e7".into(),

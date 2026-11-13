@@ -22,6 +22,9 @@ pub fn DiscussionReplyNode(
     current_user_id: Signal<Option<String>>,
     appearance: Signal<DiscussionAppearance>,
     collapsed: Signal<std::collections::HashSet<String>>,
+    /// Reply id to mark as highlighted; this node sets `data-highlighted` when it matches.
+    #[prop(optional)]
+    highlighted: Signal<Option<String>>,
 ) -> AnyView {
     let reply_id_for_children = reply_id.clone();
     let show_connector = move || {
@@ -33,9 +36,12 @@ pub fn DiscussionReplyNode(
     let reply_id_for_depth = reply_id.clone();
     let reply_id_for_show_more = reply_id.clone();
     let reply_id_for_collapsed = reply_id.clone();
+    let reply_id_for_highlight = reply_id.clone();
 
     let reply_snapshot = Memo::new(move |_| graph.get().get(&reply_id).cloned());
     let is_collapsed = Memo::new(move |_| collapsed.get().contains(&reply_id_for_collapsed));
+    let is_highlighted =
+        Memo::new(move |_| highlighted.get().as_deref() == Some(reply_id_for_highlight.as_str()));
 
     let depth_in_view =
         Memo::new(move |_| graph.get().depth_in_view(&reply_id_for_depth, &focus.get()));
@@ -104,17 +110,26 @@ pub fn DiscussionReplyNode(
                     String::new()
                 };
                 let reply_id_for_card = reply.id.clone();
+                let inner_class = move || {
+                    if is_highlighted.get() {
+                        "orbital-discussion__reply-node-inner orbital-discussion__reply-node-inner--highlighted"
+                    } else {
+                        "orbital-discussion__reply-node-inner"
+                    }
+                };
                 let child_count = graph.get().child_ids(&reply.id).len();
                 view! {
                     <div
                         class=node_classes.join(" ")
                     >
                         <div
-                            class="orbital-discussion__reply-node-inner"
+                            class=inner_class
                             style=tree_inset
                             data-reply-id=reply_id_for_card
                             data-reply-surface=surface.class_suffix().to_string()
                             data-collapsed=if collapsed_state { "true" } else { "false" }
+                            data-depth=depth.to_string()
+                            data-highlighted=move || if is_highlighted.get() { "true" } else { "false" }
                         >
                             <DiscussionReplyCard
                                 reply=reply.clone()
@@ -153,6 +168,7 @@ pub fn DiscussionReplyNode(
                                                     current_user_id=current_user_id
                                                     appearance=appearance
                                                     collapsed=collapsed
+                                                    highlighted=highlighted
                                                 />
                                             </li>
                                         }

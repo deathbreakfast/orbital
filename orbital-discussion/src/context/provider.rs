@@ -26,6 +26,8 @@ pub struct DiscussionContext {
     pub focus: Signal<DiscussionFocus>,
     /// Logged-in viewer author id for accent card tinting.
     pub current_user_id: Signal<Option<String>>,
+    /// Reply id to mark as highlighted, such as the reply a deep link points at.
+    pub highlighted: Signal<Option<String>>,
     /// Visual card appearance for reply rows.
     pub appearance: Signal<DiscussionAppearance>,
     /// Layout projection mode.
@@ -83,6 +85,9 @@ pub fn DiscussionProvider(
     /// Reply row card appearance.
     #[prop(optional)]
     appearance: Signal<DiscussionAppearance>,
+    /// Reply id to mark as highlighted, such as the reply a deep link points at.
+    #[prop(optional)]
+    highlighted: Signal<Option<String>>,
     children: Children,
 ) -> impl IntoView {
     provide_context(DiscussionContext {
@@ -91,6 +96,7 @@ pub fn DiscussionProvider(
         locale,
         focus,
         current_user_id,
+        highlighted,
         appearance,
         view_mode,
         collapsed,

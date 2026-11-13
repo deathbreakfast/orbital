@@ -43,6 +43,7 @@ pub fn discussion_styles() -> &'static str {
     flex-direction: column;
     min-height: 0;
     width: 100%;
+    font-family: var(--orb-type-family-sans);
 }
 
 .orbital-discussion__scroll {
@@ -62,6 +63,9 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__reply-node {
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--orbital-discussion-card-gap);
 }
 
 .orbital-discussion__reply-node-inner {
@@ -69,6 +73,12 @@ pub fn discussion_styles() -> &'static str {
     flex-direction: column;
     gap: var(--orbital-discussion-card-gap);
     min-width: 0;
+}
+
+.orbital-discussion__reply-node-inner--highlighted .orbital-discussion__reply-card {
+    outline: 2px solid var(--orb-color-brand-stroke);
+    outline-offset: 2px;
+    border-radius: var(--orb-radius-md);
 }
 
 .orbital-discussion__reply-node--connector .orbital-discussion__reply-node-inner {
@@ -135,7 +145,7 @@ pub fn discussion_styles() -> &'static str {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--orb-space-inline-2xs);
+    gap: var(--orb-space-inline-xs);
 }
 
 .orbital-discussion__author-persona .orbital-persona__primary-text {
@@ -144,14 +154,14 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__meta-separator {
-    color: var(--orb-color-text-subtle);
+    color: var(--orb-color-text-secondary);
     user-select: none;
 }
 
 .orbital-discussion__timestamp,
 .orbital-discussion__edited {
-    font-size: var(--orb-font-size-caption);
-    color: var(--orb-color-text-subtle);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-text-secondary);
 }
 
 .orbital-discussion__reply-labels {
@@ -163,14 +173,14 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__reply-text {
     display: block;
-    color: var(--orb-color-text-default);
+    color: var(--orb-color-text-primary);
     white-space: pre-wrap;
     font-size: var(--orb-type-size-sm);
     line-height: var(--orb-type-line-md);
 }
 
 .orbital-discussion__markdown {
-    color: var(--orb-color-text-default);
+    color: var(--orb-color-text-primary);
     font-size: var(--orb-type-size-sm);
     line-height: var(--orb-type-line-md);
 }
@@ -236,8 +246,8 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__reply-context {
-    font-size: var(--orb-font-size-caption);
-    color: var(--orb-color-text-subtle);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-text-secondary);
     margin-top: var(--orb-space-block-2xs);
 }
 
@@ -249,7 +259,7 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__custom-meta {
-    color: var(--orb-color-text-subtle);
+    color: var(--orb-color-text-secondary);
 }
 
 .orbital-discussion__custom-action-log {
@@ -270,7 +280,7 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__toolbar-label {
     font-size: var(--orb-type-size-sm);
-    color: var(--orb-color-text-subtle);
+    color: var(--orb-color-text-secondary);
 }
 
 .orbital-discussion__date-divider {
@@ -285,8 +295,8 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__date-divider-label {
-    font-size: var(--orb-font-size-caption);
-    color: var(--orb-color-text-subtle);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-text-secondary);
     white-space: nowrap;
 }
 
@@ -361,8 +371,8 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__citations-heading {
     margin: 0;
-    font-size: var(--orb-font-size-caption);
-    font-weight: var(--orb-font-weight-semibold);
+    font-size: var(--orb-type-size-xs);
+    font-weight: var(--orb-type-weight-semibold);
     color: var(--orb-color-text-secondary);
 }
 
@@ -378,8 +388,8 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__citation-index {
     flex-shrink: 0;
-    font-size: var(--orb-font-size-caption);
-    color: var(--orb-color-text-subtle);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-text-secondary);
     font-variant-numeric: tabular-nums;
 }
 
@@ -397,8 +407,8 @@ pub fn discussion_styles() -> &'static str {
 .orbital-discussion__citation-title {
     flex: 1;
     min-width: 0;
-    font-weight: var(--orb-font-weight-semibold);
-    font-size: var(--orb-font-size-body);
+    font-weight: var(--orb-type-weight-semibold);
+    font-size: var(--orb-type-size-sm);
 }
 
 .orbital-discussion__citation-affordance {
@@ -429,9 +439,9 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__markdown .orbital-markdown__citation-ref a {
-    color: var(--orb-color-text-link);
+    color: var(--orb-color-brand-link);
     text-decoration: none;
-    font-weight: var(--orb-font-weight-semibold);
+    font-weight: var(--orb-type-weight-semibold);
 }
 
 .orbital-discussion__markdown .orbital-markdown__image {
@@ -443,17 +453,17 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__citation-url {
     display: block;
-    margin-top: var(--orb-space-block-3xs);
-    font-size: var(--orb-font-size-caption);
-    color: var(--orb-color-text-subtle);
+    margin-top: var(--orb-space-block-2xs);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-text-secondary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .orbital-discussion__citation-excerpt {
-    margin: var(--orb-space-block-3xs) 0 0;
-    font-size: var(--orb-font-size-caption);
+    margin: var(--orb-space-block-2xs) 0 0;
+    font-size: var(--orb-type-size-xs);
     color: var(--orb-color-text-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -474,7 +484,7 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__file-link {
-    font-size: var(--orb-font-size-body);
+    font-size: var(--orb-type-size-sm);
 }
 
 .orbital-discussion__reply-status {
@@ -485,8 +495,8 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__reply-status--error {
-    font-size: var(--orb-font-size-caption);
-    color: var(--orb-color-text-danger);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-status-danger-fg);
 }
 
 .orbital-discussion__reply-status-tag {
@@ -511,14 +521,14 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__empty-title {
     margin: 0;
-    font-size: var(--orb-font-size-body-lg);
-    font-weight: var(--orb-font-weight-semibold);
+    font-size: var(--orb-type-size-md);
+    font-weight: var(--orb-type-weight-semibold);
     color: var(--orb-color-text-primary);
 }
 
 .orbital-discussion__empty-hint {
     margin: var(--orb-space-block-2xs) 0 0;
-    font-size: var(--orb-font-size-body);
+    font-size: var(--orb-type-size-sm);
 }
 
 .orbital-discussion__loading {
@@ -555,8 +565,8 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__tool-part-name {
-    font-weight: var(--orb-font-weight-semibold);
-    font-size: var(--orb-font-size-body);
+    font-weight: var(--orb-type-weight-semibold);
+    font-size: var(--orb-type-size-sm);
 }
 
 .orbital-discussion__tool-input,
@@ -565,8 +575,8 @@ pub fn discussion_styles() -> &'static str {
     padding: var(--orb-space-block-xs) var(--orb-space-inline-sm);
     border-radius: var(--orb-radius-sm);
     background: var(--orb-color-surface-subtle);
-    font-family: var(--orb-font-family-monospace, monospace);
-    font-size: var(--orb-font-size-caption);
+    font-family: var(--orb-type-family-mono, monospace);
+    font-size: var(--orb-type-size-xs);
     overflow-x: auto;
     white-space: pre-wrap;
     word-break: break-word;
@@ -574,8 +584,8 @@ pub fn discussion_styles() -> &'static str {
 
 .orbital-discussion__tool-error {
     margin: var(--orb-space-block-xs) 0 0;
-    color: var(--orb-color-text-danger, var(--orb-color-text-secondary));
-    font-size: var(--orb-font-size-caption);
+    color: var(--orb-color-status-danger-fg, var(--orb-color-text-secondary));
+    font-size: var(--orb-type-size-xs);
 }
 
 .orbital-discussion__tool-approval {
@@ -591,7 +601,7 @@ pub fn discussion_styles() -> &'static str {
 .orbital-discussion__reasoning-text {
     margin: 0;
     color: var(--orb-color-text-secondary);
-    font-size: var(--orb-font-size-caption);
+    font-size: var(--orb-type-size-xs);
     white-space: pre-wrap;
 }
 
@@ -606,8 +616,8 @@ pub fn discussion_styles() -> &'static str {
 }
 
 .orbital-discussion__step-label {
-    font-size: var(--orb-font-size-caption);
-    font-weight: var(--orb-font-weight-semibold);
+    font-size: var(--orb-type-size-xs);
+    font-weight: var(--orb-type-weight-semibold);
 }
 
 .orbital-discussion__streaming-cursor {
@@ -634,5 +644,31 @@ pub fn density_modifier_class(density: Density) -> &'static str {
         Density::Compact => "orbital-discussion--density-compact",
         Density::Default => "",
         Density::Spacious => "orbital-discussion--density-spacious",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::discussion_styles;
+    use orbital_theme::{theme_scoped_vars_css, Theme};
+
+    /// A `var(--orb-…)` the theme doesn't define falls back to the browser
+    /// default, which is how timestamps once rendered at body size.
+    #[test]
+    fn every_theme_token_the_styles_use_is_defined() {
+        let defined = theme_scoped_vars_css("t", &Theme::light());
+        let css = discussion_styles();
+        let missing: Vec<&str> = css
+            .match_indices("var(--orb-")
+            .map(|(i, _)| {
+                let name = &css[i + 4..];
+                let end = name
+                    .find(|c: char| !(c.is_ascii_alphanumeric() || c == '-'))
+                    .unwrap_or(name.len());
+                &name[..end]
+            })
+            .filter(|name| !defined.contains(&format!("{name}:")))
+            .collect();
+        assert!(missing.is_empty(), "undefined theme tokens: {missing:?}");
     }
 }
