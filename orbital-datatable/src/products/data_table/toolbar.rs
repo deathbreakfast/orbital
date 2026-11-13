@@ -73,31 +73,38 @@ pub fn DataTableToolbar(
                             <DataTableQuickSearch state=state />
                         </div>
                     })}
-                    {toolbar_end.map(|children| view! {
-                        <div class="orbital-data-table__toolbar-end" data-testid="data-table-toolbar-end">
-                            <DataTableTableStateProvider state=state>
-                                {children.with_value(|c| c())}
-                            </DataTableTableStateProvider>
-                        </div>
-                    })}
-                    {show_actions.then(|| view! {
-                        <div class="orbital-data-table__toolbar-actions">
-                            <Toolbar attr:aria-label="Table actions">
-                                <DataTableToolbarOverflow
-                                    on_select=on_overflow_select
-                                    show_filter=show_filter
-                                    show_columns=show_columns
-                                    show_pivot=show_pivot
-                                    show_export=show_export
-                                >
-                                    <ButtonGroup>
-                                        {show_filter.then(|| view! { <DataTableFilterPanel state=state /> })}
-                                        {show_columns.then(|| view! { <DataTableColumnPicker state=state /> })}
-                                        {show_pivot.then(|| view! { <DataTablePivotPanel state=state /> })}
-                                        {show_export.then(|| view! { <DataTableExportMenu state=state /> })}
-                                    </ButtonGroup>
-                                </DataTableToolbarOverflow>
-                            </Toolbar>
+                    {(toolbar_end.is_some() || show_actions).then(|| view! {
+                        // The slot and the built-in buttons wrap together under search on
+                        // narrow rows; inside, the buttons shrink so the overflow menu
+                        // takes what doesn't fit.
+                        <div class="orbital-data-table__toolbar-trailing">
+                            {toolbar_end.map(|children| view! {
+                                <div class="orbital-data-table__toolbar-end" data-testid="data-table-toolbar-end">
+                                    <DataTableTableStateProvider state=state>
+                                        {children.with_value(|c| c())}
+                                    </DataTableTableStateProvider>
+                                </div>
+                            })}
+                            {show_actions.then(|| view! {
+                                <div class="orbital-data-table__toolbar-actions">
+                                    <Toolbar attr:aria-label="Table actions">
+                                        <DataTableToolbarOverflow
+                                            on_select=on_overflow_select
+                                            show_filter=show_filter
+                                            show_columns=show_columns
+                                            show_pivot=show_pivot
+                                            show_export=show_export
+                                        >
+                                            <ButtonGroup>
+                                                {show_filter.then(|| view! { <DataTableFilterPanel state=state /> })}
+                                                {show_columns.then(|| view! { <DataTableColumnPicker state=state /> })}
+                                                {show_pivot.then(|| view! { <DataTablePivotPanel state=state /> })}
+                                                {show_export.then(|| view! { <DataTableExportMenu state=state /> })}
+                                            </ButtonGroup>
+                                        </DataTableToolbarOverflow>
+                                    </Toolbar>
+                                </div>
+                            })}
                         </div>
                     })}
                 </div>

@@ -190,23 +190,30 @@ pub fn data_table_styles() -> &'static str {
     min-width: 160px;
 }
 
+/* The slot and the built-in buttons travel together: they take the rest of the search
+   row, aligned to its end, and wrap under search as one group when the row is narrow.
+   Inside, the buttons shrink first so DataTableToolbarOverflow can fold them into its
+   menu. */
+.orbital-data-table__toolbar-trailing {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--orb-space-inline-sm);
+    flex: 1 1 0;
+    min-width: min-content;
+}
+
 .orbital-data-table__toolbar-end {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--orb-space-block-xs) var(--orb-space-inline-sm);
-    min-width: 0;
+    flex: 0 0 auto;
 }
 
-.orbital-data-table__toolbar-end,
 .orbital-data-table__toolbar-actions {
     flex: 0 1 auto;
     min-width: 0;
-    margin-inline-start: auto;
-}
-
-.orbital-data-table__toolbar-end ~ .orbital-data-table__toolbar-actions {
-    margin-inline-start: 0;
 }
 
 /* The built-in buttons read as plain buttons on the search row, not a raised Toolbar. */
