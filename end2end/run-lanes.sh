@@ -138,6 +138,7 @@ run_lane() {
   done
   t1=$(now)
   if curl -sf -o /dev/null "http://127.0.0.1:$port${READY_PATH:-/health}"; then
+    if declare -F lane_warm >/dev/null; then lane_warm "$i" "$port" "$o"; fi
     if [ "$serial" = 0 ] && [ "$targeted" = 0 ]; then
       if [ -f "$o/list.txt" ]; then args=(--test-list="$o/list.txt"); else args=(--shard="$i/$lanes"); fi
     fi
