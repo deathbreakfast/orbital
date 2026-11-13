@@ -1,0 +1,84 @@
+[component-preview] › components/backdrop.spec.ts › backdrop preview › BD-01: dimmed scrim opens and click dismisses
+[component-preview] › components/backdrop.spec.ts › backdrop preview › BD-02: loading overlay shows spinner on scrim
+[component-preview] › components/backdrop.spec.ts › backdrop preview › BD-03: framed scrim uses custom class and covers frame
+[component-preview] › components/backdrop.spec.ts › backdrop preview › BD-04: spotlight cutout highlights target element
+[component-preview] › components/carousel.spec.ts › carousel preview › C-01 default carousel
+[component-preview] › components/carousel.spec.ts › carousel preview › C-02 next and previous navigation
+[component-preview] › components/carousel.spec.ts › carousel preview › C-03 wrap navigation
+[component-preview] › components/data-table-filter-logic.spec.ts › data-table filter logic › OR matches more rows than AND
+[component-preview] › components/scheduler-calendar-resources.spec.ts › scheduler-calendar-resources preview › renders preview page
+[component-preview] › components/scheduler-calendar-resources.spec.ts › scheduler-calendar-resources preview › shows documented example
+[component-preview] › components/scheduler-calendar-resources.spec.ts › scheduler-calendar-resources preview › resource labels and scoped events render
+[component-preview] › components/data-table-column-picker.spec.ts › data-table column picker › picker toggles column visibility
+[component-preview] › components/data-table-density.spec.ts › data-table density › DT-06 density variant preview renders
+[component-preview] › components/data-table-density.spec.ts › data-table density › DT-07 table root exposes density CSS variable
+[component-preview] › components/heatmap.spec.ts › heatmap preview › renders preview page
+[component-preview] › components/heatmap.spec.ts › heatmap preview › shows heatmap cells
+[component-preview] › components/heatmap.spec.ts › heatmap preview › shows documented examples
+[component-preview] › components/heatmap.spec.ts › heatmap preview › uses svg renderer for preview grid
+[component-preview] › components/heatmap.spec.ts › heatmap preview › interaction variant shows color scale legend
+[component-preview] › components/heatmap.spec.ts › heatmap preview › interaction variant shows tooltip on cell hover
+[component-preview] › components/motion-tokens.spec.ts › motion-tokens preview › MT-01: duration and curve tables render
+[component-preview] › components/paginator.spec.ts › paginator auto preview › PN-01: default paginator shows ten pages
+[component-preview] › components/paginator.spec.ts › paginator auto preview › PN-02: small dataset shows three pages
+[component-preview] › components/paginator.spec.ts › paginator auto preview › PN-03: unknown total shows single page with next disabled
+[component-preview] › components/paginator.spec.ts › paginator auto preview › PN-04: clicking page 2 updates offset
+[component-preview] › components/paginator.spec.ts › paginator auto preview › PN-05: theme surfaces on active page button
+[component-preview] › components/diff-view.spec.ts › diff-view preview › renders preview page
+[component-preview] › components/diff-view.spec.ts › diff-view preview › side by side names each side and aligns paired rows
+[component-preview] › components/diff-view.spec.ts › diff-view preview › layout switch shows the unified view
+[component-preview] › components/diff-view.spec.ts › diff-view preview › phone width stacks From above To
+[component-preview] › components/diff-view.spec.ts › diff-view preview › word spans mark the changed words
+[component-preview] › components/diff-view.spec.ts › diff-view preview › identical and empty states
+[component-preview] › components/diff-view.spec.ts › diff-view preview › dark mode swaps the status backgrounds
+[component-preview] › components/diff-view.spec.ts › diff-view preview › DV-02 shows the text diff variants
+[component-preview] › components/diff-view.spec.ts › diff-view preview › DV-03 before and after text marks removed and added lines
+[component-preview] › components/diff-view.spec.ts › diff-view preview › DV-03b empty before text marks every line as added
+[component-preview] › components/diff-view.spec.ts › diff-view preview › DV-04 identical inputs show no changes
+[component-preview] › components/diff-view.spec.ts › diff-view preview › DV-05 renders lines in monospace
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-01: app-bar popover stays in viewport on phone
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-04: desktop popover opens under AppBar
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-02: phone opens drawer not clipped popover
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-01: desktop opens popover
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-02-sad: escape dismisses drawer
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-02: wide AppBar panel stays in viewport
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-03: short viewport clamps tall click popover
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-04: drawer body visible on phone
+[component-preview-mobile] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-05: open drawer closes when resizing to desktop
+[component-preview] › components/data-table-column-menu.spec.ts › data-table column menu › menu sort descending reorders rows
+[component-preview] › components/data-table-column-menu.spec.ts › data-table column menu › filter apply closes popover
+[component-preview] › components/data-table-column-menu.spec.ts › data-table column menu › menu hide column removes header
+[component-preview] › components/data-table-column-menu.spec.ts › data-table column menu › single-select filter offers its choices and filters by one
+[component-preview] › components/data-table-column-menu.spec.ts › data-table column menu › filter on a column without choices keeps a text box
+[component-preview] › components/date-time-field.spec.ts › date-time-field preview behaviors › renders preview page
+[component-preview] › components/date-time-field.spec.ts › date-time-field preview behaviors › shows documented example
+[component-preview] › components/date-time-field.spec.ts › date-time-field preview behaviors › typing segments updates bound value
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-01: default persona renders name and avatar
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-02: secondary text slot renders beneath primary
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-03: full text stack renders four lines
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-04: size presets scale avatar dimensions
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-05: center alignment applies center modifier class
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-06: text position variants apply before and below classes
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-07: avatar image renders when avatar_src is provided
+[component-preview] › components/persona.spec.ts › persona primitive preview › PE-08: default persona has horizontal gap between avatar and primary text
+[component-preview] › components/data-table-row-span.spec.ts › data-table row span › merged qty column has fewer cells than rows
+[component-preview] › components/data-table-localization.spec.ts › data-table localization and RTL › localized footer and RTL direction
+[component-preview] › components/back-to-top.spec.ts › back-to-top component preview › BTT-01 default scrolls preview back to top
+[component-preview] › components/back-to-top.spec.ts › back-to-top component preview › BTT-02 custom position
+[component-preview] › components/back-to-top.spec.ts › back-to-top component preview › BTT-03 visibility height
+[component-preview] › components/scheduler-timeline-filtering.spec.ts › scheduler-timeline-filtering placeholder preview › renders preview page
+[component-preview] › components/scheduler-timeline-filtering.spec.ts › scheduler-timeline-filtering placeholder preview › shows documented example
+[component-preview] › components/flex.spec.ts › flex primitive preview › renders preview page
+[component-preview] › components/flex.spec.ts › flex primitive preview › shows variant examples
+[component-preview] › components/flex.spec.ts › flex primitive preview › vertical prop sets flex-direction column
+[component-preview] › components/flex.spec.ts › flex primitive preview › gap prop changes spacing
+[component-preview] › components/flex.spec.ts › flex primitive preview › align prop affects cross-axis alignment
+[component-preview] › components/chart-stacking.spec.ts › chart-stacking preview › renders preview page
+[component-preview] › components/chart-stacking.spec.ts › chart-stacking preview › shows stacked bar segments
+[component-preview] › components/chart-stacking.spec.ts › chart-stacking preview › shows documented example
+[component-preview] › components/loading-bar.spec.ts › loading-bar primitive preview › LB-01: start button shows teleported loading bar
+[component-preview] › components/loading-bar.spec.ts › loading-bar primitive preview › LB-02: finish flow completes bar to full width
+[component-preview] › components/loading-bar.spec.ts › loading-bar primitive preview › LB-03: error flow uses danger semantic color
+[component-preview] › components/scheduler-calendar-views.spec.ts › scheduler-calendar-views preview › renders preview page
+[component-preview] › components/scheduler-calendar-views.spec.ts › scheduler-calendar-views preview › shows documented example
+[component-preview] › components/scheduler-calendar-views.spec.ts › scheduler-calendar-views preview › view switcher shows month layout

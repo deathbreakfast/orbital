@@ -12,7 +12,9 @@ changes are easiest to review and merge.
 
 ## Verify locally
 
-Run the same checks as CI before opening a PR:
+Run the same checks as CI before opening a PR. [docs/VERIFICATION.md](docs/VERIFICATION.md)
+maps every CI job to a command and shows how to run them, and the browser suite in
+lanes, in a few minutes:
 
 ```bash
 cargo fmt --all -- --check
@@ -29,6 +31,9 @@ cargo clippy --workspace --all-targets -- -D warnings
 ```
 
 ### Full preview E2E (optional, slower)
+
+`end2end/run-lanes.sh` runs the same suite split across parallel lanes; see
+[docs/VERIFICATION.md](docs/VERIFICATION.md#browser-tests-in-lanes).
 
 ```bash
 cd end2end && npm ci && npx playwright install --with-deps chromium
