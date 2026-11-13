@@ -5,6 +5,44 @@ use orbital_macros::component_doc;
 
 use super::styles::card_layout_styles;
 
+/// Context marker: `true` while rendering inside a [`Card`].
+#[derive(Clone, Copy)]
+struct InsideCard(bool);
+
+/// Renders `children` as if they were not inside a card, so their cards take the top-level
+/// surface again. For frames that happen to be cards themselves, such as the preview
+/// catalog's example frame.
+#[component]
+pub(crate) fn CardNestingBoundary(children: Children) -> impl IntoView {
+    provide_context(InsideCard(false));
+    children()
+}
+
+/// The surface a card gets from its props and placement. Explicit props win; left unset, a
+/// top-level card is outlined and flat, a card inside another card is flat with no border
+/// (no box inside a box), and a solid card rests on a shadow.
+fn resolve_surface(
+    variant: Option<MaterialVariant>,
+    elevation: Option<MaterialElevation>,
+    nested: bool,
+) -> (MaterialVariant, MaterialElevation) {
+    match (variant, elevation) {
+        // Nothing set inside another card: flat, borderless.
+        (None, None) if nested => (MaterialVariant::Solid, MaterialElevation::Flat),
+        (None, elevation) => (
+            MaterialVariant::Outlined,
+            elevation.unwrap_or(MaterialElevation::Flat),
+        ),
+        (Some(variant), elevation) => (
+            variant,
+            elevation.unwrap_or(match variant {
+                MaterialVariant::Solid => MaterialElevation::Resting,
+                _ => MaterialElevation::Flat,
+            }),
+        ),
+    }
+}
+
 /// Groups related content on an Orbital [`Material`] surface.
 ///
 /// # Usage
@@ -226,44 +264,6 @@ use super::styles::card_layout_styles;
 ///     </div>
 /// }
 /// ```
-/// Context marker: `true` while rendering inside a [`Card`].
-#[derive(Clone, Copy)]
-struct InsideCard(bool);
-
-/// Renders `children` as if they were not inside a card, so their cards take the top-level
-/// surface again. For frames that happen to be cards themselves, such as the preview
-/// catalog's example frame.
-#[component]
-pub(crate) fn CardNestingBoundary(children: Children) -> impl IntoView {
-    provide_context(InsideCard(false));
-    children()
-}
-
-/// The surface a card gets from its props and placement. Explicit props win; left unset, a
-/// top-level card is outlined and flat, a card inside another card is flat with no border
-/// (no box inside a box), and a solid card rests on a shadow.
-fn resolve_surface(
-    variant: Option<MaterialVariant>,
-    elevation: Option<MaterialElevation>,
-    nested: bool,
-) -> (MaterialVariant, MaterialElevation) {
-    match (variant, elevation) {
-        // Nothing set inside another card: flat, borderless.
-        (None, None) if nested => (MaterialVariant::Solid, MaterialElevation::Flat),
-        (None, elevation) => (
-            MaterialVariant::Outlined,
-            elevation.unwrap_or(MaterialElevation::Flat),
-        ),
-        (Some(variant), elevation) => (
-            variant,
-            elevation.unwrap_or(match variant {
-                MaterialVariant::Solid => MaterialElevation::Resting,
-                _ => MaterialElevation::Flat,
-            }),
-        ),
-    }
-}
-
 #[component_doc(
     category = "Surfaces",
     preview_slug = "card",
