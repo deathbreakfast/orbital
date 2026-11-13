@@ -116,7 +116,7 @@ pub fn data_table_styles() -> &'static str {
     outline-offset: -2px;
 }
 
-.orbital-data-table--rtl .orbital-data-table__toolbar {
+.orbital-data-table--rtl .orbital-data-table__toolbar-row {
     flex-direction: row-reverse;
 }
 
@@ -175,14 +175,21 @@ pub fn data_table_styles() -> &'static str {
 }
 
 /* Search row: quick search at the start, DataTableToolbarEnd content and the built-in
-   buttons together at the end. Padded to line up with the cells; wraps on narrow screens. */
+   buttons together at the end, padded to line up with the cells. The row stays on one
+   line and the built-in buttons shrink first, so DataTableToolbarOverflow folds them
+   into its menu. A toolbar narrower than 560px (a phone, a side panel) puts search on
+   its own line with the end group under it. */
 .orbital-data-table__toolbar {
+    container-type: inline-size;
+    padding: var(--orb-space-block-sm) var(--orbital-data-table-cell-padding-inline);
+}
+
+.orbital-data-table__toolbar-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--orb-space-block-sm) var(--orb-space-inline-md);
     align-items: center;
     min-width: 0;
-    padding: var(--orb-space-block-sm) var(--orbital-data-table-cell-padding-inline);
 }
 
 .orbital-data-table__toolbar-search {
@@ -190,17 +197,13 @@ pub fn data_table_styles() -> &'static str {
     min-width: 160px;
 }
 
-/* The slot and the built-in buttons travel together: they take the rest of the search
-   row, aligned to its end, and wrap under search as one group when the row is narrow.
-   Inside, the buttons shrink first so DataTableToolbarOverflow can fold them into its
-   menu. */
 .orbital-data-table__toolbar-trailing {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: var(--orb-space-inline-sm);
-    flex: 1 1 0;
-    min-width: min-content;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .orbital-data-table__toolbar-end {
@@ -214,6 +217,22 @@ pub fn data_table_styles() -> &'static str {
 .orbital-data-table__toolbar-actions {
     flex: 0 1 auto;
     min-width: 0;
+}
+
+@container (max-width: 560px) {
+    .orbital-data-table__toolbar-row {
+        flex-wrap: wrap;
+    }
+
+    .orbital-data-table__toolbar-search,
+    .orbital-data-table__toolbar-trailing {
+        flex: 1 1 100%;
+    }
+
+    .orbital-data-table__toolbar-end {
+        flex: 0 1 auto;
+        min-width: 0;
+    }
 }
 
 /* The built-in buttons read as plain buttons on the search row, not a raised Toolbar. */

@@ -68,15 +68,16 @@ pub fn DataTableToolbar(
         {move || {
             view! {
                 <div class="orbital-data-table__toolbar" data-testid="data-table-toolbar">
+                    <div class="orbital-data-table__toolbar-row">
                     {config.quick_search.then(|| view! {
                         <div class="orbital-data-table__toolbar-search">
                             <DataTableQuickSearch state=state />
                         </div>
                     })}
                     {(toolbar_end.is_some() || show_actions).then(|| view! {
-                        // The slot and the built-in buttons wrap together under search on
-                        // narrow rows; inside, the buttons shrink so the overflow menu
-                        // takes what doesn't fit.
+                        // The slot and the built-in buttons sit together at the end of the
+                        // row; the buttons shrink first so the overflow menu takes what
+                        // doesn't fit. On a narrow toolbar the group wraps under search.
                         <div class="orbital-data-table__toolbar-trailing">
                             {toolbar_end.map(|children| view! {
                                 <div class="orbital-data-table__toolbar-end" data-testid="data-table-toolbar-end">
@@ -107,6 +108,7 @@ pub fn DataTableToolbar(
                             })}
                         </div>
                     })}
+                    </div>
                 </div>
             }
             .into_any()
