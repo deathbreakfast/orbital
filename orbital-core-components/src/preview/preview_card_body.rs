@@ -4,6 +4,7 @@
 //! borders, then resets it on `.PreviewDemo` so demoed cards keep their own
 //! default content padding (custom properties inherit into nested components).
 
+use crate::card::CardNestingBoundary;
 use crate::{
     Button, ButtonAppearance, Card, CardContent, CardPreview, CardSectionBorder, Code, Flex,
     FlexAlign, FlexGap, FlexJustify, MaterialElevation, MaterialVariant,
@@ -67,7 +68,9 @@ pub fn OrbitalPreviewCardBody(
                         justify=FlexJustify::Center
                         full_width=true
                     >
-                        {children()}
+                        // Examples render as they would on a page, not as cards nested
+                        // inside this frame.
+                        <CardNestingBoundary>{children()}</CardNestingBoundary>
                     </Flex>
                 </Flex>
             </CardContent>

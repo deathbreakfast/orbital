@@ -18,6 +18,7 @@ test.describe("card surface preview", () => {
       "card-button-area-preview",
       "card-custom-hero-preview",
       "card-raised",
+      "card-nested",
       "card-solid",
     ]);
   });
@@ -66,6 +67,23 @@ test.describe("card surface preview", () => {
     expect(parseFloat(height)).toBeCloseTo(140, 0);
     await expect(page.getByTestId("card-media-preview").locator(".orbital-card-content")).toBeVisible();
     await expect(page.getByTestId("card-media-preview").locator(".orbital-card-footer")).toBeVisible();
+  });
+
+  test("card inside a card renders flat with no border or shadow", async ({ page }) => {
+    await openComponentPreview(page, "card");
+    await page.getByTestId("card-nested").scrollIntoViewIfNeeded();
+    const cards = page.getByTestId("card-nested").locator(".orbital-card.orbital-material");
+    await expect(cards).toHaveCount(2);
+    await expect(cards.nth(0)).toHaveAttribute("data-material-variant", "outlined");
+    const inner = cards.nth(1);
+    await expect(inner).toHaveAttribute("data-material-variant", "solid");
+    await expect(inner).toHaveAttribute("data-material-elevation", "flat");
+    const { shadow, border } = await inner.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { shadow: cs.boxShadow, border: parseFloat(cs.borderTopWidth) || 0 };
+    });
+    expect(shadow).toBe("none");
+    expect(border).toBe(0);
   });
 
   test("solid card opts out of the outline and keeps a resting shadow", async ({ page }) => {

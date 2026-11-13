@@ -10,6 +10,7 @@ mod styles;
 
 pub use button_area::CardButtonArea;
 pub use card::Card;
+pub(crate) use card::CardNestingBoundary;
 pub use content::CardContent;
 pub use footer::CardFooter;
 pub use header::{CardHeader, CardHeaderAction, CardHeaderDescription};
