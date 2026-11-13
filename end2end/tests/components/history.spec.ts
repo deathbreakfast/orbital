@@ -9,6 +9,24 @@ test.describe("history preview", () => {
     await expect(page.locator("[data-history-entry-id='1']")).toBeVisible();
   });
 
+  test("natural rows show who and when as a Persona happy path", async ({ page }) => {
+    await openComponentPreview(page, "history-timeline");
+    const row = page.locator("[data-history-entry-id='1']");
+    await expect(row).toBeVisible({ timeout: 30_000 });
+    const persona = row.locator(".orbital-history__persona");
+    await expect(persona).toBeVisible();
+    await expect(persona.locator(".orbital-persona__avatar")).toBeVisible();
+    // Actor on the primary line, relative time on the secondary line.
+    await expect(persona.locator(".orbital-persona__primary-text .orbital-history__actor")).toBeVisible();
+    const time = persona.locator(".orbital-persona__secondary-text .orbital-history__timestamp time");
+    await expect(time).toHaveAttribute("datetime", /\d{4}-\d{2}-\d{2}T/);
+    const [actorBox, timeBox] = await Promise.all([
+      persona.locator(".orbital-history__actor").boundingBox(),
+      time.boundingBox(),
+    ]);
+    expect(timeBox!.y).toBeGreaterThanOrEqual(actorBox!.y + actorBox!.height - 2);
+  });
+
   test("filter chrome narrows visible entries", async ({ page }) => {
     await openComponentPreview(page, "history-filter", "history-filter-chrome-preview");
     const preview = page.getByTestId("history-filter-chrome-preview");

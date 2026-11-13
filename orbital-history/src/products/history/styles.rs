@@ -197,6 +197,15 @@ pub fn history_styles() -> &'static str {
     color: var(--orb-color-foreground-3);
 }
 
+/* Natural rows open with a Persona (actor, then time); a little space before the change. */
+.orbital-history__persona {
+    margin-bottom: var(--orb-space-block-xs);
+}
+
+.orbital-history__persona .orbital-history__timestamp {
+    display: block;
+}
+
 .orbital-history__actor {
     min-width: 0;
 }

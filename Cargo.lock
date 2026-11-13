@@ -2198,6 +2198,7 @@ dependencies = [
 name = "orbital-core-components"
 version = "0.1.4"
 dependencies = [
+ "any_spawner",
  "chrono",
  "icondata",
  "icondata_core",

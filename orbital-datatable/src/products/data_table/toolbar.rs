@@ -9,7 +9,9 @@ use super::quick_search::DataTableQuickSearch;
 use super::toolbar_overflow::DataTableToolbarOverflow;
 use crate::core::use_data_table_context;
 use crate::core::DataTableTableStateProvider;
-use crate::types::{DataTableFeatures, DataTableTableState, DataTableToolbarSlot};
+use crate::types::{
+    DataTableFeatures, DataTableTableState, DataTableToolbarEnd, DataTableToolbarSlot,
+};
 
 #[cfg(feature = "hydrate")]
 fn click_toolbar_trigger(testid: &str) {
@@ -26,11 +28,13 @@ fn click_toolbar_trigger(testid: &str) {
 #[cfg(not(feature = "hydrate"))]
 fn click_toolbar_trigger(_testid: &str) {}
 
-/// Toolbar shell for quick search, filter panel, column picker, and export.
+/// Toolbar shell for quick search, filter panel, column picker, and export, with optional
+/// [`DataTableToolbarEnd`] content on the same row.
 #[component]
 pub fn DataTableToolbar(
     state: DataTableTableState,
     #[prop(optional)] toolbar_slot: Option<DataTableToolbarSlot>,
+    #[prop(optional)] toolbar_end: Option<DataTableToolbarEnd>,
 ) -> impl IntoView {
     if let Some(slot) = toolbar_slot {
         return view! {
@@ -50,6 +54,7 @@ pub fn DataTableToolbar(
     let show_pivot = config.pivot && pivoting;
     let show_export = config.export_menu;
     let show_actions = show_filter || show_columns || show_pivot || show_export;
+    let toolbar_end = toolbar_end.map(|end| StoredValue::new(end.children));
 
     let on_overflow_select = Callback::new(move |action: String| match action.as_str() {
         "filter" => click_toolbar_trigger("data-table-filter-panel-trigger"),
@@ -66,6 +71,13 @@ pub fn DataTableToolbar(
                     {config.quick_search.then(|| view! {
                         <div class="orbital-data-table__toolbar-search">
                             <DataTableQuickSearch state=state />
+                        </div>
+                    })}
+                    {toolbar_end.map(|children| view! {
+                        <div class="orbital-data-table__toolbar-end" data-testid="data-table-toolbar-end">
+                            <DataTableTableStateProvider state=state>
+                                {children.with_value(|c| c())}
+                            </DataTableTableStateProvider>
                         </div>
                     })}
                     {show_actions.then(|| view! {

@@ -70,9 +70,9 @@ use crate::types::{
     DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState, DataTableLoadingView,
     DataTableLocale, DataTableNoResultsView, DataTablePivotModel, DataTableRowDetail,
     DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode, DataTableSlots, DataTableSort,
-    DataTableSource, DataTableToolbarConfig, DataTableToolbarSlot, EditMode, GetRowId, GetTreePath,
-    ListViewConfig, PaginationDisplayFormat, PaginationState, PagingMode, RowDetailView,
-    ServerFetchPolicy,
+    DataTableSource, DataTableToolbarConfig, DataTableToolbarEnd, DataTableToolbarSlot, EditMode,
+    GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat, PaginationState, PagingMode,
+    RowDetailView, ServerFetchPolicy,
 };
 
 fn default_page_size_options() -> Option<Vec<u32>> {
@@ -391,6 +391,10 @@ pub fn DataTable(
     /// Deprecated — use [`data_table_toolbar`].
     #[prop(optional)]
     data_table_toolbar_slot: Option<DataTableToolbarSlot>,
+    /// Product controls on the default toolbar's search row (saved searches, a page's own
+    /// filter button) — nest with `<DataTableToolbarEnd slot>`.
+    #[prop(optional)]
+    data_table_toolbar_end: Option<DataTableToolbarEnd>,
     /// Custom footer — nest with `<DataTableFooterSlot slot>`.
     #[prop(optional)]
     data_table_footer: Option<DataTableFooterSlot>,
@@ -509,6 +513,7 @@ pub fn DataTable(
     let footer_slot = data_table_footer.or(data_table_footer_slot);
     let slots = DataTableSlots::from_slot_props(
         toolbar_slot,
+        data_table_toolbar_end,
         footer_slot,
         data_table_empty_view,
         data_table_no_results_view,

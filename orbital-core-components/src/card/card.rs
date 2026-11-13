@@ -23,29 +23,17 @@ use super::styles::card_layout_styles;
 /// # Examples
 ///
 /// ## Default (body only)
-/// Basic card with body content on a solid surface at resting elevation.
+/// Outlined card with body content. With no header above it, [`CardContent`] is padded on
+/// every side.
 /// <!-- default -->
 /// <!-- preview -->
 /// ```rust
 /// use crate::{Card, CardContent};
-/// use turf::inline_style_sheet_values;
 /// view! {
 ///     <div data-testid="card-preview" style="max-width: 360px;">
-///         {
-///             let (style_sheet, class_names) = inline_style_sheet_values! {
-///                 .PaddedContent {
-///                     --orbital-card-content-padding: 16px;
-///                 }
-///             };
-///             view! {
-///                 <style>{style_sheet}</style>
-///                 <Card>
-///                     <CardContent class=class_names.padded_content>
-///                         "Card body content"
-///                     </CardContent>
-///                 </Card>
-///             }
-///         }
+///         <Card>
+///             <CardContent>"Card body content"</CardContent>
+///         </Card>
 ///     </div>
 /// }
 /// ```
@@ -179,55 +167,30 @@ use super::styles::card_layout_styles;
 /// ```
 ///
 /// ## Raised elevation
-/// Emphasized card surface using raised elevation.
+/// Emphasized solid surface using raised elevation.
 /// <!-- preview -->
 /// ```rust
-/// use crate::{Card, CardContent, MaterialElevation};
-/// use turf::inline_style_sheet_values;
+/// use crate::{Card, CardContent, MaterialElevation, MaterialVariant};
 /// view! {
 ///     <div data-testid="card-raised" style="max-width: 360px;">
-///         {
-///             let (style_sheet, class_names) = inline_style_sheet_values! {
-///                 .PaddedContent {
-///                     --orbital-card-content-padding: 16px;
-///                 }
-///             };
-///             view! {
-///                 <style>{style_sheet}</style>
-///                 <Card elevation=MaterialElevation::Raised>
-///                     <CardContent class=class_names.padded_content>
-///                         "Hero card content"
-///                     </CardContent>
-///                 </Card>
-///             }
-///         }
+///         <Card variant=MaterialVariant::Solid elevation=MaterialElevation::Raised>
+///             <CardContent>"Hero card content"</CardContent>
+///         </Card>
 ///     </div>
 /// }
 /// ```
 ///
-/// ## Outlined
-/// Flat bordered card surface with no shadow.
+/// ## Solid surface
+/// Borderless solid surface with a resting shadow, the look cards had before outlined became
+/// the default.
 /// <!-- preview -->
 /// ```rust
-/// use crate::{Card, CardContent, MaterialElevation, MaterialVariant};
-/// use turf::inline_style_sheet_values;
+/// use crate::{Card, CardContent, MaterialVariant};
 /// view! {
-///     <div data-testid="card-outlined" style="max-width: 360px;">
-///         {
-///             let (style_sheet, class_names) = inline_style_sheet_values! {
-///                 .PaddedContent {
-///                     --orbital-card-content-padding: 16px;
-///                 }
-///             };
-///             view! {
-///                 <style>{style_sheet}</style>
-///                 <Card variant=MaterialVariant::Outlined elevation=MaterialElevation::Flat>
-///                     <CardContent class=class_names.padded_content>
-///                         "Outlined card content"
-///                     </CardContent>
-///                 </Card>
-///             }
-///         }
+///     <div data-testid="card-solid" style="max-width: 360px;">
+///         <Card variant=MaterialVariant::Solid>
+///             <CardContent>"Solid card content"</CardContent>
+///         </Card>
 ///     </div>
 /// }
 /// ```
@@ -242,12 +205,15 @@ pub fn Card(
     /// Optional CSS class merged onto the Material root.
     #[prop(optional, into)]
     class: MaybeProp<String>,
-    /// Surface material treatment forwarded to [`Material`].
-    #[prop(default = MaterialVariant::Solid)]
+    /// Surface material treatment forwarded to [`Material`]. Outlined (a thin border) by
+    /// default; [`MaterialVariant::Solid`] gives the borderless surface with a resting shadow.
+    #[prop(default = MaterialVariant::Outlined)]
     variant: MaterialVariant,
-    /// Surface elevation forwarded to [`Material`].
-    #[prop(default = MaterialElevation::Resting)]
-    elevation: MaterialElevation,
+    /// Surface elevation forwarded to [`Material`]. Left unset, it follows `variant`:
+    /// [`MaterialElevation::Flat`] for an outlined card, [`MaterialElevation::Resting`]
+    /// otherwise.
+    #[prop(optional)]
+    elevation: Option<MaterialElevation>,
     /// Corner treatment forwarded to [`Material`].
     #[prop(default = MaterialCorners::Rounded)]
     corners: MaterialCorners,
@@ -257,6 +223,10 @@ pub fn Card(
     /// Compound slot regions — [`CardHeader`], [`CardMedia`], [`CardPreview`], [`CardContent`], [`CardButtonArea`], and [`CardFooter`] in document order.
     children: Children,
 ) -> impl IntoView {
+    let elevation = elevation.unwrap_or(match variant {
+        MaterialVariant::Outlined => MaterialElevation::Flat,
+        _ => MaterialElevation::Resting,
+    });
     let (layout_sheet, layout_classes) = card_layout_styles();
     let root_class = Signal::derive(move || {
         let extra = class.get().unwrap_or_default();
@@ -274,5 +244,58 @@ pub fn Card(
                 {children()}
             </Flex>
         </Material>
+    }
+}
+
+/// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib card_ssr`.
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::*;
+    use crate::CardContent;
+    use orbital_theme::OrbitalThemeProvider;
+
+    fn render(view: impl FnOnce() -> AnyView) -> String {
+        // The workspace test build also enables leptos csr, so Effects need an executor.
+        let _ = any_spawner::Executor::init_futures_executor();
+        Owner::new()
+            .with(|| view! { <OrbitalThemeProvider>{view()}</OrbitalThemeProvider> }.to_html())
+    }
+
+    #[test]
+    fn card_ssr_default_is_outlined_and_flat() {
+        let html = render(|| view! { <Card><CardContent>"Body"</CardContent></Card> }.into_any());
+        assert!(
+            html.contains("data-material-variant=\"outlined\""),
+            "{html}"
+        );
+        assert!(html.contains("data-material-elevation=\"flat\""), "{html}");
+    }
+
+    #[test]
+    fn card_ssr_solid_variant_keeps_a_resting_shadow() {
+        let html = render(|| {
+            view! { <Card variant=MaterialVariant::Solid><CardContent>"Body"</CardContent></Card> }
+                .into_any()
+        });
+        assert!(html.contains("data-material-variant=\"solid\""), "{html}");
+        assert!(
+            html.contains("data-material-elevation=\"resting\""),
+            "{html}"
+        );
+    }
+
+    #[test]
+    fn card_ssr_explicit_elevation_wins_over_the_variant_default() {
+        let html = render(|| {
+            view! { <Card elevation=MaterialElevation::Raised><CardContent>"Body"</CardContent></Card> }.into_any()
+        });
+        assert!(
+            html.contains("data-material-variant=\"outlined\""),
+            "{html}"
+        );
+        assert!(
+            html.contains("data-material-elevation=\"raised\""),
+            "{html}"
+        );
     }
 }

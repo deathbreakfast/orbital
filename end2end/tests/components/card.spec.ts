@@ -18,18 +18,22 @@ test.describe("card surface preview", () => {
       "card-button-area-preview",
       "card-custom-hero-preview",
       "card-raised",
-      "card-outlined",
+      "card-solid",
     ]);
   });
 
-  test("default card composes material surface", async ({ page }) => {
+  test("default card is outlined and flat", async ({ page }) => {
     await openComponentPreview(page, "card");
     const root = page.getByTestId("card-preview").locator(".orbital-card.orbital-material").first();
     await expect(root).toBeVisible();
-    await expect(root).toHaveAttribute("data-material-variant", "solid");
-    await expect(root).toHaveAttribute("data-material-elevation", "resting");
-    const shadow = await root.evaluate((el) => getComputedStyle(el).boxShadow);
-    expect(shadow).not.toBe("none");
+    await expect(root).toHaveAttribute("data-material-variant", "outlined");
+    await expect(root).toHaveAttribute("data-material-elevation", "flat");
+    const { shadow, border } = await root.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { shadow: cs.boxShadow, border: cs.borderTopWidth };
+    });
+    expect(shadow).toBe("none");
+    expect(parseFloat(border)).toBeGreaterThan(0);
   });
 
   test("raised card uses material elevated shadow", async ({ page }) => {
@@ -64,15 +68,13 @@ test.describe("card surface preview", () => {
     await expect(page.getByTestId("card-media-preview").locator(".orbital-card-footer")).toBeVisible();
   });
 
-  test("outlined card has border and no shadow", async ({ page }) => {
+  test("solid card opts out of the outline and keeps a resting shadow", async ({ page }) => {
     await openComponentPreview(page, "card");
-    await page.getByTestId("card-outlined").scrollIntoViewIfNeeded();
-    const root = page.getByTestId("card-outlined").locator(".orbital-material").first();
-    await expect(root).toHaveAttribute("data-material-variant", "outlined");
-    await expectComputedStyle(page, "card-outlined", { "box-shadow": "none" }, {
-      childSelector: ".orbital-material",
-    });
-    const borderWidth = await root.evaluate((el) => getComputedStyle(el).borderTopWidth);
-    expect(parseFloat(borderWidth)).toBeGreaterThan(0);
+    await page.getByTestId("card-solid").scrollIntoViewIfNeeded();
+    const root = page.getByTestId("card-solid").locator(".orbital-material").first();
+    await expect(root).toHaveAttribute("data-material-variant", "solid");
+    await expect(root).toHaveAttribute("data-material-elevation", "resting");
+    const shadow = await root.evaluate((el) => getComputedStyle(el).boxShadow);
+    expect(shadow).not.toBe("none");
   });
 });
