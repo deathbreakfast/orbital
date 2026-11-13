@@ -46,7 +46,7 @@ pub async fn fetch_metrics_page(request: PageRequest) -> Result<Page<DataRecord>
         items,
         has_more: end < all.len(),
         total_count: Some(total),
-        next_request_offset: None,
+        ..Page::default()
     })
 }
 

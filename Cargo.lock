@@ -2394,6 +2394,7 @@ dependencies = [
 name = "orbital-paging"
 version = "0.1.4"
 dependencies = [
+ "base64",
  "leptos",
  "leptos-use",
  "orbital-data",

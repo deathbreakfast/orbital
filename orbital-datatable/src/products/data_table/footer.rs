@@ -1,8 +1,7 @@
 use leptos::prelude::*;
-use orbital_base_components::{FlexAlign, FlexGap, ThemeColor};
+use orbital_base_components::{FlexAlign, FlexGap, FlexJustify, FlexWrap, ThemeColor};
 use orbital_core_components::{
-    Label, LabelSize, Select, SelectBind, SelectSize, Space, SpaceConfig, Stack, StackConfig, Text,
-    TextSize,
+    Flex, Label, LabelSize, Select, SelectBind, SelectSize, Stack, StackConfig, Text, TextSize,
 };
 
 use super::pagination_bar::DataTablePaginationBar;
@@ -121,10 +120,13 @@ pub fn DataTableFooter(
 
             view! {
                 <div class="orbital-data-table__footer" data-testid="data-table-footer">
-                    <Space config=SpaceConfig {
-                        align: Some(FlexAlign::Center),
-                        ..Default::default()
-                    }>
+                    // Wraps so the pager moves under the range label on narrow screens.
+                    <Flex
+                        full_width=true
+                        justify=FlexJustify::SpaceBetween
+                        align=FlexAlign::Center
+                        wrap=FlexWrap::Wrap
+                    >
                         <Stack
                             config=StackConfig {
                                 horizontal: true,
@@ -152,7 +154,7 @@ pub fn DataTableFooter(
                                 <DataTablePaginationBar state=state />
                             </div>
                         </Show>
-                    </Space>
+                    </Flex>
                 </div>
             }
             .into_any()

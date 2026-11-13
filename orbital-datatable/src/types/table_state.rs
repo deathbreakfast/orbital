@@ -12,12 +12,12 @@ use crate::engine::{
     ColumnLayoutInput, ExportRowScope, ProcessedPipelineInput, SortDirection,
 };
 use crate::types::{
-    AggregationModel, AggregationPosition, CellCoord, CellSelection, DataTableColumnDef,
-    DataTableColumnGroupDef, DataTableEvents, DataTableFeatures, DataTableFilter,
-    DataTableInitialState, DataTablePivotModel, DataTableRowGrouping, DataTableRowModel,
-    DataTableSelectionMode, DataTableSort, DataTableState, EditFieldDraft, EditHistory, EditMode,
-    EditSession, EditSessionStore, GetRowId, GetTreePath, ListViewConfig, OverlayState,
-    PaginationState, PagingMode, PinnedColumnsState, PinnedRowsState, SortRule,
+    AggregationModel, AggregationPosition, CellCoord, CellSelection, CursorTrail,
+    DataTableColumnDef, DataTableColumnGroupDef, DataTableEvents, DataTableFeatures,
+    DataTableFilter, DataTableInitialState, DataTablePivotModel, DataTableRowGrouping,
+    DataTableRowModel, DataTableSelectionMode, DataTableSort, DataTableState, EditFieldDraft,
+    EditHistory, EditMode, EditSession, EditSessionStore, GetRowId, GetTreePath, ListViewConfig,
+    OverlayState, PaginationState, PagingMode, PinnedColumnsState, PinnedRowsState, SortRule,
 };
 
 /// Whether the table reads from client records or a server fetcher.
@@ -50,6 +50,11 @@ pub struct DataTableTableState {
     pub page_size: RwSignal<usize>,
     pub server_offset: RwSignal<u32>,
     pub server_total: RwSignal<Option<u64>>,
+    /// Whether the last server page reported more rows after it. Drives Next
+    /// when the total is unknown.
+    pub server_has_more: RwSignal<bool>,
+    /// Cursors leading to each loaded server page; see [`CursorTrail`].
+    pub server_cursors: StoredValue<CursorTrail>,
     pub server_loading: RwSignal<bool>,
     /// True after the first server page (or infinite-scroll first page) has settled.
     pub server_ever_loaded: RwSignal<bool>,
@@ -393,7 +398,10 @@ impl DataTableTableState {
         } else {
             (from + visible - 1).min(total)
         };
-        let estimated = self.is_server() && self.server_total.get().is_none();
+        // With an unknown total, `total` is the last row seen so far; it's a
+        // lower bound only while the server says more rows follow.
+        let estimated =
+            self.is_server() && self.server_total.get().is_none() && self.server_has_more.get();
         (from, to, total, estimated)
     }
 
@@ -732,6 +740,7 @@ impl DataTableTableState {
         self.page.set(0);
         if self.is_server() {
             self.server_offset.set(0);
+            self.server_cursors.update_value(CursorTrail::clear);
         }
     }
 

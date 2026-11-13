@@ -176,13 +176,15 @@ pub fn data_table_styles() -> &'static str {
 
 .orbital-data-table__toolbar {
     display: flex;
-    gap: var(--orb-space-inline-md);
+    flex-wrap: wrap;
+    gap: var(--orb-space-block-xs) var(--orb-space-inline-md);
     align-items: center;
     min-width: 0;
 }
 
+/* Wraps the actions under the search box on narrow screens instead of overlapping it. */
 .orbital-data-table__toolbar-search {
-    flex: 1 1 auto;
+    flex: 1 1 12rem;
     min-width: 0;
 }
 
@@ -204,7 +206,7 @@ pub fn data_table_styles() -> &'static str {
 
 .orbital-data-table__footer-start {
     min-width: 0;
-    flex: 0 1 auto;
+    flex: 0 0 auto;
 }
 
 .orbital-data-table__footer-end {

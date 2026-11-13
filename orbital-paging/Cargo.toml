@@ -16,6 +16,9 @@ workspace = true
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+# URL-safe encoding for opaque page cursors (`PageCursor`).
+base64 = { version = "0.22", default-features = false, features = ["alloc"] }
 orbital-data = { path = "../orbital-data", version = "0.1.4" }
 
 # Optional: Leptos integration for the `use_paged_infinite_scroll` hook.
@@ -23,9 +26,6 @@ orbital-data = { path = "../orbital-data", version = "0.1.4" }
 # Page<T>) keep their zero-framework dependency.
 leptos = { workspace = true, optional = true }
 leptos-use = { workspace = true, optional = true, features = ["use_infinite_scroll"] }
-
-[dev-dependencies]
-serde_json = { workspace = true }
 
 [features]
 default = []

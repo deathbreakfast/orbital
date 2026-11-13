@@ -6,6 +6,7 @@ const previewE2e = !!process.env.COMPONENT_PREVIEW_E2E;
 const mobileSpecs = [
   "**/mobile-overlays.spec.ts",
   "**/layout-responsive.spec.ts",
+  "**/data-table-cursor.spec.ts",
 ];
 
 export default defineConfig({
