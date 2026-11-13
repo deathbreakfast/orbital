@@ -229,9 +229,20 @@ pub fn data_table_styles() -> &'static str {
         flex: 1 1 100%;
     }
 
+    /* The slot keeps its own line; the built-in buttons follow it or take the next one. */
+    .orbital-data-table__toolbar-trailing {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        row-gap: var(--orb-space-block-sm);
+    }
+
     .orbital-data-table__toolbar-end {
         flex: 0 1 auto;
         min-width: 0;
+    }
+
+    .orbital-data-table__toolbar-actions {
+        flex: 1 1 auto;
     }
 }
 
