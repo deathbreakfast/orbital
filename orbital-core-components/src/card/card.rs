@@ -254,7 +254,7 @@ mod tests {
     use crate::CardContent;
     use orbital_theme::OrbitalThemeProvider;
 
-    fn render(view: impl FnOnce() -> AnyView) -> String {
+    fn render(view: fn() -> AnyView) -> String {
         // The workspace test build also enables leptos csr, so Effects need an executor.
         let _ = any_spawner::Executor::init_futures_executor();
         Owner::new()
