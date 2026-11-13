@@ -12,6 +12,7 @@ struct InsideCard(bool);
 /// Renders `children` as if they were not inside a card, so their cards take the top-level
 /// surface again. For frames that happen to be cards themselves, such as the preview
 /// catalog's example frame.
+#[cfg(feature = "preview")]
 #[component]
 pub(crate) fn CardNestingBoundary(children: Children) -> impl IntoView {
     provide_context(InsideCard(false));
