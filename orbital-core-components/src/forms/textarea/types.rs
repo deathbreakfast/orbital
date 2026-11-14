@@ -41,10 +41,14 @@ impl From<FormBind<String>> for TextareaBind {
 /// Visual attributes for [`Textarea`](super::textarea::Textarea).
 #[derive(Default)]
 pub struct TextareaAppearance {
+    /// Hint text shown while the value is empty.
     pub placeholder: MaybeProp<String>,
     pub disabled: Signal<bool>,
+    /// Blocks edits while keeping the text focusable and selectable.
     pub readonly: Signal<bool>,
+    /// Visible line count. When set, the height follows it instead of the size's minimum.
     pub rows: Signal<Option<u32>>,
+    /// Visible character width (native `cols`).
     pub cols: Signal<Option<u32>>,
     pub resize: Signal<TextareaResize>,
     pub size: Signal<TextareaSize>,
@@ -61,6 +65,14 @@ impl TextareaAppearance {
     pub fn disabled() -> Self {
         Self {
             disabled: Signal::from(true),
+            ..Default::default()
+        }
+    }
+
+    /// Opens the textarea at `rows` lines tall.
+    pub fn with_rows(rows: u32) -> Self {
+        Self {
+            rows: Signal::from(Some(rows)),
             ..Default::default()
         }
     }

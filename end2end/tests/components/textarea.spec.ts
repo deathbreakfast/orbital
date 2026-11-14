@@ -38,4 +38,28 @@ test.describe("textarea primitive preview", () => {
     await expect(page.getByTestId("textarea-field").locator(".orbital-field__validation-message"))
       .toBeVisible();
   });
+
+  test("TA-06: rows sets the attribute and the height follows it", async ({ page }) => {
+    await openComponentPreview(page, "textarea");
+    const rowsArea = page.getByTestId("textarea-rows").locator("textarea");
+    await rowsArea.scrollIntoViewIfNeeded();
+    await expect(rowsArea).toHaveAttribute("rows", "6");
+    const defaultHeight = await page.getByTestId("textarea-preview").locator("textarea")
+      .evaluate((el) => el.getBoundingClientRect().height);
+    const rowsHeight = await rowsArea.evaluate((el) => el.getBoundingClientRect().height);
+    const lineHeight = await rowsArea.evaluate((el) => parseFloat(getComputedStyle(el).lineHeight));
+    expect(rowsHeight).toBeGreaterThan(defaultHeight);
+    expect(rowsHeight).toBeGreaterThanOrEqual(lineHeight * 6);
+  });
+
+  test("TA-07: readonly textarea keeps its value and blocks typing", async ({ page }) => {
+    await openComponentPreview(page, "textarea");
+    const textarea = page.getByTestId("textarea-readonly").locator("textarea");
+    await textarea.scrollIntoViewIfNeeded();
+    await expect(textarea).toHaveAttribute("readonly", "");
+    await expect(textarea).toBeEnabled();
+    await textarea.focus();
+    await page.keyboard.type("x");
+    await expect(textarea).toHaveValue("Signed off on 12 March");
+  });
 });
