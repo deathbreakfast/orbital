@@ -70,6 +70,42 @@ use crate::{
 /// }
 /// ```
 ///
+/// ## Busy search row
+/// With many controls the slot shrinks to its widest control and wraps onto more lines,
+/// so the search box keeps its place at the start of the row.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use crate::{DataTable, DataTableColumnDef, DataTableRowModel, DataTableToolbarEnd, PagingMode};
+/// use orbital_core_components::{Button, ButtonAppearance, Select, SelectBind};
+/// use orbital_data::{DataRecord, DataValue};
+/// let items = RwSignal::new(vec![DataTableRowModel::new(DataRecord::new("1", HashMap::from([
+///     ("title".into(), DataValue::Text("Migrate card vault".into())),
+///     ("status".into(), DataValue::Text("Doing".into())),
+/// ])))]);
+/// let saved = RwSignal::new("mine".to_string());
+/// view! {
+///     <div data-testid="data-table-toolbar-end-busy-preview" style="width: min(720px, 100%);">
+///         <DataTable
+///             paging=PagingMode::None
+///             columns=vec![DataTableColumnDef::new("title", "Title"), DataTableColumnDef::new("status", "Status")]
+///             items=items
+///         >
+///             <DataTableToolbarEnd slot>
+///                 <Button appearance=ButtonAppearance::Subtle>"Advanced"</Button>
+///                 <Button appearance=ButtonAppearance::Subtle>"Group by"</Button>
+///                 <Button appearance=ButtonAppearance::Subtle>"Columns"</Button>
+///                 <Button appearance=ButtonAppearance::Subtle>"Share view"</Button>
+///                 <Select bind=SelectBind { value: saved.into(), ..Default::default() }>
+///                     <option value="all">"All (unsaved)"</option>
+///                     <option value="mine">"My open tasks"</option>
+///                 </Select>
+///             </DataTableToolbarEnd>
+///         </DataTable>
+///     </div>
+/// }
+/// ```
+///
 /// ## Custom toolbar, footer, and empty state
 /// <!-- preview -->
 /// ```rust,ignore

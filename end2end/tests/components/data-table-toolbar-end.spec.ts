@@ -58,4 +58,32 @@ test.describe("data-table toolbar end slot", () => {
     const overflow = await preview.evaluate((el) => el.scrollWidth - el.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
   });
+
+  test("TE-04: a busy slot wraps inside its group and leaves the search box whole", async ({ page }) => {
+    for (const width of [1280, 800]) {
+      await page.setViewportSize({ width, height: 900 });
+      await openComponentPreview(page, "data-table-slots", "data-table-toolbar-end-busy-preview");
+      const preview = page.getByTestId("data-table-toolbar-end-busy-preview");
+      await preview.scrollIntoViewIfNeeded();
+      const toolbar = preview.getByTestId("data-table-toolbar");
+      const search = preview.getByTestId("data-table-quick-search");
+      const end = preview.getByTestId("data-table-toolbar-end");
+      await expect(end.getByRole("button", { name: "Share view" })).toBeVisible();
+
+      const [t, s, e] = await Promise.all([toolbar.boundingBox(), search.boundingBox(), end.boundingBox()]);
+      // The search box stays inside the toolbar at its minimum width or more.
+      expect(s!.x).toBeGreaterThanOrEqual(t!.x - 1);
+      expect(s!.width).toBeGreaterThanOrEqual(159);
+      // The slot sits after the search box and inside the toolbar.
+      expect(e!.x).toBeGreaterThanOrEqual(s!.x + s!.width - 1);
+      expect(e!.x + e!.width).toBeLessThanOrEqual(t!.x + t!.width + 1);
+      const overflow = await toolbar.evaluate((el) => el.scrollWidth - el.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+      // The slot's controls use more than one line.
+      const tops = await end.evaluate((el) =>
+        Array.from(el.children).map((c) => Math.round(c.getBoundingClientRect().top)),
+      );
+      expect(new Set(tops).size).toBeGreaterThan(1);
+    }
+  });
 });
