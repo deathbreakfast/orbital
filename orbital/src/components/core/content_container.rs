@@ -53,6 +53,33 @@ use turf::inline_style_sheet_values;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Reactive max width
+/// Pass a signal to change the width live, for example when a side panel opens or closes.
+/// <!-- preview -->
+/// ```rust
+/// use orbital_core_components::{Button, ButtonAppearance};
+/// let wide = RwSignal::new(false);
+/// view! {
+///     <div data-testid="container-reactive" style="width: 100%; min-width: 900px; border: 1px dashed var(--orb-color-border-default);">
+///         <Button
+///             appearance=ButtonAppearance::Subtle
+///             attr:data-testid="container-reactive-toggle"
+///             on_click=Callback::new(move |_| wide.update(|w| *w = !*w))
+///         >
+///             "Toggle width"
+///         </Button>
+///         <Container
+///             max_width=Signal::derive(move || if wide.get() { "880px".to_string() } else { "480px".to_string() })
+///             data_testid="container-reactive-inner"
+///         >
+///             <div style="padding: var(--orb-space-inline-md); background: var(--orb-color-surface-subtle);">
+///                 "480px, or 880px after toggling"
+///             </div>
+///         </Container>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Layout",
     preview_slug = "container",
@@ -61,9 +88,9 @@ use turf::inline_style_sheet_values;
 )]
 #[component]
 pub fn Container(
-    /// Maximum width of the content area. Defaults to `"1200px"`. Common values: `"900px"` for form pages, `"720px"` for focused content.
+    /// Maximum width of the content area. Defaults to `"1200px"`. Common values: `"900px"` for form pages, `"720px"` for focused content. Accepts a signal, e.g. to widen the page when a side panel closes.
     #[prop(optional, into, default = "1200px".into())]
-    max_width: String,
+    max_width: Signal<String>,
     /// Minimum width of the content area (CSS length, e.g. `"360px"`).
     #[prop(optional, into)]
     min_width: MaybeProp<String>,
@@ -85,7 +112,7 @@ pub fn Container(
     };
 
     let container_style = Signal::derive(move || {
-        let mut parts = vec![format!("width: min({}, 100%)", max_width.clone())];
+        let mut parts = vec![format!("width: min({}, 100%)", max_width.get())];
         if let Some(min) = min_width.get().filter(|s| !s.trim().is_empty()) {
             parts.push(format!("min-width: {min}"));
         }
@@ -93,7 +120,7 @@ pub fn Container(
         parts.join("; ")
     });
 
-    let container_class = {
+    let container_class = move || {
         let base = class_names.orbital_content_container.to_string();
         match class.get() {
             Some(extra) if !extra.trim().is_empty() => format!("{} {}", base, extra),
