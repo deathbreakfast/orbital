@@ -45,8 +45,10 @@ test.describe("theme primitive preview", () => {
     await input.fill("");
     await input.pressSequentially("#FF0000");
     await input.dispatchEvent("input");
-    const after = await btn.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(after).not.toEqual(before);
+    // The theme applies on the next reactive tick; poll instead of reading once.
+    await expect
+      .poll(() => btn.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .not.toEqual(before);
   });
 
   test("T-04/T-05: density changes spaced row gap", async ({ page }) => {

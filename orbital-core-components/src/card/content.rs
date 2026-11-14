@@ -3,37 +3,27 @@ use orbital_macros::component_doc;
 
 use super::styles::card_content_styles;
 
-/// Body content region inside a card with default horizontal and bottom padding.
+/// Body content region inside a card.
 ///
-/// Use between header or media slots and the footer for primary copy. Override padding via Turf `class` setting `--orbital-card-content-padding`.
+/// Use between header or media slots and the footer for primary copy. When it opens the card
+/// (no [`CardHeader`](crate::CardHeader), media or preview above it) it is padded on every
+/// side; below another slot it drops its top padding and the card's gap spaces the two.
+/// Override padding via Turf `class` setting `--orbital-card-content-padding`.
 ///
 /// # Examples
 ///
 /// ## Default body
-/// Standalone body copy inside a card surface.
+/// Body copy in a card with no header: padded on every side.
 /// <!-- default -->
 /// <!-- preview -->
 /// ```rust
 /// use crate::{Card, CardContent};
-/// use turf::inline_style_sheet_values;
 /// view! {
 ///     <div data-testid="card-content-preview">
 ///         <div data-testid="card-content-default" style="max-width: 360px;">
-///             {
-///                 let (style_sheet, class_names) = inline_style_sheet_values! {
-///                     .PaddedContent {
-///                         --orbital-card-content-padding: 16px;
-///                     }
-///                 };
-///                 view! {
-///                     <style>{style_sheet}</style>
-///                     <Card>
-///                         <CardContent class=class_names.padded_content>
-///                             "Card body copy."
-///                         </CardContent>
-///                     </Card>
-///                 }
-///             }
+///             <Card>
+///                 <CardContent>"Card body copy."</CardContent>
+///             </Card>
 ///         </div>
 ///     </div>
 /// }

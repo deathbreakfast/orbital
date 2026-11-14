@@ -25,6 +25,13 @@ export default defineConfig({
     actionTimeout: 30_000,
     navigationTimeout: 60_000,
     trace: "on-first-retry",
+    // Preview examples load placeholder photos from picsum.photos and i.pravatar.cc.
+    // waitForPreviewShell waits for network idle, so a slow or unreachable photo host
+    // stalled every such test for about 40 s. Resolve those hosts to localhost so the
+    // images fail at once; the specs only check the src attribute.
+    launchOptions: {
+      args: ["--host-resolver-rules=MAP picsum.photos 127.0.0.1, MAP i.pravatar.cc 127.0.0.1"],
+    },
   },
   projects: previewE2e
     ? [

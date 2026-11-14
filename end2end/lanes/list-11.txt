@@ -1,0 +1,91 @@
+[component-preview] › components/data-table-custom-columns.spec.ts › data-table custom columns › status column renders badge
+[component-preview] › components/card-content.spec.ts › card-content preview › renders preview page
+[component-preview] › components/card-content.spec.ts › card-content preview › shows documented examples
+[component-preview] › components/card-content.spec.ts › card-content preview › body padding region inside card
+[component-preview] › components/card-content.spec.ts › card-content preview › stacked content below media
+[component-preview] › components/divider.spec.ts › divider primitive preview › DV-01 horizontal separator
+[component-preview] › components/divider.spec.ts › divider primitive preview › DV-02 vertical in flex row
+[component-preview] › components/divider.spec.ts › divider primitive preview › DV-03 theme stroke token
+[component-preview] › components/divider.spec.ts › divider primitive preview › DV-04 labeled divider
+[component-preview] › components/divider.spec.ts › divider primitive preview › DV-05 toolbar cluster
+[component-preview] › components/toolbar.spec.ts › toolbar preview › T-01 default toolbar
+[component-preview] › components/toolbar.spec.ts › toolbar preview › T-02 vertical layout
+[component-preview] › components/toolbar.spec.ts › toolbar preview › T-03 with overflow
+[component-preview] › components/avatar-group.spec.ts › avatar-group preview › AG-01 stacked group
+[component-preview] › components/avatar-group.spec.ts › avatar-group preview › AG-02 spread layout
+[component-preview] › components/avatar-group.spec.ts › avatar-group preview › AG-03 overflow chip
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-01 name-derived initials
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-02 profile image
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-03 custom initials
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-04 size matrix dimensions
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-05 shape modifier classes
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-06 neutral surface token
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-07 colorful initials differ by name
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-08 named color modifier classes
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-09 brand color modifier class
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-10 with presence badge
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-11 with counter badge
+[component-preview] › components/avatar.spec.ts › avatar primitive preview › AV-12 avatar group composition
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-01: checked preview starts checked
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-02: unchecked preview starts unchecked
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-03: click toggles unchecked to checked
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-04: disabled fieldset prevents toggle
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-05: size matrix large indicator is bigger than medium
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-06: checked indicator uses themed brand compound background
+[component-preview] › components/checkbox.spec.ts › checkbox primitive preview › CB-07: field wrapper associates form label with checkbox
+[component-preview] › components/data-table-col-span.spec.ts › data-table col span › summary cell spans two columns
+[component-preview] › components/discussion-citations.spec.ts › discussion citations preview › citation affordance, menu extras, and default actions
+[component-preview] › components/discussion-citations.spec.ts › discussion citations preview › citation ref superscript links to citation row
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-01: Bold wraps the selected word
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-02: Ctrl+I wraps the selection in italics
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-03: Preview renders strong text
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-04: a script tag in the source does not render
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-05: empty source shows the empty preview message
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-06: going past max_chars sets aria-invalid
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-07: every toolbar button has an accessible name
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-08: Field label names the textarea
+[component-preview] › components/markdown-editor.spec.ts › markdown editor preview › ME-A1: axe clean in dark and light at 390px and desktop
+[component-preview] › components/data-table-state-export.spec.ts › data-table state export/restore › export, reset, and restore round-trip sort state
+[component-preview] › components/date-pickers-overview.spec.ts › date-pickers-overview preview › overview preview renders picker family
+[component-preview] › components/date-pickers-overview.spec.ts › date-pickers-overview preview › overview includes getting started DatePicker example
+[component-preview] › components/date-pickers-overview.spec.ts › date-pickers-overview preview › overview documents common FAQ answers
+[component-preview] › components/datetime-locale.spec.ts › datetime-locale preview › renders preview page
+[component-preview] › components/datetime-locale.spec.ts › datetime-locale preview › shows documented example
+[component-preview] › components/datetime-locale.spec.ts › datetime-locale preview › uses localized weekday labels from locale provider
+[component-preview] › components/data-table-column-groups.spec.ts › data-table column groups › group header row renders above leaf headers
+[component-preview] › components/radio.spec.ts › radio behavior in radio-group previews › RG-04: field wrapper associates field label and radios
+[component-preview] › components/radio.spec.ts › radio behavior in radio-group previews › RG-05: disabled fieldset prevents changing selection
+[component-preview] › components/radio.spec.ts › radio behavior in radio-group previews › RG-07: horizontal layout arranges radios in a row
+[component-preview] › components/radio.spec.ts › radio behavior in radio-group previews › RG-06: keyboard navigation switches required example selection
+[component-preview] › components/button.spec.ts › button primitive preview › renders preview page
+[component-preview] › components/button.spec.ts › button primitive preview › shows variant examples
+[component-preview] › components/button.spec.ts › button primitive preview › disabled button has disabled attribute
+[component-preview] › components/button.spec.ts › button primitive preview › loading button exposes aria-busy
+[component-preview] › components/button.spec.ts › button primitive preview › primary appearance uses brand background token
+[component-preview] › components/button.spec.ts › button primitive preview › secondary appearance differs from primary
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-01 renders default calendar and navigation order
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-02 selected day has distinct selected bar style
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-03 clicking a day updates bound value text
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-04 UTC example renders and allows selection
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-05 fixed offset example renders and keeps grid
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-06 navigation changes visible month
+[component-preview] › components/calendar.spec.ts › calendar preview behaviors › CA-07 today action updates month and selection
+[component-preview] › components/code.spec.ts › code primitive preview › renders preview page
+[component-preview] › components/scheduler-calendar-import-export.spec.ts › scheduler-calendar-import-export placeholder preview › renders preview page
+[component-preview] › components/scheduler-calendar-import-export.spec.ts › scheduler-calendar-import-export placeholder preview › shows documented example
+[component-preview] › components/chart-composition.spec.ts › chart-composition preview › renders preview page
+[component-preview] › components/chart-composition.spec.ts › chart-composition preview › renders both bar and line plot types
+[component-preview] › components/chart-composition.spec.ts › chart-composition preview › shows documented example
+[component-preview] › components/anchor.spec.ts › anchor preview › AN-01 basic rail
+[component-preview] › components/anchor.spec.ts › anchor preview › AN-02 nested links
+[component-preview] › components/anchor.spec.ts › anchor preview › AN-03 custom scroll container
+[component-preview] › components/anchor.spec.ts › anchor preview › AN-04 active on scroll
+[component-preview] › components/anchor.spec.ts › anchor preview › AN-05 layout composition
+[component-preview] › components/board.spec.ts › board pattern preview › BD-01 dragging a card from To do to Doing fires one move
+[component-preview] › components/board.spec.ts › board pattern preview › BD-02 dropping a card on its own lane is a no-op
+[component-preview] › components/board.spec.ts › board pattern preview › BD-03 keyboard move: Space, ArrowRight, Space
+[component-preview] › components/board.spec.ts › board pattern preview › BD-04 Escape cancels a keyboard move
+[component-preview] › components/board.spec.ts › board pattern preview › BD-05 read-only board has no draggable cards
+[component-preview] › components/board.spec.ts › board pattern preview › BD-06 empty lane and custom count
+[component-preview] › components/board.spec.ts › board pattern preview › BD-07 lanes scroll sideways at 390px without page overflow
+[component-preview] › components/board.spec.ts › board pattern preview › BD-08 axe clean in dark and light

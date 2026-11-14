@@ -1,0 +1,93 @@
+[component-preview] › components/motion-reduced-motion.spec.ts › motion reduced motion preview › MR-01: prefers-reduced-motion uses instant transitions when respected
+[component-preview] › components/scheduler-timeline-drag-interactions.spec.ts › scheduler-timeline-drag-interactions preview › renders preview page
+[component-preview] › components/scheduler-timeline-drag-interactions.spec.ts › scheduler-timeline-drag-interactions preview › shows documented example
+[component-preview] › components/scheduler-timeline-drag-interactions.spec.ts › scheduler-timeline-drag-interactions preview › dragging event updates start time
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › shows every documented example
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-01: today line sits inside the visible range
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-02: a point event draws a diamond with its title as its name
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-03: a danger-toned event uses the danger background token
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-04: progress fills part of the bar
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-05: collapsing a parent row hides its children and their events
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-06: the collapse toggle is a button with aria-expanded
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-07: dark theme changes the tone colours
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-08: phone width keeps the label column and scrolls the lanes
+[component-preview] › components/scheduler-timeline-markers.spec.ts › scheduler-timeline-markers preview › TM-09: axe finds no violations on the markers preview
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › divider: minimal description without code fences
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › flex: description excludes usage code fences
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › button: best practices and properties tabs render separately
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › layout: usage steps without fenced code
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › fixture-doc-panel: macro fixture content in doc tabs
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › doc tabs switch panel content
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › M4 components: radio, auto-complete, date-picker doc tabs are non-empty
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › fixture-doc-panel: example aside navigates to secondary example
+[component-preview] › components/preview-shell.spec.ts › preview doc panel shell › show code toggle reveals example source
+[component-preview] › components/preview-shell.spec.ts › orbital shape defaults › card surface uses 8px medium border radius
+[component-preview] › components/preview-shell.spec.ts › orbital shape defaults › button uses 8px medium border radius
+[component-preview] › components/scatter-chart.spec.ts › scatter-chart preview › renders preview page
+[component-preview] › components/scatter-chart.spec.ts › scatter-chart preview › shows scatter point marks
+[component-preview] › components/scatter-chart.spec.ts › scatter-chart preview › hover highlights nearest point
+[component-preview] › components/scatter-chart.spec.ts › scatter-chart preview › shows documented examples
+[component-preview] › components/scatter-chart.spec.ts › scatter-chart preview › animations enabled on load
+[component-preview] › components/transfer-list.spec.ts › transfer-list preview › TL-01: move selected item from left to right
+[component-preview] › components/transfer-list.spec.ts › transfer-list preview › TL-02: enhanced header shows selection counter
+[component-preview] › components/transfer-list.spec.ts › transfer-list preview › TL-03: custom labels remain visible after move
+[component-preview] › components/transfer-list.spec.ts › transfer-list preview › TL-04: disabled item cannot be moved
+[component-preview] › components/data-table-get-row-id.spec.ts › data-table get row id › custom get_row_id drives row testids
+[component-preview] › components/line-chart.spec.ts › line-chart preview › renders preview page
+[component-preview] › components/line-chart.spec.ts › line-chart preview › shows line stroke marks
+[component-preview] › components/line-chart.spec.ts › line-chart preview › shows documented examples
+[component-preview] › components/line-chart.spec.ts › line-chart preview › reference line renders
+[component-preview] › components/line-chart.spec.ts › line-chart preview › connect nulls variant renders line stroke
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PB-01: default progress bar is visible with resolved fill
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PB-02: semantic color modifiers apply visible fills
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PB-03: custom max sets aria-valuemax and visible fill
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PB-04: low and high values clamp within track
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PC-01: progress circle exposes progressbar role
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PC-02: progress circle color variants render
+[component-preview] › components/progress-bar.spec.ts › progress-bar primitive preview › PC-03: custom size applies css variable
+[component-preview] › components/chart-container.spec.ts › chart-container preview › renders preview page
+[component-preview] › components/chart-container.spec.ts › chart-container preview › shows documented example
+[component-preview] › components/chart-container.spec.ts › chart-container preview › renders chart shell with axes
+[smoke] › smoke/scheduler-catalog-navigation.spec.ts › scheduler catalog navigation regressions › timeline to timeline-navigation
+[smoke] › smoke/scheduler-catalog-navigation.spec.ts › scheduler catalog navigation regressions › timeline to calendar
+[smoke] › smoke/scheduler-catalog-navigation.spec.ts › scheduler catalog navigation regressions › calendar to calendar-navigation
+[smoke] › smoke/scheduler-catalog-navigation.spec.ts › scheduler catalog navigation regressions › timeline to drag then drag
+[smoke] › smoke/scheduler-catalog-navigation.spec.ts › scheduler catalog navigation regressions › navigate away mid-drag via scheduler hop
+[smoke] › smoke/scheduler-catalog-navigation.spec.ts › scheduler catalog navigation regressions › scheduling round-trip
+[component-preview] › components/auto-grid.spec.ts › auto-grid preview › AG-01 renders responsive card grid
+[component-preview] › components/auto-grid.spec.ts › auto-grid preview › AG-02 grid container uses auto-fill layout
+[component-preview] › components/data-table-column-visibility.spec.ts › data-table column visibility › initial state hides role column
+[component-preview] › components/date-pickers-custom-components.spec.ts › date-pickers-custom-components preview › custom day cells render and select a date
+[component-preview] › components/date-time-range-picker.spec.ts › date-time-range-picker placeholder preview › renders preview page
+[component-preview] › components/date-time-range-picker.spec.ts › date-time-range-picker placeholder preview › shows documented example
+[component-preview-mobile-android] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-01: Auto @ phone uses overlay drawer
+[component-preview-mobile-android] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-02: Auto @ desktop keeps inline sidebar when open
+[component-preview-mobile-android] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-01-sad: drawer dismiss closes
+[component-preview-mobile-android] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-03: sidebar closed by default on phone
+[component-preview-mobile-android] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-04: open drawer closes across breakpoint
+[component-preview] › components/date-time-picker.spec.ts › date-time-picker preview behaviors › renders preview page
+[component-preview] › components/date-time-picker.spec.ts › date-time-picker preview behaviors › shows documented example
+[component-preview] › components/date-time-picker.spec.ts › date-time-picker preview behaviors › selecting date and time updates bound value
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-01 renders default input
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-02 preselected unix value populates input
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-03 panel selection updates unix readout
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-04 ISO format displays hyphen date
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-05 overlay is anchored near trigger
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-06 panel surface has themed styling
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-07 required validation shows on blur
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-08 disabled input blocks interaction
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-09 formatted timezone readout is rendered
+[component-preview] › components/date-picker.spec.ts › date-picker preview behaviors › DP-10 min/max validation shows on blur for out-of-range date
+[component-preview] › components/scheduler-timeline-editing.spec.ts › scheduler-timeline-editing preview › renders preview page
+[component-preview] › components/scheduler-timeline-editing.spec.ts › scheduler-timeline-editing preview › shows documented example
+[component-preview] › components/scheduler-timeline-editing.spec.ts › scheduler-timeline-editing preview › creates event via shared dialog
+[component-preview] › components/accordion.spec.ts › accordion primitive preview › AC-01: default panel open
+[component-preview] › components/accordion.spec.ts › accordion primitive preview › AC-02: multiple panels can open
+[component-preview] › components/accordion.spec.ts › accordion primitive preview › AC-03: collapsible closes last open panel
+[component-preview] › components/accordion.spec.ts › accordion primitive preview › AC-04: keyboard Enter toggles panel
+[component-preview] › components/accordion.spec.ts › accordion primitive preview › AC-05: theme header color token
+[component-preview] › components/chart-embed.spec.ts › chart-embed preview › renders preview page
+[component-preview] › components/chart-embed.spec.ts › chart-embed preview › scroll host embed mode and fixed tooltip escapes clip
+[component-preview] › components/scheduler-calendar.spec.ts › scheduler-calendar preview › renders preview page
+[component-preview] › components/scheduler-calendar.spec.ts › scheduler-calendar preview › shows documented example
+[component-preview] › components/scheduler-calendar.spec.ts › scheduler-calendar preview › navigation changes visible date header

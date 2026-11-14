@@ -9,7 +9,9 @@ use super::quick_search::DataTableQuickSearch;
 use super::toolbar_overflow::DataTableToolbarOverflow;
 use crate::core::use_data_table_context;
 use crate::core::DataTableTableStateProvider;
-use crate::types::{DataTableFeatures, DataTableTableState, DataTableToolbarSlot};
+use crate::types::{
+    DataTableFeatures, DataTableTableState, DataTableToolbarEnd, DataTableToolbarSlot,
+};
 
 #[cfg(feature = "hydrate")]
 fn click_toolbar_trigger(testid: &str) {
@@ -26,11 +28,13 @@ fn click_toolbar_trigger(testid: &str) {
 #[cfg(not(feature = "hydrate"))]
 fn click_toolbar_trigger(_testid: &str) {}
 
-/// Toolbar shell for quick search, filter panel, column picker, and export.
+/// Toolbar shell for quick search, filter panel, column picker, and export, with optional
+/// [`DataTableToolbarEnd`] content on the same row.
 #[component]
 pub fn DataTableToolbar(
     state: DataTableTableState,
     #[prop(optional)] toolbar_slot: Option<DataTableToolbarSlot>,
+    #[prop(optional)] toolbar_end: Option<DataTableToolbarEnd>,
 ) -> impl IntoView {
     if let Some(slot) = toolbar_slot {
         return view! {
@@ -50,6 +54,7 @@ pub fn DataTableToolbar(
     let show_pivot = config.pivot && pivoting;
     let show_export = config.export_menu;
     let show_actions = show_filter || show_columns || show_pivot || show_export;
+    let toolbar_end = toolbar_end.map(|end| StoredValue::new(end.children));
 
     let on_overflow_select = Callback::new(move |action: String| match action.as_str() {
         "filter" => click_toolbar_trigger("data-table-filter-panel-trigger"),
@@ -63,31 +68,47 @@ pub fn DataTableToolbar(
         {move || {
             view! {
                 <div class="orbital-data-table__toolbar" data-testid="data-table-toolbar">
+                    <div class="orbital-data-table__toolbar-row">
                     {config.quick_search.then(|| view! {
                         <div class="orbital-data-table__toolbar-search">
                             <DataTableQuickSearch state=state />
                         </div>
                     })}
-                    {show_actions.then(|| view! {
-                        <div class="orbital-data-table__toolbar-actions">
-                            <Toolbar attr:aria-label="Table actions">
-                                <DataTableToolbarOverflow
-                                    on_select=on_overflow_select
-                                    show_filter=show_filter
-                                    show_columns=show_columns
-                                    show_pivot=show_pivot
-                                    show_export=show_export
-                                >
-                                    <ButtonGroup>
-                                        {show_filter.then(|| view! { <DataTableFilterPanel state=state /> })}
-                                        {show_columns.then(|| view! { <DataTableColumnPicker state=state /> })}
-                                        {show_pivot.then(|| view! { <DataTablePivotPanel state=state /> })}
-                                        {show_export.then(|| view! { <DataTableExportMenu state=state /> })}
-                                    </ButtonGroup>
-                                </DataTableToolbarOverflow>
-                            </Toolbar>
+                    {(toolbar_end.is_some() || show_actions).then(|| view! {
+                        // The slot and the built-in buttons sit together at the end of the
+                        // row; the buttons shrink first so the overflow menu takes what
+                        // doesn't fit. On a narrow toolbar the group wraps under search.
+                        <div class="orbital-data-table__toolbar-trailing">
+                            {toolbar_end.map(|children| view! {
+                                <div class="orbital-data-table__toolbar-end" data-testid="data-table-toolbar-end">
+                                    <DataTableTableStateProvider state=state>
+                                        {children.with_value(|c| c())}
+                                    </DataTableTableStateProvider>
+                                </div>
+                            })}
+                            {show_actions.then(|| view! {
+                                <div class="orbital-data-table__toolbar-actions">
+                                    <Toolbar attr:aria-label="Table actions">
+                                        <DataTableToolbarOverflow
+                                            on_select=on_overflow_select
+                                            show_filter=show_filter
+                                            show_columns=show_columns
+                                            show_pivot=show_pivot
+                                            show_export=show_export
+                                        >
+                                            <ButtonGroup>
+                                                {show_filter.then(|| view! { <DataTableFilterPanel state=state /> })}
+                                                {show_columns.then(|| view! { <DataTableColumnPicker state=state /> })}
+                                                {show_pivot.then(|| view! { <DataTablePivotPanel state=state /> })}
+                                                {show_export.then(|| view! { <DataTableExportMenu state=state /> })}
+                                            </ButtonGroup>
+                                        </DataTableToolbarOverflow>
+                                    </Toolbar>
+                                </div>
+                            })}
                         </div>
                     })}
+                    </div>
                 </div>
             }
             .into_any()

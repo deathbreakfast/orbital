@@ -98,7 +98,7 @@ test.describe("material surface preview", () => {
     await page.getByTestId("material-in-card").scrollIntoViewIfNeeded();
     const cardRoot = page.getByTestId("material-in-card").locator(".orbital-card.orbital-material").first();
     await expect(cardRoot).toBeVisible();
-    await expect(cardRoot).toHaveAttribute("data-material-variant", "solid");
-    await expect(cardRoot).toHaveAttribute("data-material-elevation", "resting");
+    await expect(cardRoot).toHaveAttribute("data-material-variant", "outlined");
+    await expect(cardRoot).toHaveAttribute("data-material-elevation", "flat");
   });
 });

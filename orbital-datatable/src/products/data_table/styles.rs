@@ -116,7 +116,7 @@ pub fn data_table_styles() -> &'static str {
     outline-offset: -2px;
 }
 
-.orbital-data-table--rtl .orbital-data-table__toolbar {
+.orbital-data-table--rtl .orbital-data-table__toolbar-row {
     flex-direction: row-reverse;
 }
 
@@ -174,23 +174,84 @@ pub fn data_table_styles() -> &'static str {
     box-sizing: border-box;
 }
 
+/* Search row: quick search at the start, DataTableToolbarEnd content and the built-in
+   buttons together at the end, padded to line up with the cells. The row stays on one
+   line and the built-in buttons shrink first, so DataTableToolbarOverflow folds them
+   into its menu. A toolbar narrower than 560px (a phone, a side panel) puts search on
+   its own line with the end group under it. */
 .orbital-data-table__toolbar {
+    container-type: inline-size;
+    padding: var(--orb-space-block-sm) var(--orbital-data-table-cell-padding-inline);
+}
+
+.orbital-data-table__toolbar-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--orb-space-block-xs) var(--orb-space-inline-md);
+    flex-wrap: nowrap;
+    gap: var(--orb-space-block-sm) var(--orb-space-inline-md);
     align-items: center;
     min-width: 0;
 }
 
-/* Wraps the actions under the search box on narrow screens instead of overlapping it. */
 .orbital-data-table__toolbar-search {
-    flex: 1 1 12rem;
+    flex: 0 1 280px;
+    min-width: 160px;
+}
+
+.orbital-data-table__toolbar-trailing {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--orb-space-inline-sm);
+    flex: 1 1 auto;
     min-width: 0;
+}
+
+.orbital-data-table__toolbar-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--orb-space-block-xs) var(--orb-space-inline-sm);
+    flex: 0 0 auto;
 }
 
 .orbital-data-table__toolbar-actions {
     flex: 0 1 auto;
     min-width: 0;
+}
+
+@container (max-width: 560px) {
+    .orbital-data-table__toolbar-row {
+        flex-wrap: wrap;
+    }
+
+    .orbital-data-table__toolbar-search,
+    .orbital-data-table__toolbar-trailing {
+        flex: 1 1 100%;
+    }
+
+    /* The slot keeps its own line; the built-in buttons follow it or take the next one. */
+    .orbital-data-table__toolbar-trailing {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        row-gap: var(--orb-space-block-sm);
+    }
+
+    .orbital-data-table__toolbar-end {
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+
+    .orbital-data-table__toolbar-actions {
+        flex: 1 1 auto;
+    }
+}
+
+/* The built-in buttons read as plain buttons on the search row, not a raised Toolbar. */
+.orbital-data-table__toolbar-actions .orbital-toolbar {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    min-height: 0;
 }
 
 .orbital-data-table__footer {

@@ -96,6 +96,7 @@ pub fn DataTableRoot(
 
     let DataTableSlots {
         toolbar: toolbar_slot,
+        toolbar_end,
         footer: footer_slot,
         empty_view,
         no_results_view,
@@ -708,11 +709,14 @@ pub fn DataTableRoot(
                 dir=move || direction.get().as_str()
                 data-testid="data-table-root"
             >
-                {match toolbar_slot {
-                    Some(toolbar_slot) => {
+                {match (toolbar_slot, toolbar_end) {
+                    (Some(toolbar_slot), _) => {
                         view! { <DataTableToolbar state=table_state toolbar_slot=toolbar_slot /> }.into_any()
                     }
-                    None => view! { <DataTableToolbar state=table_state /> }.into_any(),
+                    (None, Some(toolbar_end)) => {
+                        view! { <DataTableToolbar state=table_state toolbar_end=toolbar_end /> }.into_any()
+                    }
+                    (None, None) => view! { <DataTableToolbar state=table_state /> }.into_any(),
                 }}
                 <Show when=move || {
                     show_undo_toolbar && table_state.features.contains(DataTableFeatures::UNDO_REDO)

@@ -1,0 +1,97 @@
+[component-preview] › components/scheduler-quickstart.spec.ts › scheduler-quickstart placeholder preview › renders preview page
+[component-preview] › components/scheduler-quickstart.spec.ts › scheduler-quickstart placeholder preview › shows documented example
+[component-preview] › components/copy-button.spec.ts › copy-button primitive preview › copies text and confirms
+[component-preview] › components/copy-button.spec.ts › copy-button primitive preview › custom label preview renders
+[component-preview] › components/card-footer.spec.ts › card-footer preview › renders preview page
+[component-preview] › components/card-footer.spec.ts › card-footer preview › shows documented examples
+[component-preview] › components/card-footer.spec.ts › card-footer preview › single action footer
+[component-preview] › components/card-footer.spec.ts › card-footer preview › multiple action footer
+[component-preview] › components/data-table-undo-redo.spec.ts › data-table undo redo › edit then undo restores original and redo re-applies
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-01: default rating exposes radiogroup role
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-02: half-step rating selects fractional value
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-02b: half-step rating half star matches full star dimensions
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-03: color variants render distinct items
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-04: size matrix increases item dimensions
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-05: required Field composes with rating validation
+[component-preview] › components/rating.spec.ts › rating primitive preview › RT-06: custom max renders ten stars
+[component-preview] › components/scheduler-calendar-filtering.spec.ts › scheduler-calendar-filtering deferred preview › renders preview page
+[component-preview] › components/scheduler-calendar-filtering.spec.ts › scheduler-calendar-filtering deferred preview › shows documented example
+[component-preview] › components/scheduler-calendar-filtering.spec.ts › scheduler-calendar-filtering deferred preview › shows deferred feature notice
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-01: app-bar popover stays in viewport on phone
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-04: desktop popover opens under AppBar
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-02: phone opens drawer not clipped popover
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-01: desktop opens popover
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-02-sad: escape dismisses drawer
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-02: wide AppBar panel stays in viewport
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-03: short viewport clamps tall click popover
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-04: drawer body visible on phone
+[component-preview-mobile-android] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-05: open drawer closes when resizing to desktop
+[component-preview] › components/data-table-column-pinning.spec.ts › data-table column pinning › pinned name column stays visible on horizontal scroll
+[component-preview] › components/radio-group.spec.ts › radio-group primitive behavior › RG-01: default group has exactly one checked option
+[component-preview] › components/radio-group.spec.ts › radio-group primitive behavior › RG-02: unselected example starts with no checked radio
+[component-preview] › components/radio-group.spec.ts › radio-group primitive behavior › RG-03: clicking another option moves checked state
+[component-preview] › components/breadcrumb.spec.ts › breadcrumb primitive preview › BC-01 default trail item count
+[component-preview] › components/breadcrumb.spec.ts › breadcrumb primitive preview › BC-01b trail is a labelled navigation landmark
+[component-preview] › components/breadcrumb.spec.ts › breadcrumb primitive preview › BC-02 current page aria
+[component-preview] › components/breadcrumb.spec.ts › breadcrumb primitive preview › BC-03 long multi-level trail
+[component-preview] › components/breadcrumb.spec.ts › breadcrumb primitive preview › BC-04 link inside breadcrumb item
+[component-preview] › components/breadcrumb.spec.ts › breadcrumb primitive preview › BC-05 theme button background token
+[component-preview] › components/data-table-tree.spec.ts › data-table tree data › expanding a branch reveals nested rows
+[component-preview] › components/scheduler-calendar-navigation.spec.ts › scheduler-calendar-navigation preview › renders preview page
+[component-preview] › components/scheduler-calendar-navigation.spec.ts › scheduler-calendar-navigation preview › shows documented example
+[component-preview] › components/scheduler-calendar-navigation.spec.ts › scheduler-calendar-navigation preview › navigation changes visible date header
+[component-preview] › components/stack.spec.ts › stack primitive preview › ST-01 renders default horizontal cluster
+[component-preview] › components/stack.spec.ts › stack primitive preview › ST-02 vertical stack
+[component-preview] › components/stack.spec.ts › stack primitive preview › ST-03 gap matrix varies spacing
+[component-preview] › components/history.spec.ts › history preview › renders default timeline preview
+[component-preview] › components/history.spec.ts › history preview › filter chrome narrows visible entries
+[component-preview] › components/history.spec.ts › history preview › filter advanced chips toggle kind
+[component-preview] › components/history.spec.ts › history preview › sort chrome toggles entry order
+[component-preview] › components/history.spec.ts › history preview › paged server list shows pagination footer
+[component-preview] › components/history.spec.ts › history preview › live head preview prepends entries
+[component-preview] › components/history.spec.ts › history preview › live scroll policy scrolls to top on push
+[component-preview] › components/history.spec.ts › history preview › unread watermark highlights newer entries
+[component-preview] › components/history.spec.ts › history preview › mark all read clears unread divider
+[component-preview] › components/history.spec.ts › history preview › diff highlight styles new values
+[component-preview] › components/history.spec.ts › history preview › state export button does not panic
+[component-preview] › components/history.spec.ts › history preview › markdown citation refs render history anchors
+[component-preview] › components/history.spec.ts › history preview › markdown mention refs render and show persona on hover
+[component-preview] › components/history.spec.ts › history preview › markdown image attachments render inline images
+[component-preview] › components/history.spec.ts › history preview › group collapse toggles consecutive entries
+[component-preview] › components/history.spec.ts › history preview › empty client list shows custom empty slot sad path
+[component-preview] › components/history.spec.ts › history preview › filter chrome with no matches shows empty overlay sad path
+[component-preview] › components/history.spec.ts › history preview › server fetch failure shows error overlay sad path
+[component-preview] › components/history.spec.ts › history preview › kind_views paints custom row; other kinds fall through happy path
+[component-preview] › components/history.spec.ts › history preview › natural and compact layouts both render entries happy path
+[component-preview] › components/history.spec.ts › history preview › date bucket dividers appear for fixture ages happy path
+[component-preview] › components/history.spec.ts › history preview › paged server next page changes visible entries happy path
+[component-preview] › components/history.spec.ts › history preview › paged server previous disabled on first page sad path
+[component-preview] › components/history.spec.ts › history preview › refresh reloads from first page happy path
+[component-preview] › components/history.spec.ts › history preview › scroll_to_entry_or_load finds distant page entry happy path
+[component-preview] › components/history.spec.ts › history preview › handle scroll to entry and scroll to top happy path
+[component-preview] › components/history.spec.ts › history preview › virtualized list mounts distant rows after scroll happy path
+[component-preview] › components/history.spec.ts › history preview › server filter chrome narrows via fetch params happy path
+[component-preview] › components/history.spec.ts › history preview › server filter with no matches shows overlay sad path
+[component-preview] › components/history.spec.ts › history preview › loading skeleton shows while empty client list happy path
+[smoke] › smoke/reactivity-canary.spec.ts › reactivity canary › catalog shell loads without reactive tracking console warnings
+[smoke] › smoke/reactivity-canary.spec.ts › reactivity canary › catalog nav updates page title when a sidebar link is clicked
+[smoke] › smoke/reactivity-canary.spec.ts › reactivity canary › switch toggles checked state on pointer click
+[smoke] › smoke/reactivity-canary.spec.ts › reactivity canary › preview theme toggle switch reacts to click
+[smoke] › smoke/reactivity-canary.spec.ts › reactivity canary › bare debug route stays free of reactive tracking warnings
+[component-preview] › components/data-table-row-reorder.spec.ts › data-table row reorder › drag row reorders visible rows
+[component-preview] › components/button-group.spec.ts › button-group primitive behavior › BG-01: default group renders two adjacent buttons
+[component-preview] › components/button-group.spec.ts › button-group primitive behavior › BG-02: vertical variant applies vertical class
+[component-preview] › components/button-group.spec.ts › button-group primitive behavior › BG-03..BG-05: example variants are visible
+[component-preview] › components/data-table.spec.ts › data-table preview › DT-01 default table renders rows
+[component-preview] › components/data-table.spec.ts › data-table preview › DT-02 quick search narrows visible rows
+[component-preview] › components/data-table.spec.ts › data-table preview › DT-03 sort reorders rows
+[component-preview] › components/data-table.spec.ts › data-table preview › DT-04 row selection
+[component-preview] › components/data-table.spec.ts › data-table preview › DT-05 pagination footer uses Pagination control
+[component-preview] › components/data-table-handle.spec.ts › data-table programmatic handle › handle sort, filter, search, and scroll
+[component-preview] › components/date-range-field.spec.ts › date-range-field placeholder preview › renders preview page
+[component-preview] › components/date-range-field.spec.ts › date-range-field placeholder preview › shows documented example
+[component-preview] › components/switch.spec.ts › switch primitive preview › SW-01: on switch is checked
+[component-preview] › components/switch.spec.ts › switch primitive preview › SW-02: off switch is unchecked
+[component-preview] › components/switch.spec.ts › switch primitive preview › SW-03: disabled switch has disabled attribute
+[component-preview] › components/switch.spec.ts › switch primitive preview › SW-04: field wrapper shows field label
+[component-preview] › components/switch.spec.ts › switch primitive preview › SW-05: keyboard Space toggles switch-keyboard example

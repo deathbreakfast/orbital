@@ -10,6 +10,7 @@ pub type RowDetailView = Arc<dyn Fn(DataRecord) -> AnyView + Send + Sync>;
 #[derive(Default)]
 pub struct DataTableSlots {
     pub toolbar: Option<DataTableToolbarSlot>,
+    pub toolbar_end: Option<DataTableToolbarEnd>,
     pub footer: Option<DataTableFooterSlot>,
     pub empty_view: Option<DataTableEmptyView>,
     pub no_results_view: Option<DataTableNoResultsView>,
@@ -21,6 +22,7 @@ impl DataTableSlots {
     #[allow(clippy::too_many_arguments)]
     pub fn from_slot_props(
         toolbar: Option<DataTableToolbarSlot>,
+        toolbar_end: Option<DataTableToolbarEnd>,
         footer: Option<DataTableFooterSlot>,
         empty_view: Option<DataTableEmptyView>,
         no_results_view: Option<DataTableNoResultsView>,
@@ -29,6 +31,7 @@ impl DataTableSlots {
     ) -> Self {
         Self {
             toolbar,
+            toolbar_end,
             footer,
             empty_view,
             no_results_view,
@@ -72,6 +75,21 @@ mod tests {
 /// (pagination, selection, filters, etc.).
 #[slot]
 pub struct DataTableToolbarSlot {
+    pub(crate) children: ChildrenFn,
+}
+
+/// Product controls on the default toolbar's search row. Pass `<DataTableToolbarEnd slot>` as a
+/// child of [`crate::DataTable`].
+///
+/// The content renders on the same row as quick search: search stays at the start of the
+/// row, and this content sits at the end beside the built-in buttons (Filters, Columns,
+/// Pivot, Export), ahead of them. Use it for a page's own filter button, saved searches or
+/// quick toggles, so they share the search row instead of adding rows above the table. The
+/// row wraps on narrow screens. Ignored when [`DataTableToolbarSlot`] replaces the toolbar.
+///
+/// Use [`crate::use_data_table_table_state`] inside the slot to read reactive table state.
+#[slot]
+pub struct DataTableToolbarEnd {
     pub(crate) children: ChildrenFn,
 }
 

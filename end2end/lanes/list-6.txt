@@ -1,0 +1,94 @@
+[component-preview] › components/data-table-slots.spec.ts › data-table custom slots › custom toolbar footer and empty views render on root preview
+[component-preview] › components/data-table-slots.spec.ts › data-table custom slots › slots doc hub preview renders custom chrome
+[component-preview] › components/data-table-virtualization.spec.ts › data-table virtualization › large dataset keeps DOM row count small and scrolls to mid-list
+[component-preview] › components/menu-button.spec.ts › menu-button primitive preview › MB-01: click opens default menu button menu
+[component-preview] › components/menu-button.spec.ts › menu-button primitive preview › MB-02: primary appearance differs from default
+[component-preview] › components/menu-button.spec.ts › menu-button primitive preview › MB-03: custom label text renders on trigger
+[component-preview] › components/menu-button.spec.ts › menu-button primitive preview › MB-04: selecting item closes menu
+[component-preview] › components/menu-button.spec.ts › menu-button primitive preview › MB-05: trigger includes trailing chevron
+[component-preview] › components/motion-settings.spec.ts › motion settings preview › MS-01: changing duration updates motion timing tokens on demo shape
+[component-preview] › components/charts-highlighting.spec.ts › charts-highlighting preview › renders preview page
+[component-preview] › components/charts-highlighting.spec.ts › charts-highlighting preview › shows documented example
+[component-preview] › components/charts-highlighting.spec.ts › charts-highlighting preview › hovering a bar fades sibling marks
+[component-preview] › components/message-bar.spec.ts › message-bar primitive preview › MS-01: intent matrix shows all four severity rows
+[component-preview] › components/message-bar.spec.ts › message-bar primitive preview › MS-02: with title preview renders title and body for each intent
+[component-preview] › components/message-bar.spec.ts › message-bar primitive preview › MS-03: multiline preview uses multiline layout for each intent
+[component-preview] › components/message-bar.spec.ts › message-bar primitive preview › MS-05: actions preview footer buttons are clickable
+[component-preview] › components/message-bar.spec.ts › message-bar primitive preview › MS-06: theme preview border uses computed stroke color
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-01: default data-driven tree renders nested nodes
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-02: controlled multi selection
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-03: controlled expansion shows nested child
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-04: disabled item is marked disabled
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-05: lazy branch loads child on expand
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-06: virtualized subtree renders windowed items
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-07: multi selection ctrl and shift
+[component-preview] › components/rich-tree.spec.ts › rich-tree preview › RT-08: inline editing updates label
+[component-preview] › components/split-button.spec.ts › split-button placeholder preview › renders preview page
+[component-preview] › components/split-button.spec.ts › split-button placeholder preview › shows documented example
+[component-preview] › components/data-table-overlays.spec.ts › data-table overlays › empty dataset shows empty overlay
+[component-preview] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-01: Auto @ phone uses overlay drawer
+[component-preview] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-02: Auto @ desktop keeps inline sidebar when open
+[component-preview] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-01-sad: drawer dismiss closes
+[component-preview] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-03: sidebar closed by default on phone
+[component-preview] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-04: open drawer closes across breakpoint
+[component-preview] › components/card.spec.ts › card surface preview › renders preview page
+[component-preview] › components/card.spec.ts › card surface preview › shows documented examples
+[component-preview] › components/card.spec.ts › card surface preview › default card composes material surface
+[component-preview] › components/card.spec.ts › card surface preview › raised card uses material elevated shadow
+[component-preview] › components/card.spec.ts › card surface preview › compound card contains all slot regions
+[component-preview] › components/card.spec.ts › card surface preview › media card shows image at expected height
+[component-preview] › components/card.spec.ts › card surface preview › outlined card has border and no shadow
+[component-preview] › components/data-table-range-selection.spec.ts › data-table cell range selection › shift-click selects a rectangular cell range
+[component-preview] › components/data-table-range-selection.spec.ts › data-table cell range selection › arrow keys move the focused cell
+[component-preview] › components/overflow.spec.ts › overflow preview › O-01 horizontal overflow
+[component-preview] › components/overflow.spec.ts › overflow preview › O-02 overflow menu affordance
+[component-preview] › components/overflow.spec.ts › overflow preview › O-03 horizontal overflow menu items
+[component-preview] › components/data-table-grouping.spec.ts › data-table row grouping › expanding a group reveals child data rows
+[component-preview] › components/graph.spec.ts › graph › GR-01: project graph renders nodes, group box, stubs and lines
+[component-preview] › components/graph.spec.ts › graph › GR-02: clicking a node selects it and dims the rest
+[component-preview] › components/graph.spec.ts › graph › GR-03: chain mode keeps every predecessor and successor
+[component-preview] › components/graph.spec.ts › graph › GR-04: background click clears the selection
+[component-preview] › components/graph.spec.ts › graph › GR-05: arrow keys move focus between columns and Enter selects
+[component-preview] › components/graph.spec.ts › graph › GR-06: wheel zoom stays within 0.2 to 2.2 and Fit resets
+[component-preview] › components/graph.spec.ts › graph › GR-07: drag on the background pans
+[component-preview] › components/graph.spec.ts › graph › GR-13: middle-drag over a node pans and doesn't select
+[component-preview] › components/graph.spec.ts › graph › GR-14: middle-drag on the background pans
+[component-preview] › components/graph.spec.ts › graph › GR-08: legend chip hides its set and shows the hidden count
+[component-preview] › components/graph.spec.ts › graph › GR-09: dark theme changes node and edge colours
+[component-preview] › components/graph.spec.ts › graph › GR-10: phone width fits the graph inside the preview
+[component-preview] › components/graph.spec.ts › graph › GR-11: reduced motion removes the viewport transition
+[component-preview] › components/graph.spec.ts › graph › GR-12: axe finds no violations on the graph preview
+[component-preview] › components/graph.spec.ts › graph-legend › GL-01: legend page shows chips, key lines and the actions slot
+[component-preview] › components/graph.spec.ts › graph-legend › GL-02: chips toggle their set in hidden_sets
+[component-preview] › components/graph.spec.ts › graph-legend › GL-03: axe finds no violations on the legend preview
+[component-preview] › components/motion.spec.ts › motion overview preview › MO-01: motion overview renders stack and try panel
+[component-preview] › components/charts-legend.spec.ts › charts-legend preview › renders preview page
+[component-preview] › components/charts-legend.spec.ts › charts-legend preview › shows documented example
+[component-preview] › components/charts-legend.spec.ts › charts-legend preview › legend checkbox toggles series visibility
+[component-preview] › components/scheduler-slots.spec.ts › scheduler-slots preview › renders preview page with custom toolbar and event badges
+[component-preview] › components/scheduler-slots.spec.ts › scheduler-slots preview › shows documented example
+[component-preview] › components/scheduler-slots.spec.ts › scheduler-slots preview › editing tools slot opens dialog
+[component-preview] › components/sparkline.spec.ts › sparkline preview › renders preview page
+[component-preview] › components/sparkline.spec.ts › sparkline preview › shows line sparkline mark
+[component-preview] › components/sparkline.spec.ts › sparkline preview › shows documented examples
+[component-preview] › components/sparkline.spec.ts › sparkline preview › bar variant renders bar marks
+[component-preview] › components/sparkline.spec.ts › sparkline preview › tooltip variant shows tooltip on hover
+[component-preview] › components/sparkline.spec.ts › sparkline preview › highlight variant fades non-hovered bars
+[component-preview] › components/text.spec.ts › text typography preview › renders preview page
+[component-preview] › components/text.spec.ts › text typography preview › shows Orbital form helpers
+[component-preview] › components/text.spec.ts › text typography preview › truncate prop applies ellipsis styling
+[component-preview] › components/text.spec.ts › text typography preview › align and wrap props affect layout
+[component-preview] › components/dropdown.spec.ts › dropdown primitive preview › DD-01: basic dropdown changes selection
+[component-preview] › components/dropdown.spec.ts › dropdown primitive preview › DD-02: disabled dropdown
+[component-preview] › components/dropdown.spec.ts › dropdown primitive preview › DD-03: dropdown in field associates label
+[component-preview] › components/dropdown.spec.ts › dropdown primitive preview › DD-SEC-01: dropdown shows the selected option's secondary text
+[component-preview] › components/spotlight.spec.ts › spotlight-popover preview › SP-01 default spotlight popover opens on click
+[component-preview] › components/spotlight.spec.ts › spotlight-popover preview › SP-02 media and footer variant
+[component-preview] › components/spotlight.spec.ts › spotlight-tip preview › SP-03 controlled anchor opens on callback
+[component-preview] › components/spotlight.spec.ts › spotlight-tip preview › SP-05 arrow and spotlight backdrop visible
+[component-preview] › components/spotlight.spec.ts › spotlight-tour preview › SP-04 multi-step tour advances
+[component-preview] › components/spotlight.spec.ts › spotlight-tour preview › SP-06 spotlight cutout moves on next step
+[component-preview] › components/spotlight.spec.ts › spotlight-tour preview › SP-07 tour back navigates to previous step
+[component-preview] › components/spotlight.spec.ts › element-picker preview › EP-01 hover outlines, click picks, page handler does not fire
+[component-preview] › components/spotlight.spec.ts › element-picker preview › EP-02 element without an anchor is dimmed and not picked
+[component-preview] › components/spotlight.spec.ts › element-picker preview › EP-03 Esc and Cancel leave picker mode
