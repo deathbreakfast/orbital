@@ -374,4 +374,24 @@ test.describe("history preview", () => {
     await expect(preview.getByTestId("history-timeline-skeleton")).toBeVisible({ timeout: 30_000 });
     await expect(preview.locator("[data-history-entry-id]")).toHaveCount(0);
   });
+
+  test("persona and row skeleton render outside a timeline", async ({ page }) => {
+    await openComponentPreview(page, "history-embed", "history-standalone-preview");
+    const preview = page.getByTestId("history-standalone-preview");
+    await preview.scrollIntoViewIfNeeded();
+    const personas = preview.locator(".orbital-history__persona");
+    await expect(personas).toHaveCount(2);
+    await expect(personas.first()).toContainText("Ada Lovelace");
+    await expect(personas.first().locator("time")).toBeVisible();
+    // Styled without the timeline: the persona keeps its bottom margin.
+    const margin = await personas.first().evaluate((el) => parseFloat(getComputedStyle(el).marginBottom));
+    expect(margin).toBeGreaterThan(0);
+    const row = preview.getByTestId("history-standalone-skeleton").locator(".orbital-history__skeleton-row");
+    await expect(row).toHaveCSS("display", "flex");
+    // The bars draw (shimmer styles load) even without a timeline skeleton around them.
+    const bar = row.locator(".orbital-skeleton-item").first();
+    const width = await bar.evaluate((el) => el.getBoundingClientRect().width);
+    expect(width).toBeGreaterThan(0);
+    await expect(bar).not.toHaveCSS("background-image", "none");
+  });
 });

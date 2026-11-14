@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use orbital_core_components::{Skeleton, SkeletonItem};
 
-use crate::context::use_history_context;
+use crate::context::use_history_leaf_settings;
 use crate::types::HistoryLayout;
 
 /// One placeholder entry row for initial load.
@@ -9,6 +9,7 @@ use crate::types::HistoryLayout;
 pub fn HistoryEntryRowSkeleton(
     #[prop(optional, default = HistoryLayout::Natural)] layout: HistoryLayout,
 ) -> impl IntoView {
+    orbital_style::inject_style("orbital-history", crate::history_styles());
     let row_class = match layout {
         HistoryLayout::Natural => "orbital-history__skeleton-row",
         HistoryLayout::Compact => {
@@ -42,10 +43,11 @@ pub fn HistoryEntryRowSkeleton(
         .into_any(),
     };
 
+    // Skeleton loads the shimmer styles, so the row also works outside HistoryTimelineSkeleton.
     view! {
         <div class=row_class aria-hidden="true">
             {spine}
-            {bars}
+            <Skeleton class="orbital-history__skeleton-fill">{bars}</Skeleton>
         </div>
     }
 }
@@ -56,7 +58,7 @@ pub fn HistoryTimelineSkeleton(
     #[prop(optional, default = 5)] row_count: u32,
     #[prop(optional)] layout: Option<HistoryLayout>,
 ) -> impl IntoView {
-    let ctx = use_history_context();
+    let ctx = use_history_leaf_settings();
     let layout = layout.unwrap_or(ctx.layout);
     let label = Memo::new(move |_| ctx.locale.get().loading.clone());
     let rows: Vec<_> = (0..row_count)

@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use orbital_core_components::Caption1;
 
-use crate::context::use_history_context;
+use crate::context::use_history_leaf_settings;
 
 /// Compact timestamp for a history entry.
 #[component]
@@ -13,7 +13,7 @@ pub fn HistoryTimestamp(
     #[prop(optional)]
     now: Option<DateTime<Utc>>,
 ) -> impl IntoView {
-    let ctx = use_history_context();
+    let ctx = use_history_leaf_settings();
     let label = Memo::new(move |_| {
         let locale = ctx.locale.get();
         let tz = ctx.display_timezone.get();
