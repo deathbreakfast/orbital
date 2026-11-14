@@ -26,6 +26,37 @@ use super::styles::list_styles;
 /// }
 /// ```
 ///
+/// ## Trailing action
+/// Put row actions in `<ListItemTrailing slot>`; they sit at the row's end, and
+/// clicking them doesn't trigger the row's `on_click`.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Button, ButtonAppearance, List, ListItem, ListItemTrailing};
+/// use leptos::prelude::*;
+/// let opened = RwSignal::new(0u32);
+/// let removed = RwSignal::new(0u32);
+/// view! {
+///     <div data-testid="list-trailing">
+///         <List>
+///             <ListItem on_click=Callback::new(move |_| opened.update(|n| *n += 1))>
+///                 "Blocked by: Migrate card vault"
+///                 <ListItemTrailing slot>
+///                     <Button
+///                         appearance=ButtonAppearance::Subtle
+///                         on_click=Callback::new(move |_| removed.update(|n| *n += 1))
+///                     >
+///                         "Remove"
+///                     </Button>
+///                 </ListItemTrailing>
+///             </ListItem>
+///         </List>
+///         <span data-testid="list-trailing-counts">
+///             {move || format!("opened={} removed={}", opened.get(), removed.get())}
+///         </span>
+///     </div>
+/// }
+/// ```
+///
 /// ## Navigation mode
 /// Roving tabindex for keyboard navigation.
 /// <!-- preview -->
@@ -86,6 +117,13 @@ pub fn List(
 }
 
 /// A single row inside a [`List`].
+/// Trailing actions for a [`ListItem`] (a remove button, a menu), pinned to the
+/// row's end. Clicks inside it don't trigger the row's `on_click`.
+#[slot]
+pub struct ListItemTrailing {
+    children: ChildrenFn,
+}
+
 #[component]
 pub fn ListItem(
     /// Optional CSS class on the item.
@@ -97,12 +135,28 @@ pub fn ListItem(
     /// Click handler for selection or navigation.
     #[prop(optional)]
     on_click: Option<Callback<()>>,
+    /// Actions pinned to the end of the row — nest with `<ListItemTrailing slot>`.
+    #[prop(optional)]
+    list_item_trailing: Option<ListItemTrailing>,
     /// Item label or custom content.
     children: Children,
 ) -> impl IntoView {
+    let content = match list_item_trailing {
+        None => children().into_any(),
+        Some(trailing) => view! {
+            <span class="orbital-list__item-content">{children()}</span>
+            <span
+                class="orbital-list__item-trailing"
+                on:click=|ev: leptos::ev::MouseEvent| ev.stop_propagation()
+            >
+                {(trailing.children)()}
+            </span>
+        }
+        .into_any(),
+    };
     view! {
         <BaseListItem class=class selected=selected nostrip:on_click=on_click>
-            {children()}
+            {content}
         </BaseListItem>
     }
 }

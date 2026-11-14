@@ -55,11 +55,11 @@ pub use copy_button::CopyButton;
 pub use data::{
     link_styles, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
     AvatarGroupSize, AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,
-    Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListNavigationMode,
-    ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText, PersonaQuaternaryText,
-    PersonaSecondaryText, PersonaSize, PersonaTertiaryText, PersonaTextAlignment,
-    PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout, TableCellLayoutConfig,
-    TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
+    Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListItemTrailing,
+    ListNavigationMode, ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText,
+    PersonaQuaternaryText, PersonaSecondaryText, PersonaSize, PersonaTertiaryText,
+    PersonaTextAlignment, PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout,
+    TableCellLayoutConfig, TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
 };
 pub use diff_view::{diff_text, DiffHunk, DiffLayout, DiffLine, DiffLineKind, DiffSpan, DiffView};
 pub use divider::Divider;
