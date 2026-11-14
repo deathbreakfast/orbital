@@ -1,7 +1,8 @@
 use leptos::prelude::*;
 
 use crate::{
-    PlannedEvent, SchedulerCalendarHandle, SchedulerPreferencesSnapshot, SchedulerTimelineHandle,
+    PlannedEvent, ResourceRenderContext, SchedulerCalendarHandle, SchedulerPreferencesSnapshot,
+    SchedulerTimelineHandle,
 };
 
 /// Side-effect callbacks for scheduler products.
@@ -19,6 +20,13 @@ pub struct SchedulerEvents {
     pub on_event_open: Option<Callback<(PlannedEvent,), ()>>,
     /// Fires when lazy loading surfaces an error message.
     pub on_lazy_load_error: Option<Callback<(String,), ()>>,
+    /// Fires when a timeline resource row's label cell is clicked (not its
+    /// collapse toggle). Use it to open the resource instead of reading DOM classes.
+    pub on_row_click: Option<Callback<(ResourceRenderContext,), ()>>,
+    /// Fires when a timeline event bar is clicked without being dragged. The
+    /// built-in edit dialog still opens for editable events; make events
+    /// non-editable to handle clicks yourself.
+    pub on_event_click: Option<Callback<(PlannedEvent,), ()>>,
 }
 
 impl SchedulerEvents {
@@ -71,6 +79,18 @@ impl SchedulerEvents {
 
     pub fn notify_event_open(&self, event: PlannedEvent) {
         if let Some(cb) = &self.on_event_open {
+            cb.run((event,));
+        }
+    }
+
+    pub fn notify_row_click(&self, row: ResourceRenderContext) {
+        if let Some(cb) = &self.on_row_click {
+            cb.run((row,));
+        }
+    }
+
+    pub fn notify_event_click(&self, event: PlannedEvent) {
+        if let Some(cb) = &self.on_event_click {
             cb.run((event,));
         }
     }

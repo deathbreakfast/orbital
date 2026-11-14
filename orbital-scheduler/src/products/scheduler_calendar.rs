@@ -381,7 +381,13 @@ pub fn SchedulerCalendar(
             {move || {
                 slots.with_value(|slots| {
                     if let Some(toolbar) = &slots.toolbar {
-                        (toolbar.children)().into_any()
+                        // Same padded chrome as the default toolbar.
+                        view! {
+                            <div class="orb-scheduler-toolbar orb-scheduler-toolbar--slot">
+                                {(toolbar.children)()}
+                            </div>
+                        }
+                        .into_any()
                     } else {
                         view! {
                             <SchedulerCalendarToolbar visible_date=visible_date view=view />

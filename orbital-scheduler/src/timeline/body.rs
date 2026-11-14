@@ -15,8 +15,10 @@ use crate::timeline::engine::{
 use crate::timeline::event_chip::TimelineEventChip;
 use crate::use_scheduler_chrome;
 use crate::PlannedEvent;
+use crate::ResourceRenderContext;
 use crate::ResourceRow;
 use crate::ScheduleResource;
+use crate::SchedulerInteractionContext;
 use crate::TimelinePreset;
 
 const DEFAULT_VIEWPORT_HEIGHT: f64 = 400.0;
@@ -123,6 +125,11 @@ pub fn SchedulerTimelineBody(
     #[cfg(feature = "hydrate")]
     let did_initial_measure = StoredValue::new(false);
     let chrome = use_scheduler_chrome();
+    let scheduler_events =
+        use_context::<SchedulerInteractionContext>().map(|ix| ix.scheduler_events);
+    let row_clickable = scheduler_events
+        .map(|events| events.with_value(|e| e.on_row_click.is_some()))
+        .unwrap_or(false);
     // Row ids for `aria-controls`. Random ids differ between the server render and
     // hydration, so pick the prefix in the browser and leave the attributes off in SSR.
     let id_prefix = RwSignal::new(None::<String>);
@@ -295,7 +302,9 @@ pub fn SchedulerTimelineBody(
                                                     .join(" ")
                                             })
                                         });
-                                        let on_click = move |_| {
+                                        let on_click = move |ev: leptos::ev::MouseEvent| {
+                                            // The toggle is not a row click.
+                                            ev.stop_propagation();
                                             collapsed_resources.update(|set| {
                                                 if !set.remove(&id) {
                                                     set.insert(id.clone());
@@ -320,10 +329,18 @@ pub fn SchedulerTimelineBody(
                                             </button>
                                         }
                                     });
+                                    let row_context = ResourceRenderContext::from_row(row.clone());
+                                    let on_row_click = move |_| {
+                                        if let Some(events) = scheduler_events {
+                                            events.with_value(|e| e.notify_row_click(row_context.clone()));
+                                        }
+                                    };
                                     view! {
                                         <div
                                             class="orb-scheduler-timeline__resource-cell"
                                             class:orb-scheduler-timeline__resource-cell--parent=row.has_children
+                                            class:orb-scheduler-timeline__resource-cell--clickable=row_clickable
+                                            on:click=on_row_click
                                             id=dom_id
                                             data-testid=format!("scheduler-resource-{}", row.id)
                                             style=indent

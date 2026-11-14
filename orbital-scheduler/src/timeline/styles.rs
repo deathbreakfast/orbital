@@ -191,6 +191,14 @@ pub fn scheduler_timeline_styles() -> &'static str {
     min-width: 0;
 }
 
+.orb-scheduler-timeline__resource-cell--clickable {
+    cursor: pointer;
+}
+
+.orb-scheduler-timeline__resource-cell--clickable:hover {
+    background: var(--orb-color-subtle-bg-hover, rgba(0, 0, 0, 0.04));
+}
+
 .orb-scheduler-timeline__resource-cell--parent {
     font-weight: 600;
 }
