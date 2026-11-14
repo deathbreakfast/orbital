@@ -1,4 +1,4 @@
-use leptos::prelude::*;
+use leptos::{either::Either, prelude::*};
 
 #[component]
 pub fn BaseBreadcrumb(
@@ -49,31 +49,49 @@ pub fn BaseBreadcrumbItem(
     }
 }
 
+/// Renders an `<a>` when `href` is set (the href drops while `current`, so the
+/// current crumb is not a link) and a `<button type="button">` otherwise.
 #[component]
 pub fn BaseBreadcrumbButton(
     #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(optional, into)] current: Signal<bool>,
+    #[prop(optional, into)] href: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
-    view! {
-        <button
-            class=move || {
-                let mut parts = vec!["orbital-breadcrumb-button".to_string()];
-                if current.get() {
-                    parts.push("orbital-breadcrumb-button--current".to_string());
-                }
-                if let Some(extra) = class.get() {
-                    if !extra.is_empty() {
-                        parts.push(extra);
-                    }
-                }
-                parts.join(" ")
+    let merged_class = move || {
+        let mut parts = vec!["orbital-breadcrumb-button".to_string()];
+        if current.get() {
+            parts.push("orbital-breadcrumb-button--current".to_string());
+        }
+        if let Some(extra) = class.get() {
+            if !extra.is_empty() {
+                parts.push(extra);
             }
-            aria-disabled=move || current.get().then_some("true")
-            aria-current=move || current.get().then_some("page")
-        >
-            {children()}
-        </button>
+        }
+        parts.join(" ")
+    };
+
+    if href.get_untracked().is_some() {
+        Either::Left(view! {
+            <a
+                class=merged_class
+                href=move || if current.get() { None } else { href.get() }
+                aria-current=move || current.get().then_some("page")
+            >
+                {children()}
+            </a>
+        })
+    } else {
+        Either::Right(view! {
+            <button
+                type="button"
+                class=merged_class
+                aria-disabled=move || current.get().then_some("true")
+                aria-current=move || current.get().then_some("page")
+            >
+                {children()}
+            </button>
+        })
     }
 }
 

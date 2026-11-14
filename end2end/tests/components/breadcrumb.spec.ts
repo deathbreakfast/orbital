@@ -55,4 +55,27 @@ test.describe("breadcrumb primitive preview", () => {
       childSelector: ".orbital-breadcrumb-button",
     });
   });
+
+  test("BC-06 href renders crumbs as links, current is not a link", async ({ page }) => {
+    await openComponentPreview(page, "breadcrumb");
+    await expectPreviewVariants(page, ["breadcrumb-href"]);
+    const nav = page.getByTestId("breadcrumb-href").locator("nav.orbital-breadcrumb");
+    const projects = nav.getByRole("link", { name: "Projects" });
+    await expect(projects).toHaveAttribute("href", "#projects");
+    await expect(projects).toHaveClass(/orbital-breadcrumb-button/);
+    await expect(nav.getByRole("link", { name: "Launch" })).toHaveAttribute("href", "#launch");
+    await expect(nav.locator("a button, button a")).toHaveCount(0);
+    await expect(nav.getByRole("link")).toHaveCount(2);
+    const current = nav.locator(".orbital-breadcrumb-button--current");
+    await expect(current).toHaveText("Tasks");
+    await expect(current).toHaveAttribute("aria-current", "page");
+    await expect(current).not.toHaveAttribute("href", /.*/);
+  });
+
+  test("BC-07 crumb without href is a type=button button", async ({ page }) => {
+    await openComponentPreview(page, "breadcrumb");
+    await expectPreviewVariants(page, ["breadcrumb-preview"]);
+    const button = page.getByTestId("breadcrumb-preview").locator("button.orbital-breadcrumb-button").first();
+    await expect(button).toHaveAttribute("type", "button");
+  });
 });

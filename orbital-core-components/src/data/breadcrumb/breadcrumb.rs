@@ -89,6 +89,31 @@ use super::styles::breadcrumb_styles;
 /// }
 /// ```
 ///
+/// ## Crumbs as links
+/// Give parent crumbs an `href` so they render as links. The current crumb keeps
+/// `current=true` and is not a link.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem};
+/// view! {
+///     <div data-testid="breadcrumb-href">
+///         <Breadcrumb>
+///             <BreadcrumbItem>
+///                 <BreadcrumbButton href="#projects">"Projects"</BreadcrumbButton>
+///             </BreadcrumbItem>
+///             <BreadcrumbDivider />
+///             <BreadcrumbItem>
+///                 <BreadcrumbButton href="#launch">"Launch"</BreadcrumbButton>
+///             </BreadcrumbItem>
+///             <BreadcrumbDivider />
+///             <BreadcrumbItem>
+///                 <BreadcrumbButton href="#launch/tasks" current=true>"Tasks"</BreadcrumbButton>
+///             </BreadcrumbItem>
+///         </Breadcrumb>
+///     </div>
+/// }
+/// ```
+///
 /// ## Link inside item
 /// Compose [`Link`](crate::Link) within a breadcrumb item for anchor-based navigation.
 /// <!-- preview -->

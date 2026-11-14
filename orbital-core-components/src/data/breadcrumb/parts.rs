@@ -23,15 +23,21 @@ pub fn BreadcrumbItem(
     }
 }
 
+/// One crumb. Set `href` to render it as a link (`<a>`); without it the crumb is
+/// a `<button type="button">`. `current` marks the page you are on: it gets
+/// `aria-current="page"` and, for a link, drops its href.
 #[component]
 pub fn BreadcrumbButton(
     #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(optional, into)] current: Signal<bool>,
+    /// Link target. Router hosts handle clicks on the `<a>` like any other link.
+    #[prop(optional, into)]
+    href: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     ensure_breadcrumb_styles();
     view! {
-        <BaseBreadcrumbButton class=class current=current>
+        <BaseBreadcrumbButton class=class current=current href=href>
             {children()}
         </BaseBreadcrumbButton>
     }
