@@ -44,4 +44,16 @@ test.describe("field primitive preview", () => {
     await select.selectOption("");
     await expect(field.locator(".orbital-field__validation-message")).toBeVisible();
   });
+
+  test("F-06: label_hidden hides the label but keeps the accessible name", async ({ page }) => {
+    await openComponentPreview(page, "field");
+    const field = page.getByTestId("field-label-hidden");
+    await field.scrollIntoViewIfNeeded();
+    const label = field.locator("label");
+    await expect(label).toHaveClass(/sr-only/);
+    const box = await label.boundingBox();
+    expect(box!.width).toBeLessThanOrEqual(1);
+    expect(box!.height).toBeLessThanOrEqual(1);
+    await expect(field.getByRole("textbox", { name: "Quick add task" })).toBeVisible();
+  });
 });

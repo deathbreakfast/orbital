@@ -13,6 +13,7 @@ pub fn BaseCheckbox(
     #[prop(optional, into)] label: MaybeProp<String>,
     #[prop(optional, into)] name: MaybeProp<String>,
 ) -> impl IntoView {
+    orbital_style::ensure_sr_only_styles();
     let id = new_field_id();
     let input_ref = NodeRef::<html::Input>::new();
 
