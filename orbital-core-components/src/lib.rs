@@ -68,7 +68,7 @@ pub use extensions::ThemeDensityStepper;
 pub use extensions::ThemePreviewMarker;
 pub use extensions::{LoadingBarInjection, LoadingBarProvider};
 pub use flex::{
-    Flex, FlexAlign, FlexGap, FlexJustify, FlexWrap, SpacingHorizontal, SpacingInset,
+    Flex, FlexAlign, FlexGap, FlexItem, FlexJustify, FlexWrap, SpacingHorizontal, SpacingInset,
     SpacingVertical,
 };
 pub use floating_button::{
