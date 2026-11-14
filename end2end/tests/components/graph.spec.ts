@@ -352,4 +352,12 @@ test.describe("graph-legend", () => {
       .analyze();
     expect(results.violations).toEqual([]);
   });
+
+  test("GR-15: height prop sizes the graph without a sized container", async ({ page }) => {
+    await openComponentPreview(page, "graph", "graph-project");
+    const scope = await graphIn(page, "graph-project");
+    const root = scope.locator(".orbital-graph");
+    const box = await root.boundingBox();
+    expect(Math.abs(box!.height - 460)).toBeLessThanOrEqual(1);
+  });
 });

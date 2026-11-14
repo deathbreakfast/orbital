@@ -105,7 +105,8 @@ struct NodeCtx {
 /// 1. Build the shape as a [`GraphInput`] and pass it as `input`.
 /// 2. Pass one [`GraphNodeView`] per node id as `nodes`: its fill, one to three
 ///    text lines and, for legend hiding, its `set`.
-/// 3. Give the graph an accessible `label` and a height through its container.
+/// 3. Give the graph an accessible `label` and a height: the `height` prop, or a
+///    container with a height.
 /// 4. Own `selected` when the host shows details for the selected node; pass
 ///    `chain` and `hidden_sets` for the toolbar and [`GraphLegend`](crate::GraphLegend).
 /// 5. Keep the [`GraphHandle`] from `on_handle` to wire a Fit button.
@@ -124,8 +125,9 @@ struct NodeCtx {
 ///
 /// - Put status in a node's lines or `aria_label` as well as its fill; colour
 ///   is never the only signal.
-/// - Give the container a height (`height: 480px`, or a flex child that
-///   grows); the graph fills it with a 320px minimum.
+/// - Set `height="480px"`, or give the container a height (or make it a flex
+///   child that grows); without either the graph fills its container with a
+///   320px minimum.
 /// - Keep the first line short: it is cut with `…` at about 21 characters.
 ///
 /// ## Don'ts
@@ -145,8 +147,8 @@ struct NodeCtx {
 /// let input = RwSignal::new(sample_project_input());
 /// let nodes = RwSignal::new(sample_project_views());
 /// view! {
-///     <div data-testid="graph-project" style="height: 460px;">
-///         <Graph input=input nodes=nodes label="Billing revamp task graph" />
+///     <div data-testid="graph-project">
+///         <Graph input=input nodes=nodes height="460px" label="Billing revamp task graph" />
 ///     </div>
 /// }
 /// ```
@@ -337,6 +339,10 @@ pub fn Graph(
     /// `data-testid` on the root `div`.
     #[prop(optional, into)]
     data_testid: MaybeProp<String>,
+    /// Height as a CSS length (`"480px"`, `"60vh"`). Without it the graph fills its
+    /// container's height, with a 320px minimum.
+    #[prop(optional, into)]
+    height: MaybeProp<String>,
     /// Receives a [`GraphHandle`] after mount, for a host's Fit and zoom controls.
     #[prop(optional)]
     on_handle: Option<Callback<GraphHandle>>,
@@ -627,7 +633,12 @@ pub fn Graph(
     };
 
     view! {
-        <div class=root_class data-testid=move || data_testid.get() node_ref=container>
+        <div
+            class=root_class
+            data-testid=move || data_testid.get()
+            style=move || height.get().map(|h| format!("height:{h};min-height:{h};"))
+            node_ref=container
+        >
             <svg
                 class=svg_class
                 role="group"
