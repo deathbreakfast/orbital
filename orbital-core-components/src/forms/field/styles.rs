@@ -4,6 +4,21 @@ pub fn field_styles() -> &'static str {
     r#"
 .orbital-field {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+}
+
+/* Text inputs and date pickers fill the field and can shrink with it. The
+   segmented date field keeps its fit-content width by design. */
+.orbital-field .orbital-input:not(.orb-date-field),
+.orbital-field .orbital-date-picker {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Without this the native input's intrinsic width (its `size`) sets a minimum. */
+.orbital-field .orbital-input:not(.orb-date-field) > .orbital-input__input {
+    width: 0;
 }
 
 .orbital-field__label {
@@ -13,7 +28,7 @@ pub fn field_styles() -> &'static str {
 }
 
 .orbital-field--horizontal {
-    grid-template-columns: 33% 1fr;
+    grid-template-columns: 33% minmax(0, 1fr);
     grid-template-rows: auto auto auto 1fr;
 }
 
