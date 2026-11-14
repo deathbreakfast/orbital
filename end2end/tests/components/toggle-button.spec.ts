@@ -18,4 +18,14 @@ test.describe("toggle-button primitive preview", () => {
     await button.click();
     await expect(button).toHaveAttribute("aria-pressed", "true");
   });
+
+  test("TB-04: disabled toggle keeps its pressed state", async ({ page }) => {
+    await openComponentPreview(page, "toggle-button");
+    const button = page.getByTestId("toggle-button-disabled").getByRole("button");
+    await button.scrollIntoViewIfNeeded();
+    await expect(button).toBeDisabled();
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await button.click({ force: true });
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+  });
 });

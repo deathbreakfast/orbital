@@ -86,6 +86,19 @@ use crate::{Button, ButtonAppearance};
 ///     </div>
 /// }
 /// ```
+///
+/// ## Disabled
+/// `disabled` blocks toggling while the action is unavailable; the pressed state stays as it was.
+/// <!-- preview -->
+/// ```rust
+/// use crate::ToggleButton;
+/// let pressed = RwSignal::new(true);
+/// view! {
+///     <div data-testid="toggle-button-disabled">
+///         <ToggleButton pressed=pressed disabled=true>"Ready to start"</ToggleButton>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "toggle-button",
@@ -100,6 +113,9 @@ pub fn ToggleButton(
     /// Callback invoked after toggle with the new pressed value.
     #[prop(optional, into)]
     on_click: Option<Handler<bool>>,
+    /// When true, the toggle is disabled and keeps its pressed state.
+    #[prop(optional, into)]
+    disabled: Signal<bool>,
     /// Optional button label; omit for icon-only toggles (pair with `aria-label` on a wrapper).
     #[prop(optional)]
     children: Option<Children>,
@@ -124,6 +140,7 @@ pub fn ToggleButton(
             appearance=appearance
             aria_pressed=Signal::derive(move || if pressed.get() { "true".to_string() } else { "false".to_string() })
             on_click=handle_click
+            disabled=disabled
         >
             {children.map(|c| c())}
         </Button>

@@ -1,6 +1,6 @@
 use icondata_core::Icon as IconData;
 use leptos::prelude::*;
-use orbital_base_components::BaseFloatingButton;
+use orbital_base_components::{BaseFloatingButton, Handler};
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
 
@@ -105,6 +105,24 @@ use super::types::FloatingButtonConfig;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Click handler
+/// `on_click` runs the action; no wrapper element is needed.
+/// <!-- preview -->
+/// ```rust
+/// use crate::FloatingButton;
+/// let clicks = RwSignal::new(0u32);
+/// view! {
+///     <div data-testid="floating-button-click">
+///         <FloatingButton
+///             aria_label="New project".to_string()
+///             icon=icondata::AiPlusOutlined
+///             on_click=Callback::new(move |_| clicks.update(|n| *n += 1))
+///         />
+///         <span data-testid="floating-button-click-count">{move || clicks.get().to_string()}</span>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "floating-button",
@@ -128,6 +146,9 @@ pub fn FloatingButton(
     /// When true, the button does not respond to clicks.
     #[prop(default = false.into(), into)]
     disabled: Signal<bool>,
+    /// Runs on click (not while disabled).
+    #[prop(optional)]
+    on_click: Option<Callback<leptos::ev::MouseEvent>>,
     /// Optional visible label for the extended variant.
     #[prop(optional)]
     children: Option<Children>,
@@ -170,6 +191,7 @@ pub fn FloatingButton(
             style=style
             aria_label=aria_label
             disabled=disabled
+            nostrip:on_click=on_click.map(|cb| Handler::on(move |ev| cb.run(ev)))
             testid=MaybeProp::from("floating-button".to_string())
         >
             {icon.get().map(|icon| view! {
