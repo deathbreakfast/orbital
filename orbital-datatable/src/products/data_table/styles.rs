@@ -90,14 +90,6 @@ pub fn data_table_styles() -> &'static str {
     font-size: var(--orb-type-size-sm);
 }
 
-.orbital-data-table__overlay-skeleton {
-    display: flex;
-    flex-direction: column;
-    gap: var(--orb-space-block-sm);
-    width: 80%;
-    max-width: 400px;
-}
-
 .orbital-data-table__virtual-spacer td {
     padding: 0;
     border: none;

@@ -36,11 +36,11 @@ use crate::types::ChartBinding;
 use crate::types::{
     create_column_layout_memo, AggregationModel, AggregationPosition, CellSelection, CursorTrail,
     DataTableColumnDef, DataTableColumnGroupDef, DataTableEvents, DataTableFeatures,
-    DataTableFilter, DataTableHandle, DataTableInitialState, DataTableLocale, DataTablePivotModel,
-    DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode, DataTableSlots, DataTableSort,
-    DataTableSource, DataTableSourceKind, DataTableTableState, EditHistory, EditMode,
-    EditSessionStore, GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat,
-    PaginationState, PagingMode, ServerFetchPolicy,
+    DataTableFilter, DataTableHandle, DataTableInitialState, DataTableLoadingStyle,
+    DataTableLocale, DataTablePivotModel, DataTableRowGrouping, DataTableRowModel,
+    DataTableSelectionMode, DataTableSlots, DataTableSort, DataTableSource, DataTableSourceKind,
+    DataTableTableState, EditHistory, EditMode, EditSessionStore, GetRowId, GetTreePath,
+    ListViewConfig, PaginationDisplayFormat, PaginationState, PagingMode, ServerFetchPolicy,
 };
 
 use super::edit::{DataTableEditErrorDialog, DataTableEditUndoToolbar};
@@ -71,6 +71,8 @@ pub fn DataTableRoot(
     direction_override: StoredValue<Option<Direction>>,
     active_row_id: Signal<Option<String>>,
     client_loading: RwSignal<bool>,
+    loading_style: DataTableLoadingStyle,
+    external_quick_search: Option<RwSignal<String>>,
     selection_mode: Signal<Option<DataTableSelectionMode>>,
     initial_state: StoredValue<Option<DataTableInitialState>>,
     controlled_sort: Signal<Option<DataTableSort>>,
@@ -106,7 +108,8 @@ pub fn DataTableRoot(
 
     let init = initial_state.get_value().unwrap_or_default();
 
-    let quick_search = RwSignal::new(init.quick_search.clone().unwrap_or_default());
+    let quick_search = external_quick_search
+        .unwrap_or_else(|| RwSignal::new(init.quick_search.clone().unwrap_or_default()));
     let filter = RwSignal::new(init.filter.clone().unwrap_or_default());
     let sort = RwSignal::new(init.sort.clone().unwrap_or_default());
     let page = RwSignal::new(init.pagination.as_ref().map(|p| p.page).unwrap_or(0));
@@ -317,6 +320,8 @@ pub fn DataTableRoot(
         horizontal_scroll_target,
         bounded_scroll,
         auto_row_height,
+        loading_style,
+        has_loading_view: loading_view.is_some(),
     };
 
     wire_controlled_models(

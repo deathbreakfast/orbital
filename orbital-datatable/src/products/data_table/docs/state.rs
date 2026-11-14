@@ -36,6 +36,7 @@ use orbital_macros::component_doc;
 /// | [`DataTableInitialState`] | `sort`, `filter`, `quick_search`, `pagination` | One-time defaults applied at mount |
 /// | | `column_visibility`, `pinned_columns`, `pinned_rows`, `selection` | Layout and selection defaults |
 /// | [`DataTableState`] | same fields | Full snapshot for export/restore |
+/// | `quick_search` prop | `RwSignal<String>` | Binds the built-in search box to your signal (URL sync) |
 /// | [`DataTableHandle`] | `sort_column`, `set_filter`, `set_quick_search` | Imperative sort/filter/search |
 /// | | `export_state`, `restore_state`, `export_csv` | Persistence and export |
 /// | | `scroll_to_row`, `scroll_to_column`, `get_processed_dataset` | Scroll and processed data |
@@ -361,6 +362,51 @@ use orbital_macros::component_doc;
 ///                 on_handle: Some(Callback::new(move |h| handle.set(Some(h)))),
 ///                 ..Default::default()
 ///             }
+///         />
+///     </div>
+/// }
+/// ```
+///
+///
+/// ## Bound quick search
+/// Pass `quick_search` to own the search text, for example to keep it in the URL.
+/// Typing in the table writes your signal, and setting the signal filters the table.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use leptos::prelude::*;
+/// use orbital_core_components::{Button, ButtonAppearance};
+/// use crate::products::data_table::phase9_previews::DataTablePreviewControls;
+/// use crate::types::{DataTableColumnDef, DataTableRowModel};
+/// use crate::{DataTable, PagingMode};
+/// let items = RwSignal::new(
+///     (0..12)
+///         .map(|i| {
+///             DataTableRowModel::from_text_cells(
+///                 &i.to_string(),
+///                 HashMap::from([("name".into(), format!("Row {i}"))]),
+///             )
+///         })
+///         .collect::<Vec<_>>(),
+/// );
+/// let search = RwSignal::new(String::new());
+/// view! {
+///     <div data-testid="data-table-bound-search-preview">
+///         <DataTablePreviewControls>
+///             <span data-testid="bound-search-value">{move || format!("q={}", search.get())}</span>
+///             <Button
+///                 appearance=ButtonAppearance::Subtle
+///                 attr:data-testid="bound-search-set"
+///                 on_click=Callback::new(move |_| search.set("Row 7".into()))
+///             >
+///                 "Search Row 7"
+///             </Button>
+///         </DataTablePreviewControls>
+///         <DataTable
+///             paging=PagingMode::None
+///             columns=vec![DataTableColumnDef::new("name", "Name")]
+///             items=items
+///             quick_search=search
 ///         />
 ///     </div>
 /// }

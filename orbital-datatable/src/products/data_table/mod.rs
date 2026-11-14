@@ -67,12 +67,12 @@ use orbital_theme::Direction;
 use crate::types::{
     AggregationModel, AggregationPosition, DataTableColumnDef, DataTableColumnGroupDef,
     DataTableEmptyView, DataTableEvents, DataTableFeatures, DataTableFilter, DataTableFooterSlot,
-    DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState, DataTableLoadingView,
-    DataTableLocale, DataTableNoResultsView, DataTablePivotModel, DataTableRowDetail,
-    DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode, DataTableSlots, DataTableSort,
-    DataTableSource, DataTableToolbarConfig, DataTableToolbarEnd, DataTableToolbarSlot, EditMode,
-    GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat, PaginationState, PagingMode,
-    RowDetailView, ServerFetchPolicy,
+    DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState, DataTableLoadingStyle,
+    DataTableLoadingView, DataTableLocale, DataTableNoResultsView, DataTablePivotModel,
+    DataTableRowDetail, DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode,
+    DataTableSlots, DataTableSort, DataTableSource, DataTableToolbarConfig, DataTableToolbarEnd,
+    DataTableToolbarSlot, EditMode, GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat,
+    PaginationState, PagingMode, RowDetailView, ServerFetchPolicy,
 };
 
 fn default_page_size_options() -> Option<Vec<u32>> {
@@ -413,6 +413,15 @@ pub fn DataTable(
     /// Client-controlled loading state for overlay display.
     #[prop(optional)]
     loading: Option<RwSignal<bool>>,
+    /// What shows while rows load: a spinner overlay (default) or
+    /// [`DataTableLoadingStyle::SkeletonRows`] under the real column headers.
+    #[prop(optional)]
+    loading_style: DataTableLoadingStyle,
+    /// Binds the built-in quick search to your signal (for example one synced to
+    /// the URL). Typing writes it; setting it filters the table. Wins over
+    /// `initial_state.quick_search`.
+    #[prop(optional)]
+    quick_search: Option<RwSignal<String>>,
     /// Text direction override (defaults to theme direction).
     #[prop(optional)]
     dir: Option<Direction>,
@@ -569,6 +578,8 @@ pub fn DataTable(
             direction_override=direction_override
             active_row_id=active_row_id
             client_loading=client_loading
+            loading_style=loading_style
+            external_quick_search=quick_search
             selection_mode=selection_mode
             initial_state=initial_state
             controlled_sort=sort

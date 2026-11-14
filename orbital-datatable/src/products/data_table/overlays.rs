@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use orbital_core_components::{Skeleton, SkeletonItem, SkeletonItemSize, Spinner, SpinnerSize};
+use orbital_core_components::{Spinner, SpinnerSize};
 
 use crate::core::{use_data_table_context, DataTableContext};
 use crate::types::{
@@ -22,7 +22,10 @@ pub fn DataTableOverlays(
     let loading_view = StoredValue::new(loading_view);
 
     view! {
-        <Show when=move || overlay.get() != OverlayState::None>
+        // Skeleton rows render in the body instead of an overlay.
+        <Show when=move || {
+            overlay.get() != OverlayState::None && state.skeleton_loading_rows().is_none()
+        }>
             <div
                 class="orbital-data-table__overlay"
                 data-testid=move || match overlay.get() {
@@ -96,22 +99,4 @@ fn render_no_results_overlay(
         <div class="orbital-data-table__overlay-message">{msg}</div>
     }
     .into_any()
-}
-
-/// Skeleton row overlay variant for loading previews.
-#[component]
-pub fn DataTableOverlaySkeletonRows(_rows: usize) -> impl IntoView {
-    view! {
-        <Skeleton>
-            <div class="orbital-data-table__overlay-skeleton">
-                {(0.._rows)
-                    .map(|_| {
-                        view! {
-                            <SkeletonItem size=Signal::from(SkeletonItemSize::S16) />
-                        }
-                    })
-                    .collect_view()}
-            </div>
-        </Skeleton>
-    }
 }

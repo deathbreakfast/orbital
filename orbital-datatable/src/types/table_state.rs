@@ -12,12 +12,13 @@ use crate::engine::{
     ColumnLayoutInput, ExportRowScope, ProcessedPipelineInput, SortDirection,
 };
 use crate::types::{
-    AggregationModel, AggregationPosition, CellCoord, CellSelection, CursorTrail,
-    DataTableColumnDef, DataTableColumnGroupDef, DataTableEvents, DataTableFeatures,
-    DataTableFilter, DataTableInitialState, DataTablePivotModel, DataTableRowGrouping,
-    DataTableRowModel, DataTableSelectionMode, DataTableSort, DataTableState, EditFieldDraft,
-    EditHistory, EditMode, EditSession, EditSessionStore, GetRowId, GetTreePath, ListViewConfig,
-    OverlayState, PaginationState, PagingMode, PinnedColumnsState, PinnedRowsState, SortRule,
+    skeleton_rows_while_loading, AggregationModel, AggregationPosition, CellCoord, CellSelection,
+    CursorTrail, DataTableColumnDef, DataTableColumnGroupDef, DataTableEvents, DataTableFeatures,
+    DataTableFilter, DataTableInitialState, DataTableLoadingStyle, DataTablePivotModel,
+    DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode, DataTableSort, DataTableState,
+    EditFieldDraft, EditHistory, EditMode, EditSession, EditSessionStore, GetRowId, GetTreePath,
+    ListViewConfig, OverlayState, PaginationState, PagingMode, PinnedColumnsState, PinnedRowsState,
+    SortRule,
 };
 
 /// Whether the table reads from client records or a server fetcher.
@@ -114,6 +115,10 @@ pub struct DataTableTableState {
     pub bounded_scroll: bool,
     /// Whether rows use auto height (disables row virtualization).
     pub auto_row_height: bool,
+    /// Loading presentation (spinner overlay or skeleton rows).
+    pub loading_style: DataTableLoadingStyle,
+    /// A custom loading view slot was given (it wins over `loading_style`).
+    pub has_loading_view: bool,
 }
 
 impl DataTableTableState {
@@ -1130,6 +1135,16 @@ impl DataTableTableState {
         } else {
             self.client_items.get().len()
         }
+    }
+
+    /// Skeleton rows the body renders in place of row data, if any (see
+    /// [`skeleton_rows_while_loading`]).
+    pub fn skeleton_loading_rows(&self) -> Option<usize> {
+        skeleton_rows_while_loading(
+            self.overlay_state(),
+            self.loading_style,
+            self.has_loading_view,
+        )
     }
 
     pub fn overlay_state(&self) -> OverlayState {

@@ -13,7 +13,8 @@ use orbital_macros::component_doc;
 ///
 /// # Usage
 ///
-/// 1. Pass custom slot children (`DataTableEmptyView`, etc.) or rely on defaults.
+/// 1. Pass custom slot children (`DataTableEmptyView`, etc.) or rely on defaults. For loading,
+///    choose `loading_style`: a spinner overlay (default) or skeleton rows under the headers.
 /// 2. Set [`DataTableLocale`] and `dir=Direction::Rtl` for RTL.
 /// 3. Enable `VIRTUALIZATION` and bound `max_height` for large client datasets.
 /// 4. Capture [`DataTableHandle`] for `scroll_to_row` / `scroll_to_column`.
@@ -47,6 +48,48 @@ use orbital_macros::component_doc;
 ///             max_height=200.0
 ///             columns=vec![DataTableColumnDef::new("name", "Name")]
 ///             items=empty
+///         />
+///     </div>
+/// }
+/// ```
+///
+///
+/// ## Skeleton loading rows
+/// `loading_style=DataTableLoadingStyle::SkeletonRows(n)` shows placeholder rows under the
+/// real column headers while loading. The search box and toolbar stay usable.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use orbital_core_components::{Button, ButtonAppearance};
+/// use crate::products::data_table::phase9_previews::DataTablePreviewControls;
+/// use crate::{DataTable, DataTableColumnDef, DataTableLoadingStyle, DataTableRowModel, PagingMode};
+/// let items = RwSignal::new(vec![
+///     DataTableRowModel::from_text_cells("1", HashMap::from([
+///         ("name".into(), "Ada".into()),
+///         ("email".into(), "ada@example.com".into()),
+///     ])),
+/// ]);
+/// let loading = RwSignal::new(true);
+/// view! {
+///     <div data-testid="data-table-skeleton-preview">
+///         <DataTablePreviewControls>
+///             <Button
+///                 appearance=ButtonAppearance::Subtle
+///                 attr:data-testid="skeleton-toggle-loading"
+///                 on_click=Callback::new(move |_| loading.update(|l| *l = !*l))
+///             >
+///                 "Toggle loading"
+///             </Button>
+///         </DataTablePreviewControls>
+///         <DataTable
+///             paging=PagingMode::None
+///             columns=vec![
+///                 DataTableColumnDef::new("name", "Name"),
+///                 DataTableColumnDef::new("email", "Email"),
+///             ]
+///             items=items
+///             loading=loading
+///             loading_style=DataTableLoadingStyle::SkeletonRows(4)
 ///         />
 ///     </div>
 /// }
