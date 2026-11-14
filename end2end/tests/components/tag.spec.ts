@@ -66,4 +66,15 @@ test.describe("tag primitive preview", () => {
     await expectPreviewVariants(page, ["tag-custom"]);
     await expect(page.getByTestId("tag-custom").locator(".orbital-tag")).toHaveClass(/tag-custom-class/);
   });
+
+  test("TG-08: dismiss button is named after the tag", async ({ page }) => {
+    await openComponentPreview(page, "tag");
+    await expectPreviewVariants(page, ["tag-dismissible", "tag-dismiss-label"]);
+    const remove = page.getByTestId("tag-dismissible").getByRole("button", { name: "Remove Removable" });
+    await expect(remove).toBeVisible();
+    await expect(remove).toHaveAttribute("type", "button");
+    await expect(
+      page.getByTestId("tag-dismiss-label").getByRole("button", { name: "Unlink Design", exact: true }),
+    ).toBeVisible();
+  });
 });

@@ -44,7 +44,9 @@ use crate::tag::types::{TagAppearance, TagSize};
 /// ## Dismissible tag
 /// Use `dismissible` to show the dismiss button, and `on_dismiss` to handle removal. Render from reactive state so the tag disappears when dismissed.
 ///
-/// - **`dismissible`** — shows the dismiss affordance - **`on_dismiss`** — called on dismiss button click; update your visibility signal here
+/// - **`dismissible`** — shows the dismiss affordance - **`on_dismiss`** — called on dismiss button click; update your visibility signal here - **`dismiss_label`** — the button's accessible name; defaults to "Remove" plus the tag text ("Remove Removable" here)
+///
+/// A dismissible Tag is Orbital's editable chip (a removable project, label or filter). [`crate::Badge`] is display-only.
 /// <!-- preview -->
 /// ```rust
 /// use orbital_base_components::Handler;
@@ -110,6 +112,18 @@ use crate::tag::types::{TagAppearance, TagSize};
 /// }
 /// ```
 ///
+/// ## Custom dismiss label
+/// Set `dismiss_label` when "Remove <text>" is the wrong wording or needs translating.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Tag;
+/// view! {
+///     <div data-testid="tag-dismiss-label">
+///         <Tag dismissible=true dismiss_label="Unlink Design">"Design"</Tag>
+///     </div>
+/// }
+/// ```
+///
 /// ## Icon with dismiss
 /// Icons and dismiss buttons can appear on the same tag.
 /// <!-- preview -->
@@ -162,6 +176,10 @@ pub fn Tag(
     /// Unique value when used inside a dismissible [`crate::TagGroup`].
     #[prop(optional, into)]
     value: Option<String>,
+    /// Accessible name for the dismiss button. Defaults to "Remove" followed by the
+    /// tag's text (for example "Remove Design"); set it to localize or reword.
+    #[prop(optional, into)]
+    dismiss_label: MaybeProp<String>,
     /// Tag label text or inline elements.
     children: Children,
 ) -> impl IntoView {
@@ -176,6 +194,7 @@ pub fn Tag(
             dismissible=dismissible
             nostrip:on_dismiss=on_dismiss
             nostrip:value=value
+            dismiss_label=dismiss_label
         >
             {children()}
         </BaseTag>

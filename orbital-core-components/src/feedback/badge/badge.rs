@@ -9,6 +9,10 @@ use super::styles::badge_styles;
 ///
 /// Pick `appearance`, `size`, and `color` for the emphasis you need. Keep label text short — one or two words or a count. For numeric overlays on avatars or icons use [`CounterBadge`](crate::CounterBadge); for availability dots use [`PresenceBadge`](crate::PresenceBadge) — not this component.
 ///
+/// Badge is display-only: it has no dismiss button or link. For a removable chip (a
+/// linked project, an applied filter) use [`Tag`](crate::Tag) with `dismissible` and
+/// `on_dismiss`.
+///
 /// # Examples
 ///
 /// ## Brand badge

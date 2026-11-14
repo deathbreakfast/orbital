@@ -52,9 +52,15 @@ pub fn BaseTag(
     #[prop(optional, into)] dismissible: Signal<bool>,
     #[prop(optional, into)] on_dismiss: Option<Handler<ev::MouseEvent>>,
     #[prop(optional, into)] value: Option<String>,
+    #[prop(optional, into)] dismiss_label: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     let group = TagGroupInjection::use_context();
+    // The dismiss button is named "Remove <label>" by pointing aria-labelledby at
+    // itself (aria-label "Remove") and at the label text.
+    let tag_id = crate::new_field_id();
+    let text_id = format!("orbital-tag-{tag_id}-text");
+    let dismiss_id = format!("orbital-tag-{tag_id}-dismiss");
     let group_size = group.as_ref().map(|g| g.size);
     let group_appearance = group.as_ref().map(|g| g.appearance);
     let (group_on_dismiss, group_dismissible) = group
@@ -97,12 +103,14 @@ pub fn BaseTag(
             }
         >
             {move || icon.get().map(|icon| view! { <TagMediaView icon=icon /> })}
-            <span class="orbital-tag__primary-text">{children()}</span>
+            <span class="orbital-tag__primary-text" id=text_id.clone()>{children()}</span>
             {move || {
                 if is_dismissible() {
                     let on_dismiss = on_dismiss.clone();
                     let group_on_dismiss = group_on_dismiss.clone();
                     let value = value.clone();
+                    let dismiss_id = dismiss_id.clone();
+                    let labelledby = format!("{dismiss_id} {text_id}");
                     let on_click = move |event: ev::MouseEvent| {
                         if let Some(on_dismiss) = group_on_dismiss.as_ref() {
                             event.prevent_default();
@@ -115,7 +123,14 @@ pub fn BaseTag(
                         }
                     };
                     Either::Left(view! {
-                        <button class="orbital-tag__dismiss" on:click=on_click>
+                        <button
+                            type="button"
+                            class="orbital-tag__dismiss"
+                            id=dismiss_id
+                            aria-label=move || dismiss_label.get().unwrap_or_else(|| "Remove".to_string())
+                            aria-labelledby=move || dismiss_label.get().is_none().then(|| labelledby.clone())
+                            on:click=on_click
+                        >
                             <BaseTagDismissIcon />
                         </button>
                     })
