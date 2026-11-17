@@ -112,9 +112,10 @@ pub const fn markdown_styles() -> &'static str {
     border-top: var(--orb-stroke-thin) solid var(--orb-color-border-subtle);
 }
 
-/* Task boxes: Checkbox markup in place of the list bullet. */
-.orbital-markdown li:has(> .orbital-markdown__task),
-.orbital-markdown li:has(> p > .orbital-markdown__task) {
+/* Task boxes: Checkbox markup in place of the list bullet. Keyed on the
+   task class so it also applies in bodies without an orbital-markdown root. */
+li:has(> .orbital-markdown__task),
+li:has(> p > .orbital-markdown__task) {
     list-style: none;
 }
 

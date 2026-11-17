@@ -185,6 +185,32 @@ pub fn discussion_styles() -> &'static str {
     line-height: var(--orb-type-line-md);
 }
 
+/* Headings in rendered Markdown follow Orbital's text ramp: Title3, Subtitle1, Body1Strong. */
+.orbital-discussion__markdown :is(h1, h2, h3, h4, h5, h6) {
+    margin: var(--orb-space-block-sm) 0 var(--orb-space-block-2xs);
+    color: var(--orb-color-text-primary);
+    font-weight: var(--orb-type-weight-semibold);
+}
+
+.orbital-discussion__markdown h1 {
+    font-size: var(--orb-type-size-lg);
+    line-height: var(--orb-type-line-xl);
+}
+
+.orbital-discussion__markdown h2 {
+    font-size: var(--orb-type-size-md);
+    line-height: var(--orb-type-line-lg);
+}
+
+.orbital-discussion__markdown :is(h3, h4, h5, h6) {
+    font-size: var(--orb-type-size-sm);
+    line-height: var(--orb-type-line-md);
+}
+
+.orbital-discussion__markdown > :first-child {
+    margin-top: 0;
+}
+
 .orbital-discussion__markdown p {
     margin: 0 0 var(--orb-space-block-xs);
 }

@@ -154,6 +154,23 @@ test.describe("history preview", () => {
     await expect(preview.locator("img.orbital-markdown__image").first()).toBeVisible();
   });
 
+  test("markdown blocks draw as Orbital Table, Checkbox and MessageBar", async ({ page }) => {
+    await openComponentPreview(page, "history-markdown", "history-markdown-blocks-preview");
+    const preview = page.getByTestId("history-markdown-blocks-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    const body = preview.locator(".orbital-history__markdown").first();
+    // Styles come from the components' own sheets, so check computed values.
+    await expect(body.locator("tr.orbital-table-row").first()).toHaveCSS("border-bottom-style", "solid");
+    await expect(body.locator(".orbital-checkbox__indicator").first()).toHaveCSS("width", "16px");
+    await expect(body.getByRole("checkbox", { name: "Task" }).first()).toBeChecked();
+    await expect(body.locator("li").first()).toHaveCSS("list-style-type", "none");
+    const alert = body.locator(".orbital-message-bar--info");
+    await expect(alert).toHaveCSS("display", "grid");
+    await expect(alert.locator(".orbital-message-bar-title")).toHaveText("Note");
+    const h2 = await body.locator("h2").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(h2).toBeLessThanOrEqual(16);
+  });
+
   test("group collapse toggles consecutive entries", async ({ page }) => {
     await openComponentPreview(page, "history-grouping", "history-grouping-preview");
     const preview = page.getByTestId("history-grouping-preview");

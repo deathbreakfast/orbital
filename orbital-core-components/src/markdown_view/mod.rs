@@ -12,7 +12,12 @@ use crate::link_styles;
 /// Inject every stylesheet rendered Markdown draws on: the prose sheet plus
 /// the components whose markup it reuses (Link, Table, Checkbox, MessageBar,
 /// Image), under the ids those components use themselves.
-pub(crate) fn inject_markdown_styles() {
+///
+/// [`MarkdownView`] calls this for you. Call it yourself only when you show
+/// `orbital_markdown::render_to_html` output in your own wrapper, as the
+/// discussion and history bodies do; tables, task lists and alerts then draw
+/// as Orbital components.
+pub fn inject_markdown_styles() {
     inject_style("orbital-markdown", markdown_styles());
     inject_style("orbital-link", link_styles());
     inject_style("orbital-table", table_styles());

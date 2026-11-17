@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use orbital_core_components::{link_styles, Link};
+use orbital_core_components::{inject_markdown_styles, link_styles, Link};
 use orbital_style::inject_style;
 use std::sync::Arc;
 
@@ -121,6 +121,7 @@ fn render_part(
             }
 
             if markdown_enabled {
+                inject_markdown_styles();
                 let html = render_markdown(&markdown, citations, attachment_urls);
                 view! {
                     <div class="orbital-discussion__markdown" inner_html=html />

@@ -107,7 +107,7 @@ pub use forms::{
 pub use grid::{Grid, GridConfig, GridItem, GridItemConfig};
 pub use icon::Icon;
 pub use layout_box::Box;
-pub use markdown_view::MarkdownView;
+pub use markdown_view::{inject_markdown_styles, MarkdownView};
 pub use orbital_base_components::DemoBox;
 pub use orbital_base_components::{
     use_breakpoint, use_breakpoint_down, use_breakpoint_up, use_media_query,

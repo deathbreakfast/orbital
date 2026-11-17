@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use orbital_core_components::inject_markdown_styles;
 
 use crate::render_markdown;
 
@@ -15,6 +16,7 @@ pub fn DiscussionStreamingTextView(
 
     view! {
         {if markdown_enabled {
+            inject_markdown_styles();
             let html = render_markdown(&markdown, &citations, &url_refs);
             view! {
                 <div class="orbital-discussion__markdown orbital-discussion__markdown--streaming">

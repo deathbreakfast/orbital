@@ -287,6 +287,32 @@ pub fn history_styles() -> &'static str {
     pointer-events: none;
 }
 
+/* Headings in rendered Markdown follow Orbital's text ramp: Title3, Subtitle1, Body1Strong. */
+.orbital-history__markdown :is(h1, h2, h3, h4, h5, h6) {
+    margin: var(--orb-space-block-sm) 0 var(--orb-space-block-2xs);
+    color: var(--orb-color-text-primary);
+    font-weight: var(--orb-type-weight-semibold);
+}
+
+.orbital-history__markdown h1 {
+    font-size: var(--orb-type-size-lg);
+    line-height: var(--orb-type-line-xl);
+}
+
+.orbital-history__markdown h2 {
+    font-size: var(--orb-type-size-md);
+    line-height: var(--orb-type-line-lg);
+}
+
+.orbital-history__markdown :is(h3, h4, h5, h6) {
+    font-size: var(--orb-type-size-sm);
+    line-height: var(--orb-type-line-md);
+}
+
+.orbital-history__markdown > :first-child {
+    margin-top: 0;
+}
+
 .orbital-history__markdown .orbital-markdown__image {
     display: block;
     max-width: 100%;
