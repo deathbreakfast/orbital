@@ -1,5 +1,6 @@
 mod image;
 mod styles;
+pub(crate) use styles::image_styles;
 mod types;
 
 pub use image::Image;

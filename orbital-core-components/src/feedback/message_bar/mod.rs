@@ -2,6 +2,7 @@ mod actions;
 mod body;
 mod message_bar;
 mod styles;
+pub(crate) use styles::message_bar_styles;
 mod title;
 
 pub use actions::MessageBarActions;

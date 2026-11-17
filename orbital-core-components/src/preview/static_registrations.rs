@@ -111,6 +111,8 @@ use crate::layout::{CONTENTWITHASIDE_PREVIEW_REGISTRATION, LAYOUT_PREVIEW_REGIST
 #[cfg(feature = "preview")]
 use crate::layout_box::BOX_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::markdown_view::MARKDOWNVIEW_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::material::MATERIAL_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::navigation::anchor::ANCHOR_PREVIEW_REGISTRATION;
@@ -164,6 +166,7 @@ orbital_macros::preview_registrations! {
     &NAVIGATION_PREVIEW_REGISTRATION,
     &TABLIST_PREVIEW_REGISTRATION,
     &CODE_PREVIEW_REGISTRATION,
+    &MARKDOWNVIEW_PREVIEW_REGISTRATION,
     &COPYBUTTON_PREVIEW_REGISTRATION,
     &DIFFVIEW_PREVIEW_REGISTRATION,
     &CARD_PREVIEW_REGISTRATION,

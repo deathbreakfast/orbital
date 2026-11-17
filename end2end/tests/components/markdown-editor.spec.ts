@@ -94,6 +94,18 @@ test.describe("markdown editor preview", () => {
     await expect(field.getByRole("textbox", { name: "Description" })).toBeVisible();
   });
 
+  test("ME-09: Preview renders a heading and a GFM table", async ({ page }) => {
+    await openComponentPreview(page, "markdown-editor");
+    await editor(page)
+      .locator("textarea")
+      .fill("## Plan\n\n| Step | Owner |\n|---|---|\n| Ship | Sam |\n");
+    await editor(page).getByRole("tab", { name: "Preview" }).click();
+    const preview = editor(page).locator(".orbital-markdown-editor__preview");
+    await expect(preview.getByRole("heading", { name: "Plan", level: 2 })).toBeVisible();
+    await expect(preview.locator("table thead th")).toHaveText(["Step", "Owner"]);
+    await expect(preview.locator("table tbody td")).toHaveText(["Ship", "Sam"]);
+  });
+
   test("ME-A1: axe clean in dark and light at 390px and desktop", async ({ page }) => {
     await openComponentPreview(page, "markdown-editor");
     const scan = async (label: string) => {

@@ -9,7 +9,34 @@ pub fn sanitize_html(
     image_url_schemes: Option<&[String]>,
 ) -> String {
     let mut tags: HashSet<&str> = [
-        "p", "strong", "em", "del", "code", "pre", "a", "ul", "ol", "li", "br", "sup",
+        "p",
+        "strong",
+        "em",
+        "del",
+        "code",
+        "pre",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "br",
+        "sup",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "blockquote",
+        "hr",
+        "table",
+        "thead",
+        "tbody",
+        "tr",
+        "th",
+        "td",
+        "details",
+        "summary",
     ]
     .into_iter()
     .collect();
@@ -35,6 +62,10 @@ pub fn sanitize_html(
         ("code", ["class"].into_iter().collect()),
         ("pre", ["class"].into_iter().collect()),
         ("sup", ["class"].into_iter().collect()),
+        // Column alignment from `|:--:|`; the filter keeps only `text-align`.
+        ("th", ["style"].into_iter().collect()),
+        ("td", ["style"].into_iter().collect()),
+        ("details", ["open"].into_iter().collect()),
     ]);
 
     if allow_images {
@@ -44,19 +75,19 @@ pub fn sanitize_html(
         );
     }
 
+    let image_schemes: Option<Vec<String>> =
+        image_url_schemes.map(|schemes| schemes.iter().map(|s| s.to_ascii_lowercase()).collect());
     let mut builder = ammonia::Builder::default();
-    if let Some(schemes) = image_url_schemes {
-        let schemes: Vec<String> = schemes.iter().map(|s| s.to_ascii_lowercase()).collect();
-        builder.attribute_filter(move |element, attribute, value| {
-            if element != "img" || attribute != "src" {
-                return Some(value.into());
-            }
-            match url_scheme(value) {
-                Some(scheme) if !schemes.contains(&scheme) => None,
+    builder.attribute_filter(
+        move |element, attribute, value| match (element, attribute) {
+            ("th" | "td", "style") => cell_alignment(value).map(Into::into),
+            ("img", "src") => match (&image_schemes, url_scheme(value)) {
+                (Some(schemes), Some(scheme)) if !schemes.contains(&scheme) => None,
                 _ => Some(value.into()),
-            }
-        });
-    }
+            },
+            _ => Some(value.into()),
+        },
+    );
 
     let cleaned = builder
         .tags(tags)
@@ -71,6 +102,17 @@ pub fn sanitize_html(
         .to_string();
 
     cleaned.replace("<pre>", "<pre class=\"orbital-markdown__code-block\">")
+}
+
+/// The `text-align` pulldown-cmark writes for an aligned table column, or
+/// `None` for any other style, which drops the attribute.
+fn cell_alignment(style: &str) -> Option<&'static str> {
+    match style.trim().trim_end_matches(';').trim() {
+        "text-align: left" => Some("text-align: left"),
+        "text-align: center" => Some("text-align: center"),
+        "text-align: right" => Some("text-align: right"),
+        _ => None,
+    }
 }
 
 /// Lowercased scheme of an absolute URL, or `None` for a relative reference.

@@ -1,5 +1,6 @@
 mod checkbox;
 mod styles;
+pub(crate) use styles::checkbox_styles;
 
 pub use checkbox::Checkbox;
 #[cfg(feature = "preview")]

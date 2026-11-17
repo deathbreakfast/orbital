@@ -1,5 +1,6 @@
 mod parts;
 mod styles;
+pub(crate) use styles::table_styles;
 mod table;
 mod types;
 
