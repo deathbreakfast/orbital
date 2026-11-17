@@ -1,7 +1,7 @@
 use super::option_walker::{use_option_walker, OptionWalker};
 use leptos::prelude::*;
 use send_wrapper::SendWrapper;
-use std::{cell::RefCell, sync::Arc};
+use std::sync::Arc;
 use web_sys::{HtmlElement, Node};
 
 /// Styling attribute applied to the active option element.
@@ -21,7 +21,7 @@ where
     });
     let controller = ActiveDescendantController {
         option_walker,
-        active: Arc::new(SendWrapper::new(Default::default())),
+        active: StoredValue::new(None),
         active_id: RwSignal::new(None),
     };
 
@@ -31,21 +31,20 @@ where
 #[derive(Clone)]
 pub struct ActiveDescendantController {
     option_walker: OptionWalker,
-    active: Arc<SendWrapper<RefCell<Option<HtmlElement>>>>,
+    /// The focused option, set only in the browser. A `SendWrapper` is made
+    /// only when an option is focused, so a server render never creates one:
+    /// leptos-axum may clean up a streamed page's owner on another thread,
+    /// and dropping a `SendWrapper` there panics the server.
+    active: StoredValue<Option<SendWrapper<HtmlElement>>>,
     active_id: RwSignal<Option<String>>,
 }
 
 impl ActiveDescendantController {
     fn blur_active_descendant(&self) {
-        let mut active = self.active.borrow_mut();
-        let Some(active_el) = active.as_mut() else {
-            self.active_id.set(None);
-            return;
-        };
-        let _ = active_el.remove_attribute(ACTIVEDESCENDANT_ATTRIBUTE);
-        let _ = active_el.remove_attribute(ACTIVEDESCENDANT_FOCUSVISIBLE_ATTRIBUTE);
-
-        *active = None;
+        if let Some(active_el) = self.active.try_update_value(Option::take).flatten() {
+            let _ = active_el.remove_attribute(ACTIVEDESCENDANT_ATTRIBUTE);
+            let _ = active_el.remove_attribute(ACTIVEDESCENDANT_FOCUSVISIBLE_ATTRIBUTE);
+        }
         self.active_id.set(None);
     }
 
@@ -55,7 +54,7 @@ impl ActiveDescendantController {
         let _ = next_active.set_attribute(ACTIVEDESCENDANT_ATTRIBUTE, "");
         let _ = next_active.set_attribute(ACTIVEDESCENDANT_FOCUSVISIBLE_ATTRIBUTE, "");
         let id = next_active.id();
-        *self.active.borrow_mut() = Some(next_active);
+        self.active.set_value(Some(SendWrapper::new(next_active)));
         self.active_id.set(Some(id));
     }
 }
@@ -90,8 +89,9 @@ impl ActiveDescendantController {
     }
 
     pub fn active(&self) -> Option<HtmlElement> {
-        let active = self.active.borrow();
-        active.as_ref().map(|active| active.clone())
+        self.active
+            .try_with_value(|active| active.as_deref().cloned())
+            .flatten()
     }
 
     pub fn active_id_signal(&self) -> Signal<Option<String>> {
@@ -103,5 +103,30 @@ impl ActiveDescendantController {
         let id = target.id();
         self.focus_active_descendant(target);
         Some(id)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A streamed page's owner can be cleaned up on another tokio worker. A
+    /// controller rendered on the server must not leave anything behind that
+    /// panics when dropped off its thread.
+    #[test]
+    fn server_render_drops_cleanly_on_another_thread() {
+        let owner = std::thread::spawn(|| {
+            let owner = Owner::new();
+            owner.with(|| {
+                let (_set_listbox, controller) = use_active_descendant(|_| true);
+                provide_context(controller);
+            });
+            owner
+        })
+        .join()
+        .expect("render thread");
+        std::thread::spawn(move || drop(owner))
+            .join()
+            .expect("dropping the owner on another thread must not panic");
     }
 }
