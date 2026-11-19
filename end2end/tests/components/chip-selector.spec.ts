@@ -166,6 +166,9 @@ test.describe("chip-selector preview", () => {
 
   test("CS-A1: axe clean in dark and light at 390px and desktop", async ({ page }) => {
     await openChipSelector(page);
+    // Collect every serious violation across examples and modes, then assert
+    // once, so a run reports all of them.
+    const found: string[] = [];
     const scan = async (label: string, excludeLinks = false) => {
       for (const testId of EXAMPLES) {
         await page.getByTestId(testId).scrollIntoViewIfNeeded();
@@ -174,10 +177,12 @@ test.describe("chip-selector preview", () => {
         // here; Magnon task 907a1086-d8d4-4898-89b0-da01d3240c35 fixes the token.
         if (excludeLinks) axe = axe.exclude(".orbital-chip-selector a.orbital-link");
         const results = await axe.analyze();
-        expect(
-          results.violations.filter((v) => v.impact === "critical" || v.impact === "serious"),
-          `${label} ${testId}`,
-        ).toEqual([]);
+        for (const v of results.violations) {
+          if (v.impact !== "critical" && v.impact !== "serious") continue;
+          for (const node of v.nodes) {
+            found.push(`${label} ${testId}: ${v.id} ${node.target.join(" ")} ${node.failureSummary ?? ""}`);
+          }
+        }
       }
     };
     const desktop = page.viewportSize() ?? { width: 1280, height: 720 };
@@ -194,5 +199,6 @@ test.describe("chip-selector preview", () => {
     await scan("light desktop", true);
     await page.setViewportSize({ width: 390, height: 844 });
     await scan("light 390px", true);
+    expect(found).toEqual([]);
   });
 });

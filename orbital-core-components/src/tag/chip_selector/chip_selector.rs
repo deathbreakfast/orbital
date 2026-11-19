@@ -421,19 +421,23 @@ fn matches_query(option: &ChipOption, query: &str) -> bool {
             .is_some_and(|secondary| secondary.to_lowercase().contains(query))
 }
 
+// Neutral avatars, as in the mocks. `Colorful` can land on crimson, whose white
+// initials fall under 4.5:1 contrast.
 fn avatar_config(option: &ChipOption, size: u8) -> AvatarConfig {
     AvatarConfig {
         name: Some(option.text.clone()),
         size: Some(size),
-        color: AvatarColor::Colorful,
+        color: AvatarColor::Neutral,
         ..Default::default()
     }
 }
 
 fn persona_config(option: &ChipOption) -> PersonaConfig {
     PersonaConfig {
+        name: Some(option.text.clone()),
         size: PersonaSize::Small,
-        ..PersonaConfig::named(option.text.clone())
+        color: AvatarColor::Neutral,
+        ..Default::default()
     }
 }
 
