@@ -17,7 +17,7 @@ use crate::Icon;
 
 /// Multi-select field that shows choices as dismissible tags inside a combobox control.
 ///
-/// Options must be declared as [`TagPickerOption`] children. Typed text never becomes a tag by itself; to let users create one, render an action option (`on_activate`) that opens your own create flow. Bind selected keys with [`TagPickerBind`], group selected tags in [`TagPickerGroup`], and use [`TagPickerOptionGroup`] for labeled sections. For strict multi-select without tag UI use [`Combobox`](crate::Combobox).
+/// Options must be declared as [`TagPickerOption`] children. Typed text never becomes a tag by itself; to let users create one, render an action option (`on_activate`) that opens your own create flow. Bind selected keys with [`TagPickerBind`], group selected tags in [`TagPickerGroup`], and use [`TagPickerOptionGroup`] for labeled sections. For strict multi-select without tag UI use [`Combobox`](crate::Combobox). For record fields such as tags, projects or people, use [`ChipSelector`](crate::ChipSelector), which builds on this picker and takes its options as data.
 ///
 /// # When to use
 ///
@@ -356,6 +356,10 @@ pub fn TagPicker(
     /// Size preset for the control.
     #[prop(default = TagPickerSize::Large.into(), into)]
     size: Signal<TagPickerSize>,
+    /// When false, picking an option replaces the selection instead of adding to it,
+    /// so the bound list holds at most one key. Defaults to true (multi-select).
+    #[prop(default = true.into(), into)]
+    multiselect: Signal<bool>,
     /// Control slot wrapping selected tags and the filter input.
     tag_picker_control: TagPickerControl,
     /// Optional portal mount so listbox panels stay inside preview wrappers during E2E.
@@ -386,10 +390,12 @@ pub fn TagPicker(
         TagPickerControlInjection(active_descendant_controller.clone());
     let tag_picker_injection = TagPickerInjection {
         size,
+        multiselect,
         selected_options: selected_options.clone(),
         input_ref,
         options,
         is_show_listbox,
+        listbox_id,
         listbox_hidden_callback,
         on_search: StoredValue::new(None),
     };
@@ -437,7 +443,7 @@ pub fn TagPicker(
             listbox_keyboard_event(
                 e,
                 is_show_listbox,
-                true,
+                multiselect.get_untracked(),
                 &active_descendant_controller,
                 move |option| {
                     let entry = tag_picker_injection

@@ -13,13 +13,23 @@ pub fn TagPickerInput(
     /// server as the user types.
     #[prop(optional, into)]
     on_search: Option<Callback<String>>,
+    /// Hint shown in the input while it is empty, such as "Add a tag".
+    #[prop(optional, into)]
+    placeholder: MaybeProp<String>,
+    /// Accessible name for the input; set it when no visible label points at the
+    /// input.
+    #[prop(optional, into)]
+    aria_label: MaybeProp<String>,
 ) -> impl IntoView {
+    let tag_picker = TagPickerInjection::expect_context();
     let TagPickerInjection {
         input_ref,
         options,
         on_search: search_slot,
+        is_show_listbox,
+        listbox_id,
         ..
-    } = TagPickerInjection::expect_context();
+    } = tag_picker.clone();
     search_slot.set_value(on_search);
     let TagPickerControlInjection(active_descendant_controller) =
         TagPickerControlInjection::expect_context();
@@ -57,11 +67,29 @@ pub fn TagPickerInput(
         }
     };
 
+    // Backspace in an empty input removes the last chip, as in a mail "To" field.
+    let on_keydown = move |ev: leptos::ev::KeyboardEvent| {
+        if ev.key() != "Backspace" {
+            return;
+        }
+        let empty = input_ref
+            .get_untracked()
+            .is_some_and(|el| el.value().is_empty());
+        if empty && tag_picker.remove_last_selected() {
+            ev.prevent_default();
+        }
+    };
+
     view! {
         <input
             node_ref=input_ref
             type="text"
             role="combobox"
+            aria-autocomplete="list"
+            aria-expanded=move || is_show_listbox.get().to_string()
+            aria-controls=move || is_show_listbox.get().then(|| listbox_id.get_value())
+            aria-label=move || aria_label.get()
+            placeholder=move || placeholder.get()
             class=move || {
                 let mut parts = vec!["orbital-tag-picker-input".to_string()];
                 if let Some(extra) = class.get() {
@@ -73,6 +101,7 @@ pub fn TagPickerInput(
             }
             on:blur=on_blur
             on:input=on_input
+            on:keydown=on_keydown
             prop:value=move || {
                 value_trigger.track();
                 ""
