@@ -131,4 +131,29 @@ test.describe("tag-picker primitive preview", () => {
     await expect(page.getByTestId("TP-09-created")).toHaveText("Created: 0");
     await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
   });
+
+  test("TP-10: Backspace in the empty input removes the last tag", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-04").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-04");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.focus();
+    await input.press("Backspace");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(1);
+    await expect(wrapper.locator(".orbital-tag")).toHaveText("Alpha");
+  });
+
+  test("TP-11: dismissing a tag moves focus to the input and aria-expanded follows the list", async ({
+    page,
+  }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-04").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-04");
+    const input = wrapper.locator("input[role='combobox']");
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await wrapper.locator(".orbital-tag__dismiss").first().click();
+    await expect(input).toBeFocused();
+    await input.click();
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+  });
 });

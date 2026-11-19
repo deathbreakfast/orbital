@@ -28,10 +28,12 @@ pub(crate) struct TagPickerOptionEntry {
 #[derive(Clone)]
 pub(crate) struct TagPickerInjection {
     pub size: Signal<TagPickerSize>,
+    pub(super) multiselect: Signal<bool>,
     pub input_ref: NodeRef<html::Input>,
     pub(super) selected_options: FormBind<Vec<String>>,
     pub options: StoredValue<HashMap<String, TagPickerOptionEntry>>,
     pub(super) is_show_listbox: RwSignal<bool>,
+    pub(super) listbox_id: StoredValue<String>,
     pub(super) listbox_hidden_callback: StoredValue<Vec<Handler<()>>>,
     /// Set by [`TagPickerInput`](super::tag_picker_input::TagPickerInput) when it has `on_search`.
     pub(super) on_search: StoredValue<Option<Callback<String>>>,
@@ -77,10 +79,17 @@ impl TagPickerInjection {
 
     pub fn select_option(&self, value: &str) {
         let mut added = false;
+        let multiselect = self.multiselect.get_untracked();
         self.selected_options.update(|options| {
             if let Some(index) = options.iter().position(|v| v == value) {
-                options.remove(index);
+                // Picking the current value of a single-select keeps it.
+                if multiselect {
+                    options.remove(index);
+                }
             } else {
+                if !multiselect {
+                    options.clear();
+                }
                 options.push(value.to_string());
                 added = true;
             }
@@ -97,6 +106,24 @@ impl TagPickerInjection {
     pub(super) fn notify_search_cleared(&self) {
         if let Some(on_search) = self.on_search.get_value() {
             on_search.run(String::new());
+        }
+    }
+
+    /// Removes the last selected value at once (Backspace in an empty input).
+    /// Returns false when nothing was selected.
+    pub fn remove_last_selected(&self) -> bool {
+        let mut removed = false;
+        self.selected_options.update(|options| {
+            removed = options.pop().is_some();
+        });
+        removed
+    }
+
+    /// Moves focus back to the filter input, so removing a chip never drops focus
+    /// to the page.
+    pub fn focus_input(&self) {
+        if let Some(input_el) = self.input_ref.get_untracked() {
+            let _ = input_el.focus();
         }
     }
 
