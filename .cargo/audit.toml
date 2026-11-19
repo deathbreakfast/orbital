@@ -1,0 +1,4 @@
+[advisories]
+# chrono / chrono-tz unmaintained, no fixed release; temporary until the stack
+# moves off chrono (security:RUSTSEC-2026-0543).
+ignore = ["RUSTSEC-2026-0543", "RUSTSEC-2026-0555"]
