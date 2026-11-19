@@ -22,6 +22,12 @@ pub fn chip_selector_styles() -> &'static str {
     min-width: 0;
 }
 
+/* Badge's Brand tint text (brand-fg-secondary) is 4.14:1 on its light background;
+   inside a chip use the stronger brand-fg so status badges meet 4.5:1. */
+.orbital-chip-selector__chip-content .orbital-badge--tint.orbital-badge--brand {
+    color: var(--orb-color-brand-fg);
+}
+
 .orbital-chip-selector__chip-avatar {
     display: inline-flex;
     line-height: 0;
