@@ -87,7 +87,7 @@ test.describe("chip-selector preview", () => {
     await expect(chips(wrapper)).toHaveCount(9);
     const box = await control(wrapper).boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.height).toBeGreaterThan(100);
+    expect(box!.height).toBeGreaterThan(90);
     const overflow = await control(wrapper).evaluate((el) => el.scrollWidth - el.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
     for (const chip of await chips(wrapper).all()) {

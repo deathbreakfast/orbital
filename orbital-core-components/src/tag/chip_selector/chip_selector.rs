@@ -313,7 +313,8 @@ pub fn ChipSelector(
     let selected = Memo::new({
         let bind = bind.clone();
         move |_| {
-            current.track();
+            // Read (not just track) so the memo runs and fills `known` first.
+            current.with(|_| ());
             let values = bind.get();
             known.with_value(|known| {
                 values
@@ -357,42 +358,45 @@ pub fn ChipSelector(
         parts.join(" ")
     };
 
-    let control = if single && persona {
-        Either::Left(view! {
-            <div class="orbital-chip-selector__persona-row">
-                {move || {
-                    if !query.with(|q| q.is_empty()) {
-                        return None;
-                    }
-                    selected.with(|selected| selected.first().cloned()).map(persona_view)
-                }}
-                <TagPickerInput placeholder=hint aria_label on_search=on_query />
-            </div>
-        })
-    } else {
-        Either::Right(view! {
-            <TagPickerGroup appearance>
-                <For
-                    each=move || selected.get()
-                    key=|option| (option.value.clone(), option.text.clone())
-                    let:option
-                >
-                    <Tag
-                        value=option.value.clone()
-                        dismiss_label=format!("Remove {}", option.text)
+    // Built when TagPicker renders its control slot, inside the context it provides.
+    let control = move || {
+        if single && persona {
+            Either::Left(view! {
+                <div class="orbital-chip-selector__persona-row">
+                    {move || {
+                        if !query.with(|q| q.is_empty()) {
+                            return None;
+                        }
+                        selected.with(|selected| selected.first().cloned()).map(persona_view)
+                    }}
+                    <TagPickerInput placeholder=hint aria_label on_search=on_query />
+                </div>
+            })
+        } else {
+            Either::Right(view! {
+                <TagPickerGroup appearance>
+                    <For
+                        each=move || selected.get()
+                        key=|option| (option.value.clone(), option.text.clone())
+                        let:option
                     >
-                        {chip_content(option, persona)}
-                    </Tag>
-                </For>
-                <TagPickerInput placeholder=hint aria_label on_search=on_query />
-            </TagPickerGroup>
-        })
+                        <Tag
+                            value=option.value.clone()
+                            dismiss_label=format!("Remove {}", option.text)
+                        >
+                            {chip_content(option, persona)}
+                        </Tag>
+                    </For>
+                    <TagPickerInput placeholder=hint aria_label on_search=on_query />
+                </TagPickerGroup>
+            })
+        }
     };
 
     view! {
         <div class=root_class>
             <TagPicker bind=TagPickerBind::new(bind) size multiselect=!single panel_mount>
-                <TagPickerControl slot>{control}</TagPickerControl>
+                <TagPickerControl slot>{control()}</TagPickerControl>
                 {move || {
                     let q = query.get().to_lowercase();
                     current
@@ -502,5 +506,73 @@ mod tests {
         assert!(matches_query(&option, "pay"));
         assert!(matches_query(&option, "acme"));
         assert!(!matches_query(&option, "theo"));
+    }
+}
+
+/// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib chip_selector_ssr`.
+#[cfg(all(test, feature = "ssr"))]
+mod ssr_tests {
+    use super::*;
+    use crate::BadgeColor;
+    use orbital_theme::OrbitalThemeProvider;
+
+    fn options() -> Signal<Vec<ChipOption>> {
+        Signal::stored(vec![
+            ChipOption::new("theo", "Theo Brandt")
+                .secondary("Person")
+                .href("/people/theo"),
+            ChipOption::new("t-1", "Draft invoice schema").badge("Done", BadgeColor::Success),
+        ])
+    }
+
+    /// Renders on one thread and drops the owner on another, as leptos-axum may do
+    /// with a streamed page.
+    fn render(mode: ChipSelectorMode, variant: ChipSelectorVariant) -> String {
+        let _ = any_spawner::Executor::init_futures_executor();
+        let (html, owner) = std::thread::spawn(move || {
+            let owner = Owner::new();
+            let html = owner.with(|| {
+                let selected = RwSignal::new(vec!["theo".to_string(), "t-1".to_string()]);
+                view! {
+                    <OrbitalThemeProvider>
+                        <ChipSelector bind=selected options=options() mode variant placeholder="Add" />
+                    </OrbitalThemeProvider>
+                }
+                .to_html()
+            });
+            (html, owner)
+        })
+        .join()
+        .expect("render thread");
+        std::thread::spawn(move || drop(owner))
+            .join()
+            .expect("dropping the owner on another thread must not panic");
+        html
+    }
+
+    #[test]
+    fn chip_selector_ssr_multiple_chips() {
+        let html = render(ChipSelectorMode::Multiple, ChipSelectorVariant::Chip);
+        assert!(html.contains("orbital-tag--outline"), "{html}");
+        assert!(html.contains("Draft invoice schema"), "{html}");
+        assert!(html.contains("href=\"/people/theo\""), "{html}");
+        assert!(html.contains("orbital-badge"), "{html}");
+    }
+
+    #[test]
+    fn chip_selector_ssr_single_persona() {
+        let html = render(ChipSelectorMode::Single, ChipSelectorVariant::Persona);
+        assert!(html.contains("orbital-persona"), "{html}");
+        assert!(html.contains("Theo Brandt"), "{html}");
+    }
+
+    #[test]
+    fn chip_selector_ssr_multiple_persona() {
+        let html = render(ChipSelectorMode::Multiple, ChipSelectorVariant::Persona);
+        assert!(
+            html.contains("orbital-chip-selector__chip-avatar"),
+            "{html}"
+        );
+        assert!(html.contains("Remove Theo Brandt"), "{html}");
     }
 }
