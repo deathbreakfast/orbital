@@ -27,6 +27,10 @@ use crate::Icon;
 ///
 /// 1. Bind selected option keys via [`TagPickerBind`]. 2. Render selected tags inside [`TagPickerGroup`] from the bound values. 3. Add [`TagPickerOption`] or [`TagPickerOptionGroup`] children for the dropdown list.
 ///
+/// # API notes
+///
+/// - [`TagPickerInput`] carries `role="combobox"`, `aria-expanded` and `aria-controls`. Give it a name with a [`Field`](crate::Field) label, or its `aria_label` prop outside a field.
+///
 /// # Best Practices
 ///
 /// ## Do's
@@ -339,6 +343,37 @@ use crate::Icon;
 ///     </div>
 /// }
 /// ```
+///
+/// ## In a field
+/// Inside a [`Field`](crate::Field) the input takes the field's id, so the label names it.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     Field, Tag, TagPicker, TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput,
+///     TagPickerOption,
+/// };
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let panel_mount = NodeRef::<leptos::html::Div>::new();
+/// view! {
+///     <div data-testid="TP-12" node_ref=panel_mount>
+///         <Field label="Fruit">
+///             <TagPicker bind=TagPickerBind::new(selected) panel_mount=Some(panel_mount)>
+///                 <TagPickerControl slot>
+///                     <TagPickerGroup>
+///                         {move || selected.get().into_iter().map(|value| {
+///                             let label = value.clone();
+///                             view! { <Tag value=value.clone()>{label}</Tag> }
+///                         }).collect_view()}
+///                         <TagPickerInput />
+///                     </TagPickerGroup>
+///                 </TagPickerControl>
+///                 <TagPickerOption value="apple".to_string() text="Apple" />
+///                 <TagPickerOption value="banana".to_string() text="Banana" />
+///             </TagPicker>
+///         </Field>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "tag-picker",
@@ -496,10 +531,11 @@ pub fn TagPicker(
                     <Provider value=panel_injection>
                         <BaseListbox
                             class="orbital-tag-picker__listbox"
+                            id=listbox_id.get_value()
                             listbox_ref
                             set_listbox
                         >
-                            <div id=move || listbox_id.get_value()>{children()}</div>
+                            {children()}
                         </BaseListbox>
                     </Provider>
                 }

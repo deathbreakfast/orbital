@@ -1,8 +1,11 @@
 use super::types::{TagPickerControlInjection, TagPickerInjection};
 use leptos::prelude::*;
-use orbital_base_components::input_event_value;
+use orbital_base_components::{input_event_value, FieldInjection};
 
 /// Text input inside the tag picker control area.
+///
+/// Takes its id from an enclosing [`Field`](crate::Field), so the field label names it.
+/// Outside a field, set `aria_label`.
 #[component]
 pub fn TagPickerInput(
     /// Optional CSS class on the input element.
@@ -30,6 +33,8 @@ pub fn TagPickerInput(
         listbox_id,
         ..
     } = tag_picker.clone();
+    // Inside a `Field`, take its id so the field label names the input.
+    let (field_id, _) = FieldInjection::use_id_and_name(MaybeProp::default(), MaybeProp::default());
     search_slot.set_value(on_search);
     let TagPickerControlInjection(active_descendant_controller) =
         TagPickerControlInjection::expect_context();
@@ -90,6 +95,7 @@ pub fn TagPickerInput(
             aria-controls=move || is_show_listbox.get().then(|| listbox_id.get_value())
             aria-label=move || aria_label.get()
             placeholder=move || placeholder.get()
+            id=move || field_id.get()
             class=move || {
                 let mut parts = vec!["orbital-tag-picker-input".to_string()];
                 if let Some(extra) = class.get() {
