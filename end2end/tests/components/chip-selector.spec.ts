@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { test, expect, type Locator } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
 
 const EXAMPLES = [
@@ -13,6 +13,11 @@ const EXAMPLES = [
   "chip-selector-persona-multi",
 ];
 
+// The default example's wrapper is chip-selector-default, not the helper's
+// `${slug}-preview` fallback.
+const openChipSelector = (page: Page) =>
+  openComponentPreview(page, "chip-selector", "chip-selector-default");
+
 const control = (wrapper: Locator) => wrapper.locator(".orbital-tag-picker-control");
 const chips = (wrapper: Locator) => wrapper.locator(".orbital-tag");
 const input = (wrapper: Locator) => wrapper.locator("input[role='combobox']");
@@ -21,7 +26,7 @@ const option = (wrapper: Locator, name: string) =>
 
 test.describe("chip-selector preview", () => {
   test("CS-01: picking an option adds an outlined chip inside the input", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-default");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveCount(0);
@@ -36,7 +41,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-02: typing filters the option list", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-default");
     await wrapper.scrollIntoViewIfNeeded();
     await input(wrapper).click();
@@ -46,7 +51,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-03: chips link to their record and each has a remove button", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-linked");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveCount(2);
@@ -58,7 +63,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-04: Backspace in the empty input removes the last chip", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-linked");
     await wrapper.scrollIntoViewIfNeeded();
     await input(wrapper).focus();
@@ -72,7 +77,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-05: blocked-by chips carry a status badge", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-badges");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveCount(2);
@@ -81,7 +86,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-06: many chips wrap and the field grows without sideways overflow", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-wrap");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveCount(9);
@@ -99,7 +104,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-07: removing the last chip shows the empty hint and keeps the height", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-remove-last");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveCount(1);
@@ -113,7 +118,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-08: single mode replaces the chip on the next pick", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-single");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveText("Payments roadmap");
@@ -126,7 +131,7 @@ test.describe("chip-selector preview", () => {
   test("CS-09: Persona owner shows a Persona, hides it while typing, and shows the pick", async ({
     page,
   }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-persona");
     await wrapper.scrollIntoViewIfNeeded();
     const selected = control(wrapper).locator(".orbital-persona");
@@ -149,7 +154,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-10: Persona chips carry an avatar", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-persona-multi");
     await wrapper.scrollIntoViewIfNeeded();
     await expect(chips(wrapper)).toHaveCount(1);
@@ -160,7 +165,7 @@ test.describe("chip-selector preview", () => {
   });
 
   test("CS-A1: axe clean in dark and light at 390px and desktop", async ({ page }) => {
-    await openComponentPreview(page, "chip-selector");
+    await openChipSelector(page);
     const scan = async (label: string, excludeLinks = false) => {
       for (const testId of EXAMPLES) {
         await page.getByTestId(testId).scrollIntoViewIfNeeded();
