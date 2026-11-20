@@ -36,7 +36,8 @@ pub(crate) fn minimap_point(px: f64, py: f64, mw: f64, mh: f64, lw: f64, lh: f64
 /// The graph draws one in its bottom-right corner while its `minimap` signal
 /// is on (the [`GraphToolbar`](crate::GraphToolbar)'s Minimap button). Place
 /// a `GraphMinimap` yourself only to show the overview somewhere else, such
-/// as a side panel; it then shows whatever the `minimap` signal says.
+/// as a side panel; it then shows whenever the graph doesn't fit, whatever
+/// the `minimap` signal says.
 ///
 /// # When to use
 ///
