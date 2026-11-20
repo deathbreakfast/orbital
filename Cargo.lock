@@ -2321,6 +2321,7 @@ dependencies = [
  "orbital-macros",
  "orbital-style",
  "orbital-theme",
+ "send_wrapper",
  "wasm-bindgen",
  "web-sys",
 ]
