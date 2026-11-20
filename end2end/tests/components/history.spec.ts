@@ -260,6 +260,10 @@ test.describe("history preview", () => {
     await openComponentPreview(page, "history-date-dividers");
     const preview = page.getByTestId("history-date-dividers-preview");
     await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    const scroll = preview.locator(".orbital-history__scroll");
+    await expect(scroll).toHaveAttribute("tabindex", "0");
+    await expect(scroll).toHaveAttribute("role", "region");
+    await expect(scroll).toHaveAttribute("aria-label", "History");
     for (const mode of ["dark", "light"] as const) {
       await setPreviewTheme(page, mode);
       expect(

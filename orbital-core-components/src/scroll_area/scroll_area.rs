@@ -137,6 +137,14 @@ pub fn ScrollArea(
     /// Optional `data-column-order` for consumers that track column layout on the scrollport.
     #[prop(optional, into)]
     scroll_data_column_order: MaybeProp<String>,
+    /// Put the scrollport in the tab order (`tabindex="0"`) so keyboard users can scroll it.
+    /// Turn on when the content may overflow and has no focusable children of its own.
+    #[prop(optional, default = false)]
+    focusable: bool,
+    /// Accessible name for the scrollport. When set, the scrollport is a `role="region"`
+    /// landmark with this label; pair it with `focusable`.
+    #[prop(optional, into)]
+    aria_label: MaybeProp<String>,
     /// Scrollable content inside the themed scrollbar chrome.
     children: Children,
 ) -> impl IntoView {
@@ -208,6 +216,9 @@ pub fn ScrollArea(
             node_ref=node_ref
             data-testid=scroll_testid
             data-column-order=scroll_data_column_order
+            tabindex=focusable.then_some("0")
+            role=move || aria_label.get().map(|_| "region")
+            aria-label=move || aria_label.get()
         >
             <div class=content_class>
                 {children()}
