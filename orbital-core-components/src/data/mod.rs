@@ -6,6 +6,7 @@ pub mod link;
 pub mod list;
 pub mod persona;
 pub mod table;
+pub mod timestamp;
 
 pub use avatar::*;
 pub use avatar_group::*;
@@ -15,6 +16,7 @@ pub use link::*;
 pub use list::*;
 pub use persona::*;
 pub use table::*;
+pub use timestamp::*;
 
 #[cfg(feature = "preview")]
 pub use avatar::AVATAR_PREVIEW_REGISTRATION;
@@ -28,3 +30,5 @@ pub use image::IMAGE_PREVIEW_REGISTRATION;
 pub use link::LINK_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use list::LIST_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+pub use timestamp::TIMESTAMP_PREVIEW_REGISTRATION;
