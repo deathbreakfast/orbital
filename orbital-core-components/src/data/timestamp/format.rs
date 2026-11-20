@@ -1,7 +1,7 @@
 //! Pure formatting for [`Timestamp`](super::Timestamp). Everything here takes the zone and
 //! "now" as arguments so it can be tested off the browser.
 
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{DateTime, FixedOffset, Offset, Utc};
 use orbital_base_components::DatetimeTimezone;
 
 use super::styles::TimestampStyle;
@@ -21,7 +21,7 @@ impl ZoneInfo {
     /// The UTC zone, used for the server render and the first client render.
     pub fn utc() -> Self {
         Self {
-            offset: FixedOffset::east_opt(0).expect("zero offset is valid"),
+            offset: Utc.fix(),
             short: "UTC".to_string(),
             iana: None,
         }
