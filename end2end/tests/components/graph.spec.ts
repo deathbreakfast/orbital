@@ -331,10 +331,19 @@ async function openIn(page: Page, mode: Mode, slug: string, testId: string) {
   }
 }
 
-/** Point near the canvas's bottom-left corner, inside the fit padding and clear of the toolbar. */
+/**
+ * Point near the canvas's bottom-left corner, inside the fit padding and clear of the toolbar.
+ * Whole pixels: Chrome reports `MouseEvent.clientX` as an integer, so a fractional point would
+ * zoom around a spot up to 1px away from where the test thinks it clicked.
+ */
 async function cornerPoint(scope: Locator): Promise<{ x: number; y: number }> {
   const box = (await scope.locator("svg.orbital-graph__svg").boundingBox())!;
-  return { x: box.x + 6, y: box.y + box.height - 6 };
+  return { x: Math.ceil(box.x) + 6, y: Math.floor(box.y + box.height) - 6 };
+}
+
+/** Screen distance between two layout points at `scale`. */
+function screenGap(a: { x: number; y: number }, b: { x: number; y: number }, scale: number) {
+  return Math.hypot(a.x - b.x, a.y - b.y) * scale;
 }
 
 /** Layout point under a page point, from the root's box and the current transform. */
@@ -375,17 +384,18 @@ for (const mode of MODES) {
       const before = await layoutAt(scope, p.x, p.y);
 
       await page.mouse.dblclick(p.x, p.y);
-      await expect.poll(() => viewportScale(scope)).toBeCloseTo(Math.min(s0 * 2, 2.2), 6);
+      const zoomed = Math.min(s0 * 2, 2.2);
+      await expect.poll(() => viewportScale(scope)).toBeCloseTo(zoomed, 6);
+      // The layout point under the pointer stays under it (within a pixel on screen).
       const after = await layoutAt(scope, p.x, p.y);
-      expect(after.x).toBeCloseTo(before.x, 0);
-      expect(after.y).toBeCloseTo(before.y, 0);
+      expect(screenGap(after, before, zoomed)).toBeLessThan(1.5);
 
       await page.keyboard.down("Control");
       await page.mouse.dblclick(p.x, p.y);
       await page.keyboard.up("Control");
-      await expect.poll(() => viewportScale(scope)).toBeCloseTo(Math.max(s0, 0.2), 6);
-      const back = await layoutAt(scope, p.x, p.y);
-      expect(back.x).toBeCloseTo(before.x, 0);
+      const back = Math.max(s0, 0.2);
+      await expect.poll(() => viewportScale(scope)).toBeCloseTo(back, 6);
+      expect(screenGap(await layoutAt(scope, p.x, p.y), before, back)).toBeLessThan(1.5);
     });
 
     test(`GR-17 (${mode}): Zoom in disables at the maximum and Zoom out at the minimum`, async ({ page }) => {
@@ -495,16 +505,29 @@ for (const mode of MODES) {
       );
       expect(token).not.toBe("");
 
+      const s0 = await viewportScale(scope);
       const box = (await scope.locator("svg.orbital-graph__svg").boundingBox())!;
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-      for (let i = 0; i < 6; i++) await page.mouse.wheel(0, -120);
-      await expect.poll(() => viewportScale(scope)).toBeGreaterThan(1);
-      const scale = await viewportScale(scope);
-      const style = (await grid.getAttribute("style")) ?? "";
-      const size = Number(/background-size: ([\d.]+)px/.exec(style)![1]);
-      expect(size).toBeCloseTo(18 * scale, 2);
-      const pan = await viewportPan(scope);
-      expect(style).toContain(`background-position: ${pan.x}px ${pan.y}px`);
+      for (let i = 0; i < 4; i++) await page.mouse.wheel(0, -120);
+      // Four notches of x1.2 each, clamped to the 2.2 maximum.
+      const target = Math.min(s0 * 1.2 ** 4, 2.2);
+      await expect.poll(() => viewportScale(scope)).toBeCloseTo(target, 6);
+
+      // Read scale, pan and grid style in one go so nothing moves between them.
+      const read = await scope.locator(".orbital-graph").evaluate((root) => ({
+        scale: Number(root.querySelector(".orbital-graph__viewport")!.getAttribute("data-scale")),
+        transform: root.querySelector(".orbital-graph__viewport")!.getAttribute("style") ?? "",
+        grid: root.querySelector(".orbital-graph__grid")!.getAttribute("style") ?? "",
+      }));
+      // The grid pitch is 18px scaled, doubled while it is under 6px.
+      let pitch = 18 * read.scale;
+      while (pitch < 6) pitch *= 2;
+      const size = Number(/background-size: ([\d.]+)px/.exec(read.grid)![1]);
+      expect(size).toBeCloseTo(pitch, 2);
+      const pan = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec(read.transform)!;
+      const pos = /background-position: (-?[\d.]+)px (-?[\d.]+)px/.exec(read.grid)!;
+      expect(Number(pos[1])).toBeCloseTo(Number(pan[1]), 2);
+      expect(Number(pos[2])).toBeCloseTo(Number(pan[2]), 2);
     });
 
     test(`GR-22 (${mode}): a host action in the toolbar slot fires`, async ({ page }) => {
