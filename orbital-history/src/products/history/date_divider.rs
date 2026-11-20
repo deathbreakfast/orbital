@@ -13,8 +13,7 @@ pub fn HistoryDateDivider(bucket: HistoryDateBucket) -> impl IntoView {
     view! {
         <li
             class="orbital-history__date-divider"
-            role="separator"
-            aria-label=move || label.get()
+            role="listitem"
             data-testid="history-date-divider"
         >
             <Divider class="orbital-history__date-divider-line".to_string() />

@@ -73,6 +73,20 @@ use super::styles::badge_styles;
 /// }
 /// ```
 ///
+/// ## Warning appearances
+/// Tint, outline and ghost warning badges for softer status labels.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Badge, BadgeAppearance, BadgeColor};
+/// view! {
+///     <div data-testid="badge-warning" style="display: flex; gap: 8px;">
+///         <Badge appearance=Signal::from(BadgeAppearance::Tint) color=Signal::from(BadgeColor::Warning)>"At risk"</Badge>
+///         <Badge appearance=Signal::from(BadgeAppearance::Outline) color=Signal::from(BadgeColor::Warning)>"At risk"</Badge>
+///         <Badge appearance=Signal::from(BadgeAppearance::Ghost) color=Signal::from(BadgeColor::Warning)>"At risk"</Badge>
+///     </div>
+/// }
+/// ```
+///
 /// ## On navigation item
 /// Badges beside navigation labels communicate unread counts or new items.
 /// <!-- preview -->

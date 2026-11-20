@@ -2,6 +2,8 @@ use getset::{Getters, Setters};
 use orbital_macros::WriteCSSVars;
 use std::collections::HashMap;
 
+use crate::ramps::{contrast_ratio, AA_TEXT_CONTRAST};
+
 #[derive(Clone, WriteCSSVars, Getters, Setters)]
 #[getset(get = "pub", set = "pub")]
 pub struct ColorTheme {
@@ -150,18 +152,61 @@ impl ColorTheme {
             .clone()
     }
 
+    /// Walks the ramp from `variant` by `step` (negative is darker) until the shade reaches
+    /// [`AA_TEXT_CONTRAST`] against every colour in `against`, stopping at the ramp's ends.
+    fn accessible_shade(
+        brand_colors: &HashMap<i32, String>,
+        variant: i32,
+        step: i32,
+        against: &[&str],
+    ) -> i32 {
+        let mut v = variant.clamp(10, 160);
+        while (10..=160).contains(&(v + step))
+            && against
+                .iter()
+                .any(|bg| contrast_ratio(&Self::shade(brand_colors, v), bg) < AA_TEXT_CONTRAST)
+        {
+            v += step;
+        }
+        v
+    }
+
+    /// Brand background, hover and pressed shades, moved darker together until white text
+    /// clears AA on each of them.
+    fn on_brand_shades(
+        brand_colors: &HashMap<i32, String>,
+        background: i32,
+        hover: i32,
+        pressed: i32,
+    ) -> (i32, i32, i32) {
+        let white = ["#ffffff"];
+        let bg = Self::accessible_shade(brand_colors, background, -10, &white);
+        let shift = background - bg;
+        let darker =
+            |v: i32| Self::accessible_shade(brand_colors, (v - shift).max(10), -10, &white);
+        (bg, darker(hover), darker(pressed))
+    }
+
     pub fn custom_light(brand_colors: &HashMap<i32, String>) -> Self {
         Self::validate_palette(brand_colors);
         let mut theme = Self::light();
-        theme.color_brand_background = Self::shade(brand_colors, 80);
-        theme.color_brand_background_2 = Self::shade(brand_colors, 160);
-        theme.color_brand_background_hover = Self::shade(brand_colors, 70);
-        theme.color_brand_background_pressed = Self::shade(brand_colors, 40);
-        theme.color_brand_foreground_1 = Self::shade(brand_colors, 80);
-        theme.color_brand_foreground_2 = Self::shade(brand_colors, 70);
-        theme.color_brand_foreground_link = Self::shade(brand_colors, 70);
-        theme.color_brand_foreground_link_hover = Self::shade(brand_colors, 60);
-        theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, 40);
+        let (bg, bg_hover, bg_pressed) = Self::on_brand_shades(brand_colors, 80, 70, 40);
+        let tint = Self::shade(brand_colors, 160);
+        let text_on = [theme.color_neutral_background_1.as_str(), tint.as_str()];
+        let fg_1 = Self::accessible_shade(brand_colors, 80, -10, &text_on);
+        let fg_2 = Self::accessible_shade(brand_colors, 70, -10, &text_on);
+        let link = Self::accessible_shade(brand_colors, 70, -10, &text_on);
+        let link_hover = Self::accessible_shade(brand_colors, link.min(60), -10, &text_on);
+        let link_pressed = Self::accessible_shade(brand_colors, link_hover.min(40), -10, &text_on);
+        theme.color_brand_background = Self::shade(brand_colors, bg);
+        theme.color_brand_background_2 = tint;
+        theme.color_brand_background_hover = Self::shade(brand_colors, bg_hover);
+        theme.color_brand_background_pressed = Self::shade(brand_colors, bg_pressed);
+        theme.color_brand_foreground_1 = Self::shade(brand_colors, fg_1);
+        theme.color_brand_foreground_2 = Self::shade(brand_colors, fg_2);
+        theme.color_brand_foreground_link = Self::shade(brand_colors, link);
+        theme.color_brand_foreground_link_hover = Self::shade(brand_colors, link_hover);
+        theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, link_pressed);
         theme.color_brand_stroke_1 = Self::shade(brand_colors, 80);
         theme.color_brand_stroke_2 = Self::shade(brand_colors, 140);
         theme.color_brand_stroke_2_contrast = Self::shade(brand_colors, 140);
@@ -182,15 +227,27 @@ impl ColorTheme {
     pub fn custom_dark(brand_colors: &HashMap<i32, String>) -> Self {
         Self::validate_palette(brand_colors);
         let mut theme = Self::dark();
-        theme.color_brand_background = Self::shade(brand_colors, 80);
-        theme.color_brand_background_2 = Self::shade(brand_colors, 20);
-        theme.color_brand_background_hover = Self::shade(brand_colors, 50);
-        theme.color_brand_background_pressed = Self::shade(brand_colors, 40);
-        theme.color_brand_foreground_1 = Self::shade(brand_colors, 110);
-        theme.color_brand_foreground_2 = Self::shade(brand_colors, 120);
-        theme.color_brand_foreground_link = Self::shade(brand_colors, 100);
-        theme.color_brand_foreground_link_hover = Self::shade(brand_colors, 110);
-        theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, 90);
+        let (bg, bg_hover, bg_pressed) = Self::on_brand_shades(brand_colors, 80, 50, 40);
+        let tint = Self::shade(brand_colors, 20);
+        let text_on = [
+            theme.color_neutral_background_1.as_str(),
+            theme.color_neutral_background_1_hover.as_str(),
+            tint.as_str(),
+        ];
+        let fg_1 = Self::accessible_shade(brand_colors, 110, 10, &text_on);
+        let fg_2 = Self::accessible_shade(brand_colors, 120, 10, &text_on);
+        let link = Self::accessible_shade(brand_colors, 100, 10, &text_on);
+        let link_hover = Self::accessible_shade(brand_colors, link.max(110), 10, &text_on);
+        let link_pressed = Self::accessible_shade(brand_colors, 90, 10, &text_on);
+        theme.color_brand_background = Self::shade(brand_colors, bg);
+        theme.color_brand_background_2 = tint;
+        theme.color_brand_background_hover = Self::shade(brand_colors, bg_hover);
+        theme.color_brand_background_pressed = Self::shade(brand_colors, bg_pressed);
+        theme.color_brand_foreground_1 = Self::shade(brand_colors, fg_1);
+        theme.color_brand_foreground_2 = Self::shade(brand_colors, fg_2);
+        theme.color_brand_foreground_link = Self::shade(brand_colors, link);
+        theme.color_brand_foreground_link_hover = Self::shade(brand_colors, link_hover);
+        theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, link_pressed);
         theme.color_brand_stroke_1 = Self::shade(brand_colors, 100);
         theme.color_brand_stroke_2 = Self::shade(brand_colors, 50);
         theme.color_brand_stroke_2_contrast = Self::shade(brand_colors, 50);
@@ -237,7 +294,7 @@ impl ColorTheme {
             color_neutral_foreground_2_hover: "#232425".into(),
             color_neutral_foreground_2_pressed: "#232425".into(),
             color_neutral_foreground_2_brand_hover: "#1a6f94".into(),
-            color_neutral_foreground_2_brand_pressed: "#1e82ae".into(),
+            color_neutral_foreground_2_brand_pressed: "#155b79".into(),
             color_neutral_foreground_2_brand_selected: "#1a6f94".into(),
             color_neutral_foreground_3: "#5d6265".into(),
             color_neutral_foreground_4: "#6c7174".into(),
@@ -260,26 +317,27 @@ impl ColorTheme {
             color_neutral_stencil_2: "#fafafa".into(),
 
             color_compound_brand_foreground_1: "#1a6f94".into(),
-            color_compound_brand_foreground_1_hover: "#1e82ae".into(),
+            color_compound_brand_foreground_1_hover: "#155b79".into(),
             color_compound_brand_foreground_1_pressed: "#1a6f93".into(),
 
             color_compound_brand_background: "#1a6f94".into(),
-            color_compound_brand_background_hover: "#1e82ae".into(),
+            color_compound_brand_background_hover: "#155b79".into(),
             color_compound_brand_background_pressed: "#1a6f93".into(),
             color_compound_brand_stroke: "#1a6f94".into(),
             color_compound_brand_stroke_pressed: "#1a6f93".into(),
 
+            // Brand text, links and hovers stay at or above 4.5:1 (WCAG AA) on light surfaces.
             color_brand_background: "#1a6f94".into(),
-            color_brand_background_hover: "#1e82ae".into(),
+            color_brand_background_hover: "#155b79".into(),
             color_brand_background_pressed: "#11485f".into(),
             color_brand_background_2: "#f6fbfd".into(),
             color_brand_foreground_1: "#1a6f94".into(),
-            color_brand_foreground_2: "#1e82ae".into(),
+            color_brand_foreground_2: "#1a6f94".into(),
             color_brand_stroke_1: "#1a6f94".into(),
             color_brand_stroke_2: "#d4edf7".into(),
             color_brand_stroke_2_contrast: "#d4edf7".into(),
-            color_brand_foreground_link: "#1e82ae".into(),
-            color_brand_foreground_link_hover: "#1a6f93".into(),
+            color_brand_foreground_link: "#1a6f94".into(),
+            color_brand_foreground_link_hover: "#155b79".into(),
             color_brand_foreground_link_pressed: "#11485f".into(),
 
             color_stroke_focus_2: "#000000".into(),
@@ -298,8 +356,8 @@ impl ColorTheme {
             color_palette_green_border_2: "#0d7f24".into(),
             color_palette_yellow_background_1: "#fefff5".into(),
             color_palette_yellow_background_3: "#e4fd00".into(),
-            color_palette_yellow_foreground_1: "#748100".into(),
-            color_palette_yellow_foreground_2: "#748100".into(),
+            color_palette_yellow_foreground_1: "#626d00".into(),
+            color_palette_yellow_foreground_2: "#626d00".into(),
             color_palette_yellow_border_1: "#f7ffb1".into(),
 
             color_palette_dark_orange_background_1: "#fdf8f3".into(),

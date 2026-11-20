@@ -12,8 +12,7 @@ pub fn HistoryUnreadDivider() -> impl IntoView {
     view! {
         <li
             class="orbital-history__unread-divider"
-            role="separator"
-            aria-label=move || label.get()
+            role="listitem"
             data-testid="history-unread-divider"
         >
             <Divider class="orbital-history__unread-divider-line".to_string() />

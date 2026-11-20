@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
+import { seriousAxeViolations, setPreviewTheme } from "../lib/preview/axe";
 test.describe("badge primitive preview", () => {
 
   test("BD-01: brand filled badge renders label text", async ({ page }) => {
@@ -62,5 +63,16 @@ test.describe("badge primitive preview", () => {
     await page.getByTestId("badge-nav").scrollIntoViewIfNeeded();
     await expect(page.getByTestId("badge-nav").getByText("Inbox")).toBeVisible();
     await expect(page.getByTestId("badge-nav").locator(".orbital-badge")).toHaveText("3");
+  });
+
+  test("BD-A1: brand and warning badges pass axe contrast in light and dark", async ({ page }) => {
+    await openComponentPreview(page, "badge");
+    for (const mode of ["dark", "light"] as const) {
+      await setPreviewTheme(page, mode);
+      for (const testId of ["badge-appearance", "badge-warning"]) {
+        await page.getByTestId(testId).scrollIntoViewIfNeeded();
+        expect(await seriousAxeViolations(page, `[data-testid='${testId}']`), `${mode} ${testId}`).toEqual([]);
+      }
+    }
   });
 });

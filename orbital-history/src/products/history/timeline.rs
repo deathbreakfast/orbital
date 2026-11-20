@@ -857,6 +857,11 @@ fn HistoryClientPanel(
                 class="orbital-history__scroll".to_string()
                 style=scroll_style.unwrap_or_default()
                 node_ref=scroll_el
+                focusable=true
+                aria_label=Signal::derive({
+                    let locale = ctx.locale;
+                    move || locale.get().title
+                })
             >
                 <Show when=move || show_initial.get() fallback=|| ()>
                     {loading_view()}
@@ -1256,6 +1261,11 @@ fn HistoryServerPanel(
                 class="orbital-history__scroll".to_string()
                 style=scroll_style.unwrap_or_default()
                 node_ref=scroll_el
+                focusable=true
+                aria_label=Signal::derive({
+                    let locale = ctx.locale;
+                    move || locale.get().title
+                })
             >
                 <Show when=move || show_error.get() fallback=|| ()>
                     {error_view()}

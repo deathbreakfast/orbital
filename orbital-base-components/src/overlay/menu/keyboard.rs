@@ -77,6 +77,10 @@ pub fn MenuKeyboardRegion(
     /// they do not pull focus away from the page.
     #[prop(default = true)]
     autofocus: bool,
+    /// ARIA role for the region. Menus put `role="menu"` here rather than on an outer
+    /// wrapper, so the items are the menu's direct children.
+    #[prop(optional, into)]
+    role: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     let region = NodeRef::<html::Div>::new();
@@ -113,7 +117,13 @@ pub fn MenuKeyboardRegion(
     };
 
     view! {
-        <div node_ref=region class="orbital-menu-keyboard-region" tabindex="-1" on:keydown=on_keydown>
+        <div
+            node_ref=region
+            class="orbital-menu-keyboard-region"
+            role=move || role.get()
+            tabindex="-1"
+            on:keydown=on_keydown
+        >
             {children()}
         </div>
     }
