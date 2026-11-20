@@ -177,7 +177,9 @@ li:has(> p > .orbital-markdown__task) {
     outline-offset: 2px;
 }
 
-.orbital-markdown__table {
+/* Two classes: `.orbital-table` sets `table-layout: fixed` at one class, so the injection
+   order of the two stylesheets would otherwise decide whether the table can overflow. */
+.orbital-markdown__table.orbital-table {
     table-layout: auto;
     overflow-wrap: normal;
 }
