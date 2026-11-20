@@ -231,18 +231,12 @@ pub(crate) const GRAPH_STYLES: &str = r#"
     margin-top: 4px;
 }
 
-.orbital-graph__toolbar .orbital-graph-legend__panel {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 0;
-    z-index: 2;
-    width: max-content;
-    max-width: min(420px, 80vw);
-    margin-top: 0;
-    padding: 8px;
-    border: 1px solid var(--orb-color-border-subtle);
-    border-radius: 8px;
-    background: var(--orb-color-surface-canvas);
+.orbital-graph-toolbar .orbital-graph-legend--collapsible {
+    max-width: 100%;
+}
+
+.orbital-graph-toolbar .orbital-graph-legend__panel {
+    max-width: min(420px, 100%);
 }
 
 .orbital-graph-legend__panel[hidden] {
