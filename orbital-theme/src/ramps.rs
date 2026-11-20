@@ -35,9 +35,37 @@ const BRAND_RAMP_LIGHTNESS: [(i32, f32); 16] = [
     (160, 0.98),
 ];
 
+/// WCAG AA minimum contrast for body text.
+pub(crate) const AA_TEXT_CONTRAST: f32 = 4.5;
+
+/// WCAG contrast ratio between two hex colours (1.0 when either fails to parse).
+pub(crate) fn contrast_ratio(a: &str, b: &str) -> f32 {
+    match (relative_luminance(a), relative_luminance(b)) {
+        (Some(a), Some(b)) => (a.max(b) + 0.05) / (a.min(b) + 0.05),
+        _ => 1.0,
+    }
+}
+
+fn relative_luminance(hex: &str) -> Option<f32> {
+    let (r, g, b) = parse_hex_rgb(hex)?;
+    let linear = |c: f32| {
+        if c <= 0.03928 {
+            c / 12.92
+        } else {
+            ((c + 0.055) / 1.055).powf(2.4)
+        }
+    };
+    Some(0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b))
+}
+
 fn parse_hex_hsl(hex: &str) -> Option<(f32, f32, f32)> {
+    let (r, g, b) = parse_hex_rgb(hex)?;
+    Some(rgb_to_hsl(r, g, b))
+}
+
+fn parse_hex_rgb(hex: &str) -> Option<(f32, f32, f32)> {
     let hex = hex.trim().trim_start_matches('#');
-    let (r, g, b) = match hex.len() {
+    Some(match hex.len() {
         6 => (
             u8::from_str_radix(&hex[0..2], 16).ok()? as f32 / 255.0,
             u8::from_str_radix(&hex[2..4], 16).ok()? as f32 / 255.0,
@@ -50,8 +78,7 @@ fn parse_hex_hsl(hex: &str) -> Option<(f32, f32, f32)> {
             (r, g, b)
         }
         _ => return None,
-    };
-    Some(rgb_to_hsl(r, g, b))
+    })
 }
 
 fn rgb_to_hsl(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
@@ -268,7 +295,95 @@ fn parse_px(value: &str) -> Option<f32> {
 #[cfg(test)]
 mod tests {
 
-    use crate::Theme;
+    use super::{contrast_ratio, AA_TEXT_CONTRAST};
+    use crate::tokens::ColorTheme;
+    use crate::{BrandPalette, Theme, ThemeMode};
+
+    fn assert_aa(label: &str, fg: &str, bg: &str) {
+        let ratio = contrast_ratio(fg, bg);
+        assert!(
+            ratio >= AA_TEXT_CONTRAST,
+            "{label}: {fg} on {bg} is {ratio:.2}:1"
+        );
+    }
+
+    /// Text pairs axe checks on links, primary buttons and tint/ghost badges.
+    fn assert_theme_text_aa(label: &str, c: &ColorTheme) {
+        let on_brand = c.color_neutral_foreground_on_brand();
+        for bg in [
+            c.color_brand_background(),
+            c.color_brand_background_hover(),
+            c.color_brand_background_pressed(),
+        ] {
+            assert_aa(&format!("{label} on-brand"), on_brand, bg);
+        }
+        for bg in [
+            c.color_neutral_background_1(),
+            c.color_neutral_background_1_hover(),
+            c.color_neutral_background_3(),
+        ] {
+            assert_aa(
+                &format!("{label} link"),
+                c.color_brand_foreground_link(),
+                bg,
+            );
+            assert_aa(
+                &format!("{label} link hover"),
+                c.color_brand_foreground_link_hover(),
+                bg,
+            );
+            assert_aa(
+                &format!("{label} brand fg"),
+                c.color_brand_foreground_1(),
+                bg,
+            );
+        }
+        assert_aa(
+            &format!("{label} tint brand badge"),
+            c.color_brand_foreground_2(),
+            c.color_brand_background_2(),
+        );
+    }
+
+    #[test]
+    fn contrast_ratio_matches_wcag_reference_values() {
+        assert!((contrast_ratio("#000", "#fff") - 21.0).abs() < 0.01);
+        assert!((contrast_ratio("#1e82ae", "#ffffff") - 4.32).abs() < 0.01);
+        assert!((contrast_ratio("#ffffff", "#ffffff") - 1.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn default_themes_meet_aa_for_brand_text() {
+        assert_theme_text_aa("light", &Theme::light().color);
+        assert_theme_text_aa("dark", &Theme::dark().color);
+    }
+
+    #[test]
+    fn light_warning_palette_meets_aa() {
+        let c = Theme::light().color;
+        for fg in [
+            c.color_palette_yellow_foreground_1(),
+            c.color_palette_yellow_foreground_2(),
+        ] {
+            assert_aa("yellow tint", fg, c.color_palette_yellow_background_1());
+            assert_aa("yellow on canvas", fg, c.color_neutral_background_1());
+        }
+    }
+
+    #[test]
+    fn branded_themes_meet_aa_for_brand_text() {
+        for seed in ["#4a89dc", "#1e82ae", "#ff0000", "#e4fd00", "#0a2540"] {
+            for mode in [ThemeMode::Light, ThemeMode::Dark] {
+                let theme = Theme::with_brand(
+                    mode,
+                    BrandPalette {
+                        primary: seed.into(),
+                    },
+                );
+                assert_theme_text_aa(&format!("{seed} {}", mode.as_name()), &theme.color);
+            }
+        }
+    }
 
     #[test]
     fn orbital_shape_defaults_apply_on_theme_for_mode() {

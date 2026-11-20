@@ -9,6 +9,7 @@ pub fn history_styles() -> &'static str {
     min-height: 0;
     width: 100%;
     min-width: var(--orbital-history-min-width, 16rem);
+    color: var(--orb-color-text-primary);
     --orbital-history-time-rail-width: 4.5rem;
     --orbital-history-spine-size: 0.5rem;
     --orbital-history-row-padding-block: var(--orb-space-block-sm);
@@ -134,7 +135,7 @@ pub fn history_styles() -> &'static str {
 .orbital-history__compact-line {
     margin: 0;
     min-width: 0;
-    color: var(--orb-color-foreground-1);
+    color: var(--orb-color-text-primary);
 }
 
 .orbital-history__compact-line .orbital-history__actor--inline,
@@ -145,11 +146,11 @@ pub fn history_styles() -> &'static str {
 }
 
 .orbital-history__compact-line .orbital-history__change {
-    color: var(--orb-color-foreground-2);
+    color: var(--orb-color-text-secondary);
 }
 
 .orbital-history__compact-line .orbital-history__timestamp {
-    color: var(--orb-color-foreground-3);
+    color: var(--orb-color-text-tertiary);
     white-space: nowrap;
 }
 
@@ -194,7 +195,7 @@ pub fn history_styles() -> &'static str {
 }
 
 .orbital-history__timestamp {
-    color: var(--orb-color-foreground-3);
+    color: var(--orb-color-text-tertiary);
 }
 
 /* Natural rows open with a Persona (actor, then time); a little space before the change. */
@@ -212,7 +213,7 @@ pub fn history_styles() -> &'static str {
 
 .orbital-history__change {
     min-width: 0;
-    color: var(--orb-color-foreground-2);
+    color: var(--orb-color-text-secondary);
 }
 
 .orbital-history__change-card {
@@ -222,7 +223,7 @@ pub fn history_styles() -> &'static str {
     padding: var(--orb-space-block-xs) var(--orb-space-inline-sm);
     border: 1px solid var(--orb-color-border-subtle);
     border-radius: var(--orb-radius-md, 4px);
-    background: var(--orb-color-background-2, transparent);
+    background: var(--orb-color-surface-subtle);
 }
 
 .orbital-history__change-card-header {
@@ -238,7 +239,7 @@ pub fn history_styles() -> &'static str {
     align-items: center;
     gap: var(--orb-space-inline-sm);
     padding-block: var(--orb-space-block-xs);
-    color: var(--orb-color-foreground-3);
+    color: var(--orb-color-text-tertiary);
 }
 
 .orbital-history__date-divider-line {
@@ -255,7 +256,7 @@ pub fn history_styles() -> &'static str {
     align-items: center;
     gap: var(--orb-space-inline-sm);
     padding-block: var(--orb-space-block-xs);
-    color: var(--orb-color-accent, var(--orb-color-foreground-2));
+    color: var(--orb-color-brand-fg);
 }
 
 .orbital-history__unread-divider-line {
@@ -269,8 +270,8 @@ pub fn history_styles() -> &'static str {
 }
 
 .orbital-history__entry--unread .orbital-history__spine-marker {
-    background: var(--orb-color-accent, currentColor);
-    box-shadow: 0 0 0 2px var(--orb-color-background-1, transparent);
+    background: var(--orb-color-brand-fg);
+    box-shadow: 0 0 0 2px var(--orb-color-surface-canvas);
 }
 
 .orbital-history__entry--unread .orbital-history__body {
@@ -340,7 +341,7 @@ pub fn history_styles() -> &'static str {
 }
 
 .orbital-history__group-count {
-    color: var(--orb-color-foreground-3);
+    color: var(--orb-color-text-tertiary);
     font-size: 0.875rem;
 }
 
@@ -354,13 +355,13 @@ pub fn history_styles() -> &'static str {
     justify-content: center;
     gap: var(--orb-space-inline-sm);
     padding: var(--orb-space-block-sm);
-    color: var(--orb-color-foreground-3);
+    color: var(--orb-color-text-tertiary);
 }
 
 .orbital-history__end {
     text-align: center;
     padding: var(--orb-space-block-sm);
-    color: var(--orb-color-foreground-3);
+    color: var(--orb-color-text-tertiary);
 }
 
 .orbital-history__skeleton {

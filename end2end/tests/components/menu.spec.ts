@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
+import { seriousAxeViolations } from "../lib/preview/axe";
 import { clickMenuTriggerInPreview, hoverMenuTriggerInPreview, expectOverlayAnchoredNearTrigger, expectOverlayInViewport, expectOverlayNonZeroSize } from "../lib/preview/overlays";
 test.describe("menu primitive preview", () => {
 
@@ -11,6 +12,15 @@ test.describe("menu primitive preview", () => {
     await expectOverlayNonZeroSize(page, ".orbital-menu");
     await expectOverlayInViewport(page, ".orbital-menu");
     await expectOverlayAnchoredNearTrigger(page, "menu-preview", ".orbital-menu", "Actions");
+  });
+
+  test("MN-A1: open menu owns its items directly and passes axe", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await clickMenuTriggerInPreview(page, "menu-preview", "Actions");
+    const menu = page.getByRole("menu").first();
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Edit" })).toBeVisible();
+    expect(await seriousAxeViolations(page, ".orbital-menu")).toEqual([]);
   });
 
   test("MN-02: icon trigger opens menu", async ({ page }) => {

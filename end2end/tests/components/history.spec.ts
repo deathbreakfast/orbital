@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
+import { seriousAxeViolations, setPreviewTheme } from "../lib/preview/axe";
 
 test.describe("history preview", () => {
   test("renders default timeline preview", async ({ page }) => {
@@ -248,9 +249,24 @@ test.describe("history preview", () => {
     const preview = page.getByTestId("history-date-dividers-preview");
     await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
     await expect(preview.getByTestId("history-date-divider")).toHaveCount(5);
-    await expect(preview.getByRole("separator", { name: "Today" })).toBeVisible();
-    await expect(preview.getByRole("separator", { name: "Older" })).toBeVisible();
+    const dividers = preview.getByTestId("history-date-divider");
+    await expect(dividers.filter({ hasText: "Today" })).toBeVisible();
+    await expect(dividers.filter({ hasText: "Older" })).toBeVisible();
+    await expect(dividers.first()).toHaveAttribute("role", "listitem");
     await expect(preview.locator("[data-history-entry-id='b1']")).toBeVisible();
+  });
+
+  test("date dividers and actor links pass axe in light and dark", async ({ page }) => {
+    await openComponentPreview(page, "history-date-dividers");
+    const preview = page.getByTestId("history-date-dividers-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    for (const mode of ["dark", "light"] as const) {
+      await setPreviewTheme(page, mode);
+      expect(
+        await seriousAxeViolations(page, "[data-testid='history-date-dividers-preview']"),
+        mode,
+      ).toEqual([]);
+    }
   });
 
   test("paged server next page changes visible entries happy path", async ({ page }) => {
