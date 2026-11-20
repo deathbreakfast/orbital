@@ -367,6 +367,16 @@ async function dragBy(page: Page, from: { x: number; y: number }, dx: number, dy
   await page.mouse.up();
 }
 
+/** The element's box lies inside the graph frame (and so inside the canvas's clip). */
+async function expectInsideGraph(scope: Locator, el: Locator) {
+  const frame = (await scope.locator(".orbital-graph").first().boundingBox())!;
+  const box = (await el.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(frame.x - 1);
+  expect(box.y).toBeGreaterThanOrEqual(frame.y - 1);
+  expect(box.x + box.width).toBeLessThanOrEqual(frame.x + frame.width + 1);
+  expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
+}
+
 async function clickUntilDisabled(button: Locator, max = 30) {
   for (let i = 0; i < max && (await button.isEnabled()); i++) {
     await button.click();
@@ -446,6 +456,7 @@ for (const mode of MODES) {
       await toggle.click();
       await expect(toggle).toHaveAttribute("aria-expanded", "true");
       const chip = scope.getByTestId("graph-toolbar-legend-legend-chip-todo").locator("button");
+      await expectInsideGraph(scope, chip);
       await chip.click();
       await expect(scope.locator("[data-node-id]")).toHaveCount(PROJECT_NODES - 5);
       await expect.poll(transform).not.toBe(before);
@@ -463,6 +474,8 @@ for (const mode of MODES) {
       // After a pan the graph stays put when the set comes back.
       await dragBy(page, await cornerPoint(scope), 60, -30);
       const panned = await transform();
+      // The wider "· 5 hidden" chip still sits inside the graph frame.
+      await expectInsideGraph(scope, chip);
       await chip.click();
       await expect(scope.locator("[data-node-id]")).toHaveCount(PROJECT_NODES);
       await settle(page);
