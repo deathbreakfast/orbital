@@ -27,6 +27,7 @@ use super::types::{TextareaAppearance, TextareaBind, TextareaEvents};
 /// 2. Wrap in [`Field`](crate::Field) when the control needs a visible label or validation message.
 /// 3. Set `placeholder` on [`TextareaAppearance`] to hint expected content.
 /// 4. Attach `rules` on [`TextareaBind`] (e.g. [`TextareaRule::required`]) when Field should show errors.
+/// 5. With no Field label, name it with `aria_label`. Set `aria_invalid` when your own check fails.
 ///
 /// Grouped props: [`TextareaBind`] (value, id, name, rules), [`TextareaAppearance`] (placeholder, disabled, readonly, rows, cols, resize, size), [`TextareaEvents`] (focus, blur, `allow_value`). At call sites you can write `bind=signal` via [`From`] on [`TextareaBind`].
 ///
@@ -168,6 +169,13 @@ pub fn Textarea(
     /// Extra CSS class names merged onto the textarea wrapper.
     #[prop(optional, into)]
     class: MaybeProp<String>,
+    /// Accessible name for the `<textarea>` when no [`Field`](crate::Field) label names it.
+    #[prop(optional, into)]
+    aria_label: MaybeProp<String>,
+    /// Sets `aria-invalid="true"` on the `<textarea>` while true, such as past a length limit.
+    /// Defaults to false.
+    #[prop(optional, into)]
+    aria_invalid: Signal<bool>,
     /// Imperative handle for `focus` and `blur` on the DOM textarea.
     #[prop(optional)]
     comp_ref: ComponentRef<TextareaRef>,
@@ -272,6 +280,8 @@ pub fn Textarea(
                 readonly=move || readonly.get().then_some("")
                 rows=move || rows.get()
                 cols=move || cols.get()
+                aria-label=move || aria_label.get()
+                aria-invalid=move || aria_invalid.get().then_some("true")
                 prop:value=move || value.get_value().get()
                 on:input=on_input
                 on:change=on_change
@@ -280,5 +290,43 @@ pub fn Textarea(
                 node_ref=textarea_ref
             />
         </span>
+    }
+}
+
+/// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib textarea_ssr`.
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::*;
+    use orbital_theme::OrbitalThemeProvider;
+
+    fn render(view: fn() -> AnyView) -> String {
+        // The workspace test build also enables leptos csr, so Effects need an executor.
+        let _ = any_spawner::Executor::init_futures_executor();
+        Owner::new()
+            .with(|| view! { <OrbitalThemeProvider>{view()}</OrbitalThemeProvider> }.to_html())
+    }
+
+    #[test]
+    fn textarea_ssr_renders_rows_and_aria_props() {
+        let html = render(|| {
+            view! {
+                <Textarea
+                    appearance=TextareaAppearance::with_rows(4)
+                    aria_label="Notes"
+                    aria_invalid=true
+                />
+            }
+            .into_any()
+        });
+        assert!(html.contains("rows=\"4\""), "{html}");
+        assert!(html.contains("aria-label=\"Notes\""), "{html}");
+        assert!(html.contains("aria-invalid=\"true\""), "{html}");
+    }
+
+    #[test]
+    fn textarea_ssr_leaves_aria_props_off_by_default() {
+        let html = render(|| view! { <Textarea /> }.into_any());
+        assert!(!html.contains("aria-label"), "{html}");
+        assert!(!html.contains("aria-invalid"), "{html}");
     }
 }

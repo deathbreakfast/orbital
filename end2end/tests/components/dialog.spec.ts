@@ -158,6 +158,32 @@ test.describe("dialog primitive preview", () => {
     await expect(trigger).toBeFocused();
   });
 
+  test("DL-22: closing right after opening keeps focus on the trigger", async ({ page }) => {
+    const { trigger, dialog } = await openLate(page, "dialog-late-focus");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+    // Watch every frame past the late content's 300 ms timer: focus must not drop to the body.
+    const lost = await page.evaluate(
+      () =>
+        new Promise<string[]>((resolve) => {
+          const opener = document.activeElement;
+          const seen: string[] = [];
+          const start = performance.now();
+          const tick = () => {
+            const active = document.activeElement;
+            if (active !== opener) seen.push(active?.tagName ?? "none");
+            if (performance.now() - start < 700) requestAnimationFrame(tick);
+            else resolve(seen);
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
+    expect(lost).toEqual([]);
+    await expect(page.getByTestId("dialog-late-control")).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  });
+
   test("DL-13: reopening focuses the late content again", async ({ page }) => {
     const { trigger, dialog } = await openLate(page, "dialog-late-focus");
     const late = dialog.getByRole("button", { name: "Late control" });

@@ -45,6 +45,7 @@ pub use checkbox::Checkbox;
 pub use color_picker::{ColorPicker, ColorPickerAppearance, ColorPickerBind};
 pub use combobox::{
     Combobox, ComboboxAppearance, ComboboxBind, ComboboxOption, ComboboxOptionGroup,
+    ComboboxSelected,
 };
 pub use compound_button::{CompoundButton, CompoundButtonIconPosition};
 pub use date_picker::{DatePicker, DatePickerAppearance, DatePickerBind};

@@ -155,23 +155,6 @@ pub fn MarkdownEditor(
             .ok()
     };
 
-    // Textarea doesn't take these attributes, so set them on its element.
-    Effect::new(move |_| {
-        let Some(textarea) = write_ref.get().and(textarea_el()) else {
-            return;
-        };
-        _ = textarea.set_attribute("rows", &rows.to_string());
-        match aria_label.get() {
-            Some(label) => _ = textarea.set_attribute("aria-label", &label),
-            None => _ = textarea.remove_attribute("aria-label"),
-        }
-        if over_limit.get() {
-            _ = textarea.set_attribute("aria-invalid", "true");
-        } else {
-            _ = textarea.remove_attribute("aria-invalid");
-        }
-    });
-
     let apply = move |action: MarkdownAction| {
         if disabled.get_untracked() {
             return;
@@ -246,8 +229,11 @@ pub fn MarkdownEditor(
                     appearance=TextareaAppearance {
                         placeholder,
                         disabled,
+                        rows: Signal::from(Some(rows)),
                         ..Default::default()
                     }
+                    aria_label=aria_label
+                    aria_invalid=over_limit
                 />
             </div>
             <Show when=move || is_preview.get()>
@@ -281,5 +267,41 @@ pub fn MarkdownEditor(
                     }
                 })}
         </div>
+    }
+}
+
+/// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib markdown_editor_ssr`.
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::*;
+    use orbital_theme::OrbitalThemeProvider;
+
+    fn render(view: fn() -> AnyView) -> String {
+        // The workspace test build also enables leptos csr, so Effects need an executor.
+        let _ = any_spawner::Executor::init_futures_executor();
+        Owner::new()
+            .with(|| view! { <OrbitalThemeProvider>{view()}</OrbitalThemeProvider> }.to_html())
+    }
+
+    #[test]
+    fn markdown_editor_ssr_puts_rows_and_label_on_the_textarea() {
+        let html = render(|| {
+            let value = RwSignal::new(String::new());
+            view! { <MarkdownEditor value=value aria_label="Release notes" rows=3 /> }.into_any()
+        });
+        let textarea = &html[html.find("<textarea").expect("textarea in markup")..];
+        let tag = &textarea[..textarea.find('>').expect("textarea tag end")];
+        assert!(tag.contains("rows=\"3\""), "{tag}");
+        assert!(tag.contains("aria-label=\"Release notes\""), "{tag}");
+        assert!(!tag.contains("aria-invalid"), "{tag}");
+    }
+
+    #[test]
+    fn markdown_editor_ssr_marks_text_past_the_limit_invalid() {
+        let html = render(|| {
+            let value = RwSignal::new("too long".to_string());
+            view! { <MarkdownEditor value=value aria_label="Summary" max_chars=3 /> }.into_any()
+        });
+        assert!(html.contains("aria-invalid=\"true\""), "{html}");
     }
 }

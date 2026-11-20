@@ -86,6 +86,8 @@ impl ComboboxInjection {
 /// 1. Bind typed text and selected values via [`ComboboxBind`] — both `value` and `selected_options`.
 /// 2. Add [`ComboboxOption`] or grouped options with [`ComboboxOptionGroup`].
 /// 3. Set `appearance.multiselect` for toggle-style multi pick.
+/// 4. To draw picked values inside the control (chips or a custom view), fill the
+///    [`ComboboxSelected`] slot from the same `selected_options` signal.
 ///
 /// # API notes
 ///
@@ -273,6 +275,96 @@ impl ComboboxInjection {
 /// }
 /// ```
 ///
+/// ## Selected values inline
+/// Fill the [`ComboboxSelected`] slot to draw picked values inside the control, before the input. The control grows when they wrap.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Tag, TagSize};
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(vec!["red".to_string(), "blue".to_string()]);
+/// view! {
+///     <div data-testid="combobox-selected-slot">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance { multiselect: Signal::from(true), ..Default::default() }
+///         >
+///             <ComboboxSelected slot>
+///                 <For each=move || selected.get() key=|v| v.clone() let:v>
+///                     <Tag size=TagSize::Small>{v}</Tag>
+///                 </For>
+///             </ComboboxSelected>
+///             <ComboboxOption value="red".to_string() text="Red" />
+///             <ComboboxOption value="green".to_string() text="Green" />
+///             <ComboboxOption value="blue".to_string() text="Blue" />
+///             <ComboboxOption value="yellow".to_string() text="Yellow" />
+///             <ComboboxOption value="purple".to_string() text="Purple" />
+///         </Combobox>
+///     </div>
+/// }
+/// ```
+///
+/// ## Options replaced after typing
+/// A search-backed list shows recent items first and swaps in the search results when they arrive. The keyboard keeps working on the new options.
+/// <!-- preview -->
+/// ```rust
+/// use leptos::leptos_dom::helpers::{set_timeout_with_handle, TimeoutHandle};
+/// use std::time::Duration;
+/// const RECENT: [(&str, &str); 2] = [("recent:banana", "Banana"), ("recent:cherry", "Cherry")];
+/// const CATALOGUE: [(&str, &str); 4] =
+///     [("banana", "Banana"), ("cherry", "Cherry"), ("mango", "Mango"), ("orange", "Orange")];
+/// let value = RwSignal::new(String::new());
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let query = RwSignal::new(String::new());
+/// let timer = StoredValue::new(None::<TimeoutHandle>);
+/// let cancel = move || {
+///     if let Some(handle) = timer.try_update_value(Option::take).flatten() {
+///         handle.clear();
+///     }
+/// };
+/// // Stands in for a server search that answers 300 ms after the user types.
+/// Effect::new(move |_| {
+///     let typed = value.get().trim().to_ascii_lowercase();
+///     cancel();
+///     let handle = set_timeout_with_handle(
+///         move || {
+///             if query.get_untracked() != typed {
+///                 query.set(typed);
+///             }
+///         },
+///         Duration::from_millis(300),
+///     );
+///     timer.set_value(handle.ok());
+/// });
+/// on_cleanup(cancel);
+/// let rows = move || {
+///     let needle = query.get();
+///     let rows: Vec<_> = if needle.is_empty() {
+///         RECENT.to_vec()
+///     } else {
+///         CATALOGUE
+///             .into_iter()
+///             .filter(|(_, text)| text.to_ascii_lowercase().contains(&needle))
+///             .collect()
+///     };
+///     rows.into_iter()
+///         .map(|(key, text)| view! { <ComboboxOption value=key.to_string() text=text /> })
+///         .collect_view()
+/// };
+/// view! {
+///     <div data-testid="combobox-replaced-options">
+///         <Combobox
+///             bind=ComboboxBind::new(value, selected)
+///             appearance=ComboboxAppearance { disable_filter: true, ..Default::default() }
+///         >
+///             {rows}
+///         </Combobox>
+///         <span data-testid="combobox-replaced-options-picked">
+///             {move || selected.get().join(",")}
+///         </span>
+///     </div>
+/// }
+/// ```
+///
 /// ## Disabled with selection
 /// A disabled field keeps its value, and the Clear button stays inert.
 /// <!-- preview -->
@@ -390,6 +482,9 @@ pub fn Combobox(
     /// Extra CSS class names merged onto the combobox root.
     #[prop(optional, into)]
     class: MaybeProp<String>,
+    /// Selected values drawn inline before the input, such as [`Tag`](crate::Tag) chips.
+    #[prop(optional)]
+    combobox_selected: Option<ComboboxSelected>,
     /// [`ComboboxOption`] children defining the selectable list entries.
     children: Children,
 ) -> impl IntoView {
@@ -570,6 +665,7 @@ pub fn Combobox(
         })
     };
 
+    let has_selected_slot = combobox_selected.is_some();
     let wrapper_class = Memo::new(move |_| {
         let mut parts = vec![
             "orbital-combobox".to_string(),
@@ -578,6 +674,9 @@ pub fn Combobox(
         if disabled.get() {
             parts.push("orbital-combobox--disabled".to_string());
         }
+        if has_selected_slot {
+            parts.push("orbital-combobox--with-selected".to_string());
+        }
         if let Some(extra) = class.get() {
             if !extra.is_empty() {
                 parts.push(extra);
@@ -585,6 +684,39 @@ pub fn Combobox(
         }
         parts.join(" ")
     });
+
+    let input = view! {
+        <input
+            type="text"
+            aria-expanded=move || if is_show_listbox.get() { "true" } else { "false" }
+            aria-autocomplete="list"
+            aria-controls=move || listbox_id.get()
+            aria-activedescendant=move || active_option_id.get()
+            role="combobox"
+            class="orbital-combobox__input"
+            id=move || input_id.get()
+            name=move || input_name.get()
+            prop:value=move || value.get()
+            placeholder=move || placeholder.get()
+            disabled=move || disabled.get()
+            node_ref=input_ref
+            on:input=on_input
+            on:blur=on_blur
+            on:keydown=on_keydown
+            on:click=move |_| {
+                if !disabled.get_untracked() {
+                    is_show_listbox.set(true);
+                }
+            }
+        />
+    };
+    let control = match combobox_selected {
+        Some(selected) => view! {
+            <div class="orbital-combobox__value">{(selected.children)()}{input}</div>
+        }
+        .into_any(),
+        None => input.into_any(),
+    };
 
     let panel_injection = combobox_injection.clone();
 
@@ -612,29 +744,7 @@ pub fn Combobox(
             }),
         }>
             <div class=wrapper_class>
-                <input
-                    type="text"
-                    aria-expanded=move || if is_show_listbox.get() { "true" } else { "false" }
-                    aria-autocomplete="list"
-                    aria-controls=move || listbox_id.get()
-                    aria-activedescendant=move || active_option_id.get()
-                    role="combobox"
-                    class="orbital-combobox__input"
-                    id=move || input_id.get()
-                    name=move || input_name.get()
-                    prop:value=move || value.get()
-                    placeholder=move || placeholder.get()
-                    disabled=move || disabled.get()
-                    node_ref=input_ref
-                    on:input=on_input
-                    on:blur=on_blur
-                    on:keydown=on_keydown
-                    on:click=move |_| {
-                        if !disabled.get_untracked() {
-                            is_show_listbox.set(true);
-                        }
-                    }
-                />
+                {control}
                 <Show when=move || is_show_clear_icon.get() fallback=move || view! {
                     <span
                         aria-hidden="true"
@@ -659,6 +769,15 @@ pub fn Combobox(
             </div>
         </AnchoredPositioner>
     }
+}
+
+/// Selected values for [`Combobox`], drawn inline before the input.
+///
+/// Draw what the host's `selected_options` holds, for example one
+/// [`Tag`](crate::Tag) per value. The control grows to fit when they wrap.
+#[slot]
+pub struct ComboboxSelected {
+    pub children: Children,
 }
 
 #[component]
@@ -750,6 +869,7 @@ pub fn ComboboxOption(
             aria-selected=move || is_selected.get().to_string()
             aria-describedby=move || secondary.get().map(|_| secondary_for_attr.clone())
             id=id
+            data-value=value.get_value()
             class=move || {
                 let mut parts = option_class.get().split_whitespace().map(str::to_string).collect::<Vec<_>>();
                 if !matches_filter.get() {
@@ -817,5 +937,54 @@ pub fn ComboboxOptionGroup(
             </span>
             {children()}
         </div>
+    }
+}
+
+/// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib combobox_ssr`.
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::*;
+    use orbital_theme::OrbitalThemeProvider;
+
+    fn render(view: fn() -> AnyView) -> String {
+        // The workspace test build also enables leptos csr, so Effects need an executor.
+        let _ = any_spawner::Executor::init_futures_executor();
+        Owner::new()
+            .with(|| view! { <OrbitalThemeProvider>{view()}</OrbitalThemeProvider> }.to_html())
+    }
+
+    #[test]
+    fn combobox_ssr_draws_the_selected_slot_before_the_input() {
+        let html = render(|| {
+            view! {
+                <Combobox>
+                    <ComboboxSelected slot>
+                        <span class="picked-chip">"Red"</span>
+                    </ComboboxSelected>
+                    <ComboboxOption text="Red" />
+                </Combobox>
+            }
+            .into_any()
+        });
+        assert!(html.contains("orbital-combobox--with-selected"), "{html}");
+        let value = html.find("orbital-combobox__value").expect("value wrapper");
+        let chip = html.find("picked-chip").expect("slot content");
+        let input = html.find("orbital-combobox__input").expect("input");
+        assert!(value < chip && chip < input, "{html}");
+    }
+
+    #[test]
+    fn combobox_ssr_without_the_slot_has_no_value_wrapper() {
+        let html = render(|| {
+            view! {
+                <Combobox>
+                    <ComboboxOption text="Red" />
+                </Combobox>
+            }
+            .into_any()
+        });
+        assert!(!html.contains("orbital-combobox__value"), "{html}");
+        assert!(!html.contains("orbital-combobox--with-selected"), "{html}");
+        assert!(html.contains("orbital-combobox__input"), "{html}");
     }
 }

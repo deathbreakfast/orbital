@@ -316,4 +316,71 @@ test.describe("combobox primitive preview", () => {
     await input.press("Enter");
     await expect(input).toHaveValue("Small pool");
   });
+
+  test("CB-12: options replaced after typing: ArrowDown then Enter picks the first current option", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-replaced-options");
+    await scrollIntoPreviewView(root);
+    const input = root.locator("input[role='combobox']");
+    await input.click();
+    // "an" matches the recent Banana row, which the search results then replace.
+    await input.fill("an");
+    const listbox = page.locator(".orbital-listbox");
+    await expect(listbox.locator(".orbital-combobox-option[data-value='mango']")).toBeVisible();
+    await expect(listbox.locator(".orbital-combobox-option[data-value='recent:banana']")).toHaveCount(0);
+    // The removed row is no longer the active descendant.
+    await expect(input).not.toHaveAttribute("aria-activedescendant", /.+/);
+    await input.press("ArrowDown");
+    await expect(listbox.locator(".orbital-combobox-option[data-value='banana']"))
+      .toHaveAttribute("data-activedescendant-focusvisible", /.*/);
+    await input.press("Enter");
+    await expect(input).toHaveValue("Banana");
+    await expect(root.getByTestId("combobox-replaced-options-picked")).toHaveText("banana");
+  });
+
+  test("CB-13: options replaced after typing keep the active value when it is still listed", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-replaced-options");
+    await scrollIntoPreviewView(root);
+    const input = root.locator("input[role='combobox']");
+    await input.click();
+    await input.fill("an");
+    const listbox = page.locator(".orbital-listbox");
+    const option = (value: string) => listbox.locator(`.orbital-combobox-option[data-value='${value}']`);
+    await expect(option("mango")).toBeVisible();
+    await input.press("ArrowDown");
+    await input.press("ArrowDown");
+    await expect(option("mango")).toHaveAttribute("data-activedescendant-focusvisible", /.*/);
+    // "ang" makes Mango active, then the search answers with a fresh Mango row.
+    await input.press("g");
+    await expect(option("banana")).toHaveCount(0);
+    await expect(option("mango")).toHaveAttribute("data-activedescendant-focusvisible", /.*/);
+    const activeId = await input.getAttribute("aria-activedescendant");
+    expect(activeId).toBeTruthy();
+    await expect(page.locator(`[id="${activeId}"]`)).toHaveAttribute("data-value", "mango");
+    await input.press("Enter");
+    await expect(input).toHaveValue("Mango");
+    await expect(root.getByTestId("combobox-replaced-options-picked")).toHaveText("mango");
+  });
+
+  test("CB-14: the selected slot draws values inline and the control grows to fit", async ({ page }) => {
+    await openComponentPreview(page, "combobox");
+    const root = page.getByTestId("combobox-selected-slot");
+    await scrollIntoPreviewView(root);
+    const control = root.locator(".orbital-combobox");
+    const value = control.locator(".orbital-combobox__value");
+    await expect(value.getByText("red", { exact: true })).toBeVisible();
+    await expect(value.getByText("blue", { exact: true })).toBeVisible();
+    const input = value.locator("input[role='combobox']");
+    await expect(input).toBeVisible();
+    await input.click();
+    for (const name of ["Green", "Yellow", "Purple"]) {
+      await page.locator(".orbital-listbox .orbital-combobox-option", { hasText: name }).click();
+    }
+    await expect(value.getByText("purple", { exact: true })).toBeVisible();
+    const controlBox = (await control.boundingBox())!;
+    const valueBox = (await value.boundingBox())!;
+    expect(controlBox.height).toBeGreaterThanOrEqual(valueBox.height);
+    expect(valueBox.y).toBeGreaterThanOrEqual(controlBox.y);
+  });
 });

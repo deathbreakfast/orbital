@@ -65,6 +65,15 @@ test.describe("markdown editor preview", () => {
     await expect(editor(page).getByText("Nothing to preview")).toBeVisible();
   });
 
+  test("ME-06b: the server markup already names the textarea and sets its rows", async ({ page }) => {
+    await openComponentPreview(page, "markdown-editor");
+    const html = await (await page.request.get(page.url())).text();
+    expect(html).toMatch(/<textarea[^>]*aria-label="Release notes"/);
+    const textarea = editor(page).locator("textarea");
+    await expect(textarea).toHaveAttribute("aria-label", "Release notes");
+    await expect(textarea).toHaveAttribute("rows", "6");
+  });
+
   test("ME-06: going past max_chars sets aria-invalid", async ({ page }) => {
     await openComponentPreview(page, "markdown-editor");
     const limit = editor(page, "markdown-editor-limit");
