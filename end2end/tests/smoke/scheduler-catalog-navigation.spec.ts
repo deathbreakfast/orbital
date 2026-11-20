@@ -118,10 +118,12 @@ test.describe("scheduler catalog navigation regressions", () => {
       for (const folder of ["Scheduling", "Event Timeline"]) {
         const btn = nav.getByRole("button", { name: folder, exact: true });
         if ((await btn.count()) > 0 && (await btn.getAttribute("aria-expanded")) !== "true") {
-          await btn.click();
+          await btn.evaluate((el) => (el as HTMLButtonElement).click());
+          await expect(btn).toHaveAttribute("aria-expanded", "true");
         }
       }
     }
+    await expect(timeline).toBeVisible();
     await timeline.evaluate((el) => (el as HTMLAnchorElement).click());
     await page.mouse.up();
 
