@@ -59,8 +59,9 @@ pub use data::{
     Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListItemTrailing,
     ListNavigationMode, ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText,
     PersonaQuaternaryText, PersonaSecondaryText, PersonaSize, PersonaTertiaryText,
-    PersonaTextAlignment, PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout,
-    TableCellLayoutConfig, TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
+    PersonaTextAlignment, PersonaTextPosition, ResolvedTimestamp, Table, TableBody, TableCell,
+    TableCellLayout, TableCellLayoutConfig, TableHeader, TableHeaderCell, TableHeaderCellConfig,
+    TableRow, Timestamp, TimestampHoverCard, TimestampStyle, TimestampValue,
 };
 pub use diff_view::{diff_text, DiffHunk, DiffLayout, DiffLine, DiffLineKind, DiffSpan, DiffView};
 pub use divider::Divider;
@@ -183,7 +184,7 @@ pub mod preview;
 pub use data::{
     AVATAR_PREVIEW_REGISTRATION, BREADCRUMB_PREVIEW_REGISTRATION, IMAGE_PREVIEW_REGISTRATION,
     LINK_PREVIEW_REGISTRATION, LIST_PREVIEW_REGISTRATION, PERSONA_PREVIEW_REGISTRATION,
-    TABLE_PREVIEW_REGISTRATION,
+    TABLE_PREVIEW_REGISTRATION, TIMESTAMP_PREVIEW_REGISTRATION,
 };
 #[cfg(feature = "preview")]
 pub use diff_view::DIFFVIEW_PREVIEW_REGISTRATION;

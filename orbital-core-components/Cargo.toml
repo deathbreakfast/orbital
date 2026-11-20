@@ -31,6 +31,7 @@ orbital-style = { path = "../orbital-style", version = "0.1.4", default-features
 orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-features = false }
 orbital-markdown = { path = "../orbital-markdown", version = "0.1.4" }
 wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
 wasm-bindgen-futures = { workspace = true }
 web-sys = { version = "0.3", features = ["Clipboard", "Document", "DomRect", "Element", "Event", "EventTarget", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement", "KeyboardEvent", "MouseEvent", "Navigator", "PointerEvent", "ResizeObserver", "Window"] }
 inventory = { version = "0.3", optional = true }

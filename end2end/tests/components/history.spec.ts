@@ -27,6 +27,16 @@ test.describe("history preview", () => {
     expect(timeBox!.y).toBeGreaterThanOrEqual(actorBox!.y + actorBox!.height - 2);
   });
 
+  test("hovering a timeline timestamp opens the detail card", async ({ page }) => {
+    await openComponentPreview(page, "history-timeline");
+    const row = page.locator("[data-history-entry-id='1']");
+    await expect(row).toBeVisible({ timeout: 30_000 });
+    await row.locator(".orbital-history__timestamp").first().hover();
+    const card = page.locator("[data-testid='timestamp-card']:visible");
+    await expect(card.getByTestId("timestamp-card-local")).toBeVisible();
+    await expect(card.getByTestId("timestamp-card-utc")).toContainText(" UTC");
+  });
+
   test("filter chrome narrows visible entries", async ({ page }) => {
     await openComponentPreview(page, "history-filter", "history-filter-chrome-preview");
     const preview = page.getByTestId("history-filter-chrome-preview");
