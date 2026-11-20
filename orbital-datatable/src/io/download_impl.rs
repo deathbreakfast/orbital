@@ -51,11 +51,3 @@ pub fn print_html(html: &str) {
         }
     }
 }
-
-/// Write text to the system clipboard.
-pub fn write_clipboard_text(text: &str) {
-    if let Some(window) = web_sys::window() {
-        let clipboard = window.navigator().clipboard();
-        let _ = clipboard.write_text(text);
-    }
-}
