@@ -8,6 +8,8 @@ use web_sys::{HtmlElement, Node};
 const ACTIVEDESCENDANT_ATTRIBUTE: &str = "data-activedescendant";
 /// Focus-visible styling attribute for keyboard navigation.
 const ACTIVEDESCENDANT_FOCUSVISIBLE_ATTRIBUTE: &str = "data-activedescendant-focusvisible";
+/// Option value attribute used to find the same option again after the options change.
+const VALUE_ATTRIBUTE: &str = "data-value";
 
 pub fn use_active_descendant<MF>(
     match_option: MF,
@@ -16,14 +18,19 @@ where
     MF: Fn(HtmlElement) -> bool + Send + Sync + 'static,
 {
     let (set_listbox, option_walker) = use_option_walker(match_option);
-    let set_listbox = Arc::new(move |node| {
-        set_listbox(&node);
-    });
     let controller = ActiveDescendantController {
         option_walker,
         active: StoredValue::new(None),
         active_id: RwSignal::new(None),
     };
+    // Runs whenever an option registers or unregisters.
+    let set_listbox = Arc::new({
+        let controller = controller.clone();
+        move |node| {
+            set_listbox(&node);
+            controller.reconcile_active();
+        }
+    });
 
     (set_listbox, controller)
 }
@@ -57,6 +64,31 @@ impl ActiveDescendantController {
         self.active.set_value(Some(SendWrapper::new(next_active)));
         self.active_id.set(Some(id));
     }
+
+    /// After the options change, points the active descendant at the current
+    /// option with the same `data-value`, or clears it when there is none, so
+    /// it never stays on an element that was removed.
+    fn reconcile_active(&self) {
+        let Some(stale) = self
+            .active
+            .try_with_value(|active| active.as_deref().cloned())
+            .flatten()
+            .filter(|el| !el.is_connected())
+        else {
+            return;
+        };
+        let found = stale.get_attribute(VALUE_ATTRIBUTE).and_then(|value| {
+            self.find(|id| {
+                document()
+                    .get_element_by_id(&id)
+                    .and_then(|el| el.get_attribute(VALUE_ATTRIBUTE))
+                    .is_some_and(|candidate| candidate == value)
+            })
+        });
+        if found.is_none() {
+            self.blur_active_descendant();
+        }
+    }
 }
 
 impl ActiveDescendantController {
@@ -88,10 +120,12 @@ impl ActiveDescendantController {
         self.blur_active_descendant();
     }
 
+    /// The active option, or `None` when it has been removed from the page.
     pub fn active(&self) -> Option<HtmlElement> {
         self.active
             .try_with_value(|active| active.as_deref().cloned())
             .flatten()
+            .filter(|el| el.is_connected())
     }
 
     pub fn active_id_signal(&self) -> Signal<Option<String>> {

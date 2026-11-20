@@ -46,11 +46,15 @@ pub fn FocusTrap(
         let id = StoredValue::new(uuid::Uuid::new_v4());
         let restore = StoredValue::new(None::<SendWrapper<focus::Restore>>);
         let late = StoredValue::new(None::<SendWrapper<focus::LateFocus>>);
+        // Bumped on every open and close, so a focus move queued for an earlier
+        // open does nothing once the trap has closed.
+        let epoch = StoredValue::new(0u64);
         let scope = scope.filter(|_| contain_focus);
 
         let is_current_active =
             move || STACK.with_borrow(|stack| id.with_value(|id| stack.last() == Some(id)));
         let deactivate = move || {
+            epoch.try_update_value(|n| *n += 1);
             key_handle.update_value(|handle| {
                 if let Some(handle) = handle.take() {
                     handle.remove();
@@ -60,6 +64,10 @@ pub fn FocusTrap(
             drop(late.try_update_value(Option::take));
             if let Some(previous) = restore.try_update_value(Option::take).flatten() {
                 previous.apply();
+                if let Some(closed) = epoch.try_get_value() {
+                    let root = scope.and_then(|s| s.get_untracked());
+                    focus::hold_return(previous.take(), root, epoch, closed, focus::RETURN_FRAMES);
+                }
             }
         };
 
@@ -85,7 +93,8 @@ pub fn FocusTrap(
                 });
                 if let Some(scope) = scope {
                     restore.set_value(focus::Restore::capture().map(SendWrapper::new));
-                    focus::move_in_when_mounted(scope, late, 0);
+                    epoch.update_value(|n| *n += 1);
+                    focus::move_in_when_mounted(scope, late, epoch, epoch.get_value(), 0);
                 }
             } else {
                 deactivate();
@@ -236,6 +245,14 @@ mod focus {
             })
         }
 
+        /// The element `apply` focuses, when it is still on the page.
+        fn target(&self) -> Option<&HtmlElement> {
+            self.menu_trigger
+                .as_ref()
+                .filter(|t| t.is_connected())
+                .or_else(|| Some(&self.previous).filter(|p| p.is_connected()))
+        }
+
         pub(super) fn apply(&self) {
             if let Some(trigger) = self.menu_trigger.as_ref().filter(|t| t.is_connected()) {
                 let _ = trigger.focus();
@@ -243,6 +260,45 @@ mod focus {
                 let _ = self.previous.focus();
             }
         }
+    }
+
+    /// How many frames after a close `hold_return` keeps watching focus (about 500 ms).
+    pub(super) const RETURN_FRAMES: u8 = 30;
+
+    /// Keeps focus on the restore target for a few frames after a close.
+    ///
+    /// A dialog that closes right after it opened can still be mounting or
+    /// playing its motion, and focus can fall back onto the page body or into
+    /// the hidden scope. While `epoch` stays at `closed`, each frame puts focus
+    /// back when it was lost, and stops once the user focuses something else.
+    pub(super) fn hold_return(
+        restore: Restore,
+        root: Option<web_sys::HtmlDivElement>,
+        epoch: StoredValue<u64>,
+        closed: u64,
+        frames_left: u8,
+    ) {
+        request_animation_frame(move || {
+            if epoch.try_get_value() != Some(closed) {
+                return;
+            }
+            let active = document().active_element();
+            let lost = active.as_ref().is_none_or(|a| {
+                a.tag_name() == "BODY"
+                    || root.as_ref().is_some_and(|r| r.contains(Some(a.as_ref())))
+            });
+            if lost {
+                restore.apply();
+            } else if restore
+                .target()
+                .is_none_or(|t| active.as_ref() != Some(t.unchecked_ref::<Element>()))
+            {
+                return;
+            }
+            if frames_left > 0 {
+                hold_return(restore, root, epoch, closed, frames_left - 1);
+            }
+        });
     }
 
     /// The first control inside the one trigger currently marked open, or `None`
@@ -259,13 +315,18 @@ mod focus {
     }
 
     /// Waits for `scope` to connect, moves focus in, and parks a `LateFocus` in
-    /// `late` when only the surface could be focused.
+    /// `late` when only the surface could be focused. Does nothing once `epoch`
+    /// has moved past `opened`, so an overlay that closes before it mounts (or
+    /// while it plays its exit motion) doesn't pull focus back in.
     pub(super) fn move_in_when_mounted(
         scope: NodeRef<html::Div>,
         late: StoredValue<Option<SendWrapper<LateFocus>>>,
+        epoch: StoredValue<u64>,
+        opened: u64,
         frame: u8,
     ) {
         request_animation_frame(move || match scope.get_untracked() {
+            _ if epoch.try_get_value() != Some(opened) => {}
             Some(root) if root.is_connected() => {
                 if matches!(move_in(&root), Landing::Surface) {
                     if let Some(watch) = LateFocus::watch(&root) {
@@ -273,7 +334,9 @@ mod focus {
                     }
                 }
             }
-            _ if frame < MOUNT_FRAMES => move_in_when_mounted(scope, late, frame + 1),
+            _ if frame < MOUNT_FRAMES => {
+                move_in_when_mounted(scope, late, epoch, opened, frame + 1)
+            }
             _ => {}
         });
     }
