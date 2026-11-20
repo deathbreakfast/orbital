@@ -68,7 +68,8 @@ fn move_focus(region: &web_sys::HtmlDivElement, key: NavKey) -> bool {
     true
 }
 
-/// Keyboard navigation wrapper for menu panels: Escape dismisses, ArrowDown/ArrowUp/Home/End
+/// Keyboard navigation wrapper for menu panels. It carries `role="menu"` so the items are its
+/// direct children, as `aria-required-children` expects. Escape dismisses, ArrowDown/ArrowUp/Home/End
 /// move focus between enabled items, and the first enabled item takes focus on open when
 /// `autofocus` is set.
 #[component]
@@ -113,7 +114,13 @@ pub fn MenuKeyboardRegion(
     };
 
     view! {
-        <div node_ref=region class="orbital-menu-keyboard-region" tabindex="-1" on:keydown=on_keydown>
+        <div
+            node_ref=region
+            class="orbital-menu-keyboard-region"
+            role="menu"
+            tabindex="-1"
+            on:keydown=on_keydown
+        >
             {children()}
         </div>
     }

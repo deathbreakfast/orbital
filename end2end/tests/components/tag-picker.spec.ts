@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { openComponentPreview } from "../lib/preview/navigation";
 test.describe("tag-picker primitive preview", () => {
 
@@ -155,5 +156,23 @@ test.describe("tag-picker primitive preview", () => {
     await expect(input).toBeFocused();
     await input.click();
     await expect(input).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("TP-12: input in a Field is named and exposes combobox state", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    const wrapper = page.getByTestId("TP-12");
+    await wrapper.scrollIntoViewIfNeeded();
+    const input = wrapper.getByRole("combobox", { name: "Fruit" });
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await input.click();
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+    const listboxId = await input.getAttribute("aria-controls");
+    expect(listboxId).toBeTruthy();
+    await expect(page.locator(`[id="${listboxId}"]`)).toHaveAttribute("role", "listbox");
+    const results = await new AxeBuilder({ page })
+      .include('[data-testid="TP-12"]')
+      .withRules(["aria-required-attr", "label", "aria-valid-attr-value"])
+      .analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
   });
 });
