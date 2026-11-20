@@ -22,13 +22,17 @@ where
         option_walker,
         active: StoredValue::new(None),
         active_id: RwSignal::new(None),
+        active_value: StoredValue::new(None),
     };
-    // Runs whenever an option registers or unregisters.
+    // Runs whenever an option registers or unregisters. A re-render can patch
+    // the option elements after that, so check again on the next frame.
     let set_listbox = Arc::new({
         let controller = controller.clone();
         move |node| {
             set_listbox(&node);
             controller.reconcile_active();
+            let controller = controller.clone();
+            request_animation_frame(move || controller.reconcile_active());
         }
     });
 
@@ -44,6 +48,8 @@ pub struct ActiveDescendantController {
     /// and dropping a `SendWrapper` there panics the server.
     active: StoredValue<Option<SendWrapper<HtmlElement>>>,
     active_id: RwSignal<Option<String>>,
+    /// `data-value` of the focused option when it was focused.
+    active_value: StoredValue<Option<String>>,
 }
 
 impl ActiveDescendantController {
@@ -52,7 +58,8 @@ impl ActiveDescendantController {
             let _ = active_el.remove_attribute(ACTIVEDESCENDANT_ATTRIBUTE);
             let _ = active_el.remove_attribute(ACTIVEDESCENDANT_FOCUSVISIBLE_ATTRIBUTE);
         }
-        self.active_id.set(None);
+        self.active_id.try_set(None);
+        self.active_value.try_set_value(None);
     }
 
     fn focus_active_descendant(&self, next_active: HtmlElement) {
@@ -61,23 +68,35 @@ impl ActiveDescendantController {
         let _ = next_active.set_attribute(ACTIVEDESCENDANT_ATTRIBUTE, "");
         let _ = next_active.set_attribute(ACTIVEDESCENDANT_FOCUSVISIBLE_ATTRIBUTE, "");
         let id = next_active.id();
+        self.active_value
+            .set_value(next_active.get_attribute(VALUE_ATTRIBUTE));
         self.active.set_value(Some(SendWrapper::new(next_active)));
         self.active_id.set(Some(id));
     }
 
+    /// Whether `el` is still the option that was focused. A re-rendered list
+    /// can remove the element, or reuse it in place for another option with a
+    /// new `id` and `data-value`.
+    fn is_still_active(&self, el: &HtmlElement) -> bool {
+        el.is_connected()
+            && self.active_id.try_get_untracked().flatten().as_deref() == Some(el.id().as_str())
+            && self.active_value.try_get_value().flatten() == el.get_attribute(VALUE_ATTRIBUTE)
+    }
+
     /// After the options change, points the active descendant at the current
     /// option with the same `data-value`, or clears it when there is none, so
-    /// it never stays on an element that was removed.
+    /// it never stays on an element that was removed or reused for another option.
     fn reconcile_active(&self) {
-        let Some(stale) = self
+        let stale = self
             .active
             .try_with_value(|active| active.as_deref().cloned())
             .flatten()
-            .filter(|el| !el.is_connected())
-        else {
+            .is_some_and(|el| !self.is_still_active(&el));
+        if !stale {
             return;
-        };
-        let found = stale.get_attribute(VALUE_ATTRIBUTE).and_then(|value| {
+        }
+        let value = self.active_value.try_get_value().flatten();
+        let found = value.and_then(|value| {
             self.find(|id| {
                 document()
                     .get_element_by_id(&id)
@@ -120,12 +139,13 @@ impl ActiveDescendantController {
         self.blur_active_descendant();
     }
 
-    /// The active option, or `None` when it has been removed from the page.
+    /// The active option, or `None` when it has been removed from the page or
+    /// reused for another option.
     pub fn active(&self) -> Option<HtmlElement> {
         self.active
             .try_with_value(|active| active.as_deref().cloned())
             .flatten()
-            .filter(|el| el.is_connected())
+            .filter(|el| self.is_still_active(el))
     }
 
     pub fn active_id_signal(&self) -> Signal<Option<String>> {
