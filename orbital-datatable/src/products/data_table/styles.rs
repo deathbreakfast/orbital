@@ -155,10 +155,12 @@ pub fn data_table_styles() -> &'static str {
     width: 100%;
 }
 
+/* A definite width keeps table-layout: fixed in force (browsers fall back to auto layout
+   for max-content), so columns take their <col> widths instead of their header content.
+   Fixed layout still grows the table to the column total when that is wider. */
 .orbital-data-table__scroll .orbital-table {
     table-layout: fixed;
-    width: max-content;
-    min-width: 100%;
+    width: 100%;
 }
 
 .orbital-data-table__scroll .orbital-table th,
@@ -346,6 +348,13 @@ pub fn data_table_styles() -> &'static str {
     gap: var(--orb-space-inline-xs);
     min-width: 0;
     flex: 1;
+}
+
+.orbital-data-table__header-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .orbital-data-table__header-drag-handle,

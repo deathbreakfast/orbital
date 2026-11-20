@@ -69,12 +69,9 @@ pub fn data_table_default_editor_view(
             }
             .into_any()
         }
-        ColumnType::SingleSelect => {
+        ColumnType::SingleSelect if column.edit_options.is_some() => {
             let row_id = row_id.clone();
-            let options = column
-                .edit_options
-                .clone()
-                .unwrap_or_else(|| vec!["Admin".into(), "Member".into()]);
+            let options = column.edit_options.clone().unwrap_or_default();
             view! {
                 <div
                     class="orbital-data-table__edit-cell"
@@ -123,7 +120,8 @@ pub fn data_table_default_editor_view(
             }
             .into_any()
         }
-        ColumnType::Number | ColumnType::Text | ColumnType::Actions => {
+        // A select column without `edit_options` has nothing to offer, so edit it as text.
+        ColumnType::Number | ColumnType::Text | ColumnType::Actions | ColumnType::SingleSelect => {
             let row_id = row_id.clone();
             let row_id_tab = row_id.clone();
             let row_id_blur = row_id.clone();

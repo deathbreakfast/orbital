@@ -52,7 +52,7 @@ pub use text::*;
 
 pub use button::{Button, ButtonAppearance, ButtonRef, ButtonShape, ButtonSize, ButtonType};
 pub use code::Code;
-pub use copy_button::CopyButton;
+pub use copy_button::{write_clipboard_text, CopyButton};
 pub use data::{
     link_styles, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
     AvatarGroupSize, AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,

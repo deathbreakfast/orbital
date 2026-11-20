@@ -264,7 +264,11 @@ pub fn DataTableHeaderCell(state: DataTableTableState, resolved: ResolvedColumn)
                         }
                     })}
                     <span
-                        class=move || can_sort.then_some("orbital-data-table__sortable")
+                        class=if can_sort {
+                            "orbital-data-table__header-label orbital-data-table__sortable"
+                        } else {
+                            "orbital-data-table__header-label"
+                        }
                         on:click=move |ev: ev::MouseEvent| {
                             if !can_sort {
                                 return;

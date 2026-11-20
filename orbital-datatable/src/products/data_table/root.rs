@@ -12,7 +12,7 @@ use super::column_reorder::DataTableColumnDragGhost;
 use super::controlled::wire_controlled_models;
 use super::footer::DataTableFooter;
 use super::grid_keyboard::handle_grid_keydown;
-use super::header::DataTableHeader;
+use super::header::{data_table_colgroup, DataTableHeader};
 use super::infinite_scroll::{
     infinite_scroll_needs_bounded_scroll, DataTableInfiniteScrollController,
 };
@@ -200,11 +200,6 @@ pub fn DataTableRoot(
         infinite_scroll_needs_bounded_scroll(paging, source_kind == DataTableSourceKind::Server);
     let bounded_scroll =
         row_pinning_enabled || height.is_some() || max_height.is_some() || force_bounded_scroll;
-    let list_view_always = features.contains(DataTableFeatures::LIST_VIEW)
-        && list_view
-            .get_value()
-            .is_some_and(|config| config.breakpoint_px.is_none());
-    let horizontal_scroll = !bounded_scroll && !list_view_always;
 
     let table_state = DataTableTableState {
         columns,
@@ -323,6 +318,9 @@ pub fn DataTableRoot(
         loading_style,
         has_loading_view: loading_view.is_some(),
     };
+    // The card list never scrolls sideways, and a breakpoint list view switches on resize.
+    let horizontal_scroll =
+        Signal::derive(move || !bounded_scroll && !table_state.list_view_enabled());
 
     wire_controlled_models(
         table_state,
@@ -821,6 +819,7 @@ fn DataTableMain(state: DataTableTableState) -> impl IntoView {
             }
             view! {
                 <Table>
+                    {data_table_colgroup(state)}
                     <DataTableHeader state=state />
                     <DataTableBody state=state />
                 </Table>

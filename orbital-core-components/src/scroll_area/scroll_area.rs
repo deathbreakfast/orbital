@@ -113,9 +113,9 @@ use super::styles::scroll_area_styles;
 )]
 #[component]
 pub fn ScrollArea(
-    /// Primary scroll axis when true (horizontal); default is vertical.
-    #[prop(optional, default = false)]
-    horizontal: bool,
+    /// Primary scroll axis when true (horizontal); default is vertical. Accepts a signal so the axis can follow layout changes.
+    #[prop(optional, into)]
+    horizontal: Signal<bool>,
     /// Show themed scrollbar thumbs (default true).
     #[prop(optional, default = true)]
     show_scrollbar: bool,
@@ -166,7 +166,7 @@ pub fn ScrollArea(
 
     let root_class = move || {
         let mut parts = vec!["orbital-scroll-area".to_string()];
-        if horizontal {
+        if horizontal.get() {
             parts.push("orbital-scroll-area--horizontal".to_string());
         } else {
             parts.push("orbital-scroll-area--vertical".to_string());
@@ -192,7 +192,7 @@ pub fn ScrollArea(
     };
 
     let content_class = move || {
-        if horizontal {
+        if horizontal.get() {
             "orbital-scroll-area__content orbital-scroll-area__content--sized orbital-scroll-area__content--horizontal"
                 .to_string()
         } else {

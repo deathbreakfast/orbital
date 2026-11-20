@@ -8,9 +8,11 @@ use crate::{Button, ButtonAppearance, ButtonSize};
 /// How long the "Copied" confirmation stays before the button reverts.
 const COPIED_RESET: Duration = Duration::from_millis(2000);
 
-/// Writes the browser clipboard; returns `false` when the write is refused or unavailable.
+/// Writes `text` to the browser clipboard; returns `false` when the write is refused or unavailable.
+///
+/// [`CopyButton`] and DataTable's cell copy share this; outside the browser it always returns `false`.
 #[cfg(target_arch = "wasm32")]
-async fn write_clipboard(text: &str) -> bool {
+pub async fn write_clipboard_text(text: &str) -> bool {
     let Some(window) = web_sys::window() else {
         return false;
     };
@@ -19,8 +21,11 @@ async fn write_clipboard(text: &str) -> bool {
         .is_ok()
 }
 
+/// Writes `text` to the browser clipboard; returns `false` when the write is refused or unavailable.
+///
+/// [`CopyButton`] and DataTable's cell copy share this; outside the browser it always returns `false`.
 #[cfg(not(target_arch = "wasm32"))]
-async fn write_clipboard(_text: &str) -> bool {
+pub async fn write_clipboard_text(_text: &str) -> bool {
     false
 }
 
@@ -97,7 +102,7 @@ pub fn CopyButton(
     let on_click = Callback::new(move |_| {
         let value = text.get_untracked();
         spawn_local_scoped(async move {
-            if write_clipboard(&value).await {
+            if write_clipboard_text(&value).await {
                 copied.set(true);
                 set_timeout(move || copied.set(false), COPIED_RESET);
                 if let Some(cb) = on_copy {
