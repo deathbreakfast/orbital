@@ -20,7 +20,8 @@ doctest = false
 [dependencies]
 leptos.workspace = true
 wasm-bindgen.workspace = true
-web-sys = { workspace = true, features = ["DomRect", "Element", "SvgElement"] }
+web-sys = { workspace = true, features = ["DomRect", "Element", "HtmlDivElement", "ResizeObserver", "SvgElement"] }
+send_wrapper = "0.6"
 orbital-base-components = { path = "../orbital-base-components", version = "0.1.4" }
 orbital-core-components = { path = "../orbital-core-components", version = "0.1.4", default-features = false }
 orbital-macros = { path = "../orbital-macros", version = "0.1.5" }
