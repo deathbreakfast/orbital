@@ -6,6 +6,7 @@ mod row_drag;
 
 use std::sync::Arc;
 
+use leptos::context::Provider;
 use leptos::prelude::*;
 use orbital_data::DataRecord;
 use orbital_theme::Direction;
@@ -35,8 +36,7 @@ pub fn DataTableTableStateProvider(
     state: DataTableTableState,
     children: ChildrenFn,
 ) -> impl IntoView {
-    provide_context(state);
-    children()
+    view! { <Provider value=state>{children()}</Provider> }
 }
 
 /// Context shared by [`crate::DataTable`] and composable subcomponents.
@@ -85,7 +85,10 @@ pub fn DataTableProvider(
     header_chrome: StoredValue<DataTableHeaderChromeConfig>,
     children: Children,
 ) -> impl IntoView {
-    provide_context(DataTableContext {
+    // `Provider` scopes the context to this table's subtree. A bare `provide_context`
+    // also reaches later sibling tables, and a body that re-renders after its first
+    // measurement would then read the next table's events and locale.
+    let context = DataTableContext {
         features,
         selection_mode,
         events,
@@ -104,6 +107,6 @@ pub fn DataTableProvider(
         column_drag_ghost: RwSignal::new(None),
         row_drag_ghost: RwSignal::new(None),
         drag_row_id: RwSignal::new(None),
-    });
-    children()
+    };
+    view! { <Provider value=context>{children()}</Provider> }
 }
