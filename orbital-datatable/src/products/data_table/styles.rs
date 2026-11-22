@@ -157,10 +157,13 @@ pub fn data_table_styles() -> &'static str {
 
 /* A definite width keeps table-layout: fixed in force (browsers fall back to auto layout
    for max-content), so columns take their <col> widths instead of their header content.
-   Fixed layout still grows the table to the column total when that is wider. */
+   Fixed layout makes the table as wide as the larger of its width and the column total,
+   so width: 0 means "the column total". Not width: 100%: inside the horizontal scroll
+   area's max-content wrapper a percentage width blows the table up to ~1,000,000px. */
 .orbital-data-table__scroll .orbital-table {
     table-layout: fixed;
-    width: 100%;
+    width: 0;
+    min-width: 100%;
 }
 
 .orbital-data-table__scroll .orbital-table th,
