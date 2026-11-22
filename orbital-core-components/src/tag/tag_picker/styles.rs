@@ -175,6 +175,32 @@ pub fn tag_picker_styles() -> &'static str {
     gap: var(--orb-space-inline-snudge);
 }
 
+/* Chips never overflow the control: a long value wraps inside its chip and the
+   control grows downward. */
+.orbital-tag-picker-group {
+    max-width: 100%;
+}
+
+.orbital-tag-picker-control .orbital-tag {
+    max-width: 100%;
+    height: auto;
+    min-height: 32px;
+}
+
+.orbital-tag-picker-control .orbital-tag--small {
+    min-height: 24px;
+}
+
+.orbital-tag-picker-control .orbital-tag--extra-small {
+    min-height: 20px;
+}
+
+.orbital-tag-picker-control .orbital-tag__primary-text {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .orbital-tag-picker-option-group__label {
     display: block;
     padding: var(--orb-space-block-snudge) var(--orb-space-inline-sm);

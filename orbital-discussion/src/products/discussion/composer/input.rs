@@ -12,6 +12,7 @@ const COMPOSER_TEXTAREA_ID: &str = "orbital-discussion-composer-textarea";
 /// Auto-resizing textarea with placeholder for reply entry.
 #[component]
 pub fn DiscussionComposerInput(value: RwSignal<String>, disabled: Signal<bool>) -> impl IntoView {
+    orbital_style::ensure_sr_only_styles();
     let locale = use_discussion_locale();
     let wrapper_ref = NodeRef::<html::Div>::new();
 

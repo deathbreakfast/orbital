@@ -39,6 +39,9 @@ send_wrapper = { version = "0.6", optional = true }
 web-sys = { workspace = true, optional = true, features = ["Element", "HtmlElement", "ResizeObserver", "ResizeObserverEntry", "DomRect"] }
 gloo-timers = { version = "0.3", optional = true }
 
+[dev-dependencies]
+any_spawner = { version = "0.3", features = ["futures-executor"] }
+
 [features]
 default = ["preview"]
 preview = ["dep:inventory", "orbital-core-components/preview"]

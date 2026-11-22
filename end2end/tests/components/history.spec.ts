@@ -9,6 +9,24 @@ test.describe("history preview", () => {
     await expect(page.locator("[data-history-entry-id='1']")).toBeVisible();
   });
 
+  test("natural rows show who and when as a Persona happy path", async ({ page }) => {
+    await openComponentPreview(page, "history-timeline");
+    const row = page.locator("[data-history-entry-id='1']");
+    await expect(row).toBeVisible({ timeout: 30_000 });
+    const persona = row.locator(".orbital-history__persona");
+    await expect(persona).toBeVisible();
+    await expect(persona.locator(".orbital-persona__avatar")).toBeVisible();
+    // Actor on the primary line, relative time on the secondary line.
+    await expect(persona.locator(".orbital-persona__primary-text .orbital-history__actor")).toBeVisible();
+    const time = persona.locator(".orbital-persona__secondary-text .orbital-history__timestamp time");
+    await expect(time).toHaveAttribute("datetime", /\d{4}-\d{2}-\d{2}T/);
+    const [actorBox, timeBox] = await Promise.all([
+      persona.locator(".orbital-history__actor").boundingBox(),
+      time.boundingBox(),
+    ]);
+    expect(timeBox!.y).toBeGreaterThanOrEqual(actorBox!.y + actorBox!.height - 2);
+  });
+
   test("filter chrome narrows visible entries", async ({ page }) => {
     await openComponentPreview(page, "history-filter", "history-filter-chrome-preview");
     const preview = page.getByTestId("history-filter-chrome-preview");
@@ -134,6 +152,23 @@ test.describe("history preview", () => {
     const preview = page.getByTestId("history-markdown-images-preview");
     await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
     await expect(preview.locator("img.orbital-markdown__image").first()).toBeVisible();
+  });
+
+  test("markdown blocks draw as Orbital Table, Checkbox and MessageBar", async ({ page }) => {
+    await openComponentPreview(page, "history-markdown", "history-markdown-blocks-preview");
+    const preview = page.getByTestId("history-markdown-blocks-preview");
+    await expect(preview.getByTestId("history-timeline")).toBeVisible({ timeout: 30_000 });
+    const body = preview.locator(".orbital-history__markdown").first();
+    // Styles come from the components' own sheets, so check computed values.
+    await expect(body.locator("tr.orbital-table-row").first()).toHaveCSS("border-bottom-style", "solid");
+    await expect(body.locator(".orbital-checkbox__indicator").first()).toHaveCSS("width", "16px");
+    await expect(body.getByRole("checkbox", { name: "Task" }).first()).toBeChecked();
+    await expect(body.locator("li").first()).toHaveCSS("list-style-type", "none");
+    const alert = body.locator(".orbital-message-bar--info");
+    await expect(alert).toHaveCSS("display", "grid");
+    await expect(alert.locator(".orbital-message-bar-title")).toHaveText("Note");
+    const h2 = await body.locator("h2").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(h2).toBeLessThanOrEqual(16);
   });
 
   test("group collapse toggles consecutive entries", async ({ page }) => {
@@ -355,5 +390,25 @@ test.describe("history preview", () => {
     const preview = page.getByTestId("history-loading-preview");
     await expect(preview.getByTestId("history-timeline-skeleton")).toBeVisible({ timeout: 30_000 });
     await expect(preview.locator("[data-history-entry-id]")).toHaveCount(0);
+  });
+
+  test("persona and row skeleton render outside a timeline", async ({ page }) => {
+    await openComponentPreview(page, "history-embed", "history-standalone-preview");
+    const preview = page.getByTestId("history-standalone-preview");
+    await preview.scrollIntoViewIfNeeded();
+    const personas = preview.locator(".orbital-history__persona");
+    await expect(personas).toHaveCount(2);
+    await expect(personas.first()).toContainText("Ada Lovelace");
+    await expect(personas.first().locator("time")).toBeVisible();
+    // Styled without the timeline: the persona keeps its bottom margin.
+    const margin = await personas.first().evaluate((el) => parseFloat(getComputedStyle(el).marginBottom));
+    expect(margin).toBeGreaterThan(0);
+    const row = preview.getByTestId("history-standalone-skeleton").locator(".orbital-history__skeleton-row");
+    await expect(row).toHaveCSS("display", "flex");
+    // The bars draw (shimmer styles load) even without a timeline skeleton around them.
+    const bar = row.locator(".orbital-skeleton-item").first();
+    const width = await bar.evaluate((el) => el.getBoundingClientRect().width);
+    expect(width).toBeGreaterThan(0);
+    await expect(bar).not.toHaveCSS("background-image", "none");
   });
 });

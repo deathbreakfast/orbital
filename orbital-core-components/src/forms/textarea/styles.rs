@@ -99,6 +99,12 @@ pub fn textarea_styles() -> &'static str {
         calc(var(--orb-space-inline-md) + var(--orb-space-inline-2xs));
 }
 
+.orbital-textarea--rows .orbital-textarea__textarea {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+}
+
 .orbital-textarea__textarea::placeholder {
     color: var(--orb-color-text-quaternary);
 }
@@ -114,7 +120,13 @@ pub fn textarea_styles() -> &'static str {
     cursor: not-allowed;
 }
 
-.orbital-textarea--disabled > .orbital-textarea__textarea::placeholder {
+.orbital-textarea--disabled > .orbital-textarea--rows .orbital-textarea__textarea {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+}
+
+.orbital-textarea__textarea::placeholder {
     color: var(--orb-color-text-disabled);
 }
 

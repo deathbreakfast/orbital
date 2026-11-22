@@ -10,7 +10,8 @@ use crate::types::{
 };
 
 use super::{
-    HistoryActorLabel, HistoryChangeCard, HistoryChangeLine, HistoryMarkdownBody, HistoryTimestamp,
+    HistoryActorLabel, HistoryChangeCard, HistoryChangeLine, HistoryEntryPersona,
+    HistoryMarkdownBody, HistoryTimestamp,
 };
 
 /// One history entry row (natural timeline or compact sentence layout).
@@ -96,8 +97,7 @@ pub fn HistoryEntryRow(entry: HistoryEntry) -> impl IntoView {
                 <div class="orbital-history__spine-line"></div>
             </div>
             <div class="orbital-history__body">
-                <HistoryTimestamp at=entry.changed_at />
-                <HistoryActorLabel actor=entry.actor.clone() />
+                <HistoryEntryPersona actor=entry.actor.clone() at=entry.changed_at />
                 {change_region}
             </div>
         }

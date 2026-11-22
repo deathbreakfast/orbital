@@ -20,4 +20,13 @@ test.describe("container preview", () => {
     const width = await container.evaluate((el) => getComputedStyle(el).width);
     expect(width).toBe("720px");
   });
+
+  test("CT-04 max_width follows a signal", async ({ page }) => {
+    const wrapper = page.getByTestId("container-reactive");
+    await wrapper.scrollIntoViewIfNeeded();
+    const inner = page.getByTestId("container-reactive-inner");
+    await expect(inner).toHaveCSS("width", "480px");
+    await page.getByTestId("container-reactive-toggle").click();
+    await expect(inner).toHaveCSS("width", "880px");
+  });
 });

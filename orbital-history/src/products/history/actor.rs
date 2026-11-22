@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use orbital_core_components::{Body1Strong, Link};
 
-use crate::context::use_history_context;
+use crate::context::use_history_leaf_settings;
 use crate::types::{HistoryActor, HistoryFeatures};
 
 /// Actor label: system text or user name / link.
@@ -12,7 +12,7 @@ pub fn HistoryActorLabel(
     #[prop(optional, default = false)]
     inline: bool,
 ) -> impl IntoView {
-    let ctx = use_history_context();
+    let ctx = use_history_leaf_settings();
     let actor_for_click = actor.clone();
     let actor_class = if inline {
         "orbital-history__actor orbital-history__actor--inline"

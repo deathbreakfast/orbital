@@ -1,0 +1,101 @@
+[component-preview] › components/date-calendar.spec.ts › date-calendar preview behaviors › renders preview page
+[component-preview] › components/date-calendar.spec.ts › date-calendar preview behaviors › shows documented example
+[component-preview] › components/date-calendar.spec.ts › date-calendar preview behaviors › clicking a day updates bound value text
+[component-preview] › components/date-calendar.spec.ts › date-calendar preview behaviors › navigation changes visible month
+[component-preview] › components/date-calendar.spec.ts › date-calendar preview behaviors › DC-04 min/max Field validation surfaces on value change
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-01 three-column grid layout
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-02 two columns with distinct gaps
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-03 spanning columns
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-04 offset item
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-05 theme token on cell
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-06 form columns with Field
+[component-preview] › components/grid.spec.ts › grid primitive preview › GR-07 single column stack
+[component-preview] › components/scheduler-calendar-localization.spec.ts › scheduler-calendar-localization preview › renders preview page
+[component-preview] › components/scheduler-calendar-localization.spec.ts › scheduler-calendar-localization preview › shows documented example
+[component-preview] › components/scheduler-calendar-localization.spec.ts › scheduler-calendar-localization preview › switches toolbar labels to French
+[component-preview] › components/stepper.spec.ts › stepper preview › ST-01: default vertical stepper shows pipeline steps
+[component-preview] › components/stepper.spec.ts › stepper preview › ST-02: failure variant shows error message
+[component-preview] › components/stepper.spec.ts › stepper preview › ST-03: steps form a list with one current step
+[component-preview] › components/stepper.spec.ts › stepper preview › ST-04: reactive stepper moves the current step
+[component-preview] › components/counter-badge.spec.ts › counter-badge preview › CB-01 default count
+[component-preview] › components/counter-badge.spec.ts › counter-badge preview › CB-02 on avatar
+[component-preview] › components/counter-badge.spec.ts › counter-badge preview › CB-03 overflow cap
+[component-preview] › components/input.spec.ts › input primitive preview › IN-01: default input accepts typing
+[component-preview] › components/input.spec.ts › input primitive preview › IN-02: prefix and suffix slots render
+[component-preview] › components/input.spec.ts › input primitive preview › IN-03: size matrix heights differ
+[component-preview] › components/input.spec.ts › input primitive preview › IN-04: disabled input has disabled attribute
+[component-preview] › components/input.spec.ts › input primitive preview › IN-05: placeholder attribute is set
+[component-preview] › components/input.spec.ts › input primitive preview › IN-06: autofocus receives focus on mount
+[component-preview] › components/input.spec.ts › input primitive preview › IN-07: email input uses type email
+[component-preview] › components/input.spec.ts › input primitive preview › IN-08: required validation shows error on blur
+[component-preview] › components/scroll-area.spec.ts › scroll area preview › renders default preview
+[component-preview] › components/scroll-area.spec.ts › scroll area preview › shows documented examples
+[component-preview] › components/scroll-area.spec.ts › scroll area preview › SA-01: default vertical scrollport overflows
+[component-preview] › components/scroll-area.spec.ts › scroll area preview › SA-02: hidden chrome suppresses scrollbar
+[component-preview] › components/scroll-area.spec.ts › scroll area preview › SA-03: page scrollport uses head-injected themed scrollbar
+[component-preview] › components/date-pickers-validation.spec.ts › date-pickers-validation preview › out-of-range typed date shows Field error on blur
+[component-preview] › components/discussion-density.spec.ts › discussion density › density preview renders
+[component-preview] › components/discussion-density.spec.ts › discussion density › thread root exposes density CSS variables
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-01: renders preview page
+[component-preview] › components/icon.spec.ts › icon primitive preview › shows documented examples
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-02: default size inherits 1em
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-03: size matrix pixel dimensions
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-04: color inheritance via currentColor
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-05: style override applies
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-06: clickable wrapper is accessible
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-07: core Icon uses inline-block layout
+[component-preview] › components/icon.spec.ts › icon primitive preview › I-08: button composition shows icon
+[component-preview] › components/empty-state.spec.ts › empty-state preview › ES-01: illustrated empty state shows message
+[component-preview] › components/empty-state.spec.ts › empty-state preview › ES-02: search empty state shows guidance
+[component-preview] › components/scheduler-timeline-preferences.spec.ts › scheduler-timeline-preferences preview › renders preview page
+[component-preview] › components/scheduler-timeline-preferences.spec.ts › scheduler-timeline-preferences preview › shows documented example
+[component-preview] › components/scheduler-timeline-preferences.spec.ts › scheduler-timeline-preferences preview › toggles 12-hour clock and updates time column labels
+[component-preview] › components/skeleton.spec.ts › skeleton primitive preview › SK-01: text block skeleton exposes busy progressbar
+[component-preview] › components/skeleton.spec.ts › skeleton primitive preview › SK-02: avatar row skeleton preserves row layout and circle size
+[component-preview] › components/skeleton.spec.ts › skeleton primitive preview › SK-03: card skeleton media block is 120px tall
+[component-preview] › components/skeleton.spec.ts › skeleton primitive preview › SK-04: skeleton item shimmer animation is active
+[component-preview] › components/data-table-active-row.spec.ts › data-table active row › j and k move the active row without a selection column
+[component-preview] › components/toggle-button.spec.ts › toggle-button primitive preview › TB-01: renders default preview
+[component-preview] › components/toggle-button.spec.ts › toggle-button primitive preview › TB-02/TB-04: variant examples are visible
+[component-preview] › components/toggle-button.spec.ts › toggle-button primitive preview › TB-03: clicking toggles aria-pressed
+[component-preview-mobile] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-01: Auto @ phone uses overlay drawer
+[component-preview-mobile] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-02: Auto @ desktop keeps inline sidebar when open
+[component-preview-mobile] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-01-sad: drawer dismiss closes
+[component-preview-mobile] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-03: sidebar closed by default on phone
+[component-preview-mobile] › components/layout-responsive.spec.ts › layout responsive sidebar › LAY-MOB-04: open drawer closes across breakpoint
+[smoke] › smoke/fouc-baseline.spec.ts › FOUC baseline smoke › F-01: SSR head includes baseline contract
+[smoke] › smoke/fouc-baseline.spec.ts › FOUC baseline smoke › F-02: theme tokens resolve with WASM blocked
+[smoke] › smoke/fouc-baseline.spec.ts › FOUC baseline smoke › F-03: primary button is styled before WASM hydrates
+[component-preview] › components/charts-label.spec.ts › charts-label preview › renders preview page
+[component-preview] › components/charts-label.spec.ts › charts-label preview › shows documented examples
+[component-preview] › components/charts-label.spec.ts › charts-label preview › legend and tooltip use different location formatters
+[component-preview] › components/charts-label.spec.ts › charts-label preview › pie variant renders arc labels
+[component-preview] › components/data-table-pagination.spec.ts › data-table pagination footer › range label, page navigation, and page size selector
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-01: click opens default menu
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-02: icon trigger opens menu
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-03: hover opens menu
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-04: brand menu surface uses brand modifier class
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-05: inverted menu surface uses inverted modifier class
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-06: top position opens menu above trigger
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-07: click selects item and closes menu
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-08: disabled menu item cannot be selected
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-09: keyboard ArrowDown and Enter selects the next menu item
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-13: ArrowUp wraps, Home and End jump to the first and last item
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-14: arrow keys skip disabled items
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-10: Enter on a focused item selects it and closes the menu
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-11: Space on a focused item selects it and closes the menu
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-12: Enter on a focused disabled item keeps the menu open
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-13: closing a dialog opened from a menu item returns focus to the menu button
+[component-preview] › components/menu.spec.ts › menu primitive preview › MN-14: a dialog opened from a menu item still focuses its field
+[component-preview] › components/orbital-presence.spec.ts › orbital-presence preview › OP-01: presence toggle demo renders
+[component-preview] › components/orbital-presence.spec.ts › orbital-presence preview › OP-02: appear-on-mount demo renders
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-01: hover reveals tooltip body on default preview
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-02: inverted appearance uses darker tooltip surface
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-03: bottom placement sets follower data-orbital-placement
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-04: left placement sets follower data-orbital-placement
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-05: right placement sets follower data-orbital-placement
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-06: top-start placement sets follower data-orbital-placement
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-07: bottom-end placement sets follower data-orbital-placement
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-08: tooltip surface uses theme background token
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-10: show_delay_ms prevents immediate tooltip open
+[component-preview] › components/tooltip.spec.ts › tooltip primitive preview › TT-09: disabled focusable button shows tooltip on focus

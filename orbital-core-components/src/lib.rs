@@ -22,6 +22,7 @@ pub mod hide_on_scroll;
 pub mod icon;
 pub mod layout;
 pub mod layout_box;
+pub mod markdown_view;
 pub mod material;
 pub mod rating;
 pub mod scroll_area;
@@ -55,11 +56,11 @@ pub use copy_button::CopyButton;
 pub use data::{
     link_styles, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
     AvatarGroupSize, AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,
-    Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListNavigationMode,
-    ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText, PersonaQuaternaryText,
-    PersonaSecondaryText, PersonaSize, PersonaTertiaryText, PersonaTextAlignment,
-    PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout, TableCellLayoutConfig,
-    TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
+    Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListItemTrailing,
+    ListNavigationMode, ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText,
+    PersonaQuaternaryText, PersonaSecondaryText, PersonaSize, PersonaTertiaryText,
+    PersonaTextAlignment, PersonaTextPosition, Table, TableBody, TableCell, TableCellLayout,
+    TableCellLayoutConfig, TableHeader, TableHeaderCell, TableHeaderCellConfig, TableRow,
 };
 pub use diff_view::{diff_text, DiffHunk, DiffLayout, DiffLine, DiffLineKind, DiffSpan, DiffView};
 pub use divider::Divider;
@@ -68,7 +69,7 @@ pub use extensions::ThemeDensityStepper;
 pub use extensions::ThemePreviewMarker;
 pub use extensions::{LoadingBarInjection, LoadingBarProvider};
 pub use flex::{
-    Flex, FlexAlign, FlexGap, FlexJustify, FlexWrap, SpacingHorizontal, SpacingInset,
+    Flex, FlexAlign, FlexGap, FlexItem, FlexJustify, FlexWrap, SpacingHorizontal, SpacingInset,
     SpacingVertical,
 };
 pub use floating_button::{
@@ -106,6 +107,7 @@ pub use forms::{
 pub use grid::{Grid, GridConfig, GridItem, GridItemConfig};
 pub use icon::Icon;
 pub use layout_box::Box;
+pub use markdown_view::{inject_markdown_styles, MarkdownView};
 pub use orbital_base_components::DemoBox;
 pub use orbital_base_components::{
     use_breakpoint, use_breakpoint_down, use_breakpoint_up, use_media_query,
@@ -116,8 +118,9 @@ pub use scroll_area::ScrollArea;
 pub use space::{Space, SpaceConfig, SpaceGap};
 pub use stack::{Stack, StackConfig};
 pub use tag::{
-    InteractionTag, InteractionTagPrimary, SecondaryActionTag, Tag, TagAppearance, TagGroup,
-    TagPicker, TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerOption,
+    ChipBadge, ChipOption, ChipSelector, ChipSelectorMode, ChipSelectorVariant, InteractionTag,
+    InteractionTagPrimary, SecondaryActionTag, Tag, TagAppearance, TagGroup, TagPicker,
+    TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerOption,
     TagPickerOptionGroup, TagPickerSize, TagSize,
 };
 
@@ -214,6 +217,8 @@ pub use forms::{
 #[cfg(feature = "preview")]
 pub use grid::GRID_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+pub use markdown_view::MARKDOWNVIEW_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 pub use navigation::anchor::ANCHOR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use navigation::back_to_top::BACKTOTOP_PREVIEW_REGISTRATION;
@@ -234,8 +239,8 @@ pub use space::SPACE_PREVIEW_REGISTRATION;
 pub use stack::STACK_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use tag::{
-    INTERACTIONTAG_PREVIEW_REGISTRATION, TAGGROUP_PREVIEW_REGISTRATION,
-    TAGPICKER_PREVIEW_REGISTRATION, TAG_PREVIEW_REGISTRATION,
+    CHIPSELECTOR_PREVIEW_REGISTRATION, INTERACTIONTAG_PREVIEW_REGISTRATION,
+    TAGGROUP_PREVIEW_REGISTRATION, TAGPICKER_PREVIEW_REGISTRATION, TAG_PREVIEW_REGISTRATION,
 };
 
 #[cfg(feature = "preview")]

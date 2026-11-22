@@ -175,6 +175,41 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Markdown blocks
+/// Tables, task lists, alerts and headings draw as Orbital Table, Checkbox and MessageBar.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use chrono::Utc;
+/// use crate::{HistoryActor, HistoryChange, HistoryEntry, HistoryFeatures, HistorySource, HistoryTimeline};
+/// use leptos::prelude::*;
+/// let entries = RwSignal::new(vec![
+///     HistoryEntry {
+///         id: "md-blocks".into(),
+///         kind: "comment".into(),
+///         changed_at: Utc::now(),
+///         actor: HistoryActor::User {
+///             id: "u1".into(),
+///             display_name: "Jordan Lee".into(),
+///             href: None,
+///         },
+///         change: HistoryChange::Markdown {
+///             body: "## Review\n\n| Field | Value |\n|---|---|\n| Status | Done |\n\n- [x] Checked the scope\n- [ ] Sign off\n\n> [!NOTE]\n> Owners were told.".into(),
+///             citations: vec![],
+///             mentions: vec![],
+///             attachments: vec![],
+///         },
+///     },
+/// ]);
+/// view! {
+///     <div data-testid="history-markdown-blocks-preview" style="height: 360px; display: flex; flex-direction: column;">
+///         <HistoryTimeline
+///             data_source=HistorySource::Client(entries)
+///             features=HistoryFeatures::default_enabled() | HistoryFeatures::MARKDOWN_BODIES
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "History",
     preview_slug = "history-markdown",

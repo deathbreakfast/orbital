@@ -1,0 +1,94 @@
+[component-preview] › components/container.spec.ts › container preview › CT-01 renders default centered preview
+[component-preview] › components/container.spec.ts › container preview › CT-02 shows width variants
+[component-preview] › components/container.spec.ts › container preview › CT-03 narrow variant constrains width
+[component-preview] › components/infinite-scroll.spec.ts › infinite-scroll preview › IS-01: infinite scroll container renders
+[component-preview] › components/upload.spec.ts › upload selection preview › UP-01: basic upload renders trigger and file input
+[component-preview] › components/upload.spec.ts › upload selection preview › UP-02: documented upload variants render
+[component-preview] › components/upload.spec.ts › upload selection preview › UP-03: multiple upload exposes multiple attribute
+[component-preview] › components/scheduler-calendar-events.spec.ts › scheduler-calendar-events preview › renders preview page
+[component-preview] › components/scheduler-calendar-events.spec.ts › scheduler-calendar-events preview › shows documented example
+[component-preview] › components/scheduler-calendar-events.spec.ts › scheduler-calendar-events preview › static events render in week grid
+[component-preview] › components/pagination.spec.ts › pagination primitive preview › PG-01: ten pages with page 1 primary and prev disabled
+[component-preview] › components/pagination.spec.ts › pagination primitive preview › PG-02: three numbered page buttons
+[component-preview] › components/pagination.spec.ts › pagination primitive preview › PG-03: clicking page 3 updates page signal
+[component-preview] › components/pagination.spec.ts › pagination primitive preview › PG-04: ellipsis with first and last page buttons
+[component-preview] › components/pagination.spec.ts › pagination primitive preview › PG-05: theme surfaces on active page button
+[component-preview] › components/charts-zoom-pan.spec.ts › charts-zoom-pan preview › renders preview page
+[component-preview] › components/charts-zoom-pan.spec.ts › charts-zoom-pan preview › shows documented example
+[component-preview] › components/charts-zoom-pan.spec.ts › charts-zoom-pan preview › wheel zoom narrows visible domain
+[component-preview] › components/charts-zoom-pan.spec.ts › charts-zoom-pan preview › reset button restores full range
+[component-preview] › components/date-pickers-shortcuts.spec.ts › date-pickers-shortcuts preview › clicking Today preset updates bind readout
+[component-preview] › components/charts-axis.spec.ts › charts-axis preview › renders preview page
+[component-preview] › components/charts-axis.spec.ts › charts-axis preview › shows documented example
+[component-preview] › components/charts-axis.spec.ts › charts-axis preview › renders axis ticks and grid lines
+[component-preview] › components/charts-axis.spec.ts › charts-axis preview › pw-orbital-charts-axis-sparse-no-overlap-happy: 4-category axis stays unrotated
+[component-preview] › components/charts-axis.spec.ts › charts-axis preview › pw-orbital-charts-axis-dense-no-overlap-happy: 24-bucket axis has no overlapping labels
+[component-preview] › components/data-table-a11y.spec.ts › data-table accessibility › default preview passes axe audit
+[component-preview] › components/data-table-a11y.spec.ts › data-table accessibility › keyboard focus moves on arrow key in grid
+[component-preview] › components/discussion-composer.spec.ts › discussion composer preview › renders composer preview
+[component-preview] › components/discussion-composer.spec.ts › discussion composer preview › top-level submit fires callback with no parent_id
+[component-preview] › components/discussion-composer.spec.ts › discussion composer preview › reply submit fires callback with expected parent_id
+[component-preview] › components/discussion-composer.spec.ts › discussion composer preview › format toolbar bold wraps draft text
+[component-preview] › components/discussion-composer.spec.ts › discussion composer preview › citation insert adds chip and ref token
+[component-preview] › components/discussion-composer.spec.ts › discussion composer preview › attachment chip visible after file pick
+[component-preview] › components/scheduler-timeline-virtualization.spec.ts › scheduler-timeline-virtualization preview › renders preview page
+[component-preview] › components/scheduler-timeline-virtualization.spec.ts › scheduler-timeline-virtualization preview › shows documented example
+[component-preview] › components/scheduler-timeline-virtualization.spec.ts › scheduler-timeline-virtualization preview › large resource set keeps DOM lane count bounded
+[component-preview] › components/spinner.spec.ts › spinner primitive preview › SP-01: default spinner exposes progressbar role
+[component-preview] › components/spinner.spec.ts › spinner primitive preview › SP-02: labeled spinner links aria-labelledby to label text
+[component-preview] › components/spinner.spec.ts › spinner primitive preview › SP-03: large spinner indicator is taller than default
+[component-preview] › components/spinner.spec.ts › spinner primitive preview › SP-04: size matrix heights increase across presets
+[component-preview] › components/spinner.spec.ts › spinner primitive preview › SP-05: children label provides accessible name
+[component-preview] › components/spinner.spec.ts › spinner primitive preview › SP-06: theme preview spinner stroke uses computed color
+[component-preview] › components/data-table-column-reorder.spec.ts › data-table column reorder › drag header reorders columns
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-01: inline drawer visible by default
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-02: right overlay opens from trigger
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-03: left overlay opens from trigger
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-04: top overlay opens from trigger
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-05: bottom overlay opens from trigger
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-06: escape closes esc-enabled drawer
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-07: large size drawer opens from trigger
+[component-preview] › components/drawer.spec.ts › drawer primitive preview › DR-08: overlay drawer scrim uses shared orbital-backdrop
+[component-preview] › components/gauge.spec.ts › gauge preview › renders preview page
+[component-preview] › components/gauge.spec.ts › gauge preview › shows value arc and meter role
+[component-preview] › components/gauge.spec.ts › gauge preview › shows documented examples
+[component-preview] › components/gauge.spec.ts › gauge preview › a11y preview exposes aria-valuetext
+[component-preview] › components/material.spec.ts › material surface preview › renders preview page
+[component-preview] › components/material.spec.ts › material surface preview › shows documented examples
+[component-preview] › components/material.spec.ts › material surface preview › M-01: solid variant data attribute
+[component-preview] › components/material.spec.ts › material surface preview › M-02: resting elevation applies shadow
+[component-preview] › components/material.spec.ts › material surface preview › M-03: raised shadow differs from resting
+[component-preview] › components/material.spec.ts › material surface preview › M-04: flat elevation has no shadow
+[component-preview] › components/material.spec.ts › material surface preview › M-05: theme elevation scale affects resting shadow
+[component-preview] › components/material.spec.ts › material surface preview › M-06: outlined variant has border and no shadow
+[component-preview] › components/material.spec.ts › material surface preview › M-07: square corners remove border radius
+[component-preview] › components/material.spec.ts › material surface preview › card composition uses material surface
+[component-preview] › components/data-table-clipboard.spec.ts › data-table clipboard › copy cell range writes TSV to clipboard
+[component-preview] › components/data-table-row-detail.spec.ts › data-table row detail › expand and collapse detail panel
+[component-preview] › components/discussion-reply-anchor.spec.ts › discussion reply anchor › navigate_to_reply reveals nested reply without manual drill-in
+[component-preview] › components/discussion-reply-anchor.spec.ts › discussion reply anchor › shallow anchor stays at root focus
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-01: click opens popover panel content
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-02: click outside closes click-triggered popover
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-03: hover reveals hover popover body
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-04: mouse leave hides hover popover body
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-05: second click on trigger closes popover
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-06: popover content is teleported outside preview wrapper
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-07: open popover exposes teleported panel with body testid
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-08: open popover renders popover surface element
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-09: brand popover uses brand modifier class
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-10: inverted popover uses inverted modifier class
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-11: small popover uses small size modifier class
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-12: large popover uses large size modifier class
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-13: left position sets follower data-orbital-placement
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-14: lifecycle hook sets opened signal when popover opens
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-15: popover stays aligned when inner scroll area scrolls
+[component-preview] › components/popover.spec.ts › popover primitive preview › PO-16: popover dismisses when trigger scrolls out of scrollport
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-01 badges sit on element corners with a 24px tap target
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-02 badge follows its element when the container scrolls
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-03 badge hides while its corner is scrolled out of the container
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-04 badge follows its element when the element resizes
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-05 badge stays anchored when the window resizes
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-06 clicking a badge runs on_click
+[component-preview] › components/anchored-counter-badge.spec.ts › anchored-counter-badge preview › ACB-07 corner prop places the badge on each corner
+[component-preview] › components/floating-button.spec.ts › floating-button component preview › FB-01 default is visible and accessible
+[component-preview] › components/floating-button.spec.ts › floating-button component preview › FB-02 documented variants render

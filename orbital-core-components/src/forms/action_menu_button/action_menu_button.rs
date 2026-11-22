@@ -21,7 +21,7 @@ use super::types::ActionMenuItems;
 ///
 /// # Usage
 ///
-/// 1. Put primary label text in `children` and menu items in the `action_menu_items` slot. 2. Wire `on_click` for the primary segment and `on_select` for menu item values. 3. Prefer [`MenuButton`](crate::MenuButton) when every choice lives in the menu with no separate primary click.
+/// 1. Put primary label text in `children` and menu items in the `action_menu_items` slot. 2. Wire `on_click` for the primary segment and `on_select` for menu item values. Name the chevron with `menu_label` (default "More options"), e.g. "More save options". 3. Prefer [`MenuButton`](crate::MenuButton) when every choice lives in the menu with no separate primary click.
 ///
 /// # Examples
 ///
@@ -44,14 +44,18 @@ use super::types::ActionMenuItems;
 /// ```
 ///
 /// ## With icon
-/// Primary segment includes a leading icon.
+/// Primary segment includes a leading icon; `menu_label` names the chevron.
 /// <!-- preview -->
 /// ```rust
 /// use crate::{ActionMenuButton, ActionMenuItems, ButtonAppearance, MenuItem};
 /// use icondata::AiSaveOutlined;
 /// view! {
 ///     <div data-testid="action-menu-button-icon">
-///         <ActionMenuButton appearance=ButtonAppearance::Primary icon=AiSaveOutlined>
+///         <ActionMenuButton
+///             appearance=ButtonAppearance::Primary
+///             icon=AiSaveOutlined
+///             menu_label="More save options"
+///         >
 ///             "Save"
 ///             <ActionMenuItems slot>
 ///                 <MenuItem value="draft".to_string()>"Save draft"</MenuItem>
@@ -77,6 +81,9 @@ pub fn ActionMenuButton(
     #[prop(optional, into)] menu_icon: MaybeProp<Icon>,
     #[prop(optional)] on_click: Option<Callback<leptos::ev::MouseEvent>>,
     #[prop(optional)] on_select: Option<Callback<String>>,
+    /// Accessible name for the chevron menu button. Defaults to "More options".
+    #[prop(optional, into)]
+    menu_label: MaybeProp<String>,
     /// Optional menu items rendered in the dropdown.
     action_menu_items: Option<ActionMenuItems>,
     /// Primary label text.
@@ -117,6 +124,10 @@ pub fn ActionMenuButton(
                     <MenuTrigger slot>
                         <Button
                             class="orbital-action-menu-button__menu".to_string()
+                            attr:aria-label=move || {
+                                menu_label.get().unwrap_or_else(|| "More options".to_string())
+                            }
+                            attr:aria-haspopup="menu"
                             appearance=appearance
                             shape=shape
                             size=size

@@ -53,6 +53,8 @@ pub fn OrbitalThemeProvider(
     #[prop(optional, into)] dir: Option<RwSignal<Direction>>,
     children: Children,
 ) -> impl IntoView {
+    // Ships the shared `sr-only` class so hosts and components can rely on it.
+    orbital_style::ensure_sr_only_styles();
     let theme = theme.unwrap_or_else(|| RwSignal::new(Theme::light()));
     let theme_id = alloc_theme_scope_id();
     let id = StoredValue::new(theme_id.clone());

@@ -100,7 +100,14 @@ pub fn card_header_styles() -> &'static str {
 
 pub fn card_content_styles() -> &'static str {
     let (style_sheet, _) = inline_style_sheet_values! {
+        // Padded on every side when it opens the card (no header, media or preview above
+        // it); below another slot the top padding drops to 0 so the gap between slots
+        // sets the spacing. `--orbital-card-content-padding` overrides both.
         .orbital-card-content {
+            padding: var(--orbital-card-content-padding, 16px);
+        }
+
+        :is(.orbital-card-header, .orbital-card-media, .orbital-card-preview, .orbital-card-section-border, .orbital-card-content) ~ .orbital-card-content {
             padding: var(--orbital-card-content-padding, 0 16px 16px);
         }
     };
@@ -201,4 +208,45 @@ pub fn card_button_area_styles() -> &'static str {
     };
 
     style_sheet
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn squash(css: &str) -> String {
+        css.chars().filter(|c| !c.is_whitespace()).collect()
+    }
+
+    #[test]
+    fn card_content_opening_a_card_is_padded_on_every_side() {
+        let css = squash(card_content_styles());
+        assert!(
+            css.contains(".orbital-card-content{padding:var(--orbital-card-content-padding,16px)}"),
+            "{css}"
+        );
+    }
+
+    #[test]
+    fn card_content_below_another_slot_drops_its_top_padding() {
+        let css = squash(card_content_styles());
+        for slot in [
+            "orbital-card-header",
+            "orbital-card-media",
+            "orbital-card-preview",
+            "orbital-card-section-border",
+        ] {
+            assert!(
+                css.contains(slot),
+                "{slot} missing from the sibling rule: {css}"
+            );
+        }
+        // Whitespace is squashed, so `0 16px 16px` reads `016px16px`.
+        assert!(
+            css.contains(
+                "~.orbital-card-content{padding:var(--orbital-card-content-padding,016px16px)}"
+            ),
+            "{css}"
+        );
+    }
 }

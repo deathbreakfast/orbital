@@ -787,8 +787,8 @@ mod tests {
         let sections = group_by_section(vec![&CARD_HEADER, &CARD_FOOTER]);
         let (section, keys) = open_keys_for_slug(&sections, "card-header");
         assert_eq!(section.as_deref(), Some("core-components"));
-        assert!(keys.contains(&"core-components".to_string()));
-        assert!(keys.contains(&"core-components/surfaces/card".to_string()));
+        assert!(keys.iter().any(|k| k == "core-components"));
+        assert!(keys.iter().any(|k| k == "core-components/surfaces/card"));
     }
 
     #[test]
@@ -828,8 +828,8 @@ mod tests {
         let sections = group_by_section(vec![&DATA_TABLE_COLUMN]);
         let (section, keys) = open_keys_for_slug(&sections, "data-table-columns");
         assert_eq!(section.as_deref(), Some("data-table"));
-        assert!(keys.contains(&"data-table".to_string()));
-        assert!(keys.contains(&"data-table/columns".to_string()));
+        assert!(keys.iter().any(|k| k == "data-table"));
+        assert!(keys.iter().any(|k| k == "data-table/columns"));
     }
 
     #[test]
@@ -844,6 +844,8 @@ mod tests {
     fn open_keys_for_calendar_picker_opens_pickers_folder() {
         let sections = group_by_section(vec![&DATE_PICKER, &CALENDAR]);
         let (_, keys) = open_keys_for_slug(&sections, "date-picker");
-        assert!(keys.contains(&"core-components/calendar-and-time/pickers".to_string()));
+        assert!(keys
+            .iter()
+            .any(|k| k == "core-components/calendar-and-time/pickers"));
     }
 }

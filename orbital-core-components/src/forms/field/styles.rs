@@ -4,20 +4,37 @@ pub fn field_styles() -> &'static str {
     r#"
 .orbital-field {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
 }
 
-.orbital-field__label {
+/* Text inputs and date pickers fill the field and can shrink with it. The
+   segmented date field keeps its fit-content width by design. */
+.orbital-field .orbital-input:not(.orb-date-field),
+.orbital-field .orbital-date-picker {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Without this the native input's intrinsic width (its `size`) sets a minimum. */
+.orbital-field .orbital-input:not(.orb-date-field) > .orbital-input__input {
+    width: 0;
+}
+
+/* `:not(.sr-only)`: a hidden label must keep `.sr-only`'s zero padding and negative margin
+   whichever stylesheet is injected last; same specificity, so order would decide. */
+.orbital-field__label:not(.sr-only) {
     margin-bottom: var(--orb-space-block-2xs);
     padding-bottom: var(--orb-space-block-2xs);
     padding-top: var(--orb-space-block-2xs);
 }
 
 .orbital-field--horizontal {
-    grid-template-columns: 33% 1fr;
+    grid-template-columns: 33% minmax(0, 1fr);
     grid-template-rows: auto auto auto 1fr;
 }
 
-.orbital-field--horizontal > .orbital-field__label {
+.orbital-field--horizontal > .orbital-field__label:not(.sr-only) {
     grid-row-end: -1;
     grid-row-start: 1;
 

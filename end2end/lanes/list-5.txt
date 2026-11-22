@@ -1,0 +1,93 @@
+[component-preview] › components/card-header.spec.ts › card-header preview › renders preview page
+[component-preview] › components/card-header.spec.ts › card-header preview › shows documented examples
+[component-preview] › components/card-header.spec.ts › card-header preview › title-only header
+[component-preview] › components/card-header.spec.ts › card-header preview › header with description row
+[component-preview] › components/card-header.spec.ts › card-header preview › header with action slot
+[component-preview] › components/card-header.spec.ts › card-header preview › header with media card
+[component-preview] › components/data-table-export.spec.ts › data-table CSV export › export menu downloads CSV with headers and row data
+[component-preview] › components/data-table-header-filters.spec.ts › data-table header filters › inline role filter keeps matching row
+[component-preview] › components/data-table-header-filters.spec.ts › data-table header filters › single-select column offers its choices and filters by one
+[component-preview] › components/data-table-header-filters.spec.ts › data-table header filters › column without choices keeps a text box
+[component-preview] › components/time-clock.spec.ts › time-clock preview behaviors › renders preview page
+[component-preview] › components/time-clock.spec.ts › time-clock preview behaviors › shows documented example
+[component-preview] › components/time-clock.spec.ts › time-clock preview behaviors › selecting hour and minute updates bound value
+[component-preview] › components/time-clock.spec.ts › time-clock preview behaviors › minute view shows five-minute labels only
+[component-preview] › components/time-clock.spec.ts › time-clock preview behaviors › dragging on clock face selects hour and minute
+[component-preview] › components/presence-badge.spec.ts › presence-badge preview › PB-01 default presence dot
+[component-preview] › components/presence-badge.spec.ts › presence-badge preview › PB-02 on avatar
+[component-preview] › components/presence-badge.spec.ts › presence-badge preview › PB-03 status matrix
+[component-preview] › components/card-button-area.spec.ts › card-button-area preview › renders preview page
+[component-preview] › components/card-button-area.spec.ts › card-button-area preview › shows documented examples
+[component-preview] › components/card-button-area.spec.ts › card-button-area preview › click target is the button area element
+[component-preview] › components/card-button-area.spec.ts › card-button-area preview › media variant wraps image and content
+[component-preview] › components/card-button-area.spec.ts › card-button-area preview › interactive card footer click does not activate button area
+[component-preview] › components/charts-keyboard.spec.ts › charts-keyboard preview › renders preview page
+[component-preview] › components/charts-keyboard.spec.ts › charts-keyboard preview › shows documented examples
+[component-preview] › components/charts-keyboard.spec.ts › charts-keyboard preview › arrow key highlights a mark
+[component-preview] › components/charts-keyboard.spec.ts › charts-keyboard preview › strict and nice x domains differ on horizontal line charts
+[component-preview] › components/discussion-overlays.spec.ts › discussion overlays preview › custom empty state renders
+[component-preview] › components/discussion-overlays.spec.ts › discussion overlays preview › loading overlay renders when toggled
+[component-preview] › components/orbital-presence-group.spec.ts › orbital presence group preview › OPG-01: starts empty and add item shows staggered tile
+[component-preview] › components/orbital-presence-group.spec.ts › orbital presence group preview › OPG-02: remove item hides last tile
+[component-preview] › components/discussion-tree-navigation.spec.ts › discussion tree navigation › show-more drill-in and go back
+[component-preview] › components/discussion-tree-navigation.spec.ts › discussion tree navigation › collapse hides reply body
+[smoke] › smoke/server.spec.ts › preview server smoke › unknown slug shows not-found page
+[component-preview] › components/select.spec.ts › select primitive preview › S-01: basic select changes value on option pick
+[component-preview] › components/select.spec.ts › select primitive preview › S-02: default_value pre-selects option when signal is empty
+[component-preview] › components/select.spec.ts › select primitive preview › S-03: disabled select cannot change
+[component-preview] › components/select.spec.ts › select primitive preview › S-04: small size class applies in size matrix
+[component-preview] › components/select.spec.ts › select primitive preview › S-05: select in field associates label
+[component-preview] › components/select.spec.ts › select primitive preview › S-06: size matrix large select is taller than small
+[component-preview] › components/select.spec.ts › select primitive preview › S-SEC-01: selected option's secondary text shows as a caption and describes the select
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-01: trigger opens dialog with preview content
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-01b: the dialog is named by its title
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-02: trigger opens closed dialog
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-03: non-dismissible mask ignores backdrop click
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-04: dialog actions footer renders cancel button
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-05: escape closes esc-enabled dialog
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-06: opening moves focus in and Tab wraps inside the dialog
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-09: closing returns focus to the trigger
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-10: a dialog with no controls focuses its surface and keeps Tab there
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-07: dialog surface uses theme background token
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-08: dialog scrim uses shared orbital-backdrop
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-11: content that mounts after the dialog opens receives focus
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-12: content that mounts after the dialog closed leaves focus on the trigger
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-13: reopening focuses the late content again
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-14: a control enabled after the dialog opens receives focus
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-14b: a control revealed after the dialog opens receives focus
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-15: late content does not take focus the user already placed in the dialog
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-16: an element made reachable by a tabindex change receives focus
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-17: a large dialog is wider than 600px and at most 960px
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-18: a dialog without a size keeps the 600px maximum
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-19: a full dialog fills the viewport less its margin
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-20: on a phone a large dialog fits the screen width
+[component-preview] › components/dialog.spec.ts › dialog primitive preview › DL-21: the large dialog keeps its theme background in dark mode
+[component-preview] › components/data-table-events.spec.ts › data-table event callbacks › row, cell, sort, and selection events append to log
+[component-preview] › components/data-table-events.spec.ts › data-table event callbacks › a first click on a cell's text fires row and cell click
+[component-preview] › components/motion-migration.spec.ts › motion migration smoke › MM-01: dialog opens with OrbitalPresence scrim
+[component-preview] › components/motion-migration.spec.ts › motion migration smoke › MM-02: drawer overlay opens
+[component-preview] › components/motion-migration.spec.ts › motion migration smoke › MM-03: accordion panel expands
+[component-preview] › components/search-box.spec.ts › search-box primitive preview › SB-01: search type and icon prefix
+[component-preview] › components/search-box.spec.ts › search-box primitive preview › SB-02: disabled search box
+[component-preview] › components/search-box.spec.ts › search-box primitive preview › SB-03: field wrapper associates label
+[component-preview] › components/search-box.spec.ts › search-box primitive preview › SB-04: custom placeholder text
+[component-preview] › components/data-table-column-fill.spec.ts › data-table column fill › widths sum to the container at 390px
+[component-preview] › components/data-table-column-fill.spec.ts › data-table column fill › widths sum to the container at 1024px
+[component-preview] › components/data-table-column-fill.spec.ts › data-table column fill › widths sum to the container at 1440px
+[component-preview] › components/data-table-column-fill.spec.ts › data-table column fill › columns refill after a window resize
+[component-preview] › components/data-table-column-fill.spec.ts › data-table column fill › a dragged column keeps its width while the others refill
+[component-preview] › components/data-table-column-fill.spec.ts › data-table column fill › fills the container in dark mode with readable headers
+[component-preview] › components/table.spec.ts › table primitive preview › TB-01 simple semantic table
+[component-preview] › components/table.spec.ts › table primitive preview › TB-02 full compound table
+[component-preview] › components/table.spec.ts › table primitive preview › TB-03 multiple body rows
+[component-preview] › components/table.spec.ts › table primitive preview › TB-04 truncated cell
+[component-preview] › components/table.spec.ts › table primitive preview › TB-05 resizable columns
+[component-preview] › components/table.spec.ts › table primitive preview › TB-06 theme tokens on table
+[component-preview] › components/table.spec.ts › table primitive preview › TB-07 status badges in cells
+[component-preview] › components/table.spec.ts › table primitive preview › TB-08 wide resizable admin grid
+[component-preview] › components/table.spec.ts › table primitive preview › TB-09 row actions with Button
+[component-preview] › components/date-pickers-timezone.spec.ts › date-pickers-timezone preview › switching timezone updates digital clock readout
+[component-preview] › components/discussion-slots.spec.ts › discussion slots preview › custom toolbar and sample replies render
+[component-preview] › components/motion-choreography.spec.ts › motion choreography stagger preview › MC-01: add item increases visible tiles
+[component-preview] › components/motion-choreography.spec.ts › motion choreography stagger preview › MC-02: remove item decreases tile count
+[component-preview] › components/motion-choreography.spec.ts › motion choreography stagger preview › MC-03: stagger control changes enter delay on second tile

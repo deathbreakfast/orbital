@@ -109,13 +109,13 @@ pub fn history_styles() -> &'static str {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--orbital-history-row-gap);
+    gap: var(--orbital-history-row-gap, var(--orb-space-block-xs));
 }
 
 .orbital-history__entry {
     display: flex;
-    padding-block: var(--orbital-history-row-padding-block);
-    padding-inline: var(--orbital-history-row-padding-inline);
+    padding-block: var(--orbital-history-row-padding-block, var(--orb-space-block-sm));
+    padding-inline: var(--orbital-history-row-padding-inline, var(--orb-space-inline-md));
 }
 
 .orbital-history__entry--natural {
@@ -161,13 +161,13 @@ pub fn history_styles() -> &'static str {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: var(--orbital-history-spine-size);
+    width: var(--orbital-history-spine-size, 0.5rem);
     flex: 0 0 auto;
 }
 
 .orbital-history__spine-marker {
-    width: var(--orbital-history-spine-size);
-    height: var(--orbital-history-spine-size);
+    width: var(--orbital-history-spine-size, 0.5rem);
+    height: var(--orbital-history-spine-size, 0.5rem);
     border-radius: 50%;
     background: var(--orb-color-border-subtle);
     flex: 0 0 auto;
@@ -189,12 +189,21 @@ pub fn history_styles() -> &'static str {
 }
 
 .orbital-history__time-rail {
-    flex: 0 0 var(--orbital-history-time-rail-width);
-    width: var(--orbital-history-time-rail-width);
+    flex: 0 0 var(--orbital-history-time-rail-width, 4.5rem);
+    width: var(--orbital-history-time-rail-width, 4.5rem);
 }
 
 .orbital-history__timestamp {
     color: var(--orb-color-foreground-3);
+}
+
+/* Natural rows open with a Persona (actor, then time); a little space before the change. */
+.orbital-history__persona {
+    margin-bottom: var(--orb-space-block-xs);
+}
+
+.orbital-history__persona .orbital-history__timestamp {
+    display: block;
 }
 
 .orbital-history__actor {
@@ -278,6 +287,32 @@ pub fn history_styles() -> &'static str {
     pointer-events: none;
 }
 
+/* Headings in rendered Markdown follow Orbital's text ramp: Title3, Subtitle1, Body1Strong. */
+.orbital-history__markdown :is(h1, h2, h3, h4, h5, h6) {
+    margin: var(--orb-space-block-sm) 0 var(--orb-space-block-2xs);
+    color: var(--orb-color-text-primary);
+    font-weight: var(--orb-type-weight-semibold);
+}
+
+.orbital-history__markdown h1 {
+    font-size: var(--orb-type-size-lg);
+    line-height: var(--orb-type-line-xl);
+}
+
+.orbital-history__markdown h2 {
+    font-size: var(--orb-type-size-md);
+    line-height: var(--orb-type-line-lg);
+}
+
+.orbital-history__markdown :is(h3, h4, h5, h6) {
+    font-size: var(--orb-type-size-sm);
+    line-height: var(--orb-type-line-md);
+}
+
+.orbital-history__markdown > :first-child {
+    margin-top: 0;
+}
+
 .orbital-history__markdown .orbital-markdown__image {
     display: block;
     max-width: 100%;
@@ -331,14 +366,14 @@ pub fn history_styles() -> &'static str {
 .orbital-history__skeleton {
     display: flex;
     flex-direction: column;
-    gap: var(--orbital-history-row-gap);
+    gap: var(--orbital-history-row-gap, var(--orb-space-block-xs));
     padding: var(--orb-space-block-sm) var(--orb-space-inline-md);
 }
 
 .orbital-history__skeleton-row {
     display: flex;
     gap: var(--orb-space-inline-sm);
-    padding-block: var(--orbital-history-row-padding-block);
+    padding-block: var(--orbital-history-row-padding-block, var(--orb-space-block-sm));
 }
 
 .orbital-history__skeleton-row--compact {
@@ -346,6 +381,11 @@ pub fn history_styles() -> &'static str {
 }
 
 .orbital-history__skeleton-bars--compact {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.orbital-history__skeleton-fill {
     flex: 1 1 auto;
     min-width: 0;
 }

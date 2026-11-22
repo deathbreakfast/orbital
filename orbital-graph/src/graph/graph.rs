@@ -1,8 +1,10 @@
 //! The `Graph` component: draws a [`GraphLayout`] as SVG with selection,
-//! chain mode, pan, zoom and keyboard navigation.
+//! chain mode, pan, zoom, a background grid, toolbar and minimap overlays,
+//! auto-fit and keyboard navigation.
 
 use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::Duration;
 
 use leptos::ev::{FocusEvent, KeyboardEvent, MouseEvent, PointerEvent, WheelEvent};
 use leptos::prelude::*;
@@ -11,11 +13,12 @@ use orbital_style::inject_style;
 use wasm_bindgen::JsCast;
 
 use super::keyboard::{next_focus, NavKey};
+use super::minimap::GraphMinimap;
 use super::model::{
     chain_closure, filter_hidden, line_baselines, neighbourhood, views_by_id, Highlight,
 };
 use super::styles::GRAPH_STYLES;
-use super::viewport::{fit, Viewport, ZOOM_STEP};
+use super::viewport::{fit, Viewport, DBLCLICK_ZOOM, ZOOM_STEP};
 use crate::{
     layout, EdgeKind, EdgeRoute, GraphInput, GraphLayout, GraphNodeView, GroupBox, LayoutOptions,
     NodePlacement, Point,
@@ -23,14 +26,83 @@ use crate::{
 
 /// Lets a host drive the graph's viewport, such as a toolbar's Fit button.
 ///
-/// [`Graph`] hands one over through `on_handle` after it mounts.
+/// [`Graph`] hands one over through `on_handle` after it mounts, and puts it
+/// in context for a [`GraphToolbar`](crate::GraphToolbar) or
+/// [`GraphMinimap`](crate::GraphMinimap) drawn inside it. Only [`Graph`]
+/// makes one.
 #[derive(Debug, Clone, Copy)]
 pub struct GraphHandle {
-    /// Scales the layout to fit the container (never above 100%) and centres it.
+    /// Scales the layout to fit the container (never above 100%), centres it
+    /// and turns auto-fit back on.
     pub fit: Callback<()>,
     /// Zooms to the given scale (clamped to 0.2–2.2) around the container's centre.
     pub zoom_to: Callback<f64>,
+    /// Zooms in one step (×1.2) around the container's centre.
+    pub zoom_in: Callback<()>,
+    /// Zooms out one step (÷1.2) around the container's centre.
+    pub zoom_out: Callback<()>,
+    /// Current zoom; 1 is 100%.
+    pub scale: Signal<f64>,
+    /// False once the zoom is at its 2.2 maximum.
+    pub can_zoom_in: Signal<bool>,
+    /// False once the zoom is at its 0.2 minimum (or a fit went below it).
+    pub can_zoom_out: Signal<bool>,
+    /// Whether the graph draws its [`GraphMinimap`](crate::GraphMinimap)
+    /// overlay; the same signal as the graph's `minimap` prop.
+    pub minimap: RwSignal<bool>,
+    pub(crate) canvas: GraphCanvas,
 }
+
+/// The graph's view state a [`GraphMinimap`](crate::GraphMinimap) reads and moves.
+#[derive(Clone, Copy)]
+pub(crate) struct GraphCanvas {
+    /// The drawn layout, cached; reading it never reruns `layout()`.
+    pub(crate) layout: Memo<GraphLayout>,
+    pub(crate) viewport: RwSignal<Viewport>,
+    /// Container size in px, kept current by a `ResizeObserver`.
+    pub(crate) size: RwSignal<(f64, f64)>,
+    /// True until the user pans or zooms; while true the graph refits itself.
+    pub(crate) auto_fit: StoredValue<bool>,
+}
+
+impl std::fmt::Debug for GraphCanvas {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GraphCanvas").finish_non_exhaustive()
+    }
+}
+
+impl GraphCanvas {
+    /// Moves the view on the user's behalf, which stops auto-fit.
+    pub(crate) fn set_by_user(&self, next: Viewport) {
+        self.auto_fit.set_value(false);
+        self.viewport.set(next);
+    }
+}
+
+/// What [`Graph`] draws behind the nodes. It pans and zooms with them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum GraphBackground {
+    /// 1px dots on an 18px grid (the default).
+    #[default]
+    Dots,
+    /// Thin lines on an 18px grid.
+    Lines,
+    /// The plain canvas colour.
+    None,
+}
+
+impl GraphBackground {
+    fn as_str(self) -> &'static str {
+        match self {
+            GraphBackground::Dots => "dots",
+            GraphBackground::Lines => "lines",
+            GraphBackground::None => "none",
+        }
+    }
+}
+
+/// Wait after the last viewport change before `on_viewport` fires.
+const VIEWPORT_DEBOUNCE: Duration = Duration::from_millis(250);
 
 /// A pointer drag of less than this many px counts as a click.
 const CLICK_SLOP_PX: f64 = 4.0;
@@ -84,6 +156,7 @@ struct NodeCtx {
     focused: RwSignal<Option<String>>,
     select: Callback<Option<String>>,
     reveal: Callback<String>,
+    open: Option<Callback<String>>,
 }
 
 /// Dependency graph drawn as SVG: rounded boxes in the layered layout from
@@ -92,7 +165,10 @@ struct NodeCtx {
 ///
 /// Click a node, or focus it and press Enter or Space, to select it; the rest
 /// dims. Drag the background, or middle-drag anywhere, to pan; scroll to zoom;
-/// press `0` to fit.
+/// double-click the background to zoom in ×2 at the pointer (Ctrl or ⌘ +
+/// double-click zooms out); press `0` to fit. A dot grid behind the nodes
+/// moves and scales with them. The graph refits itself when its nodes or its
+/// container size change, until the user pans or zooms.
 ///
 /// # When to use
 ///
@@ -105,18 +181,32 @@ struct NodeCtx {
 /// 1. Build the shape as a [`GraphInput`] and pass it as `input`.
 /// 2. Pass one [`GraphNodeView`] per node id as `nodes`: its fill, one to three
 ///    text lines and, for legend hiding, its `set`.
-/// 3. Give the graph an accessible `label` and a height through its container.
+/// 3. Give the graph an accessible `label` and a height: the `height` prop, or a
+///    container with a height.
 /// 4. Own `selected` when the host shows details for the selected node; pass
 ///    `chain` and `hidden_sets` for the toolbar and [`GraphLegend`](crate::GraphLegend).
-/// 5. Keep the [`GraphHandle`] from `on_handle` to wire a Fit button.
+/// 5. Put a [`GraphToolbar`](crate::GraphToolbar) in the `toolbar` slot for
+///    zoom, Fit and Minimap buttons plus the host's own actions, or keep the
+///    [`GraphHandle`] from `on_handle` to wire controls elsewhere.
+/// 6. Set `on_node_open` when a node opens something (a task page or peek);
+///    set `on_viewport` to save the view.
 ///
 /// The layout reruns only when `input` or the hidden sets change, so
 /// recolouring or relabelling through `nodes` keeps every box in place.
+/// Zooming, panning and selecting change signals only; nothing remounts.
+///
+/// Auto-fit: the graph fits itself after mount and again whenever the drawn
+/// set (`input` or `hidden_sets`) or the container size changes. A pan or
+/// zoom by the user turns that off so the view stays where they put it; Fit
+/// (the button, `0` or [`GraphHandle::fit`]) turns it back on. Zoom changes
+/// ease over 150ms, and jump straight there under `prefers-reduced-motion`.
 ///
 /// Keyboard: the graph is one tab stop. Arrow Left and Right move to the
 /// nearest node in the previous or next column, Up and Down within the
-/// column, Enter or Space selects, Escape clears, `+` and `-` zoom and `0`
-/// fits.
+/// column, Enter or Space selects, Shift+Enter opens the node (when
+/// `on_node_open` is set), Escape clears, `+` and `-` zoom and `0` fits. The
+/// toolbar's buttons are named for screen readers; the minimap is hidden
+/// from them, since Fit and the keyboard reach everything it does.
 ///
 /// # Best Practices
 ///
@@ -124,14 +214,19 @@ struct NodeCtx {
 ///
 /// - Put status in a node's lines or `aria_label` as well as its fill; colour
 ///   is never the only signal.
-/// - Give the container a height (`height: 480px`, or a flex child that
-///   grows); the graph fills it with a 320px minimum.
+/// - Set `height="480px"`, or give the container a height (or make it a flex
+///   child that grows); without either the graph fills its container with a
+///   320px minimum.
 /// - Keep the first line short: it is cut with `…` at about 21 characters.
+/// - Put filters and view options in the toolbar's `leading` / `trailing`
+///   slots so every canvas control sits in one row.
 ///
 /// ## Don'ts
 ///
 /// - Don't rebuild `input` when only colours or labels change; update `nodes`.
 /// - Don't put hex colours in a host's colour rules; choose a [`GraphFill`](crate::GraphFill).
+/// - Don't call `fit` after every data refresh; auto-fit already refits until
+///   the user takes over, and a forced fit throws away their view.
 ///
 /// # Examples
 ///
@@ -145,8 +240,8 @@ struct NodeCtx {
 /// let input = RwSignal::new(sample_project_input());
 /// let nodes = RwSignal::new(sample_project_views());
 /// view! {
-///     <div data-testid="graph-project" style="height: 460px;">
-///         <Graph input=input nodes=nodes label="Billing revamp task graph" />
+///     <div data-testid="graph-project">
+///         <Graph input=input nodes=nodes height="460px" label="Billing revamp task graph" />
 ///     </div>
 /// }
 /// ```
@@ -284,6 +379,109 @@ struct NodeCtx {
 /// }
 /// ```
 ///
+/// ## Canvas with toolbar and minimap
+/// A [`GraphToolbar`](crate::GraphToolbar) in the `toolbar` slot holds Zoom
+/// out, Zoom in, Fit and Minimap, with a host action in its `leading` slot.
+/// Double-click the background to zoom in; zoom in and turn the minimap on
+/// to move around from the corner.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Graph, GraphToolbar};
+/// use crate::preview::fixtures::{sample_project_input, sample_project_views};
+/// use orbital_core_components::{Button, ButtonAppearance};
+/// let input = RwSignal::new(sample_project_input());
+/// let nodes = RwSignal::new(sample_project_views());
+/// let minimap = RwSignal::new(false);
+/// let clicks = RwSignal::new(0_u32);
+/// view! {
+///     <div data-testid="graph-canvas">
+///         <Graph
+///             input=input
+///             nodes=nodes
+///             minimap=minimap
+///             height="460px"
+///             label="Billing revamp task graph"
+///             data_testid="graph-canvas-graph"
+///             toolbar=std::sync::Arc::new(move || view! {
+///                 <GraphToolbar
+///                     data_testid="graph-canvas-toolbar"
+///                     leading=std::sync::Arc::new(move || view! {
+///                         <span data-testid="graph-canvas-action">
+///                             <Button
+///                                 appearance=ButtonAppearance::Subtle
+///                                 on_click=Callback::new(move |_| clicks.update(|n| *n += 1))
+///                             >
+///                                 "Hide done"
+///                             </Button>
+///                         </span>
+///                     }.into_any())
+///                 />
+///             }.into_any())
+///         />
+///         <span data-testid="graph-canvas-clicks">{move || clicks.get().to_string()}</span>
+///     </div>
+/// }
+/// ```
+///
+/// ## Background
+/// `background` picks the grid behind the nodes: dots (the default), lines
+/// or none.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Graph, GraphBackground};
+/// use crate::preview::fixtures::{sample_parent_input, sample_parent_views};
+/// let input = RwSignal::new(sample_parent_input());
+/// let nodes = RwSignal::new(sample_parent_views());
+/// view! {
+///     <div data-testid="graph-background" style="height: 300px;">
+///         <Graph
+///             input=input
+///             nodes=nodes
+///             background=GraphBackground::Lines
+///             label="Billing revamp parent tasks on a line grid"
+///         />
+///     </div>
+/// }
+/// ```
+///
+/// ## Open a node
+/// With `on_node_open` set, double-clicking a node (or Shift+Enter on a
+/// focused one) opens it instead of zooming. `on_viewport` reports the view
+/// a moment after it stops moving, for hosts that save it.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Graph;
+/// use crate::preview::fixtures::{sample_project_input, sample_project_views};
+/// use orbital_core_components::{Flex, FlexGap};
+/// let input = RwSignal::new(sample_project_input());
+/// let nodes = RwSignal::new(sample_project_views());
+/// let opened = RwSignal::new(None::<String>);
+/// let scale = RwSignal::new(None::<f64>);
+/// view! {
+///     <div data-testid="graph-open">
+///         <Flex vertical=true gap=FlexGap::Small>
+///             <div style="height: 420px;">
+///                 <Graph
+///                     input=input
+///                     nodes=nodes
+///                     on_node_open=Callback::new(move |id| opened.set(Some(id)))
+///                     on_viewport=Callback::new(move |vp: crate::viewport::Viewport| {
+///                         scale.set(Some(vp.scale))
+///                     })
+///                     label="Billing revamp task graph"
+///                 />
+///             </div>
+///             <span data-testid="graph-open-opened">
+///                 {move || opened.get().unwrap_or_else(|| "none".to_string())}
+///             </span>
+///             <span data-testid="graph-open-scale">
+///                 {move || scale.get().map(|s| format!("{s:.2}")).unwrap_or_default()}
+///             </span>
+///         </Flex>
+///     </div>
+/// }
+/// ```
+///
 /// ## Theme token
 /// One node per [`GraphFill`](crate::GraphFill). Fills map to theme tokens
 /// only, so switching the catalog to dark mode recolours every box and line.
@@ -337,9 +535,36 @@ pub fn Graph(
     /// `data-testid` on the root `div`.
     #[prop(optional, into)]
     data_testid: MaybeProp<String>,
+    /// Height as a CSS length (`"480px"`, `"60vh"`). Without it the graph fills its
+    /// container's height, with a 320px minimum.
+    #[prop(optional, into)]
+    height: MaybeProp<String>,
     /// Receives a [`GraphHandle`] after mount, for a host's Fit and zoom controls.
     #[prop(optional)]
     on_handle: Option<Callback<GraphHandle>>,
+    /// Grid behind the nodes, panning and zooming with them. Defaults to
+    /// [`GraphBackground::Dots`]: 1px dots 18px apart in `--orb-graph-grid`.
+    #[prop(optional)]
+    background: GraphBackground,
+    /// Slot overlaid along the top of the canvas, usually a
+    /// [`GraphToolbar`](crate::GraphToolbar) (which finds this graph's
+    /// [`GraphHandle`] by itself). Empty by default.
+    #[prop(optional)]
+    toolbar: Option<ChildrenFn>,
+    /// Whether the [`GraphMinimap`](crate::GraphMinimap) overlay shows in the
+    /// bottom-right corner (off by default). The toolbar's Minimap button
+    /// toggles it; own it to remember the choice. It stays hidden while the
+    /// whole graph is in view.
+    #[prop(optional, into)]
+    minimap: RwSignal<bool>,
+    /// Fires with a node's id on double-click, or Shift+Enter on the focused
+    /// node. When unset, double-clicking a node zooms in like the background.
+    #[prop(optional)]
+    on_node_open: Option<Callback<String>>,
+    /// Fires with the new [`Viewport`] 250ms after the view stops changing,
+    /// for hosts that save and restore it.
+    #[prop(optional)]
+    on_viewport: Option<Callback<Viewport>>,
 ) -> impl IntoView {
     inject_style("orbital-graph", GRAPH_STYLES);
 
@@ -376,6 +601,15 @@ pub fn Graph(
         prefix.set(Some(format!("orbital-graph-{n}")));
     });
 
+    let size = RwSignal::new((0.0_f64, 0.0_f64));
+    let auto_fit = StoredValue::new(true);
+    let canvas = GraphCanvas {
+        layout: graph,
+        viewport,
+        size,
+        auto_fit,
+    };
+
     let container_size = move || {
         container
             .get_untracked()
@@ -383,14 +617,24 @@ pub fn Graph(
             .unwrap_or((0.0, 0.0))
     };
     let do_fit = move || {
+        auto_fit.set_value(true);
         let (cw, ch) = container_size();
         let next = graph.with_untracked(|g| fit(g.width, g.height, cw, ch));
         viewport.set(next);
     };
     let zoom_centre = move |scale: f64| {
         let (cw, ch) = container_size();
-        viewport.update(|vp| *vp = vp.zoom_at(cw / 2.0, ch / 2.0, scale));
+        let next = viewport.get_untracked().zoom_at(cw / 2.0, ch / 2.0, scale);
+        canvas.set_by_user(next);
     };
+
+    // Track the container size so auto-fit and the minimap follow resizes.
+    Effect::new(move |_| {
+        let Some(el) = container.get() else {
+            return;
+        };
+        observe_size(el, size);
+    });
 
     let select = Callback::new(move |id: Option<String>| {
         if selected.get_untracked() != id {
@@ -410,7 +654,11 @@ pub fn Graph(
         });
         if let Some(rect) = rect {
             let (cw, ch) = container_size();
-            viewport.update(|vp| *vp = vp.reveal(rect, cw, ch));
+            let current = viewport.get_untracked();
+            let next = current.reveal(rect, cw, ch);
+            if next != current {
+                canvas.set_by_user(next);
+            }
         }
     });
 
@@ -427,22 +675,54 @@ pub fn Graph(
         reveal.run(id);
     };
 
-    // Fit once the first non-empty layout is on screen.
-    let fitted = StoredValue::new(false);
+    // Auto-fit: refit when the drawn layout or the container size changes,
+    // until the user pans or zooms.
     Effect::new(move |_| {
         let empty = graph.with(|g| g.nodes.is_empty());
-        if !empty && !fitted.get_value() {
-            fitted.set_value(true);
+        size.track();
+        if !empty && auto_fit.get_value() {
             do_fit();
         }
     });
 
+    let scale = Memo::new(move |_| viewport.get().scale);
+    let can_zoom_in = Memo::new(move |_| viewport.get().can_zoom_in());
+    let can_zoom_out = Memo::new(move |_| viewport.get().can_zoom_out());
+    let handle = GraphHandle {
+        fit: Callback::new(move |()| do_fit()),
+        zoom_to: Callback::new(zoom_centre),
+        zoom_in: Callback::new(move |()| zoom_centre(viewport.get_untracked().scale * ZOOM_STEP)),
+        zoom_out: Callback::new(move |()| zoom_centre(viewport.get_untracked().scale / ZOOM_STEP)),
+        scale: scale.into(),
+        can_zoom_in: can_zoom_in.into(),
+        can_zoom_out: can_zoom_out.into(),
+        minimap,
+        canvas,
+    };
+    provide_context(handle);
     if let Some(on_handle) = on_handle {
-        let handle = GraphHandle {
-            fit: Callback::new(move |()| do_fit()),
-            zoom_to: Callback::new(zoom_centre),
-        };
         Effect::new(move |_| on_handle.run(handle));
+    }
+
+    // Report the view once it settles.
+    if let Some(on_viewport) = on_viewport {
+        let generation = StoredValue::new(0_u64);
+        Effect::new(move |prev: Option<Viewport>| {
+            let vp = viewport.get();
+            if prev.is_some_and(|prev| prev != vp) {
+                let n = generation.get_value() + 1;
+                generation.set_value(n);
+                set_timeout(
+                    move || {
+                        if generation.try_get_value() == Some(n) {
+                            on_viewport.run(vp);
+                        }
+                    },
+                    VIEWPORT_DEBOUNCE,
+                );
+            }
+            vp
+        });
     }
 
     // A selected node whose set gets hidden clears the selection.
@@ -475,6 +755,7 @@ pub fn Graph(
         focused,
         select,
         reveal,
+        open: on_node_open,
     };
 
     let on_wheel = move |ev: WheelEvent| {
@@ -490,7 +771,27 @@ pub fn Graph(
         } else {
             1.0 / ZOOM_STEP
         };
-        viewport.update(|vp| *vp = vp.zoom_at(px, py, vp.scale * factor));
+        let vp = viewport.get_untracked();
+        canvas.set_by_user(vp.zoom_at(px, py, vp.scale * factor));
+    };
+
+    // Double-click zooms in ×2 at the pointer; Ctrl or ⌘ zooms out. A node
+    // with `on_node_open` set stops the event before it gets here.
+    let on_dblclick = move |ev: MouseEvent| {
+        ev.prevent_default();
+        let Some(root) = container.get_untracked() else {
+            return;
+        };
+        let rect = root.get_bounding_client_rect();
+        let px = f64::from(ev.client_x()) - rect.left();
+        let py = f64::from(ev.client_y()) - rect.top();
+        let vp = viewport.get_untracked();
+        let scale = if ev.ctrl_key() || ev.meta_key() {
+            vp.scale / DBLCLICK_ZOOM
+        } else {
+            vp.scale * DBLCLICK_ZOOM
+        };
+        canvas.set_by_user(vp.zoom_at(px, py, scale));
     };
 
     let on_pointerdown = move |ev: PointerEvent| {
@@ -528,6 +829,7 @@ pub fn Graph(
         if !d.moved && dx.hypot(dy) >= CLICK_SLOP_PX {
             d.moved = true;
             panning.set(true);
+            auto_fit.set_value(false);
         }
         if d.moved {
             viewport.set(d.origin.pan_by(dx, dy));
@@ -586,6 +888,12 @@ pub fn Graph(
             return;
         }
         match key.as_str() {
+            "Enter" if ev.shift_key() && on_node_open.is_some() => {
+                if let (Some(current), Some(open)) = (current, on_node_open) {
+                    ev.prevent_default();
+                    open.run(current);
+                }
+            }
             "Enter" | " " => {
                 if let Some(current) = current {
                     ev.prevent_default();
@@ -614,9 +922,45 @@ pub fn Graph(
         }
     };
 
-    let root_class = move || match class.get() {
-        Some(extra) if !extra.is_empty() => format!("orbital-graph {extra}"),
-        _ => "orbital-graph".to_string(),
+    let root_class = move || {
+        let mut out = "orbital-graph".to_string();
+        if panning.get() {
+            out.push_str(" orbital-graph--panning");
+        }
+        if let Some(extra) = class.get().filter(|c| !c.is_empty()) {
+            out.push(' ');
+            out.push_str(&extra);
+        }
+        out
+    };
+    let grid = (background != GraphBackground::None).then(|| {
+        let grid_class = format!(
+            "orbital-graph__grid orbital-graph__grid--{}",
+            background.as_str()
+        );
+        let grid_style = move || {
+            let vp = viewport.get();
+            let pitch = round_px(vp.grid_pitch());
+            format!(
+                "background-size: {pitch}px {pitch}px; background-position: {}px {}px;",
+                round_px(vp.x),
+                round_px(vp.y)
+            )
+        };
+        view! { <div class=grid_class style=grid_style aria-hidden="true"></div> }
+    });
+    let toolbar = toolbar.map(|toolbar| {
+        view! { <div class="orbital-graph__toolbar">{toolbar()}</div> }
+    });
+    let minimap_overlay = move || {
+        minimap.get().then(|| {
+            let testid = data_testid.get().map(|id| format!("{id}-minimap"));
+            view! {
+                <div class="orbital-graph__minimap-slot">
+                    <GraphMinimap handle=handle data_testid=testid />
+                </div>
+            }
+        })
     };
     let svg_class = move || {
         if panning.get() {
@@ -627,12 +971,20 @@ pub fn Graph(
     };
 
     view! {
-        <div class=root_class data-testid=move || data_testid.get() node_ref=container>
+        <div
+            class=root_class
+            data-testid=move || data_testid.get()
+            style=move || height.get().map(|h| format!("height:{h};min-height:{h};"))
+            data-background=background.as_str()
+            node_ref=container
+        >
+            {grid}
             <svg
                 class=svg_class
                 role="group"
                 aria-label=label
                 on:wheel=on_wheel
+                on:dblclick=on_dblclick
                 on:pointerdown=on_pointerdown
                 on:mousedown=on_mousedown
                 on:auxclick=on_auxclick
@@ -660,8 +1012,44 @@ pub fn Graph(
                     }}
                 </g>
             </svg>
+            {toolbar}
+            {minimap_overlay}
         </div>
     }
+}
+
+/// Rounds a px value to 0.001 for stable inline styles.
+fn round_px(v: f64) -> f64 {
+    (v * 1000.0).round() / 1000.0
+}
+
+/// Writes the element's size into `size` now and on every resize, until the
+/// owning effect is cleaned up.
+fn observe_size(el: web_sys::HtmlDivElement, size: RwSignal<(f64, f64)>) {
+    use send_wrapper::SendWrapper;
+    use wasm_bindgen::closure::Closure;
+
+    let measure = |el: &web_sys::HtmlDivElement| {
+        (f64::from(el.client_width()), f64::from(el.client_height()))
+    };
+    size.set(measure(&el));
+    let target = el.clone();
+    let on_resize = Closure::<dyn FnMut()>::new(move || {
+        let next = measure(&target);
+        if size.try_get_untracked().is_some_and(|now| now != next) {
+            size.set(next);
+        }
+    });
+    let Ok(observer) = web_sys::ResizeObserver::new(on_resize.as_ref().unchecked_ref()) else {
+        return;
+    };
+    observer.observe(&el);
+    let held = SendWrapper::new((observer, on_resize));
+    on_cleanup(move || {
+        let (observer, on_resize) = held.take();
+        observer.disconnect();
+        drop(on_resize);
+    });
 }
 
 /// CSS selector for a node's `<g>`, with the id quoted safely.
@@ -886,6 +1274,16 @@ fn node_view(
         let id = id.clone();
         move |_| ctx.select.run(Some(id.clone()))
     };
+    let on_dblclick = {
+        let id = id.clone();
+        move |ev: MouseEvent| {
+            if let Some(open) = ctx.open {
+                ev.stop_propagation();
+                ev.prevent_default();
+                open.run(id.clone());
+            }
+        }
+    };
     let on_focus = {
         let id = id.clone();
         move |_: FocusEvent| {
@@ -923,6 +1321,7 @@ fn node_view(
                 }
             }
             on:click=on_click
+            on:dblclick=on_dblclick
             on:focus=on_focus
         >
             <rect class="orbital-graph__focus" x="-4" y="-4" width=w + 8.0 height=h + 8.0 rx="11" />
@@ -984,6 +1383,45 @@ mod tests {
         assert_eq!(html.matches("tabindex=\"0\"").count(), 1);
         // The server renders the identity viewport; the client fits after mount.
         assert!(html.contains("transform: translate(0px, 0px) scale(1);"));
+        // Dot grid by default; no toolbar or minimap unless asked for.
+        assert!(html.contains("data-background=\"dots\""), "{html}");
+        assert!(html.contains("orbital-graph__grid orbital-graph__grid--dots"));
+        assert!(html.contains("background-size: 18px 18px;"), "{html}");
+        assert!(!html.contains("orbital-graph__toolbar"));
+        assert!(!html.contains("orbital-graph-minimap"));
+    }
+
+    #[test]
+    fn graph_ssr_toolbar_slot_and_no_grid_happy() {
+        let _ = any_spawner::Executor::init_futures_executor();
+        let owner = Owner::new();
+        let html = owner.with(|| {
+            view! {
+                <Graph
+                    input=Signal::stored(sample_project_input())
+                    nodes=Signal::stored(sample_project_views())
+                    background=GraphBackground::None
+                    label="Billing revamp task graph"
+                    toolbar=std::sync::Arc::new(|| view! {
+                        <crate::GraphToolbar data_testid="tb" />
+                    }.into_any())
+                />
+            }
+            .to_html()
+        });
+        assert!(html.contains("data-background=\"none\""));
+        assert!(!html.contains("orbital-graph__grid"));
+        assert!(html.contains("orbital-graph__toolbar"), "{html}");
+        for name in ["Zoom out", "Zoom in", "Fit to view"] {
+            assert!(
+                html.contains(&format!("aria-label=\"{name}\"")),
+                "{name}: {html}"
+            );
+        }
+        assert!(html.contains("aria-label=\"Graph controls\""));
+        assert!(html.contains("data-testid=\"tb-minimap\""));
+        // Still exactly one node tab stop with the toolbar present.
+        assert_eq!(html.matches("tabindex=\"0\"").count(), 1);
     }
 
     #[test]

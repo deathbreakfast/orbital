@@ -23,6 +23,20 @@ pub fn list_styles() -> &'static str {
     user-select: none;
 }
 
+.orbital-list__item-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.orbital-list__item-trailing {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--orb-space-inline-xs);
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+    padding-inline-start: var(--orb-space-inline-sm);
+}
+
 .orbital-list__item:hover {
     background: var(--orb-color-surface-canvas-hover);
 }

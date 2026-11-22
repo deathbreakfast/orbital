@@ -10,7 +10,8 @@
 #
 # Options: --no-build, --no-install, --out DIR. lanes.conf may set BASE_PATH
 # (URL prefix the app is mounted under). Env: LANES, LANE_BUDGET
-# (seconds per lane, default 1200), LANES_OUT, CARGO_TARGET_DIR.
+# (seconds per lane, default 1200), LANES_OUT, CARGO_TARGET_DIR, LANES_CONF
+# (another settings file, e.g. a release-profile variant).
 #
 # Output in $LANES_OUT (default lanes-out/<stamp>): lane-<i>/{timing.tsv,
 # results.json, playwright.log, server.log}, stages.tsv, summary.{md,json}.
@@ -21,7 +22,7 @@ set -uo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=/dev/null
-source "$here/lanes.conf"
+source "${LANES_CONF:-$here/lanes.conf}"
 if [ -n "${REPO_ROOT:-}" ]; then root=$(cd "$here/$REPO_ROOT" && pwd); else root=$(git -C "$here" rev-parse --show-toplevel); fi
 [ -d "$root" ] || { echo "run-lanes: can't find the repo root" >&2; exit 2; }
 
@@ -138,6 +139,7 @@ run_lane() {
   done
   t1=$(now)
   if curl -sf -o /dev/null "http://127.0.0.1:$port${READY_PATH:-/health}"; then
+    if declare -F lane_warm >/dev/null; then lane_warm "$i" "$port" "$o"; fi
     if [ "$serial" = 0 ] && [ "$targeted" = 0 ]; then
       if [ -f "$o/list.txt" ]; then args=(--test-list="$o/list.txt"); else args=(--shard="$i/$lanes"); fi
     fi

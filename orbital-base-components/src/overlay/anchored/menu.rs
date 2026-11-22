@@ -59,7 +59,7 @@ where
     view! {
         <Provider value=menu_injection>
             <AnchoredOverlay config=config overlay_trigger=overlay_trigger>
-                <OverlaySurface class=shell_class role="menu" style=style data_testid=data_testid>
+                <OverlaySurface class=shell_class style=style data_testid=data_testid>
                     <MenuKeyboardRegion autofocus=autofocus>
                         {children()}
                     </MenuKeyboardRegion>

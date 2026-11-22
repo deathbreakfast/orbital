@@ -180,6 +180,7 @@ async fn mock_paged_history(
         has_more,
         total_count: Some(all.len() as u64),
         next_request_offset: has_more.then_some(next as u32),
+        ..Page::default()
     })
 }
 

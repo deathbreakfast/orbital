@@ -105,6 +105,48 @@ use crate::Label;
 /// }
 /// ```
 ///
+/// ## Visually hidden label
+/// `label_hidden=true` keeps the label for screen readers and hides it on screen,
+/// for controls whose purpose is already clear from the layout.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Field, Input, InputAppearance};
+/// let value = RwSignal::new(String::new());
+/// view! {
+///     <div data-testid="field-label-hidden">
+///         <Field label="Quick add task" label_hidden=true>
+///             <Input bind=value appearance=InputAppearance::with_placeholder("Add a task") />
+///         </Field>
+///     </div>
+/// }
+/// ```
+///
+/// ## Two date pickers side by side
+/// Inputs and date pickers fill their Field and shrink with it, so two pickers fit a
+/// two-column grid in a narrow card.
+/// <!-- preview -->
+/// ```rust
+/// use orbital_base_components::OrbitalDateTime;
+/// use crate::{DatePicker, Field, Grid, GridConfig};
+/// let start = RwSignal::new(None::<OrbitalDateTime>);
+/// let due = RwSignal::new(None::<OrbitalDateTime>);
+/// view! {
+///     <div
+///         data-testid="field-date-grid"
+///         style="width: 330px; padding: 12px; box-sizing: border-box; border: 1px solid var(--orb-color-border-default); border-radius: var(--orb-radius-md);"
+///     >
+///         <Grid config=GridConfig::with_gaps(2, 8, 8)>
+///             <Field label="Start">
+///                 <DatePicker bind=start />
+///             </Field>
+///             <Field label="Due">
+///                 <DatePicker bind=due />
+///             </Field>
+///         </Grid>
+///     </div>
+/// }
+/// ```
+///
 /// ## Select with validation
 /// Field can wrap any control — here a Select with `SelectRule::required`. The field shows the label, required marker, and validation message from the child rules.
 /// <!-- preview -->
@@ -231,10 +273,16 @@ pub fn Field(
     /// When true, shows a required indicator on the label.
     #[prop(optional, into)]
     required: Signal<bool>,
+    /// When true, the label is visually hidden but still names the control for
+    /// screen readers. Use it when the surrounding UI already shows what the
+    /// control is (a search box, an inline quick-add row).
+    #[prop(optional, into)]
+    label_hidden: Signal<bool>,
     /// The labeled control (Input, Select, etc.).
     children: Children,
 ) -> impl IntoView {
     inject_style("orbital-field", field_styles());
+    orbital_style::ensure_sr_only_styles();
 
     let id = StoredValue::new(new_field_id());
     let validation_state = RwSignal::new(None::<FieldValidationState>);
@@ -262,7 +310,13 @@ pub fn Field(
                     label.get().map(|label_text| {
                         view! {
                             <Label
-                                class="orbital-field__label"
+                                class=Signal::derive(move || {
+                                    if label_hidden.get() {
+                                        "orbital-field__label sr-only".to_string()
+                                    } else {
+                                        "orbital-field__label".to_string()
+                                    }
+                                })
                                 required=required
                                 html_for=MaybeProp::from(field_id.get_value())
                             >

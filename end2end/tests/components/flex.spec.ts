@@ -33,4 +33,17 @@ test.describe("flex primitive preview", () => {
     const centerRow = page.getByTestId("flex-align").locator(".orbital-flex").nth(2);
     await expect(centerRow).toHaveCSS("align-items", "center");
   });
+
+  test("FlexItem grow and basis split the row equally", async ({ page }) => {
+    await openComponentPreview(page, "flex");
+    const preview = page.getByTestId("flex-item-sizing");
+    await preview.scrollIntoViewIfNeeded();
+    const items = preview.locator(".orbital-flex-item");
+    await expect(items).toHaveCount(3);
+    await expect(items.nth(0)).toHaveCSS("flex-grow", "1");
+    await expect(items.nth(0)).toHaveCSS("flex-basis", "0px");
+    await expect(items.nth(2)).toHaveCSS("flex-shrink", "0");
+    const [a, b] = await Promise.all([items.nth(0).boundingBox(), items.nth(1).boundingBox()]);
+    expect(Math.abs(a!.width - b!.width)).toBeLessThan(1);
+  });
 });

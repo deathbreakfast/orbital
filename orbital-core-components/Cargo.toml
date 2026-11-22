@@ -37,6 +37,9 @@ inventory = { version = "0.3", optional = true }
 pulldown-cmark = { version = "0.13.6", optional = true }
 palette = "0.7"
 
+[dev-dependencies]
+any_spawner = { version = "0.3", features = ["futures-executor"] }
+
 [features]
 default = []
 preview = ["dep:inventory", "dep:pulldown-cmark"]

@@ -2,9 +2,9 @@ use leptos::html::Div;
 use leptos::prelude::*;
 use orbital_base_components::OverlayAppearance;
 use orbital_core_components::{
-    link_styles, navigation::popover::popover_styles, overlay::overlay_surface_class,
-    overlay::FloatingPanel, overlay::ThemedPortal, Persona, PersonaConfig, PersonaSecondaryText,
-    PersonaSize, PopoverSize,
+    inject_markdown_styles, link_styles, navigation::popover::popover_styles,
+    overlay::overlay_surface_class, overlay::FloatingPanel, overlay::ThemedPortal, Persona,
+    PersonaConfig, PersonaSecondaryText, PersonaSize, PopoverSize,
 };
 use orbital_style::inject_style;
 
@@ -22,6 +22,7 @@ pub fn HistoryMarkdownBody(
 ) -> impl IntoView {
     inject_style("orbital-link", link_styles());
     inject_style("orbital-popover", popover_styles());
+    inject_markdown_styles();
 
     let ctx = use_history_context();
     let features = ctx.features;

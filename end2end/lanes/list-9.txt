@@ -1,0 +1,100 @@
+[component-preview] › components/bar-chart.spec.ts › bar-chart preview › renders preview page
+[component-preview] › components/bar-chart.spec.ts › bar-chart preview › shows grouped bar marks
+[component-preview] › components/bar-chart.spec.ts › bar-chart preview › shows documented examples
+[component-preview] › components/bar-chart.spec.ts › bar-chart preview › dataset variant renders bars from processed dataset
+[component-preview] › components/bar-chart.spec.ts › bar-chart preview › horizontal variant renders bars
+[component-preview] › components/bar-chart.spec.ts › bar-chart-animation preview › renders animation playground
+[component-preview] › components/bar-chart.spec.ts › bar-chart-animation preview › skip animation toggle sets data attribute
+[component-preview] › components/data-table-scroll.spec.ts › data-table programmatic scroll › scroll_to_row brings target row into view
+[component-preview] › components/data-table-server.spec.ts › data-table server source › page 2 shows different rows than page 1
+[component-preview] › components/data-table-server.spec.ts › data-table server source › server sort descending returns highest user first
+[component-preview] › components/data-table-server.spec.ts › data-table server source › server role filter reduces total count
+[component-preview] › components/data-table-server.spec.ts › data-table server source › filter from page 2 clears stale total and resets to page 1
+[component-preview] › components/data-table-server.spec.ts › data-table server source › rapid pagination resolves to the last selected page
+[component-preview] › components/data-table-server.spec.ts › data-table server source › quick search invalidates server total
+[component-preview] › components/data-table-server.spec.ts › data-table server source › quick search with no server matches shows no-results, not empty
+[component-preview] › components/discussion-agent-parts.spec.ts › discussion agent parts preview › approve button fires on_tool_approval callback
+[component-preview] › components/discussion-agent-parts.spec.ts › discussion agent parts preview › streaming cursor visible on streaming text part
+[component-preview] › components/discussion-agent-parts.spec.ts › discussion agent parts preview › composer disabled while thread has Streaming reply
+[component-preview] › components/scheduler-calendar-drag-interactions.spec.ts › scheduler-calendar-drag-interactions preview › renders preview page
+[component-preview] › components/scheduler-calendar-drag-interactions.spec.ts › scheduler-calendar-drag-interactions preview › shows documented example
+[component-preview] › components/scheduler-calendar-drag-interactions.spec.ts › scheduler-calendar-drag-interactions preview › dragging event updates start time
+[component-preview] › components/scheduler-calendar-drag-interactions.spec.ts › scheduler-calendar-drag-interactions preview › navigating away mid-drag does not panic
+[component-preview] › components/discussion-events.spec.ts › discussion events preview › renders event log panel
+[component-preview] › components/charts-styling.spec.ts › charts-styling preview › renders preview page
+[component-preview] › components/charts-styling.spec.ts › charts-styling preview › shows documented examples
+[component-preview] › components/charts-styling.spec.ts › charts-styling preview › applies custom series color override
+[component-preview] › components/charts-styling.spec.ts › charts-styling preview › gradient variant uses linear gradient fill
+[component-preview] › components/data-table-excel-export.spec.ts › data-table Excel export › export menu shows Excel option and downloads xlsx zip
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › renders shell with sidebar nav
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › navigates to component preview from sidebar
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › nested catalog links indent deeper than group folder headers
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › sidebar nav starts below app bar
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › page title is not obscured by app bar at scroll 0
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › theme lives under getting started section
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › boot loader lives under getting started section
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › toolbar social icon buttons render in app bar
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › theme toggle flips background tokens
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › introduction: font families shown side by side
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › self-hosted fonts are served as binary, not HTML
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › hydration wasm asset is served for preview pages
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › introduction: catalog back to top returns to page top
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › stub page: catalog back to top returns to page top
+[component-preview] › components/catalog-shell.spec.ts › preview catalog shell › app bar search navigates to component preview
+[component-preview] › components/discussion-custom-areas.spec.ts › discussion custom areas › meta_view renders custom content
+[component-preview] › components/discussion-custom-areas.spec.ts › discussion custom areas › reply overflow menu fires on_reply_action
+[component-preview] › components/numeric-stepper.spec.ts › numeric-stepper primitive preview › NS-01: default numeric stepper increments and decrements
+[component-preview] › components/numeric-stepper.spec.ts › numeric-stepper primitive preview › NS-02: bounded range clamps on increment
+[component-preview] › components/numeric-stepper.spec.ts › numeric-stepper primitive preview › NS-03: custom step increments by five
+[component-preview] › components/numeric-stepper.spec.ts › numeric-stepper primitive preview › NS-04: disabled numeric stepper blocks interaction
+[component-preview] › components/numeric-stepper.spec.ts › numeric-stepper primitive preview › NS-05: small variant applies size class
+[component-preview] › components/data-table-filter-panel.spec.ts › data-table filter panel › apply role filter keeps matching rows
+[component-preview] › components/data-table-filter-panel.spec.ts › data-table filter panel › single-select column offers its choices and filters by one
+[component-preview] › components/data-table-filter-panel.spec.ts › data-table filter panel › column without choices keeps a text box
+[component-preview] › components/scheduler-timeline-navigation.spec.ts › scheduler-timeline-navigation preview › renders preview page
+[component-preview] › components/scheduler-timeline-navigation.spec.ts › scheduler-timeline-navigation preview › shows documented example
+[component-preview] › components/scheduler-timeline-navigation.spec.ts › scheduler-timeline-navigation preview › navigation changes visible date header
+[component-preview] › components/textarea.spec.ts › textarea primitive preview › TA-01: empty textarea accepts typing
+[component-preview] › components/textarea.spec.ts › textarea primitive preview › TA-02: filled textarea shows initial value
+[component-preview] › components/textarea.spec.ts › textarea primitive preview › TA-03: disabled textarea cannot be edited
+[component-preview] › components/textarea.spec.ts › textarea primitive preview › TA-04: fixed size textarea disables resize
+[component-preview] › components/textarea.spec.ts › textarea primitive preview › TA-05: required field validates on blur
+[component-preview] › components/scheduler-timeline-resources.spec.ts › scheduler-timeline-resources preview › renders preview page
+[component-preview] › components/scheduler-timeline-resources.spec.ts › scheduler-timeline-resources preview › shows documented example
+[component-preview] › components/scheduler-timeline-resources.spec.ts › scheduler-timeline-resources preview › resource labels and scoped events render
+[component-preview] › components/card-preview.spec.ts › card-preview slot preview › renders preview page
+[component-preview] › components/card-preview.spec.ts › card-preview slot preview › shows documented examples
+[component-preview] › components/card-preview.spec.ts › card-preview slot preview › custom hero slot region
+[component-preview] › components/discussion-integration.spec.ts › discussion integration preview › renders integration preview
+[component-preview] › components/discussion-integration.spec.ts › discussion integration preview › submit via adapter mock adds reply to list
+[component-preview] › components/data-table-summaries.spec.ts › data-table summaries › footer shows aggregate sum for amount column
+[component-preview] › components/label.spec.ts › label primitive preview › L-01: default label renders
+[component-preview] › components/label.spec.ts › label primitive preview › L-02: required label shows asterisk
+[component-preview] › components/label.spec.ts › label primitive preview › L-03: disabled label uses disabled modifier
+[component-preview] › components/label.spec.ts › label primitive preview › L-04: size matrix large label is taller than small
+[component-preview] › components/label.spec.ts › label primitive preview › L-05: weight matrix semibold is bolder than regular
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-01: default nested tree with branch expanded
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-02: small size modifier
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-03: deep nesting shows nested groups when expanded
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-04: click branch toggles expand and collapse
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-05: flat leaf list has no chevrons
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-06: theme surfaces resolve on items
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-07: single selection highlights row
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-09: icons and aside regions render
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-10: multi selection with ctrl toggle
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-11: checkbox mode selects branch
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-12: disabled focusable item
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-13: icon-container expansion only toggles on chevron
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-14: focus via button uses TreeApiRef
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-15: keyboard navigation moves focus
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-16: inline editing commits on Enter
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-17: connector borders class applied
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-18: reorderable tree shows drag handles
+[component-preview] › components/tree-view.spec.ts › tree-view primitive preview › TV-19: drag handle reorders sibling items
+[component-preview] › components/data-table-filtering.spec.ts › data-table filtering › filter panel greater-than operator reduces rows
+[component-preview] › components/layout.spec.ts › layout primitive preview › renders preview page
+[component-preview] › components/layout.spec.ts › layout primitive preview › shows documented examples
+[component-preview] › components/layout.spec.ts › layout primitive preview › overlay header bar matches standard height
+[component-preview] › components/layout.spec.ts › layout primitive preview › overlay main content starts below app bar at scroll 0
+[component-preview] › components/layout.spec.ts › layout primitive preview › overlay main scrolls content behind header region
+[component-preview] › components/layout.spec.ts › layout primitive preview › inset mode main scroll starts below app bar

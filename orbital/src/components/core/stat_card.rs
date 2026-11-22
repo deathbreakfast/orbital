@@ -60,6 +60,22 @@ pub enum StatCardVariant {
 /// }
 /// ```
 ///
+/// ## Footer
+/// Children render under the value, for a trend line, a link or a progress bar.
+/// The label also takes a signal.
+/// <!-- preview -->
+/// ```rust
+/// use orbital_core_components::Caption1;
+/// let goal = RwSignal::new("Launch goal".to_string());
+/// view! {
+///     <div data-testid="stat-card-footer">
+///         <StatCard label=goal value=Signal::derive(|| "68%".to_string())>
+///             <Caption1>"12 of 18 tasks done"</Caption1>
+///         </StatCard>
+///     </div>
+/// }
+/// ```
+///
 /// ## Color Variants
 /// Success, danger, and warning value colors side by side for status-driven metrics. Use when the number itself conveys health, such as error counts or success rates.
 /// <!-- preview -->
@@ -130,8 +146,9 @@ pub enum StatCardVariant {
 )]
 #[component]
 pub fn StatCard(
-    /// The label for the stat
-    label: &'static str,
+    /// The label for the stat (static text or a signal).
+    #[prop(into)]
+    label: Signal<String>,
     /// The value to display
     #[prop(into)]
     value: Signal<String>,
@@ -141,6 +158,12 @@ pub fn StatCard(
     /// Optional color variant
     #[prop(optional)]
     variant: Option<StatCardVariant>,
+    /// Extra CSS class names on the card.
+    #[prop(optional, into)]
+    class: MaybeProp<String>,
+    /// Footer content under the value (a trend, a link, a progress bar).
+    #[prop(optional)]
+    children: Option<Children>,
 ) -> impl IntoView {
     let variant = variant.unwrap_or(StatCardVariant::Default);
 
@@ -174,6 +197,10 @@ pub fn StatCard(
             line-height: 1;
         }
 
+        .orbital-stat-card-footer {
+            color: var(--orb-color-text-secondary);
+        }
+
         .orbital-stat-card-value-success {
             color: var(--orb-color-status-success-fg);
         }
@@ -205,13 +232,19 @@ pub fn StatCard(
 
     view! {
         <style>{style_sheet}</style>
-        <Card class=class_names.orbital_stat_card>
+        <Card class=Signal::derive(move || match class.get() {
+            Some(extra) if !extra.is_empty() => format!("{} {extra}", class_names.orbital_stat_card),
+            _ => class_names.orbital_stat_card.to_string(),
+        })>
             <div class=class_names.orbital_stat_card_content>
                 <div class=class_names.orbital_stat_card_header>
                     {icon.map(|i| view! { <Icon icon=i /> })}
-                    <Caption1 class=class_names.orbital_stat_card_label>{label}</Caption1>
+                    <Caption1 class=class_names.orbital_stat_card_label>{move || label.get()}</Caption1>
                 </div>
                 <Title2 class=value_class>{move || value.get()}</Title2>
+                {children.map(|footer| view! {
+                    <div class=class_names.orbital_stat_card_footer>{footer()}</div>
+                })}
             </div>
         </Card>
     }

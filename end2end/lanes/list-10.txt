@@ -1,0 +1,93 @@
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-01: autocomplete preview renders
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-02: select callback example is present
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-03: disabled autocomplete input is non-editable
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-04: field label is associated with autocomplete input
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-05: size matrix large input is taller than small
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-06: arrow and enter pick suggestion
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-07: typing filters options by value
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-08: clear after select resets input value
+[component-preview] › components/auto-complete.spec.ts › auto-complete primitive preview › AC-09: blur after select removes focus from input
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-01: gallery renders all atom cells
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-2: toggle motion-atom-fade
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-3: toggle motion-atom-fade-scale
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-4: toggle motion-atom-scale
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-5: toggle motion-atom-slide-bottom
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-6: toggle motion-atom-slide-top
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-7: toggle motion-atom-slide-left
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-8: toggle motion-atom-slide-right
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-9: toggle motion-atom-collapse
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-10: toggle motion-atom-blur
+[component-preview] › components/motion-atoms.spec.ts › motion atoms gallery › MA-11: toggle motion-atom-rotate
+[component-preview] › components/tag-group.spec.ts › tag-group primitive preview › TGR-01: default group renders multiple tags
+[component-preview] › components/tag-group.spec.ts › tag-group primitive preview › TGR-02: dismissible group shows dismiss buttons and removes tag on click
+[component-preview] › components/tag-group.spec.ts › tag-group primitive preview › TGR-03: small size group applies size modifier
+[component-preview] › components/tag-group.spec.ts › tag-group primitive preview › TGR-04: appearance group applies appearance modifiers
+[component-preview] › components/tag-group.spec.ts › tag-group primitive preview › TGR-05: many tags layout keeps inline flex group
+[component-preview] › components/data-table-row-pinning.spec.ts › data-table row pinning › pinned top row stays visible on vertical scroll
+[component-preview] › components/date-time-range-field.spec.ts › date-time-range-field placeholder preview › renders preview page
+[component-preview] › components/date-time-range-field.spec.ts › date-time-range-field placeholder preview › shows documented example
+[component-preview] › components/charts-tooltip.spec.ts › charts-tooltip preview › renders preview page
+[component-preview] › components/charts-tooltip.spec.ts › charts-tooltip preview › shows documented example
+[component-preview] › components/charts-tooltip.spec.ts › charts-tooltip preview › hovering a bar shows item tooltip
+[component-preview] › components/slider.spec.ts › slider primitive preview › SL-01: default slider renders and has range role
+[component-preview] › components/slider.spec.ts › slider primitive preview › SL-02: min/max constrain value
+[component-preview] › components/slider.spec.ts › slider primitive preview › SL-03: step slider snaps to increments
+[component-preview] › components/slider.spec.ts › slider primitive preview › SL-04: show_stops=false removes stop markers
+[component-preview] › components/slider.spec.ts › slider primitive preview › SL-05: vertical slider uses vertical class
+[component-preview] › components/slider.spec.ts › slider primitive preview › SL-06: slider labels render at key values
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-01: default tag picker renders large control
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-02: preselected value renders dismissible tag
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-03: keyboard arrow down and enter selects option
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-04: dismiss button removes selected tag
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-05: disabled option cannot be selected
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-06: option groups render grouped labels
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-07: extra-large size applies control class
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-08: on_search reports typed text and resets after selection
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-09: clicking an action option runs its callback without selecting
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-09: Enter on a focused action option runs its callback
+[component-preview] › components/tag-picker.spec.ts › tag-picker primitive preview › TP-09: disabled action option does nothing
+[component-preview] › components/time-range-field.spec.ts › time-range-field placeholder preview › renders preview page
+[component-preview] › components/time-range-field.spec.ts › time-range-field placeholder preview › shows documented example
+[component-preview] › components/scheduler-timeline.spec.ts › scheduler-timeline preview › renders preview page
+[component-preview] › components/scheduler-timeline.spec.ts › scheduler-timeline preview › shows documented example
+[component-preview] › components/scheduler-timeline.spec.ts › scheduler-timeline preview › timeline product root and lanes render
+[component-preview] › components/stat-card.spec.ts › stat-card preview › SC-01: default stat card shows label and value
+[component-preview] › components/stat-card.spec.ts › stat-card preview › SC-02: dashboard example shows multiple metrics
+[component-preview] › components/data-table-infinite-scroll.spec.ts › data-table infinite scroll › scroll loads additional rows and shows end marker
+[component-preview] › components/data-table-infinite-scroll.spec.ts › data-table infinite scroll › uses footer spinner only (no duplicate loading overlay)
+[component-preview] › components/data-table-infinite-scroll.spec.ts › data-table infinite scroll › shows overlay empty state for empty server infinite scroll
+[component-preview] › components/date-field.spec.ts › date-field preview behaviors › renders preview page
+[component-preview] › components/date-field.spec.ts › date-field preview behaviors › shows documented example
+[component-preview] › components/date-field.spec.ts › date-field preview behaviors › typing segments updates bound value
+[component-preview] › components/navigation.spec.ts › navigation primitive preview › renders preview page
+[component-preview] › components/navigation.spec.ts › navigation primitive preview › shows documented examples
+[component-preview] › components/navigation.spec.ts › navigation primitive preview › compact density rows are not double-padded
+[component-preview] › components/navigation.spec.ts › navigation primitive preview › link rows are not taller than category headers
+[component-preview] › components/navigation.spec.ts › navigation primitive preview › current item is marked aria-current, with no menu roles
+[component-preview] › components/discussion.spec.ts › discussion preview › renders preview page
+[component-preview] › components/discussion.spec.ts › discussion preview › shows fixture reply rows
+[component-preview] › components/discussion.spec.ts › discussion preview › thread root has discussion data attribute
+[component-preview] › components/discussion.spec.ts › discussion preview › renders author names and OP label
+[component-preview] › components/discussion.spec.ts › discussion preview › renders markdown formatting when enabled
+[component-preview] › components/discussion.spec.ts › discussion preview › renders card surface classes
+[component-preview] › components/discussion.spec.ts › discussion replies preview › rich thread preview renders chrome
+[component-preview] › components/data-table-pivot.spec.ts › data-table pivot › pivot panel applies dynamic columns
+[component-preview] › components/date-pickers-custom-layout.spec.ts › date-pickers-custom-layout preview › action bar clears calendar selection
+[component-preview] › components/app-bar.spec.ts › app-bar preview › renders preview page
+[component-preview] › components/app-bar.spec.ts › app-bar preview › shows documented examples
+[component-preview] › components/app-bar.spec.ts › app-bar preview › standard shell has app bar regions
+[component-preview] › components/app-bar.spec.ts › app-bar preview › shell flat material attrs
+[component-preview] › components/app-bar.spec.ts › app-bar preview › raised elevation applies shadow
+[component-preview] › components/app-bar.spec.ts › app-bar preview › density heights
+[component-preview] › components/app-bar.spec.ts › app-bar preview › position attrs on sticky and fixed
+[component-preview] › components/link.spec.ts › link primitive preview › LK-01 default anchor link
+[component-preview] › components/link.spec.ts › link primitive preview › LK-02 inline link underline
+[component-preview] › components/link.spec.ts › link primitive preview › LK-03 disabled link state
+[component-preview] › components/link.spec.ts › link primitive preview › LK-04 external href
+[component-preview] › components/link.spec.ts › link primitive preview › LK-05 theme link color token
+[component-preview] › components/scheduler-calendar-preferences.spec.ts › scheduler-calendar-preferences preview › renders preview page
+[component-preview] › components/scheduler-calendar-preferences.spec.ts › scheduler-calendar-preferences preview › shows documented example
+[component-preview] › components/scheduler-calendar-preferences.spec.ts › scheduler-calendar-preferences preview › hides weekend columns when show weekends is off
+[component-preview] › components/scheduler-timeline-lazy-loading.spec.ts › scheduler-timeline-lazy-loading preview › renders preview page
+[component-preview] › components/scheduler-timeline-lazy-loading.spec.ts › scheduler-timeline-lazy-loading preview › shows documented example
+[component-preview] › components/scheduler-timeline-lazy-loading.spec.ts › scheduler-timeline-lazy-loading preview › shows loading then events

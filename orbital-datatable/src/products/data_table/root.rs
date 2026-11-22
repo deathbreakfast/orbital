@@ -34,13 +34,13 @@ use crate::engine::{
 use crate::io::download_bytes;
 use crate::types::ChartBinding;
 use crate::types::{
-    create_column_layout_memo, AggregationModel, AggregationPosition, CellSelection,
+    create_column_layout_memo, AggregationModel, AggregationPosition, CellSelection, CursorTrail,
     DataTableColumnDef, DataTableColumnGroupDef, DataTableEvents, DataTableFeatures,
-    DataTableFilter, DataTableHandle, DataTableInitialState, DataTableLocale, DataTablePivotModel,
-    DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode, DataTableSlots, DataTableSort,
-    DataTableSource, DataTableSourceKind, DataTableTableState, EditHistory, EditMode,
-    EditSessionStore, GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat,
-    PaginationState, PagingMode, ServerFetchPolicy,
+    DataTableFilter, DataTableHandle, DataTableInitialState, DataTableLoadingStyle,
+    DataTableLocale, DataTablePivotModel, DataTableRowGrouping, DataTableRowModel,
+    DataTableSelectionMode, DataTableSlots, DataTableSort, DataTableSource, DataTableSourceKind,
+    DataTableTableState, EditHistory, EditMode, EditSessionStore, GetRowId, GetTreePath,
+    ListViewConfig, PaginationDisplayFormat, PaginationState, PagingMode, ServerFetchPolicy,
 };
 
 use super::edit::{DataTableEditErrorDialog, DataTableEditUndoToolbar};
@@ -71,6 +71,8 @@ pub fn DataTableRoot(
     direction_override: StoredValue<Option<Direction>>,
     active_row_id: Signal<Option<String>>,
     client_loading: RwSignal<bool>,
+    loading_style: DataTableLoadingStyle,
+    external_quick_search: Option<RwSignal<String>>,
     selection_mode: Signal<Option<DataTableSelectionMode>>,
     initial_state: StoredValue<Option<DataTableInitialState>>,
     controlled_sort: Signal<Option<DataTableSort>>,
@@ -96,6 +98,7 @@ pub fn DataTableRoot(
 
     let DataTableSlots {
         toolbar: toolbar_slot,
+        toolbar_end,
         footer: footer_slot,
         empty_view,
         no_results_view,
@@ -105,7 +108,8 @@ pub fn DataTableRoot(
 
     let init = initial_state.get_value().unwrap_or_default();
 
-    let quick_search = RwSignal::new(init.quick_search.clone().unwrap_or_default());
+    let quick_search = external_quick_search
+        .unwrap_or_else(|| RwSignal::new(init.quick_search.clone().unwrap_or_default()));
     let filter = RwSignal::new(init.filter.clone().unwrap_or_default());
     let sort = RwSignal::new(init.sort.clone().unwrap_or_default());
     let page = RwSignal::new(init.pagination.as_ref().map(|p| p.page).unwrap_or(0));
@@ -117,6 +121,8 @@ pub fn DataTableRoot(
     );
     let server_offset = RwSignal::new(0u32);
     let server_total = RwSignal::new(None::<u64>);
+    let server_has_more = RwSignal::new(false);
+    let server_cursors = StoredValue::new(CursorTrail::default());
     let server_loading = RwSignal::new(false);
     let server_ever_loaded = RwSignal::new(false);
     let selected = RwSignal::new(init.selection.clone());
@@ -211,10 +217,12 @@ pub fn DataTableRoot(
         chart_y_fields,
         total_rows: Memo::new(move |_| {
             if source_kind == DataTableSourceKind::Server {
+                // Unknown total (cursor pages often omit it): count the rows
+                // up to the end of this page.
                 server_total
                     .get()
                     .map(|t| t as usize)
-                    .unwrap_or(processed.get().len())
+                    .unwrap_or_else(|| server_offset.get() as usize + processed.get().len())
             } else {
                 let quick_filtered = crate::engine::filter_rows(
                     &client_items.get(),
@@ -227,13 +235,15 @@ pub fn DataTableRoot(
         }),
         page_count: Memo::new(move |_| {
             if source_kind == DataTableSourceKind::Server {
+                let size = page_size.get().max(1);
                 server_total
                     .get()
-                    .map(|total| {
-                        let size = page_size.get().max(1);
-                        ((total as f64) / (size as f64)).ceil() as usize
+                    .map(|total| ((total as f64) / (size as f64)).ceil() as usize)
+                    // Unknown total: the pages reached so far, plus one more
+                    // while the server reports `has_more`, so Next stays enabled.
+                    .unwrap_or_else(|| {
+                        server_offset.get() as usize / size + 1 + usize::from(server_has_more.get())
                     })
-                    .unwrap_or(1)
                     .max(1)
             } else {
                 let quick_filtered = crate::engine::filter_rows(
@@ -262,6 +272,8 @@ pub fn DataTableRoot(
         page_size,
         server_offset,
         server_total,
+        server_has_more,
+        server_cursors,
         server_loading,
         server_ever_loaded,
         paging,
@@ -308,6 +320,8 @@ pub fn DataTableRoot(
         horizontal_scroll_target,
         bounded_scroll,
         auto_row_height,
+        loading_style,
+        has_loading_view: loading_view.is_some(),
     };
 
     wire_controlled_models(
@@ -525,7 +539,7 @@ pub fn DataTableRoot(
                 let _ = filter.get();
                 let _ = quick_search.get();
                 let _ = page_size.get();
-                let _ = refresh_signal.get();
+                let refresh = refresh_signal.get();
                 let offset = server_offset.get();
                 let limit = page_size.get() as u32;
                 let fetcher = fetcher_stored.get_value();
@@ -537,6 +551,13 @@ pub fn DataTableRoot(
                     offset,
                     limit,
                 );
+                // Next and previous continue from a recorded cursor; a jump,
+                // a query change or a refresh pages by offset.
+                let query_key = request.query_fingerprint("");
+                let cursor = server_cursors
+                    .try_update_value(|trail| trail.cursor_for(&query_key, refresh, offset))
+                    .flatten();
+                let request = request.with_cursor(cursor);
                 let gen = coordinator_begin(fetch_coordinator, &request, &policy);
                 let Some(gen) = gen else {
                     return;
@@ -548,6 +569,17 @@ pub fn DataTableRoot(
                             if let Some(count) = page_result.total_count {
                                 server_total.set(Some(count));
                             }
+                            let has_more = page_result.has_more;
+                            server_has_more.set(has_more);
+                            let next_cursor = page_result.next_cursor.filter(|_| has_more);
+                            server_cursors.update_value(|trail| {
+                                trail.record(
+                                    &query_key,
+                                    refresh,
+                                    offset.saturating_add(limit),
+                                    next_cursor,
+                                )
+                            });
                             processed.set(
                                 page_result
                                     .items
@@ -560,6 +592,7 @@ pub fn DataTableRoot(
                             render_key.update(|k| *k += 1);
                         }
                         Err(_) if coordinator_is_current(fetch_coordinator, gen) => {
+                            server_has_more.set(false);
                             processed.set(Vec::new());
                             table_state.sync_processed_dataset_server_page();
                             server_ever_loaded.set(true);
@@ -681,11 +714,14 @@ pub fn DataTableRoot(
                 dir=move || direction.get().as_str()
                 data-testid="data-table-root"
             >
-                {match toolbar_slot {
-                    Some(toolbar_slot) => {
+                {match (toolbar_slot, toolbar_end) {
+                    (Some(toolbar_slot), _) => {
                         view! { <DataTableToolbar state=table_state toolbar_slot=toolbar_slot /> }.into_any()
                     }
-                    None => view! { <DataTableToolbar state=table_state /> }.into_any(),
+                    (None, Some(toolbar_end)) => {
+                        view! { <DataTableToolbar state=table_state toolbar_end=toolbar_end /> }.into_any()
+                    }
+                    (None, None) => view! { <DataTableToolbar state=table_state /> }.into_any(),
                 }}
                 <Show when=move || {
                     show_undo_toolbar && table_state.features.contains(DataTableFeatures::UNDO_REDO)

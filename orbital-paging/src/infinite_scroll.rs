@@ -34,6 +34,10 @@ pub struct UsePagedInfiniteScroll<T: Send + Sync + 'static> {
     /// Updated after each successful page using [`Page::next_request_offset`] when present,
     /// otherwise `prior_offset + returned_items.len()`.
     pub next_request_offset: RwSignal<u32>,
+    /// Cursor the hook will pass as the next request's
+    /// [`cursor`](crate::PageRequest::cursor): the last page's
+    /// [`Page::next_cursor`], or `None` to page by offset only.
+    pub next_cursor: RwSignal<Option<String>>,
     /// The scroll sentinel element reference passed to the hook.
     pub scroll_el: NodeRef<Div>,
 }
@@ -53,6 +57,7 @@ impl<T: Send + Sync + 'static> UsePagedInfiniteScroll<T> {
         self.loading.set(false);
         self.total_count.set(None);
         self.next_request_offset.set(0);
+        self.next_cursor.set(None);
     }
 }
 
@@ -77,6 +82,8 @@ where
 ///   for additional pages (hydrate only)
 /// - Offset for the next page: [`Page::next_request_offset`] when the server sets
 ///   it (DB-row pagination with post-filtering); otherwise `previous_offset + page.len()`
+/// - Cursor for the next page: the last page's [`Page::next_cursor`], sent
+///   alongside the offset so a server that can't use it still pages by offset
 ///
 /// # Arguments
 ///
@@ -104,6 +111,7 @@ where
     let loading = RwSignal::new(false);
     let total_count = RwSignal::new(None::<u64>);
     let next_request_offset = RwSignal::new(0u32);
+    let next_cursor = RwSignal::new(None::<String>);
 
     let skip_initial_refresh_reset = StoredValue::new(true);
     Effect::new(move || {
@@ -114,6 +122,7 @@ where
         }
         // Keep prior rows visible while the Resource refetch completes (no empty flash).
         next_request_offset.set(0);
+        next_cursor.set(None);
     });
 
     let fetch_first = fetch.clone();
@@ -142,6 +151,7 @@ where
             }
             items.set(page.items.clone());
             next_request_offset.set(page.next_request_offset.unwrap_or(page.items.len() as u32));
+            next_cursor.set(page.next_cursor.clone());
         }
     });
 
@@ -170,7 +180,9 @@ where
                         if request_offset == 0 {
                             return;
                         }
-                        match fetch(PageRequest::new(request_offset, page_size)).await {
+                        let request = PageRequest::new(request_offset, page_size)
+                            .with_cursor(next_cursor.get_untracked());
+                        match fetch(request).await {
                             Ok(page) => {
                                 let looks_like_stale_stub = page.items.is_empty()
                                     && page.has_more
@@ -187,6 +199,7 @@ where
                                 next_request_offset.set(page.next_request_offset.unwrap_or(
                                     request_offset.saturating_add(page.items.len() as u32),
                                 ));
+                                next_cursor.set(page.next_cursor.clone());
                             }
                             Err(_) => {
                                 ever_loaded.set(true);
@@ -214,6 +227,7 @@ where
         ever_loaded,
         total_count,
         next_request_offset,
+        next_cursor,
         scroll_el,
     }
 }

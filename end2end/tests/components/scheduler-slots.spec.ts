@@ -20,4 +20,13 @@ test.describe("scheduler-slots preview", () => {
     await wrapper.getByTestId("scheduler-event-dialog-open").click();
     await expect(page.getByTestId("scheduler-event-dialog")).toBeVisible();
   });
+
+  test("custom toolbar slot sits in the padded toolbar chrome", async ({ page }) => {
+    await openComponentPreview(page, "scheduler-slots");
+    const wrapper = page.getByTestId("scheduler-slots-preview").first();
+    const slot = wrapper.locator(".orb-scheduler-toolbar--slot");
+    await expect(slot.getByTestId("scheduler-custom-toolbar")).toBeVisible();
+    const padding = await slot.evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
+    expect(padding).toBeGreaterThan(0);
+  });
 });

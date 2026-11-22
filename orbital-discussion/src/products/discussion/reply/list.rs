@@ -28,6 +28,7 @@ pub fn DiscussionReplyList(
     let current_user_id = ctx.current_user_id;
     let appearance = ctx.appearance;
     let collapsed = ctx.collapsed;
+    let highlighted = ctx.highlighted;
 
     let visible_ids = Memo::new(move |_| {
         let graph = graph.get();
@@ -107,6 +108,7 @@ pub fn DiscussionReplyList(
                                                 current_user_id=current_user_id
                                                 appearance=appearance
                                                 collapsed=collapsed
+                                                highlighted=highlighted
                                             />
                                         </li>
                                     }
@@ -137,6 +139,7 @@ pub fn DiscussionReplyList(
                                     current_user_id=current_user_id
                                     appearance=appearance
                                     collapsed=collapsed
+                                    highlighted=highlighted
                                 />
                             </li>
                         }

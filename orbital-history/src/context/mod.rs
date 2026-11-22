@@ -64,3 +64,43 @@ pub fn provide_history_context(ctx: HistoryContext) {
 pub fn use_history_context() -> HistoryContext {
     use_context::<HistoryContext>().expect("HistoryContext must be provided by HistoryTimeline")
 }
+
+/// The [`HistoryContext`] from an enclosing [`HistoryTimeline`](crate::HistoryTimeline), if any.
+pub fn try_use_history_context() -> Option<HistoryContext> {
+    use_context::<HistoryContext>()
+}
+
+/// The settings the leaf pieces ([`HistoryEntryPersona`](crate::HistoryEntryPersona),
+/// [`HistoryActorLabel`](crate::HistoryActorLabel), [`HistoryTimestamp`](crate::HistoryTimestamp),
+/// [`HistoryTimelineSkeleton`](crate::HistoryTimelineSkeleton)) read. Inside a
+/// `HistoryTimeline` they come from its context; on their own they fall back to English,
+/// default features and events, UTC and the natural layout.
+#[derive(Clone)]
+pub(crate) struct HistoryLeafSettings {
+    pub locale: Signal<HistoryLocale>,
+    pub features: HistoryFeatures,
+    pub events: HistoryEvents,
+    pub display_timezone: Signal<DatetimeTimezone>,
+    pub layout: HistoryLayout,
+}
+
+pub(crate) fn use_history_leaf_settings() -> HistoryLeafSettings {
+    // Leaf pieces may render without the timeline, which is what normally injects the CSS.
+    orbital_style::inject_style("orbital-history", crate::history_styles());
+    match try_use_history_context() {
+        Some(ctx) => HistoryLeafSettings {
+            locale: ctx.locale,
+            features: ctx.features,
+            events: ctx.events,
+            display_timezone: ctx.display_timezone,
+            layout: ctx.layout,
+        },
+        None => HistoryLeafSettings {
+            locale: Signal::stored(HistoryLocale::english()),
+            features: HistoryFeatures::default(),
+            events: HistoryEvents::default(),
+            display_timezone: Signal::stored(DatetimeTimezone::Utc),
+            layout: HistoryLayout::default(),
+        },
+    }
+}

@@ -44,4 +44,43 @@ test.describe("field primitive preview", () => {
     await select.selectOption("");
     await expect(field.locator(".orbital-field__validation-message")).toBeVisible();
   });
+
+  test("F-06: label_hidden hides the label but keeps the accessible name", async ({ page }) => {
+    await openComponentPreview(page, "field");
+    const field = page.getByTestId("field-label-hidden");
+    await field.scrollIntoViewIfNeeded();
+    const label = field.locator("label");
+    await expect(label).toHaveClass(/sr-only/);
+    // Poll: the sr-only box shrinks only once the stylesheet has applied.
+    await expect.poll(async () => (await label.boundingBox())?.width ?? Infinity).toBeLessThanOrEqual(1);
+    await expect.poll(async () => (await label.boundingBox())?.height ?? Infinity).toBeLessThanOrEqual(1);
+    await expect(field.getByRole("textbox", { name: "Quick add task" })).toBeVisible();
+  });
+
+  test("F-07: date pickers fill their fields and fit a narrow two-column card", async ({ page }) => {
+    await openComponentPreview(page, "field");
+    const card = page.getByTestId("field-date-grid");
+    await card.scrollIntoViewIfNeeded();
+    const cardBox = (await card.boundingBox())!;
+    const fields = card.locator(".orbital-field");
+    await expect(fields).toHaveCount(2);
+    for (let i = 0; i < 2; i++) {
+      const fieldBox = (await fields.nth(i).boundingBox())!;
+      const pickerBox = (await fields.nth(i).locator(".orbital-input").boundingBox())!;
+      expect(pickerBox.x + pickerBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width);
+      expect(Math.abs(pickerBox.width - fieldBox.width)).toBeLessThanOrEqual(1);
+    }
+    const overflow = await card.evaluate((el) => el.scrollWidth - el.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("F-08: a labeled input fills its field", async ({ page }) => {
+    await openComponentPreview(page, "field");
+    const field = page.getByTestId("field-preview").locator(".orbital-field");
+    const [f, i] = await Promise.all([
+      field.boundingBox(),
+      field.locator(".orbital-input").boundingBox(),
+    ]);
+    expect(Math.abs(f!.width - i!.width)).toBeLessThanOrEqual(1);
+  });
 });

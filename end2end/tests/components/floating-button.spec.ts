@@ -25,4 +25,12 @@ test.describe("floating-button component preview", () => {
       page.getByTestId("floating-button-secondary").getByRole("button", { name: "Edit" }),
     ).toBeVisible();
   });
+
+  test("FB-03 on_click runs the action", async ({ page }) => {
+    await openComponentPreview(page, "floating-button");
+    const wrapper = page.getByTestId("floating-button-click");
+    await wrapper.scrollIntoViewIfNeeded();
+    await wrapper.getByRole("button", { name: "New project" }).click();
+    await expect(wrapper.getByTestId("floating-button-click-count")).toHaveText("1");
+  });
 });

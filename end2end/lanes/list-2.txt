@@ -1,0 +1,91 @@
+[component-preview] › components/discussion-view-modes.spec.ts › discussion view modes › flat mode shows all replies without tree nesting
+[component-preview] › components/discussion-view-modes.spec.ts › discussion view modes › date dividers appear in flat mode
+[component-preview] › components/discussion-view-modes.spec.ts › discussion view modes › compact mode applies compact list class
+[component-preview] › components/digital-clock.spec.ts › digital-clock preview behaviors › renders preview page
+[component-preview] › components/digital-clock.spec.ts › digital-clock preview behaviors › shows documented example
+[component-preview] › components/digital-clock.spec.ts › digital-clock preview behaviors › selecting a time slot updates bound value
+[component-preview] › components/compound-button.spec.ts › compound-button preview › CB-01 default with secondary line
+[component-preview] › components/compound-button.spec.ts › compound-button preview › CB-02 icon after label
+[component-preview] › components/badge.spec.ts › badge primitive preview › BD-01: brand filled badge renders label text
+[component-preview] › components/badge.spec.ts › badge primitive preview › BD-02: appearance matrix badges differ by modifier class
+[component-preview] › components/badge.spec.ts › badge primitive preview › BD-03: size matrix badges differ in height
+[component-preview] › components/badge.spec.ts › badge primitive preview › BD-06: small label badge keeps inline space between text and edge
+[component-preview] › components/badge.spec.ts › badge primitive preview › BD-04: semantic color matrix uses distinct color classes
+[component-preview] › components/badge.spec.ts › badge primitive preview › BD-05: navigation item badge shows count label
+[component-preview] › components/scheduler-timeline-events.spec.ts › scheduler-timeline-events preview › renders preview page
+[component-preview] › components/scheduler-timeline-events.spec.ts › scheduler-timeline-events preview › shows documented example
+[component-preview] › components/scheduler-timeline-events.spec.ts › scheduler-timeline-events preview › static events render on timeline lanes
+[component-preview] › components/card-media.spec.ts › card-media preview › renders preview page
+[component-preview] › components/card-media.spec.ts › card-media preview › shows documented examples
+[component-preview] › components/card-media.spec.ts › card-media preview › default image is visible with alt text
+[component-preview] › components/card-media.spec.ts › card-media preview › height prop applies to image
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-01: static toast composition renders title and body
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-02: provider dispatch auto-dismisses toast
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-03: success intent toast uses success modifier class
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-04: dispatched error toast footer dismisses on retry
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-04b: retry footer action runs callback before dismiss
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-28: warning and error intents use distinct semantic backgrounds
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-05: bottom-end position applies stack placement class and data attribute
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-06: custom timeout toast disappears
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-07: persistent toast stays visible
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-08: dismiss toast removes toast immediately
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-09: dismiss all clears every toast
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-10: dismiss action in footer removes toast
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-11: toast auto-dismisses without hover
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-12: hover pauses toast dismissal
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-13: toast limit caps visible toasts
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-14: dismissing visible toast dequeues next toast
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-15: top-start position is near viewport corner
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-16: top-end position is near viewport corner
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-17: top position is centered near top edge
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-18: bottom-start position is near viewport corner
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-19: bottom-end position is near viewport corner
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-20: bottom position is centered near bottom edge
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-21: per-toast position override wins over provider default
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-22: offset css variables match provider values
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-23: offset shifts stack inset from viewport edge
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-24: inline toaster renders inside container
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-25: portaled toaster renders in viewport
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-26: composed dispatch renders title body and footer slots
+[component-preview] › components/toast.spec.ts › toast primitive preview › TO-27: provider default intent applies to plain show()
+[component-preview] › components/action-menu-button.spec.ts › action-menu-button preview › AMB-01 default split control
+[component-preview] › components/action-menu-button.spec.ts › action-menu-button preview › AMB-02 menu trigger keeps rounded right edge
+[component-preview] › components/action-menu-button.spec.ts › action-menu-button preview › AMB-03 with icon
+[component-preview] › components/tab-list.spec.ts › tab-list primitive preview › renders preview page
+[component-preview] › components/tab-list.spec.ts › tab-list primitive preview › shows variant examples
+[component-preview] › components/date-pickers-custom-field.spec.ts › date-pickers-custom-field preview › custom summary field renders
+[component-preview] › components/identity-card.spec.ts › identity-card pattern preview › IC-01 default identity card
+[component-preview] › components/identity-card.spec.ts › identity-card pattern preview › IC-02 with contact row
+[component-preview] › components/identity-card.spec.ts › identity-card pattern preview › IC-03 colorful avatar class
+[component-preview] › components/identity-card.spec.ts › identity-card pattern preview › IC-04 nested in parent card
+[component-preview] › components/rating-display.spec.ts › rating-display primitive preview › RD-01: default display exposes img role and value text
+[component-preview] › components/rating-display.spec.ts › rating-display primitive preview › RD-02: size matrix increases item dimensions
+[component-preview] › components/rating-display.spec.ts › rating-display primitive preview › RD-03: color variants apply modifier classes
+[component-preview] › components/rating-display.spec.ts › rating-display primitive preview › RD-04: half value matches full star dimensions
+[component-preview] › components/rating-display.spec.ts › rating-display primitive preview › RD-05: custom max renders ten stars
+[component-preview] › components/time-range-picker.spec.ts › time-range-picker placeholder preview › renders preview page
+[component-preview] › components/time-range-picker.spec.ts › time-range-picker placeholder preview › shows documented example
+[component-preview] › components/scheduler-timeline-presets.spec.ts › scheduler-timeline-presets preview › renders preview page
+[component-preview] › components/scheduler-timeline-presets.spec.ts › scheduler-timeline-presets preview › shows documented example
+[component-preview] › components/scheduler-timeline-presets.spec.ts › scheduler-timeline-presets preview › switching preset changes header title
+[component-preview] › components/scheduler-timeline-presets.spec.ts › scheduler-timeline-presets preview › switching to Month shows one column per day
+[component-preview] › components/scheduler-timeline-presets.spec.ts › scheduler-timeline-presets preview › switching to Quarter shows week columns
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-01: default 12-hour format includes AM/PM controls
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-02: 24-hour format omits AM/PM controls
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-03: preselected value is rendered on trigger
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-04: selecting values and OK writes hidden unix value
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-05: disabled picker cannot be opened
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-06: field label associates with trigger id
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-07: plain value bind renders initial time
+[component-preview] › components/time-picker.spec.ts › time-picker primitive preview › TP-08: empty bind shows placeholder
+[component-preview] › components/data-table-layout.spec.ts › data-table layout and sticky header › sticky header stays visible while scrolling body
+[component-preview] › components/time-field.spec.ts › time-field preview behaviors › renders preview page
+[component-preview] › components/time-field.spec.ts › time-field preview behaviors › shows documented example
+[component-preview] › components/time-field.spec.ts › time-field preview behaviors › typing segments updates bound value
+[component-preview] › components/data-table-multi-sort.spec.ts › data-table multi sort › ctrl-click stacks sort priorities and reorders rows
+[component-preview] › components/floating-actions-menu.spec.ts › floating-actions-menu preview › FAM-01: main trigger opens actions
+[component-preview] › components/floating-actions-menu.spec.ts › floating-actions-menu preview › FAM-02: custom open icon visible when expanded
+[component-preview] › components/floating-actions-menu.spec.ts › floating-actions-menu preview › FAM-03: controlled open from external button
+[component-preview] › components/floating-actions-menu.spec.ts › floating-actions-menu preview › FAM-04: direction variants render in matrix
+[component-preview] › components/floating-actions-menu.spec.ts › floating-actions-menu preview › FAM-05: persistent tooltips visible on the left when open
+[component-preview] › components/floating-actions-menu.spec.ts › floating-actions-menu preview › FAM-06: persistent tooltips visible on the right when open

@@ -6,9 +6,9 @@ use crate::context::use_history_context;
 use crate::engine::{attach_row_height_observer, is_entry_unread, list_item_cache_key};
 use crate::types::{HistoryEntry, HistoryFeatures, HistoryLayout};
 
-use super::{HistoryActorLabel, HistoryTimestamp};
+use super::{HistoryActorLabel, HistoryEntryPersona, HistoryTimestamp};
 
-/// Standard entry chrome (timestamp, actor, spine) for custom `kind_views` renderers.
+/// Standard entry chrome (actor and time as a Persona, spine) for custom `kind_views` renderers.
 ///
 /// Return this from a `HistoryRenderers.kind_views` callback when you need full-row
 /// control over the change body while keeping Orbital's timeline chrome.
@@ -68,8 +68,7 @@ pub fn HistoryKindEntryRow(entry: HistoryEntry, children: Children) -> impl Into
                 <div class="orbital-history__spine-line"></div>
             </div>
             <div class="orbital-history__body">
-                <HistoryTimestamp at=entry.changed_at />
-                <HistoryActorLabel actor=entry.actor.clone() />
+                <HistoryEntryPersona actor=entry.actor.clone() at=entry.changed_at />
                 {children()}
             </div>
         }

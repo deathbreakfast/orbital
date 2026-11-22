@@ -112,6 +112,16 @@ fn TimelinePointEvent(
     let title = event.title.clone();
     let event_id = event.id.clone();
 
+    // Point events never drag, so every click counts.
+    let on_click = {
+        let event = event.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            ctx.scheduler_events
+                .with_value(|e| e.notify_event_click(event.clone()));
+        }
+    };
+
     let on_pointer_down = {
         let event = event.clone();
         let ctx = ctx.clone();
@@ -137,6 +147,7 @@ fn TimelinePointEvent(
             data-tone=tone
             style=format!("left: {left_pct}%;")
             on:pointerdown=on_pointer_down
+            on:click=on_click
         >
             <span
                 class="orb-scheduler-event__diamond"
@@ -231,6 +242,23 @@ fn TimelineEventBar(
         }
     };
 
+    // Where the pointer went down, to tell a click from the end of a drag.
+    let pointer_down_at = StoredValue::new(None::<(i32, i32)>);
+    let on_click = {
+        let event_for_click = event.clone();
+        let ctx = ctx.clone();
+        move |ev: leptos::ev::MouseEvent| {
+            let moved = pointer_down_at
+                .get_value()
+                .map(|(x, y)| chip_pointer_moved(x, y, ev.client_x(), ev.client_y()))
+                .unwrap_or(false);
+            if !moved {
+                ctx.scheduler_events
+                    .with_value(|e| e.notify_event_click(event_for_click.clone()));
+            }
+        }
+    };
+
     let on_pointer_down = {
         let event_for_drag = event.clone();
         let event_for_edit = event.clone();
@@ -238,6 +266,7 @@ fn TimelineEventBar(
         let ctx = ctx.clone();
         move |ev: leptos::ev::PointerEvent| {
             ev.stop_propagation();
+            pointer_down_at.set_value(Some((ev.client_x(), ev.client_y())));
             #[cfg(feature = "hydrate")]
             let (chip_height, chip_width, offset_x) = {
                 use wasm_bindgen::JsCast;
@@ -297,6 +326,7 @@ fn TimelineEventBar(
             data-tone=tone
             style=chip_style
             on:pointerdown=on_pointer_down
+            on:click=on_click
         >
             {progress_fill}
             <span class="orb-scheduler-event__content">
@@ -316,11 +346,23 @@ fn TimelineEventBar(
     }
 }
 
+/// More than a few pixels between pointer down and click means the chip was dragged.
+fn chip_pointer_moved(down_x: i32, down_y: i32, x: i32, y: i32) -> bool {
+    (x - down_x).abs() > 3 || (y - down_y).abs() > 3
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::EventTone;
     use orbital_base_components::{DatetimeTimezone, OrbitalDateTime, TryFromUnixSeconds};
+
+    #[test]
+    fn small_pointer_jitter_still_counts_as_a_click() {
+        assert!(!chip_pointer_moved(100, 50, 102, 51));
+        assert!(chip_pointer_moved(100, 50, 140, 50));
+        assert!(chip_pointer_moved(100, 50, 100, 46));
+    }
 
     fn at(secs: i64) -> OrbitalDateTime {
         OrbitalDateTime::try_from_unix_seconds(secs, DatetimeTimezone::Utc).expect("valid")

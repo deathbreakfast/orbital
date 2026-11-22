@@ -15,6 +15,7 @@ mod list;
 mod markdown_body;
 mod overlays;
 mod pagination;
+mod persona;
 mod resize;
 mod scroll;
 mod skeleton;
@@ -40,6 +41,7 @@ pub use overlays::{
     HistoryDefaultLoadingMoreView, HistoryDefaultNoMatchesView,
 };
 pub use pagination::HistoryDefaultPagination;
+pub use persona::HistoryEntryPersona;
 pub use skeleton::{HistoryEntryRowSkeleton, HistoryTimelineSkeleton};
 pub use styles::history_styles;
 pub use timeline::HistoryTimeline;

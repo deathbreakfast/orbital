@@ -12,10 +12,9 @@ use crate::PageFetcher;
 
 fn stale_page(request_offset: u32) -> Page<DataRecord> {
     Page {
-        items: vec![],
         has_more: true,
-        total_count: None,
         next_request_offset: Some(request_offset),
+        ..Page::default()
     }
 }
 
@@ -58,7 +57,10 @@ pub fn DataTableInfiniteScrollController(
             let sort = state.sort.get_untracked();
             let filter = state.filter.get_untracked();
             let quick = state.quick_search.get_untracked();
-            let request = build_page_request(&sort, &filter, &quick, req.offset, req.limit);
+            // Keep the hook's cursor: infinite scroll always continues from the
+            // last page's `next_cursor` (the hook clears it on refresh).
+            let request = build_page_request(&sort, &filter, &quick, req.offset, req.limit)
+                .with_cursor(req.cursor);
             let request_offset = request.offset;
             async move {
                 let policy = server_fetch_policy.get_value();
@@ -122,6 +124,10 @@ pub fn DataTableInfiniteScrollController(
 
     Effect::new(move || {
         state.server_total.set(hook.total_count.get());
+    });
+
+    Effect::new(move || {
+        state.server_has_more.set(hook.has_more.get());
     });
 
     view! {

@@ -67,12 +67,12 @@ use orbital_theme::Direction;
 use crate::types::{
     AggregationModel, AggregationPosition, DataTableColumnDef, DataTableColumnGroupDef,
     DataTableEmptyView, DataTableEvents, DataTableFeatures, DataTableFilter, DataTableFooterSlot,
-    DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState, DataTableLoadingView,
-    DataTableLocale, DataTableNoResultsView, DataTablePivotModel, DataTableRowDetail,
-    DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode, DataTableSlots, DataTableSort,
-    DataTableSource, DataTableToolbarConfig, DataTableToolbarSlot, EditMode, GetRowId, GetTreePath,
-    ListViewConfig, PaginationDisplayFormat, PaginationState, PagingMode, RowDetailView,
-    ServerFetchPolicy,
+    DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState, DataTableLoadingStyle,
+    DataTableLoadingView, DataTableLocale, DataTableNoResultsView, DataTablePivotModel,
+    DataTableRowDetail, DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode,
+    DataTableSlots, DataTableSort, DataTableSource, DataTableToolbarConfig, DataTableToolbarEnd,
+    DataTableToolbarSlot, EditMode, GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat,
+    PaginationState, PagingMode, RowDetailView, ServerFetchPolicy,
 };
 
 fn default_page_size_options() -> Option<Vec<u32>> {
@@ -391,6 +391,10 @@ pub fn DataTable(
     /// Deprecated — use [`data_table_toolbar`].
     #[prop(optional)]
     data_table_toolbar_slot: Option<DataTableToolbarSlot>,
+    /// Product controls on the default toolbar's search row (saved searches, a page's own
+    /// filter button) — nest with `<DataTableToolbarEnd slot>`.
+    #[prop(optional)]
+    data_table_toolbar_end: Option<DataTableToolbarEnd>,
     /// Custom footer — nest with `<DataTableFooterSlot slot>`.
     #[prop(optional)]
     data_table_footer: Option<DataTableFooterSlot>,
@@ -409,6 +413,15 @@ pub fn DataTable(
     /// Client-controlled loading state for overlay display.
     #[prop(optional)]
     loading: Option<RwSignal<bool>>,
+    /// What shows while rows load: a spinner overlay (default) or
+    /// [`DataTableLoadingStyle::SkeletonRows`] under the real column headers.
+    #[prop(optional)]
+    loading_style: DataTableLoadingStyle,
+    /// Binds the built-in quick search to your signal (for example one synced to
+    /// the URL). Typing writes it; setting it filters the table. Wins over
+    /// `initial_state.quick_search`.
+    #[prop(optional)]
+    quick_search: Option<RwSignal<String>>,
     /// Text direction override (defaults to theme direction).
     #[prop(optional)]
     dir: Option<Direction>,
@@ -509,6 +522,7 @@ pub fn DataTable(
     let footer_slot = data_table_footer.or(data_table_footer_slot);
     let slots = DataTableSlots::from_slot_props(
         toolbar_slot,
+        data_table_toolbar_end,
         footer_slot,
         data_table_empty_view,
         data_table_no_results_view,
@@ -564,6 +578,8 @@ pub fn DataTable(
             direction_override=direction_override
             active_row_id=active_row_id
             client_loading=client_loading
+            loading_style=loading_style
+            external_quick_search=quick_search
             selection_mode=selection_mode
             initial_state=initial_state
             controlled_sort=sort

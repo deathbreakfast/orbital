@@ -93,6 +93,68 @@ use crate::{
 ///     </div>
 /// }
 /// ```
+///
+/// ## Row and event clicks
+/// `scheduler_events.on_row_click` fires when a resource label is clicked (not its
+/// collapse toggle) and `on_event_click` when a bar or point is clicked without a
+/// drag. A `SchedulerToolbar` slot gets the same padded chrome as the default toolbar.
+/// <!-- preview -->
+/// ```rust
+/// use leptos::prelude::*;
+/// use orbital_core_components::{Caption1, Toolbar};
+/// use crate::{
+///     PlannedEvent, ResourceRenderContext, SchedulerEvents, SchedulerFeatures,
+///     SchedulerTimeline, SchedulerToolbar, TimelinePreset,
+/// };
+/// use crate::preview::fixtures::{sample_point_events, sample_nested_schedule_resources};
+/// use crate::preview_anchor_date;
+/// let visible_date = RwSignal::new(preview_anchor_date());
+/// let preset = RwSignal::new(TimelinePreset::Week);
+/// // Not editable, so a click goes to on_event_click instead of the edit dialog.
+/// let events = RwSignal::new(
+///     sample_point_events()
+///         .into_iter()
+///         .map(|mut e| {
+///             e.is_editable = Some(false);
+///             e
+///         })
+///         .collect::<Vec<_>>(),
+/// );
+/// let resources = RwSignal::new(sample_nested_schedule_resources());
+/// let clicked = RwSignal::new("nothing".to_string());
+/// let scheduler_events = SchedulerEvents {
+///     on_row_click: Some(Callback::new(move |(row,): (ResourceRenderContext,)| {
+///         clicked.set(format!("row {}", row.id))
+///     })),
+///     on_event_click: Some(Callback::new(move |(event,): (PlannedEvent,)| {
+///         clicked.set(format!("event {}", event.id))
+///     })),
+///     ..Default::default()
+/// };
+/// view! {
+///     <div data-testid="scheduler-timeline-clicks">
+///         <SchedulerTimeline
+///             events=events
+///             resources=resources
+///             visible_date=visible_date
+///             preset=preset
+///             today=preview_anchor_date()
+///             features=SchedulerFeatures::TIMELINE
+///             scheduler_events=scheduler_events
+///         >
+///             <SchedulerToolbar slot>
+///                 <Toolbar attr:data-testid="scheduler-timeline-custom-toolbar">
+///                     <Caption1>
+///                         <span data-testid="scheduler-timeline-clicked">
+///                             {move || format!("Clicked: {}", clicked.get())}
+///                         </span>
+///                     </Caption1>
+///                 </Toolbar>
+///             </SchedulerToolbar>
+///         </SchedulerTimeline>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Scheduling",
     preview_slug = "scheduler-timeline",
@@ -408,7 +470,13 @@ pub fn SchedulerTimeline(
                     {move || {
                         slots.with_value(|slots| {
                             if let Some(toolbar) = &slots.toolbar {
-                                (toolbar.children)().into_any()
+                                // Same padded chrome as the default toolbar.
+                                view! {
+                                    <div class="orb-scheduler-toolbar orb-scheduler-toolbar--slot">
+                                        {(toolbar.children)()}
+                                    </div>
+                                }
+                                .into_any()
                             } else {
                                 view! {
                                     <SchedulerTimelineToolbar visible_date=visible_date preset=active_preset />
@@ -508,6 +576,30 @@ mod tests {
         // Point events render as diamonds named by their title.
         assert!(html.contains("data-testid=\"scheduler-event-diamond-pt-contract\""));
         assert!(html.contains("aria-label=\"Contract due\""));
+    }
+
+    #[test]
+    fn timeline_ssr_toolbar_slot_gets_the_padded_wrapper() {
+        let _ = any_spawner::Executor::init_futures_executor();
+        let owner = Owner::new();
+        let html = owner.with(|| {
+            let resources = RwSignal::new(sample_schedule_resources());
+            view! {
+                <OrbitalThemeProvider>
+                    <SchedulerTimeline resources=resources features=SchedulerFeatures::TIMELINE>
+                        <SchedulerToolbar slot>
+                            <span data-testid="custom-toolbar-content">"Custom"</span>
+                        </SchedulerToolbar>
+                    </SchedulerTimeline>
+                </OrbitalThemeProvider>
+            }
+            .to_html()
+        });
+        let wrapper = html
+            .find("orb-scheduler-toolbar orb-scheduler-toolbar--slot")
+            .expect("slot wrapper");
+        let content = html.find("custom-toolbar-content").expect("slot content");
+        assert!(wrapper < content, "{html}");
     }
 
     #[test]

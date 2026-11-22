@@ -1,0 +1,7 @@
+[smoke] › smoke/reactive-warnings.spec.ts › reactive tracking warnings › bare debug routes have no orbital-owned client warnings
+[smoke] › smoke/reactive-warnings.spec.ts › reactive tracking warnings › attribute warnings: full catalog vs bare debug
+[component-preview] › components/fixture-button.spec.ts › fixture-button macro preview › manual fixture preview renders
+[component-preview] › components/date-pickers-playground.spec.ts › date-pickers-playground preview › knobs render and density select is present
+[component-preview] › components/data-table-controlled.spec.ts › data-table controlled models › external controls and header sort sync with parent state
+[component-preview] › components/data-table-edit-validation.spec.ts › data-table edit validation › inline validator rejects invalid score and dialog rejects blocked name
+[component-preview] › components/data-table-range-select.spec.ts › data-table range selection › shift-click selects contiguous rows

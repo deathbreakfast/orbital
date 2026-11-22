@@ -1,0 +1,94 @@
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table (data-table-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-column-definition (data-table-custom-columns-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-columns (data-table-column-sizing-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-rows (data-table-get-row-id-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-editing (data-table-editing-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-sorting-filtering (data-table-multi-sort-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-data-source (data-table-server-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-data-source (data-table-pagination-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-selection (data-table-range-select-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-export (data-table-export-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-rendering (data-table-overlays-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-advanced (data-table-tree-preview) renders default example
+[component-preview] › components/data-table-doc-pages.spec.ts › data-table doc pages smoke › data-table-state (data-table-controlled-preview) renders default example
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-01: SSR head and body include boot overlay contract
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-02: boot loading modal visible during slow WASM
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-03: boot progress advances during slow WASM and overlay clears after hydrate
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-04: fast path hides overlay after hydration with no duplicates
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-05: WASM load failure shows static error on overlay
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-06: boot steps complete in order before wasm activates
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-07: boot progress percent increases while wasm is active
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-08: loading modal exposes accessible progress semantics
+[smoke] › smoke/boot-loader.spec.ts › Boot loader › B-09: successful hydrate plays exit transition before overlay removal
+[component-preview] › components/carousel-stepper.spec.ts › carousel-stepper preview › CS-01: default stepper
+[component-preview] › components/carousel-stepper.spec.ts › carousel-stepper preview › CS-02: inline stepper overlay
+[component-preview] › components/content-with-aside.spec.ts › content-with-aside preview › CWA-01 renders two-column layout
+[component-preview] › components/content-with-aside.spec.ts › content-with-aside preview › CWA-02 sticky aside variant
+[component-preview] › components/theme.spec.ts › theme primitive preview › renders preview page
+[component-preview] › components/theme.spec.ts › theme primitive preview › shows theme designer variant
+[component-preview] › components/theme.spec.ts › theme primitive preview › T-01: default light sample surface is visible
+[component-preview] › components/theme.spec.ts › theme primitive preview › T-02: dark mode toggle changes sample surface background
+[component-preview] › components/theme.spec.ts › theme primitive preview › T-03: brand color input updates brand button background
+[component-preview] › components/theme.spec.ts › theme primitive preview › T-04/T-05: density changes spaced row gap
+[component-preview] › components/theme.spec.ts › theme primitive preview › T-07: elevation control changes elevated card shadow
+[component-preview] › components/theme.spec.ts › theme primitive preview › F-T1: theme provider exposes orb spacing variables on scope
+[component-preview] › components/theme.spec.ts › theme primitive preview › F-T2: theme provider exposes orb brand color token
+[component-preview] › components/box.spec.ts › box primitive preview › BX-01 renders default preview
+[component-preview] › components/box.spec.ts › box primitive preview › BX-02 shows surface and spacing variants
+[component-preview] › components/box.spec.ts › box primitive preview › BX-03 padding variant applies inset
+[component-preview] › components/space.spec.ts › space primitive preview › SP-01 default space-between row
+[component-preview] › components/space.spec.ts › space primitive preview › SP-02 vertical distribution
+[component-preview] › components/space.spec.ts › space primitive preview › SP-03 even gap override
+[component-preview] › components/space.spec.ts › space primitive preview › SP-04 align center
+[component-preview] › components/space.spec.ts › space primitive preview › SP-05 justify center override
+[component-preview] › components/space.spec.ts › space primitive preview › SP-06 toolbar pattern
+[component-preview] › components/data-table-cell-box-sizing.spec.ts › data-table cell sizing › cells are border-box and columns do not overflow the measured width
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-01: default interaction tag renders primary button
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-02: size matrix applies height modifiers
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-03: primary button is clickable
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-04: inherits small size from tag group
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-05: secondary action button is visible
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-06: secondary click removes tag
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-07: appearance matrix applies appearance modifiers
+[component-preview] › components/interaction-tag.spec.ts › interaction-tag primitive preview › IT-08: icon and secondary action render together
+[component-preview] › components/data-table-typed-sort.spec.ts › data-table typed sort › number column sorts numerically
+[component-preview] › components/scheduler-calendar-lazy-loading.spec.ts › scheduler-calendar-lazy-loading preview › renders preview page
+[component-preview] › components/scheduler-calendar-lazy-loading.spec.ts › scheduler-calendar-lazy-loading preview › shows documented example
+[component-preview] › components/scheduler-calendar-lazy-loading.spec.ts › scheduler-calendar-lazy-loading preview › shows loading then events
+[component-preview] › components/scheduler-calendar-lazy-loading.spec.ts › scheduler-calendar-lazy-loading preview › shows error overlay when simulate error is enabled
+[component-preview] › components/color-picker.spec.ts › color-picker primitive preview › CP-01: option bind opens picker panel
+[component-preview] › components/color-picker.spec.ts › color-picker primitive preview › CP-02: form bind updates color value via hue slider
+[component-preview] › components/color-picker.spec.ts › color-picker primitive preview › CP-03: preselected color is shown in trigger label
+[component-preview] › components/color-picker.spec.ts › color-picker primitive preview › CP-04: disabled picker prevents interaction
+[component-preview] › components/color-picker.spec.ts › color-picker primitive preview › CP-05: field label associates with trigger id
+[component-preview] › components/data-table-column-sizing.spec.ts › data-table column sizing › resize handle changes column width style
+[component-preview] › components/data-table-column-sizing.spec.ts › data-table column sizing › columns fit the table width without sideways scroll
+[component-preview] › components/scheduler-calendar-editing.spec.ts › scheduler-calendar-editing preview › renders preview page
+[component-preview] › components/scheduler-calendar-editing.spec.ts › scheduler-calendar-editing preview › shows documented example
+[component-preview] › components/scheduler-calendar-editing.spec.ts › scheduler-calendar-editing preview › creates event via dialog and shows chip in grid
+[component-preview] › components/scheduler-timeline-import-export.spec.ts › scheduler-timeline-import-export placeholder preview › renders preview page
+[component-preview] › components/scheduler-timeline-import-export.spec.ts › scheduler-timeline-import-export placeholder preview › shows documented example
+[component-preview] › components/date-pickers-custom-open.spec.ts › date-pickers-custom-open preview › custom open button opens calendar panel
+[component-preview] › components/image.spec.ts › image primitive preview › IM-01 default framed image
+[component-preview] › components/image.spec.ts › image primitive preview › IM-02 rounded border radius
+[component-preview] › components/image.spec.ts › image primitive preview › IM-03 shadow elevation
+[component-preview] › components/image.spec.ts › image primitive preview › IM-04 fit cover and contain
+[component-preview] › components/image.spec.ts › image primitive preview › IM-05 block width
+[component-preview] › components/image.spec.ts › image primitive preview › IM-06 theme border token
+[component-preview] › components/image.spec.ts › image primitive preview › IM-07 bounded frame dimensions
+[component-preview] › components/field.spec.ts › field primitive preview › F-01: labeled input associates label with control
+[component-preview] › components/field.spec.ts › field primitive preview › F-02: required field shows asterisk
+[component-preview] › components/field.spec.ts › field primitive preview › F-03: required field validates on blur
+[component-preview] › components/field.spec.ts › field primitive preview › F-04: horizontal layout uses horizontal modifier class
+[component-preview] › components/field.spec.ts › field primitive preview › F-05: select in field associates label and validates on empty choice
+[component-preview] › components/area-chart.spec.ts › area-chart preview › renders preview page
+[component-preview] › components/area-chart.spec.ts › area-chart preview › shows area fill marks
+[component-preview] › components/area-chart.spec.ts › area-chart preview › shows documented examples
+[component-preview] › components/area-chart.spec.ts › area-chart preview › percent stacked variant renders area fills
+[component-preview] › components/date-pickers-a11y.spec.ts › date-pickers-a11y preview › calendar grid roles and segment spinbuttons
+[component-preview] › components/date-range-picker.spec.ts › date-range-picker preview behaviors › renders preview page
+[component-preview] › components/date-range-picker.spec.ts › date-range-picker preview behaviors › shows documented example
+[component-preview] › components/date-range-picker.spec.ts › date-range-picker preview behaviors › selecting start and end days in calendar updates bound value
+[component-preview] › components/scheduler-timezone.spec.ts › scheduler-timezone preview › renders preview page
+[component-preview] › components/scheduler-timezone.spec.ts › scheduler-timezone preview › shows documented example
+[component-preview] › components/scheduler-timezone.spec.ts › scheduler-timezone preview › switching display timezone shifts event label

@@ -1,7 +1,8 @@
 use leptos::prelude::*;
-use orbital_core_components::{TableBody, TableCell};
+use orbital_core_components::{Skeleton, SkeletonItem, TableBody, TableCell, TableRow};
 
 use super::aggregation_footer::aggregation_footer_row_view;
+use super::leading_columns::leading_column_layout;
 use super::row::{build_row_span_maps, data_table_row_view, RowPinPosition};
 use crate::core::use_data_table_context;
 use crate::engine::{compute_row_viewport, partition_rows, RowViewport, DEFAULT_ROW_OVERSCAN};
@@ -39,6 +40,49 @@ fn virtual_spacer_row(height_px: f64) -> impl IntoView {
     }
 }
 
+/// Placeholder rows shown while loading with
+/// [`DataTableLoadingStyle::SkeletonRows`](crate::types::DataTableLoadingStyle): one
+/// skeleton cell per leading and data column, so they line up with the real headers.
+fn skeleton_rows_view(
+    state: DataTableTableState,
+    ctx: crate::core::DataTableContext,
+    rows: usize,
+) -> impl IntoView {
+    let cells = leading_column_layout(state, ctx).count() + state.column_layout.get().columns.len();
+    view! {
+        <TableBody attr:aria-busy="true">
+            {(0..rows)
+                .map(|row| {
+                    view! {
+                        <TableRow
+                            class="orbital-data-table__skeleton-row"
+                            attr:data-testid="data-table-skeleton-row"
+                            attr:aria-hidden="true"
+                        >
+                            {(0..cells)
+                                .map(|cell| {
+                                    // Vary widths a little so the rows read as text.
+                                    let width = ["70%", "55%", "85%"][(row + cell) % 3];
+                                    view! {
+                                        <TableCell>
+                                            <Skeleton>
+                                                <SkeletonItem
+                                                    width=width.to_string()
+                                                    height="0.875rem".to_string()
+                                                />
+                                            </Skeleton>
+                                        </TableCell>
+                                    }
+                                })
+                                .collect_view()}
+                        </TableRow>
+                    }
+                })
+                .collect_view()}
+        </TableBody>
+    }
+}
+
 /// Body listing processed rows (optionally virtualized).
 #[component]
 pub fn DataTableBody(state: DataTableTableState) -> impl IntoView {
@@ -46,6 +90,9 @@ pub fn DataTableBody(state: DataTableTableState) -> impl IntoView {
 
     view! {
         {move || {
+            if let Some(rows) = state.skeleton_loading_rows() {
+                return skeleton_rows_view(state, ctx, rows).into_any();
+            }
             let _ = state.render_key.get();
             let _ = state.column_layout.get();
             let _ = state.expanded_groups.get();

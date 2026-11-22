@@ -163,6 +163,10 @@ pub fn DiscussionThread(
     /// Visual card appearance for reply rows.
     #[prop(optional)]
     appearance: Option<Signal<DiscussionAppearance>>,
+    /// Reply id to mark as highlighted, such as the reply a deep link points at.
+    /// Pair it with [`navigate_to_reply`](crate::navigate_to_reply) to scroll there.
+    #[prop(optional)]
+    highlighted: Option<Signal<Option<String>>>,
     /// Initial locale strings (ignored when `locale_signal` is set).
     #[prop(optional)]
     locale: Option<DiscussionLocale>,
@@ -170,6 +174,10 @@ pub fn DiscussionThread(
     #[prop(optional)]
     locale_read: Option<ReadSignal<DiscussionLocale>>,
     #[prop(optional, into)] class: MaybeProp<String>,
+    /// CSS height of the scroll area (default `480px`). Pass `"auto"` inside a
+    /// drawer or page that scrolls itself.
+    #[prop(optional, into)]
+    scroll_height: MaybeProp<String>,
     /// Custom composer region — nest with `<DiscussionComposerSlot slot>`.
     #[prop(optional)]
     discussion_composer_slot: Option<crate::DiscussionComposerSlot>,
@@ -311,6 +319,7 @@ pub fn DiscussionThread(
     let locale_read = locale_read.unwrap_or(locale_internal_read);
     let current_user_id = current_user_id.unwrap_or_else(|| Signal::derive(|| None::<String>));
     let appearance = appearance.unwrap_or_else(|| Signal::derive(|| DiscussionAppearance::Surface));
+    let highlighted = highlighted.unwrap_or_else(|| Signal::derive(|| None::<String>));
 
     let is_empty = Memo::new(move |_| replies.get().is_empty());
 
@@ -331,8 +340,9 @@ pub fn DiscussionThread(
             events=events
             current_user_id=current_user_id
             appearance=appearance
+            highlighted=highlighted
         >
-            <DiscussionThreadRoot class=class slots=slots>
+            <DiscussionThreadRoot class=class slots=slots scroll_height=scroll_height>
                 <Show when=move || loading.get()>
                     <DiscussionThreadLoadingOverlay />
                 </Show>

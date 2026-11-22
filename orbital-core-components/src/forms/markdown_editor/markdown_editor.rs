@@ -136,6 +136,7 @@ pub fn MarkdownEditor(
     render_options: Option<OrbitalMarkdownOptions>,
 ) -> impl IntoView {
     inject_style("orbital-markdown-editor", markdown_editor_styles());
+    crate::markdown_view::inject_markdown_styles();
     inject_style("orbital-link", link_styles());
 
     let selected_tab = RwSignal::new(WRITE_TAB.to_string());
@@ -263,7 +264,7 @@ pub fn MarkdownEditor(
                     }
                 >
                     <div
-                        class="orbital-markdown-editor__preview"
+                        class="orbital-markdown-editor__preview orbital-markdown"
                         inner_html=move || preview_html.get()
                     />
                 </Show>

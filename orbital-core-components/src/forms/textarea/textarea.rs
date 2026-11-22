@@ -28,7 +28,7 @@ use super::types::{TextareaAppearance, TextareaBind, TextareaEvents};
 /// 3. Set `placeholder` on [`TextareaAppearance`] to hint expected content.
 /// 4. Attach `rules` on [`TextareaBind`] (e.g. [`TextareaRule::required`]) when Field should show errors.
 ///
-/// Grouped props: [`TextareaBind`] (value, id, name, rules), [`TextareaAppearance`] (placeholder, disabled, resize, size), [`TextareaEvents`] (focus, blur, `allow_value`). At call sites you can write `bind=signal` via [`From`] on [`TextareaBind`].
+/// Grouped props: [`TextareaBind`] (value, id, name, rules), [`TextareaAppearance`] (placeholder, disabled, readonly, rows, cols, resize, size), [`TextareaEvents`] (focus, blur, `allow_value`). At call sites you can write `bind=signal` via [`From`] on [`TextareaBind`].
 ///
 /// # Best Practices
 ///
@@ -99,6 +99,33 @@ use super::types::{TextareaAppearance, TextareaBind, TextareaEvents};
 /// }
 /// ```
 ///
+/// ## Rows
+/// Set `rows` for a taller editor. The textarea opens at that many lines instead of the size's minimum height.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new(String::new());
+/// view! {
+///     <div data-testid="textarea-rows">
+///         <Textarea bind=value appearance=TextareaAppearance::with_rows(6) />
+///     </div>
+/// }
+/// ```
+///
+/// ## Read-only
+/// `readonly` keeps the text selectable and focusable but blocks edits, unlike `disabled`.
+/// <!-- preview -->
+/// ```rust
+/// let value = RwSignal::new("Signed off on 12 March".to_string());
+/// view! {
+///     <div data-testid="textarea-readonly">
+///         <Textarea
+///             bind=value
+///             appearance=TextareaAppearance { readonly: Signal::from(true), ..Default::default() }
+///         />
+///     </div>
+/// }
+/// ```
+///
 /// ## Required validation inside Field
 /// Field shows the label and required indicator; `TextareaRule::required` drives validation text below the control.
 /// <!-- preview -->
@@ -156,9 +183,11 @@ pub fn Textarea(
     let TextareaAppearance {
         placeholder,
         disabled,
+        readonly,
+        rows,
+        cols,
         resize,
         size,
-        ..
     } = appearance;
     let TextareaEvents {
         on_focus,
@@ -218,6 +247,9 @@ pub fn Textarea(
         if disabled.get() {
             parts.push("orbital-textarea--disabled".to_string());
         }
+        if rows.get().is_some() {
+            parts.push("orbital-textarea--rows".to_string());
+        }
         if let Some(extra) = class.get() {
             if !extra.is_empty() {
                 parts.push(extra);
@@ -237,6 +269,9 @@ pub fn Textarea(
                 name=name
                 placeholder=move || placeholder.get()
                 disabled=move || disabled.get().then_some("")
+                readonly=move || readonly.get().then_some("")
+                rows=move || rows.get()
+                cols=move || cols.get()
                 prop:value=move || value.get_value().get()
                 on:input=on_input
                 on:change=on_change

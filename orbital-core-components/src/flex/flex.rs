@@ -8,7 +8,7 @@ pub use orbital_base_components::{FlexAlign, FlexGap, FlexJustify, FlexWrap, Spa
 ///
 /// The canonical one-dimensional layout primitive. [`Stack`](crate::Stack) and [`Space`](crate::Space) are convenience wrappers with opinionated defaults.
 ///
-/// Orbital-only props beyond basic flex direction and gap: **`wrap`**, **`fill`** (height 100%), **`full_width`**, and token-based **`padding`** / **`margin`** via [`SpacingInset`].
+/// Orbital-only props beyond basic flex direction and gap: **`wrap`**, **`fill`** (height 100%), **`full_width`**, and token-based **`padding`** / **`margin`** via [`SpacingInset`]. Size individual children with [`FlexItem`](crate::FlexItem) (grow, shrink, basis, min-width).
 ///
 /// # When to use
 ///
@@ -157,6 +157,30 @@ pub use orbital_base_components::{FlexAlign, FlexGap, FlexJustify, FlexWrap, Spa
 ///                 <DemoBox height="24px">"End"</DemoBox>
 ///                 <DemoBox height="48px">"End"</DemoBox>
 ///             </Flex>
+///         </Flex>
+///     </div>
+/// }
+/// ```
+///
+/// ## Sizing children with FlexItem
+/// Wrap a child in [`FlexItem`](crate::FlexItem) to set its grow, shrink, basis and
+/// min-width. Two `grow=1.0 basis="0"` items split the row equally; a `shrink=0.0`
+/// item keeps its width.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{DemoBox, Flex, FlexGap, FlexItem};
+/// view! {
+///     <div data-testid="flex-item-sizing" style="width: 100%; max-width: 560px;">
+///         <Flex gap=FlexGap::Small full_width=true>
+///             <FlexItem grow=1.0 basis="0" min_width="0">
+///                 <DemoBox data_testid="flex-grow-a">"Grow"</DemoBox>
+///             </FlexItem>
+///             <FlexItem grow=1.0 basis="0" min_width="0">
+///                 <DemoBox data_testid="flex-grow-b">"Grow, longer label"</DemoBox>
+///             </FlexItem>
+///             <FlexItem shrink=0.0>
+///                 <DemoBox data_testid="flex-fixed">"Fixed"</DemoBox>
+///             </FlexItem>
 ///         </Flex>
 ///     </div>
 /// }

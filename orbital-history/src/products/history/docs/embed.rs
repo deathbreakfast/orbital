@@ -1,9 +1,43 @@
 use leptos::prelude::*;
 use orbital_macros::component_doc;
 
-/// Dialog embed via [`HistoryDialog`] or `max_height` on the timeline.
+/// Dialog embed via [`HistoryDialog`] or `max_height` on the timeline, and the row
+/// pieces on their own.
 ///
 /// # Examples
+///
+/// ## Pieces without a timeline
+/// [`HistoryEntryPersona`](crate::HistoryEntryPersona), [`HistoryTimestamp`](crate::HistoryTimestamp),
+/// [`HistoryEntryRowSkeleton`](crate::HistoryEntryRowSkeleton) and
+/// [`HistoryTimelineSkeleton`](crate::HistoryTimelineSkeleton) also work outside a
+/// [`HistoryTimeline`](crate::HistoryTimeline), for a short
+/// activity list in your own layout. On their own they use English labels and UTC.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use chrono::{Duration, Utc};
+/// use crate::{HistoryActor, HistoryEntryPersona, HistoryEntryRowSkeleton};
+/// let now = Utc::now();
+/// view! {
+///     <div data-testid="history-standalone-preview">
+///         <div>
+///             <HistoryEntryPersona
+///                 actor=HistoryActor::User {
+///                     id: "u1".into(),
+///                     display_name: "Ada Lovelace".into(),
+///                     href: None,
+///                 }
+///                 at=now - Duration::minutes(5)
+///             />
+///         </div>
+///         <div>
+///             <HistoryEntryPersona actor=HistoryActor::System at=now - Duration::hours(2) />
+///         </div>
+///         <div data-testid="history-standalone-skeleton">
+///             <HistoryEntryRowSkeleton />
+///         </div>
+///     </div>
+/// }
+/// ```
 ///
 /// ## History dialog
 /// Host-owned open signal wraps the timeline in a modal shell.

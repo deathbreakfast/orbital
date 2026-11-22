@@ -24,6 +24,28 @@ test.describe("discussion composer preview", () => {
     await expect(preview.locator(".orbital-discussion__reply-body").getByText("Hello from composer E2E")).toBeVisible();
   });
 
+  test("a posted reply draws Markdown tables, task lists and alerts as Orbital components", async ({ page }) => {
+    await openComponentPreview(page, "discussion-composer");
+    const preview = page.getByTestId("discussion-composer-preview");
+    await expect(preview).toBeVisible({ timeout: 30_000 });
+
+    const input = preview.locator('[data-testid="discussion-composer-input"] textarea');
+    await input.fill(
+      "## Plan\n\n| Step | Owner |\n|---|---|\n| Ship | Sam |\n\n- [x] Draft\n- [ ] Review\n\n> [!WARNING]\n> Freeze on Friday.",
+    );
+    await preview.locator('[data-testid="discussion-composer-send"] button').click();
+
+    const body = preview.locator(".orbital-discussion__markdown").filter({ hasText: "Freeze on Friday." });
+    await expect(body).toBeVisible();
+    await expect(body.locator("tr.orbital-table-row").first()).toHaveCSS("border-bottom-style", "solid");
+    await expect(body.locator(".orbital-checkbox__indicator").first()).toHaveCSS("width", "16px");
+    await expect(body.getByRole("checkbox", { name: "Task" }).first()).toBeChecked();
+    const alert = body.locator(".orbital-message-bar--warning");
+    await expect(alert).toHaveCSS("display", "grid");
+    await expect(alert.locator(".orbital-message-bar-title")).toHaveText("Warning");
+    await expect(body.getByRole("heading", { name: "Plan", level: 2 })).toBeVisible();
+  });
+
   test("reply submit fires callback with expected parent_id", async ({ page }) => {
     await openComponentPreview(page, "discussion-composer");
     const preview = page.getByTestId("discussion-composer-preview");

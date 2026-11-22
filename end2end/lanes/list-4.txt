@@ -1,0 +1,93 @@
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-01: opening the popover focuses the search box
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-02: search filters by name and keyword and hides Recent
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-03: a query with no matches says so
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-04: arrow keys move through the grid and Enter picks
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-05: a pick moves to the front of Recent
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-06: Escape closes the popover and returns focus to the button
+[component-preview] › components/emoji-picker.spec.ts › emoji-picker › EMJ-07: documented examples render
+[component-preview] › components/carousel-stepper-layout.spec.ts › CS-03: inline stepper dots sit below arrows
+[component-preview] › components/data-table-row-sizing.spec.ts › data-table row sizing › auto row height exceeds density min-height
+[component-preview] › components/date-range-calendar.spec.ts › date-range-calendar preview behaviors › renders preview page
+[component-preview] › components/date-range-calendar.spec.ts › date-range-calendar preview behaviors › shows documented example
+[component-preview] › components/date-range-calendar.spec.ts › date-range-calendar preview behaviors › completing a two-click range updates bound value
+[component-preview] › components/hide-on-scroll.spec.ts › hide-on-scroll preview › HOS-05: visible at scroll 0
+[component-preview] › components/hide-on-scroll.spec.ts › hide-on-scroll preview › HOS-01: scroll down hides sticky bar on page ScrollArea
+[component-preview] › components/hide-on-scroll.spec.ts › hide-on-scroll preview › HOS-02: scroll up shows bar again
+[component-preview] › components/hide-on-scroll.spec.ts › hide-on-scroll preview › HOS-03: app bar stays mounted while hidden
+[component-preview] › components/hide-on-scroll.spec.ts › hide-on-scroll preview › HOS-04: enabled=false never tucks
+[component-preview] › components/scheduler-timeline-localization.spec.ts › scheduler-timeline-localization preview › renders preview page
+[component-preview] › components/scheduler-timeline-localization.spec.ts › scheduler-timeline-localization preview › shows documented example
+[component-preview] › components/scheduler-timeline-localization.spec.ts › scheduler-timeline-localization preview › switches to French resource column header
+[component-preview] › components/list.spec.ts › list preview › L-01 default list
+[component-preview] › components/list.spec.ts › list preview › L-02 nav mode
+[component-preview] › components/list.spec.ts › list preview › L-03 single select
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-01: default tag renders label text
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-02: dismissible tag shows dismiss button and removes on click
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-03: size matrix tags differ in height
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-04: appearance matrix applies appearance modifiers
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-05: tag with icon renders media slot
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-06: icon dismissible tag shows icon and dismiss
+[component-preview] › components/tag.spec.ts › tag primitive preview › TG-07: custom class merges onto tag root
+[component-preview] › components/scheduler-recurring-events.spec.ts › scheduler-recurring-events preview › renders preview page
+[component-preview] › components/scheduler-recurring-events.spec.ts › scheduler-recurring-events preview › shows documented example
+[component-preview] › components/scheduler-recurring-events.spec.ts › scheduler-recurring-events preview › expands weekly standup into multiple instances
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-01: basic combobox preview renders
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-02: typing opens listbox options
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-03: arrow down and enter select active option
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-filter: disable_filter keeps non-matching options visible and focusable
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-04: clearable combobox clears current selection
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-05: disabled combobox cannot be edited
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-06: multiselect toggles selected options
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-07: field label is associated with combobox input
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-08: typing filters options visually
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A1: no aria-prohibited-attr in empty and selected states
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A2: expand icon is decorative and still toggles the listbox
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A3: Clear button is a Tab stop and Enter clears
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A3: Clear button is a Tab stop and Space clears
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A4: mouse click on Clear resets and leaves the input focused
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A6: clear_label overrides the Clear button name
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A5: keyboard Clear empties a multiselect selection
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A7: Escape closes the multiselect listbox after Space-select
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-A6: Clear is disabled with a disabled combobox
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-09: aria-controls names the listbox element
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-10: picking an option closes the listbox
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-11: only the combobox in use shows its listbox
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-SEC-01: secondary line renders under the label and describes the option
+[component-preview] › components/combobox.spec.ts › combobox primitive preview › CB-SEC-02: keyboard still picks an option that has secondary text
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-01: app-bar popover stays in viewport on phone
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-04: desktop popover opens under AppBar
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-02: phone opens drawer not clipped popover
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-01: desktop opens popover
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-02-sad: escape dismisses drawer
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-02: wide AppBar panel stays in viewport
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › MOB-03: short viewport clamps tall click popover
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-04: drawer body visible on phone
+[component-preview] › components/mobile-overlays.spec.ts › MOB / ADM overlays › ADM-05: open drawer closes when resizing to desktop
+[component-preview] › components/pie-chart.spec.ts › pie-chart preview › renders preview page
+[component-preview] › components/pie-chart.spec.ts › pie-chart preview › shows pie slice marks
+[component-preview] › components/pie-chart.spec.ts › pie-chart preview › shows documented examples
+[component-preview] › components/pie-chart.spec.ts › pie-chart preview › animations enabled on load
+[component-preview] › components/data-table-editing.spec.ts › data-table inline editing › double-click cell, edit, and commit with Enter
+[component-preview] › components/demo-box.spec.ts › demo-box preview › renders default dashed-border demo box
+[component-preview] › components/demo-box.spec.ts › demo-box preview › shows labeled variant
+[component-preview] › components/discussion-localization.spec.ts › discussion localization › locale switch changes composer placeholder
+[component-preview] › components/discussion-localization.spec.ts › discussion localization › locale switch changes view mode toolbar label
+[component-preview] › components/data-table-charts-integration.spec.ts › data-table-charts-integration preview › renders preview page
+[component-preview] › components/data-table-charts-integration.spec.ts › data-table-charts-integration preview › dataset binding renders bar marks
+[component-preview] › components/data-table-charts-integration.spec.ts › data-table-charts-integration preview › filter changes update chart bar marks
+[component-preview] › components/data-table-charts-integration.spec.ts › data-table-charts-integration preview › shows documented example
+[component-preview] › components/data-table-list-view.spec.ts › data-table list view › renders card layout instead of table rows
+[component-preview] › components/data-table-list-view.spec.ts › data-table list view › fires on_row_click when a list card is clicked
+[component-preview] › components/data-table-list-view.spec.ts › data-table list view › exposes button semantics when on_row_click is set
+[component-preview] › components/data-table-list-view.spec.ts › data-table list view › fires on_row_click on Enter and Space
+[component-preview] › components/data-table-list-view.spec.ts › data-table list view › does not fire on_row_click when the selection checkbox is clicked
+[component-preview] › components/discussion-parts.spec.ts › discussion parts preview › image file part renders preview
+[component-preview] › components/discussion-parts.spec.ts › discussion parts preview › download file part renders link
+[component-preview] › components/info-label.spec.ts › info-label primitive preview › IL-01: renders default preview
+[component-preview] › components/info-label.spec.ts › info-label primitive preview › IL-02..IL-05: variant examples are visible
+[component-preview] › components/info-label.spec.ts › info-label primitive preview › IL-01: hovering info icon opens helper popover
+[component-preview] › components/info-label.spec.ts › info-label primitive preview › IL-07: custom info_aria_label sets accessible name on info button
+[component-preview] › components/info-label.spec.ts › info-label primitive preview › IL-06: info label html_for matches input id
+[component-preview] › components/swatch-picker.spec.ts › swatch-picker selection › SP-01: default row has exactly one selected swatch
+[component-preview] › components/swatch-picker.spec.ts › swatch-picker selection › SP-02: clicking another swatch moves selection
+[component-preview] › components/swatch-picker.spec.ts › swatch-picker selection › SP-03: grid variant renders documented examples

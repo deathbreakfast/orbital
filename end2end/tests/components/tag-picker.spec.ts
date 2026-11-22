@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { openComponentPreview } from "../lib/preview/navigation";
 test.describe("tag-picker primitive preview", () => {
 
@@ -130,5 +131,48 @@ test.describe("tag-picker primitive preview", () => {
       .click({ force: true });
     await expect(page.getByTestId("TP-09-created")).toHaveText("Created: 0");
     await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
+  });
+
+  test("TP-10: Backspace in the empty input removes the last tag", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-04").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-04");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.focus();
+    await input.press("Backspace");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(1);
+    await expect(wrapper.locator(".orbital-tag")).toHaveText("Alpha");
+  });
+
+  test("TP-11: dismissing a tag moves focus to the input and aria-expanded follows the list", async ({
+    page,
+  }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-04").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-04");
+    const input = wrapper.locator("input[role='combobox']");
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await wrapper.locator(".orbital-tag__dismiss").first().click();
+    await expect(input).toBeFocused();
+    await input.click();
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("TP-12: input in a Field is named and exposes combobox state", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    const wrapper = page.getByTestId("TP-12");
+    await wrapper.scrollIntoViewIfNeeded();
+    const input = wrapper.getByRole("combobox", { name: "Fruit" });
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await input.click();
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+    const listboxId = await input.getAttribute("aria-controls");
+    expect(listboxId).toBeTruthy();
+    await expect(page.locator(`[id="${listboxId}"]`)).toHaveAttribute("role", "listbox");
+    const results = await new AxeBuilder({ page })
+      .include('[data-testid="TP-12"]')
+      .withRules(["aria-required-attr", "label", "aria-valid-attr-value"])
+      .analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
   });
 });

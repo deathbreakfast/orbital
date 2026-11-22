@@ -38,4 +38,17 @@ test.describe("action-menu-button preview", () => {
       page.getByTestId("action-menu-button-icon").locator(".orbital-button__icon").first(),
     ).toBeVisible();
   });
+
+  test("AMB-04 chevron menu button has an accessible name", async ({ page }) => {
+    await openComponentPreview(page, "action-menu-button");
+    const menu = page
+      .getByTestId("action-menu-button-preview")
+      .getByRole("button", { name: "More options" });
+    await expect(menu).toBeVisible();
+    await expect(menu).toHaveClass(/orbital-action-menu-button__menu/);
+    await expect(menu).toHaveAttribute("aria-haspopup", "menu");
+    await expect(
+      page.getByTestId("action-menu-button-icon").getByRole("button", { name: "More save options" }),
+    ).toBeVisible();
+  });
 });
