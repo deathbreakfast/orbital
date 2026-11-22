@@ -222,7 +222,7 @@ use orbital_macros::component_doc;
 ///     ])),
 /// ]);
 /// view! {
-///     <div data-testid="data-table-list-breakpoint-preview">
+///     <div data-testid="data-table-list-breakpoint-preview" style="width: 100%;">
 ///         <DataTable
 ///             features=DataTableFeatures::LIST_VIEW
 ///             list_view=ListViewConfig::new("name")
