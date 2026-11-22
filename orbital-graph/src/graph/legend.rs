@@ -4,7 +4,9 @@ use std::collections::HashSet;
 
 use leptos::prelude::*;
 use orbital_base_components::Handler;
-use orbital_core_components::{Flex, FlexAlign, FlexGap, FlexWrap, ToggleButton};
+use orbital_core_components::{
+    Button, ButtonAppearance, Flex, FlexAlign, FlexGap, FlexWrap, ToggleButton,
+};
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
 
@@ -71,6 +73,13 @@ impl GraphLegendLine {
 ///    and the graph's `hidden_sets`.
 /// 3. Add [`GraphLegendLine`]s for line and box styles, and put host actions
 ///    such as "Customise colours" in `actions`.
+/// 4. To put the legend in a [`GraphToolbar`](crate::GraphToolbar)'s
+///    `trailing` slot, set `collapsible` so it takes one button's width
+///    until opened.
+///
+/// Each chip is a toggle button: screen readers hear it as pressed while its
+/// set shows, and Enter or Space flips it. With `collapsible`, a "Legend"
+/// button with `aria-expanded` opens and closes the chips.
 ///
 /// # Best Practices
 ///
@@ -121,6 +130,28 @@ impl GraphLegendLine {
 ///     </div>
 /// }
 /// ```
+///
+/// ## Collapsible legend
+/// With `collapsible`, the chips sit behind a "Legend" button that opens and
+/// closes them; it starts closed.
+/// <!-- preview -->
+/// ```rust
+/// use std::collections::HashSet;
+/// use crate::GraphLegend;
+/// use crate::preview::fixtures::sample_legend_items;
+/// let items = RwSignal::new(sample_legend_items());
+/// let hidden_sets = RwSignal::new(HashSet::<String>::new());
+/// view! {
+///     <div data-testid="graph-legend-collapsible">
+///         <GraphLegend
+///             items=items
+///             hidden_sets=hidden_sets
+///             collapsible=true
+///             data_testid="graph-legend-collapsible-legend"
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Data Display",
     preview_slug = "graph-legend",
@@ -143,9 +174,16 @@ pub fn GraphLegend(
     /// Extra CSS class names on the legend's `Flex` row.
     #[prop(optional, into)]
     class: MaybeProp<String>,
-    /// `data-testid` on the root `div`; chips get `{data_testid}-chip-{set}`.
+    /// `data-testid` on the root `div`; chips get `{data_testid}-chip-{set}`
+    /// and the `collapsible` button gets `{data_testid}-toggle`.
     #[prop(optional, into)]
     data_testid: MaybeProp<String>,
+    /// Puts the chips behind a "Legend" button that opens and closes them
+    /// (closed at first), so the legend fits in a
+    /// [`GraphToolbar`](crate::GraphToolbar) slot. Default `false`: chips
+    /// always show.
+    #[prop(optional)]
+    collapsible: bool,
 ) -> impl IntoView {
     inject_style("orbital-graph", GRAPH_STYLES);
 
@@ -175,13 +213,47 @@ pub fn GraphLegend(
         })
     });
 
+    let panel = view! {
+        <Flex class=class gap=FlexGap::Small wrap=FlexWrap::Wrap align=FlexAlign::Center>
+            {chips}
+            {key_lines}
+            {actions.map(|actions| actions())}
+        </Flex>
+    };
+    let body = if collapsible {
+        let expanded = RwSignal::new(false);
+        let panel_id = move || data_testid.get().map(|id| format!("{id}-panel"));
+        let toggle_testid = move || data_testid.get().map(|id| format!("{id}-toggle"));
+        let toggle = Callback::new(move |_| expanded.update(|e| *e = !*e));
+        view! {
+            <div class="orbital-graph-legend--collapsible">
+                <Button
+                    appearance=ButtonAppearance::Subtle
+                    icon=icondata::AiTagsOutlined
+                    on_click=toggle
+                    attr:aria-expanded=move || expanded.get().to_string()
+                    attr:aria-controls=panel_id
+                    attr:data-testid=toggle_testid
+                >
+                    "Legend"
+                </Button>
+                <div
+                    class="orbital-graph-legend__panel"
+                    id=panel_id
+                    hidden=move || !expanded.get()
+                >
+                    {panel}
+                </div>
+            </div>
+        }
+        .into_any()
+    } else {
+        panel.into_any()
+    };
+
     view! {
         <div role="group" aria-label="Graph legend" data-testid=move || data_testid.get()>
-            <Flex class=class gap=FlexGap::Small wrap=FlexWrap::Wrap align=FlexAlign::Center>
-                {chips}
-                {key_lines}
-                {actions.map(|actions| actions())}
-            </Flex>
+            {body}
         </div>
     }
 }

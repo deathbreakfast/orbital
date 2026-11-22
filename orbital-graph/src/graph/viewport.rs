@@ -12,6 +12,14 @@ pub const FIT_MIN_SCALE: f64 = 0.05;
 pub const FIT_PADDING: f64 = 24.0;
 /// Zoom factor for one wheel notch or one `+` / `-` key press.
 pub const ZOOM_STEP: f64 = 1.2;
+/// Zoom factor for a double-click on the background.
+pub const DBLCLICK_ZOOM: f64 = 2.0;
+/// Distance between background grid dots at 100%, in layout pixels.
+pub const GRID_PITCH: f64 = 18.0;
+/// Smallest on-screen grid pitch; below it the grid skips every other line.
+const GRID_MIN_PITCH: f64 = 6.0;
+/// Slack for comparing a scale with the zoom limits.
+const SCALE_EPSILON: f64 = 1e-9;
 
 /// Maps layout coordinates to container pixels: `screen = layout * scale + (x, y)`.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -68,6 +76,70 @@ impl Viewport {
             y: py - ly * next,
             scale: next,
         }
+    }
+
+    /// True while a zoom in can still grow the scale (below [`MAX_SCALE`]).
+    #[must_use]
+    pub fn can_zoom_in(&self) -> bool {
+        self.scale < MAX_SCALE - SCALE_EPSILON
+    }
+
+    /// True while a zoom out can still shrink the scale (above [`MIN_SCALE`]).
+    /// A fit below [`MIN_SCALE`] counts as fully zoomed out.
+    #[must_use]
+    pub fn can_zoom_out(&self) -> bool {
+        self.scale > MIN_SCALE + SCALE_EPSILON
+    }
+
+    /// Pans so the layout point `(lx, ly)` sits at the centre of a `cw` × `ch`
+    /// container, keeping the scale.
+    #[must_use]
+    pub fn centre_on(&self, lx: f64, ly: f64, cw: f64, ch: f64) -> Viewport {
+        Viewport {
+            x: cw / 2.0 - lx * self.scale,
+            y: ch / 2.0 - ly * self.scale,
+            scale: self.scale,
+        }
+    }
+
+    /// The part of the layout a `cw` × `ch` container shows, as a layout
+    /// rect `(x, y, w, h)`.
+    #[must_use]
+    pub fn visible_rect(&self, cw: f64, ch: f64) -> (f64, f64, f64, f64) {
+        (
+            -self.x / self.scale,
+            -self.y / self.scale,
+            cw / self.scale,
+            ch / self.scale,
+        )
+    }
+
+    /// True when the whole `width` × `height` layout is on screen in a
+    /// `cw` × `ch` container. An unmeasured container counts as fitting.
+    #[must_use]
+    pub fn fits_in_view(&self, width: f64, height: f64, cw: f64, ch: f64) -> bool {
+        if cw <= 0.0 || ch <= 0.0 {
+            return true;
+        }
+        let slack = 0.5;
+        self.x >= -slack
+            && self.y >= -slack
+            && self.x + width * self.scale <= cw + slack
+            && self.y + height * self.scale <= ch + slack
+    }
+
+    /// On-screen distance between grid dots: [`GRID_PITCH`] scaled, doubled
+    /// until it is at least 6px so a far zoom doesn't fill the canvas.
+    #[must_use]
+    pub fn grid_pitch(&self) -> f64 {
+        let mut pitch = GRID_PITCH * self.scale;
+        if !pitch.is_finite() || pitch <= 0.0 {
+            return GRID_PITCH;
+        }
+        while pitch < GRID_MIN_PITCH {
+            pitch *= 2.0;
+        }
+        pitch
     }
 
     /// Moves the pan by `(dx, dy)` container pixels.
@@ -159,6 +231,100 @@ mod tests {
         let after = ((px - next.x) / next.scale, (py - next.y) / next.scale);
         assert!((before.0 - after.0).abs() < 1e-9);
         assert!((before.1 - after.1).abs() < 1e-9);
+    }
+
+    fn assert_fixed(vp: Viewport, next: Viewport, px: f64, py: f64) {
+        let before = ((px - vp.x) / vp.scale, (py - vp.y) / vp.scale);
+        let after = ((px - next.x) / next.scale, (py - next.y) / next.scale);
+        assert!((before.0 - after.0).abs() < 1e-9);
+        assert!((before.1 - after.1).abs() < 1e-9);
+    }
+
+    #[test]
+    fn viewport_double_click_zoom_in_and_out_at_point_happy() {
+        let vp = Viewport {
+            x: 12.0,
+            y: 30.0,
+            scale: 0.5,
+        };
+        let zin = vp.zoom_at(220.0, 140.0, vp.scale * DBLCLICK_ZOOM);
+        assert_eq!(zin.scale, 1.0);
+        assert_fixed(vp, zin, 220.0, 140.0);
+        let zout = zin.zoom_at(220.0, 140.0, zin.scale / DBLCLICK_ZOOM);
+        assert_eq!(zout.scale, 0.5);
+        assert_fixed(zin, zout, 220.0, 140.0);
+        assert_eq!(zout, vp);
+    }
+
+    #[test]
+    fn viewport_double_click_zoom_stops_at_limits_sad() {
+        let high = Viewport {
+            scale: 1.5,
+            ..Viewport::default()
+        };
+        assert_eq!(high.zoom_at(50.0, 50.0, 3.0).scale, MAX_SCALE);
+        let low = Viewport {
+            scale: 0.3,
+            ..Viewport::default()
+        };
+        assert_eq!(low.zoom_at(50.0, 50.0, 0.15).scale, MIN_SCALE);
+    }
+
+    #[test]
+    fn viewport_can_zoom_edges_happy() {
+        let at = |scale: f64| Viewport {
+            scale,
+            ..Viewport::default()
+        };
+        assert!(!at(MAX_SCALE).can_zoom_in());
+        assert!(at(MAX_SCALE).can_zoom_out());
+        assert!(at(MAX_SCALE - 0.01).can_zoom_in());
+        assert!(!at(MIN_SCALE).can_zoom_out());
+        assert!(at(MIN_SCALE).can_zoom_in());
+        assert!(at(MIN_SCALE + 0.01).can_zoom_out());
+        // A fit below the floor can zoom in but not out.
+        assert!(!at(FIT_MIN_SCALE).can_zoom_out());
+        assert!(at(FIT_MIN_SCALE).can_zoom_in());
+        // Float noise from repeated steps still reads as at the limit.
+        assert!(!at(MAX_SCALE - 1e-12).can_zoom_in());
+    }
+
+    #[test]
+    fn viewport_centre_on_and_visible_rect_happy() {
+        let vp = Viewport {
+            x: 0.0,
+            y: 0.0,
+            scale: 2.0,
+        };
+        let next = vp.centre_on(100.0, 50.0, 800.0, 400.0);
+        assert_eq!((next.x, next.y, next.scale), (200.0, 100.0, 2.0));
+        let (x, y, w, h) = next.visible_rect(800.0, 400.0);
+        assert_eq!((x + w / 2.0, y + h / 2.0), (100.0, 50.0));
+        assert_eq!((w, h), (400.0, 200.0));
+    }
+
+    #[test]
+    fn viewport_fits_in_view_happy() {
+        let vp = fit(1504.0, 100.0, 800.0, 400.0);
+        assert!(vp.fits_in_view(1504.0, 100.0, 800.0, 400.0));
+        let zoomed = vp.zoom_at(400.0, 200.0, 1.0);
+        assert!(!zoomed.fits_in_view(1504.0, 100.0, 800.0, 400.0));
+        // Unmeasured container: nothing to scroll to.
+        assert!(zoomed.fits_in_view(1504.0, 100.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn viewport_grid_pitch_happy() {
+        let at = |scale: f64| Viewport {
+            scale,
+            ..Viewport::default()
+        };
+        assert_eq!(at(1.0).grid_pitch(), 18.0);
+        assert_eq!(at(2.0).grid_pitch(), 36.0);
+        assert!((at(0.2).grid_pitch() - 7.2).abs() < 1e-9);
+        // 18 * 0.05 = 0.9, doubled three times to 7.2.
+        assert!((at(0.05).grid_pitch() - 7.2).abs() < 1e-9);
+        assert_eq!(at(0.0).grid_pitch(), GRID_PITCH);
     }
 
     #[test]

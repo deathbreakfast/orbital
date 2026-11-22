@@ -51,9 +51,9 @@ test.describe("field primitive preview", () => {
     await field.scrollIntoViewIfNeeded();
     const label = field.locator("label");
     await expect(label).toHaveClass(/sr-only/);
-    const box = await label.boundingBox();
-    expect(box!.width).toBeLessThanOrEqual(1);
-    expect(box!.height).toBeLessThanOrEqual(1);
+    // Poll: the sr-only box shrinks only once the stylesheet has applied.
+    await expect.poll(async () => (await label.boundingBox())?.width ?? Infinity).toBeLessThanOrEqual(1);
+    await expect.poll(async () => (await label.boundingBox())?.height ?? Infinity).toBeLessThanOrEqual(1);
     await expect(field.getByRole("textbox", { name: "Quick add task" })).toBeVisible();
   });
 

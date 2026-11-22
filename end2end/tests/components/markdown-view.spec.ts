@@ -46,13 +46,13 @@ test.describe("markdown view preview", () => {
     await openComponentPreview(page, "markdown-view");
     const example = page.getByTestId("markdown-view-wide");
     const scroller = example.locator(".orbital-markdown__table-scroll");
-    const sizes = await scroller.evaluate((el) => ({
-      scroll: el.scrollWidth,
-      client: el.clientWidth,
-    }));
-    expect(sizes.scroll).toBeGreaterThan(sizes.client);
-    const box = await example.boundingBox();
-    expect(box?.width ?? 0).toBeLessThanOrEqual(320);
+    // Poll: the table's width settles only after the stylesheet and hydration land.
+    await expect
+      .poll(() => scroller.evaluate((el) => el.scrollWidth - el.clientWidth))
+      .toBeGreaterThan(0);
+    await expect
+      .poll(async () => (await example.boundingBox())?.width ?? Infinity)
+      .toBeLessThanOrEqual(320);
     await scroller.focus();
     await expect(scroller).toBeFocused();
   });

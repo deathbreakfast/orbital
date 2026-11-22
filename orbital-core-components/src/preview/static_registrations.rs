@@ -144,6 +144,8 @@ use crate::stack::STACK_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::tab_list::TABLIST_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::tag::CHIPSELECTOR_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::tag::TAGPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::tag::{
@@ -254,6 +256,7 @@ orbital_macros::preview_registrations! {
     &TAGGROUP_PREVIEW_REGISTRATION,
     &INTERACTIONTAG_PREVIEW_REGISTRATION,
     &TAGPICKER_PREVIEW_REGISTRATION,
+    &CHIPSELECTOR_PREVIEW_REGISTRATION,
     &LOADINGBAR_PREVIEW_REGISTRATION,
     &THEMEPREVIEWMARKER_PREVIEW_REGISTRATION,
     &TREE_PREVIEW_REGISTRATION,

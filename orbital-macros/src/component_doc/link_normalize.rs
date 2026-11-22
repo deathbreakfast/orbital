@@ -338,6 +338,7 @@ const PREVIEW_SLUGS: &[&str] = &[
     "carousel",
     "carousel-stepper",
     "checkbox",
+    "chip-selector",
     "code",
     "color-picker",
     "combobox",

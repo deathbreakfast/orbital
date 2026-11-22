@@ -17,7 +17,7 @@ use crate::Icon;
 
 /// Multi-select field that shows choices as dismissible tags inside a combobox control.
 ///
-/// Options must be declared as [`TagPickerOption`] children. Typed text never becomes a tag by itself; to let users create one, render an action option (`on_activate`) that opens your own create flow. Bind selected keys with [`TagPickerBind`], group selected tags in [`TagPickerGroup`], and use [`TagPickerOptionGroup`] for labeled sections. For strict multi-select without tag UI use [`Combobox`](crate::Combobox).
+/// Options must be declared as [`TagPickerOption`] children. Typed text never becomes a tag by itself; to let users create one, render an action option (`on_activate`) that opens your own create flow. Bind selected keys with [`TagPickerBind`], group selected tags in [`TagPickerGroup`], and use [`TagPickerOptionGroup`] for labeled sections. For strict multi-select without tag UI use [`Combobox`](crate::Combobox). For record fields such as tags, projects or people, use [`ChipSelector`](crate::ChipSelector), which builds on this picker and takes its options as data.
 ///
 /// # When to use
 ///
@@ -26,6 +26,10 @@ use crate::Icon;
 /// # Usage
 ///
 /// 1. Bind selected option keys via [`TagPickerBind`]. 2. Render selected tags inside [`TagPickerGroup`] from the bound values. 3. Add [`TagPickerOption`] or [`TagPickerOptionGroup`] children for the dropdown list.
+///
+/// # API notes
+///
+/// - [`TagPickerInput`] carries `role="combobox"`, `aria-expanded` and `aria-controls`. Give it a name with a [`Field`](crate::Field) label, or its `aria_label` prop outside a field.
 ///
 /// # Best Practices
 ///
@@ -339,6 +343,37 @@ use crate::Icon;
 ///     </div>
 /// }
 /// ```
+///
+/// ## In a field
+/// Inside a [`Field`](crate::Field) the input takes the field's id, so the label names it.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{
+///     Field, Tag, TagPicker, TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput,
+///     TagPickerOption,
+/// };
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let panel_mount = NodeRef::<leptos::html::Div>::new();
+/// view! {
+///     <div data-testid="TP-12" node_ref=panel_mount>
+///         <Field label="Fruit">
+///             <TagPicker bind=TagPickerBind::new(selected) panel_mount=Some(panel_mount)>
+///                 <TagPickerControl slot>
+///                     <TagPickerGroup>
+///                         {move || selected.get().into_iter().map(|value| {
+///                             let label = value.clone();
+///                             view! { <Tag value=value.clone()>{label}</Tag> }
+///                         }).collect_view()}
+///                         <TagPickerInput />
+///                     </TagPickerGroup>
+///                 </TagPickerControl>
+///                 <TagPickerOption value="apple".to_string() text="Apple" />
+///                 <TagPickerOption value="banana".to_string() text="Banana" />
+///             </TagPicker>
+///         </Field>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "tag-picker",
@@ -356,6 +391,10 @@ pub fn TagPicker(
     /// Size preset for the control.
     #[prop(default = TagPickerSize::Large.into(), into)]
     size: Signal<TagPickerSize>,
+    /// When false, picking an option replaces the selection instead of adding to it,
+    /// so the bound list holds at most one key. Defaults to true (multi-select).
+    #[prop(default = true.into(), into)]
+    multiselect: Signal<bool>,
     /// Control slot wrapping selected tags and the filter input.
     tag_picker_control: TagPickerControl,
     /// Optional portal mount so listbox panels stay inside preview wrappers during E2E.
@@ -386,10 +425,12 @@ pub fn TagPicker(
         TagPickerControlInjection(active_descendant_controller.clone());
     let tag_picker_injection = TagPickerInjection {
         size,
+        multiselect,
         selected_options: selected_options.clone(),
         input_ref,
         options,
         is_show_listbox,
+        listbox_id,
         listbox_hidden_callback,
         on_search: StoredValue::new(None),
     };
@@ -437,7 +478,7 @@ pub fn TagPicker(
             listbox_keyboard_event(
                 e,
                 is_show_listbox,
-                true,
+                multiselect.get_untracked(),
                 &active_descendant_controller,
                 move |option| {
                     let entry = tag_picker_injection
@@ -490,10 +531,11 @@ pub fn TagPicker(
                     <Provider value=panel_injection>
                         <BaseListbox
                             class="orbital-tag-picker__listbox"
+                            id=listbox_id.get_value()
                             listbox_ref
                             set_listbox
                         >
-                            <div id=move || listbox_id.get_value()>{children()}</div>
+                            {children()}
                         </BaseListbox>
                     </Provider>
                 }
