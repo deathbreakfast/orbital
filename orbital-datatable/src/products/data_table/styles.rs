@@ -565,6 +565,14 @@ pub fn data_table_styles() -> &'static str {
     padding-inline: var(--orbital-data-table-cell-padding-inline);
 }
 
+/* Reorder, detail and selection columns have fixed widths (the pinned offsets and the
+   <colgroup> use them), so their controls sit centered with no inline padding. */
+.orbital-data-table td.orbital-data-table__leading-cell,
+.orbital-data-table th.orbital-data-table__leading-cell {
+    padding-inline: 0;
+    text-align: center;
+}
+
 .orbital-data-table__filter-panel {
     display: flex;
     flex-direction: column;
