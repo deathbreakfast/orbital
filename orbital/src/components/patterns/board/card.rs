@@ -290,7 +290,11 @@ pub(super) fn BoardCardItem(
             }
         }
     };
-    let on_pointercancel = move |_: ev::PointerEvent| {
+    // A native mouse drag fires pointercancel when it starts, so only touch cancels here.
+    let on_pointercancel = move |event: ev::PointerEvent| {
+        if event.pointer_type() != "touch" {
+            return;
+        }
         clear_timer();
         if picked_untracked() {
             ctx.drag.set(None);
