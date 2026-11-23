@@ -6,7 +6,8 @@ use web_sys::DomRect;
 use crate::overlay::placement::Placement;
 
 /// Minimum remaining space (px) required to accept a clamped preferred placement
-/// instead of flipping to another side.
+/// instead of flipping to another side. A clamped vertical placement also flips
+/// when the opposite side has more room.
 const MIN_CLAMP_SPACE: f64 = 48.0;
 
 pub struct AnchorOffset {
@@ -162,7 +163,8 @@ fn placement_vertical(
         let raw_top = target.top - content_height;
         let space_above = target.top.max(0.0);
         if raw_top < 0.0 {
-            if !must && space_above < MIN_CLAMP_SPACE {
+            let space_below = (vh - target.bottom() - arrow).max(0.0);
+            if !must && (space_above < MIN_CLAMP_SPACE || space_below > space_above) {
                 return None;
             }
             // Clamp into the viewport rather than placing above y=0.
@@ -174,7 +176,8 @@ fn placement_vertical(
         let target_bottom = target.bottom() + arrow;
         let space_below = (vh - target_bottom).max(0.0);
         if target_bottom + content.height > vh {
-            if !must && space_below < MIN_CLAMP_SPACE {
+            let space_above = (target.top - arrow).max(0.0);
+            if !must && (space_below < MIN_CLAMP_SPACE || space_above > space_below) {
                 return None;
             }
             (target_bottom, Some((space_below - 1.0).max(0.0)))
@@ -409,6 +412,57 @@ mod tests {
         assert_eq!(offset.placement, Bottom);
         assert!(offset.top >= 40.0);
         assert!(offset.max_height.unwrap() < 600.0);
+    }
+
+    #[test]
+    fn bottom_near_viewport_foot_flips_up_when_above_has_more_room() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Bottom,
+            Rect {
+                top: 628.0,
+                left: 400.0,
+                width: 320.0,
+                height: 32.0,
+            },
+            Rect {
+                top: 0.0,
+                left: 0.0,
+                width: 320.0,
+                height: 300.0,
+            },
+            None,
+            1280.0,
+            720.0,
+        )
+        .expect("placement");
+        assert_eq!(offset.placement, Top);
+        assert!(offset.top >= 0.0);
+        assert!(offset.top + 300.0 <= 628.0);
+    }
+
+    #[test]
+    fn bottom_clamps_when_below_still_has_more_room() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Bottom,
+            Rect {
+                top: 200.0,
+                left: 400.0,
+                width: 320.0,
+                height: 32.0,
+            },
+            Rect {
+                top: 0.0,
+                left: 0.0,
+                width: 320.0,
+                height: 600.0,
+            },
+            None,
+            1280.0,
+            720.0,
+        )
+        .expect("placement");
+        assert_eq!(offset.placement, Bottom);
+        assert!(offset.max_height.unwrap() < 720.0 - 232.0);
     }
 
     #[test]

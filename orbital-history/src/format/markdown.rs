@@ -38,6 +38,7 @@ pub fn render_history_markdown(
             enable_mention_refs: options.enable_mentions,
             enable_images: options.enable_images,
             image_url_schemes: None,
+            allow_relative_images: true,
             citation_style: orbital_markdown::CitationLinkStyle::history(),
             mention_style: MentionLinkStyle::history(),
         },

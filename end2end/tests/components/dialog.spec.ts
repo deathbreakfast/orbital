@@ -1,6 +1,7 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { openComponentPreview } from "../lib/preview/navigation";
 import { expectTeleportedRole } from "../lib/preview/overlays";
+import { WasmPanicGuard } from "../lib/preview/wasm-panics";
 test.describe("dialog primitive preview", () => {
 
   test("DL-01: trigger opens dialog with preview content", async ({ page }) => {
@@ -273,5 +274,27 @@ test.describe("dialog primitive preview", () => {
     });
     expect(bg).not.toBe("rgba(0, 0, 0, 0)");
     expect(bg).toBe(canvas);
+  });
+
+  test("DL-22: a dialog removed as it opens does not panic", async ({ page }) => {
+    const guard = new WasmPanicGuard(page);
+    await openComponentPreview(page, "dialog", "dialog-removed-on-open");
+    const root = page.getByTestId("dialog-removed-on-open");
+    await root.scrollIntoViewIfNeeded();
+    const trigger = root.getByRole("button", { name: "Open and remove" });
+    for (let i = 0; i < 3; i++) {
+      await trigger.click();
+      // Let every focus frame run (MOUNT_FRAMES is 10).
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            let n = 0;
+            const tick = () => (++n >= 15 ? resolve() : requestAnimationFrame(tick));
+            requestAnimationFrame(tick);
+          }),
+      );
+    }
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    guard.assertClean();
   });
 });
