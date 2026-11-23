@@ -33,4 +33,17 @@ test.describe("data-table filter logic", () => {
     await applyTwoRules("or");
     await expect(preview.locator("tbody tr").count()).resolves.toBeGreaterThan(0);
   });
+
+  test("filter panel selects have accessible names", async ({ page }) => {
+    await openComponentPreview(page, "data-table-sorting-filtering", "data-table-filter-logic-preview");
+    const preview = page.getByTestId("data-table-filter-logic-preview");
+    await preview.scrollIntoViewIfNeeded();
+    await preview.getByTestId("data-table-filter-panel-trigger").click();
+    const panel = page.getByTestId("data-table-filter-panel");
+    await panel.getByTestId("data-table-filter-add-rule").click();
+
+    await expect(panel.getByTestId("data-table-filter-logic").locator("select")).toHaveAccessibleName("Match");
+    await expect(panel.getByTestId("data-table-filter-rule-0-field").locator("select")).toHaveAccessibleName("Field");
+    await expect(panel.getByTestId("data-table-filter-rule-0-operator").locator("select")).toHaveAccessibleName("Operator");
+  });
 });

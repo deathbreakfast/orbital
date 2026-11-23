@@ -8,6 +8,7 @@ use super::edit_ops::{insert_link, number_lines, prefix_lines, wrap_selection};
 use super::styles::markdown_editor_styles;
 use super::toolbar::{MarkdownAction, MarkdownEditorToolbar};
 use crate::{link_styles, Tab, TabList, Textarea, TextareaAppearance};
+use orbital_base_components::{ComponentRef, TextareaRef};
 
 const WRITE_TAB: &str = "write";
 const PREVIEW_TAB: &str = "preview";
@@ -103,6 +104,25 @@ const LINK_PLACEHOLDER_URL: &str = "https://";
 ///     </div>
 /// }
 /// ```
+///
+/// ## Focus when it opens
+/// An in-place editor that appears on Edit takes focus through `comp_ref`. The ref loads
+/// after mount, so focus it from an effect.
+/// <!-- code-only -->
+/// ```rust,ignore
+/// use crate::{MarkdownEditor, TextareaRef};
+/// use orbital_base_components::ComponentRef;
+/// let editor_ref = ComponentRef::<TextareaRef>::default();
+/// let value = RwSignal::new(String::new());
+/// Effect::new(move |_| {
+///     if let Some(editor) = editor_ref.get() {
+///         editor.focus();
+///     }
+/// });
+/// view! {
+///     <MarkdownEditor value=value aria_label="Scope" comp_ref=editor_ref />
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "markdown-editor",
@@ -134,6 +154,9 @@ pub fn MarkdownEditor(
     /// Markdown features for the Preview tab; defaults to plain Markdown with no citations, mentions, or images.
     #[prop(optional)]
     render_options: Option<OrbitalMarkdownOptions>,
+    /// Imperative handle for `focus` and `blur` on the inner textarea.
+    #[prop(optional)]
+    comp_ref: ComponentRef<TextareaRef>,
 ) -> impl IntoView {
     inject_style("orbital-markdown-editor", markdown_editor_styles());
     crate::markdown_view::inject_markdown_styles();
@@ -243,6 +266,7 @@ pub fn MarkdownEditor(
             >
                 <Textarea
                     bind=value
+                    comp_ref=comp_ref
                     appearance=TextareaAppearance {
                         placeholder,
                         disabled,

@@ -23,6 +23,7 @@ pub struct ColorTheme {
     color_neutral_background_5: String,
     color_neutral_background_6: String,
 
+    color_neutral_foreground_static: String,
     color_neutral_foreground_static_inverted: String,
     color_neutral_foreground_disabled: String,
     color_neutral_foreground_1: String,
@@ -228,6 +229,7 @@ impl ColorTheme {
             color_neutral_background_5: "#eaebec".into(),
             color_neutral_background_6: "#e5e6e7".into(),
 
+            color_neutral_foreground_static: "#232425".into(),
             color_neutral_foreground_static_inverted: "#ffffff".into(),
             color_neutral_foreground_disabled: "#babec0".into(),
             color_neutral_foreground_1: "#232425".into(),
@@ -357,6 +359,7 @@ impl ColorTheme {
             color_neutral_background_5: "#000000".into(),
             color_neutral_background_6: "#313435".into(),
 
+            color_neutral_foreground_static: "#232425".into(),
             color_neutral_foreground_static_inverted: "#ffffff".into(),
             color_neutral_foreground_disabled: "#585d60".into(),
             color_neutral_foreground_1: "#fff".into(),

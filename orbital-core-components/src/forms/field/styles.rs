@@ -16,9 +16,12 @@ pub fn field_styles() -> &'static str {
     min-width: 0;
 }
 
-/* Without this the native input's intrinsic width (its `size`) sets a minimum. */
+/* Without `width: 0` the native input's intrinsic width (its `size`) sets a minimum.
+   The min-width keeps a short date and its icon visible inside an auto-width flex
+   item or table cell, where `width: 100%` would otherwise collapse to nothing. */
 .orbital-field .orbital-input:not(.orb-date-field) > .orbital-input__input {
     width: 0;
+    min-width: 10ch;
 }
 
 .orbital-field__label {

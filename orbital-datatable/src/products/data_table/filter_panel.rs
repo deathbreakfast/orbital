@@ -172,6 +172,7 @@ fn DataTableFilterPanelContent(
                     <span>"Match"</span>
                     <Select
                         bind=logic_value
+                        aria_label="Match"
                         attr:data-testid="data-table-filter-logic"
                         appearance=SelectSize::Small
                     >

@@ -13,6 +13,7 @@ pub fn BaseSelect(
     #[prop(optional, into)] value: FormBind<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional, into)] aria_describedby: MaybeProp<String>,
+    #[prop(optional, into)] aria_label: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     let (id, name) = FieldInjection::use_id_and_name(id, name);
@@ -45,6 +46,7 @@ pub fn BaseSelect(
             name=name
             disabled=disabled
             aria-describedby=move || aria_describedby.get()
+            aria-label=move || aria_label.get()
             prop:value=move || value.get()
             on:change=on_change
             node_ref=select_ref
