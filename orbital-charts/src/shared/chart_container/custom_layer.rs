@@ -18,7 +18,7 @@ pub fn ChartCustomBaseline() -> impl IntoView {
                 y1=baseline
                 x2=area.plot_width
                 y2=baseline
-                stroke="var(--orb-color-accent-primary, currentColor)"
+                stroke="var(--orb-color-brand-fg, #2563eb)"
                 stroke-width="1.5"
                 stroke-dasharray="6 4"
                 opacity="0.7"

@@ -1,7 +1,7 @@
 mod link;
 mod styles;
 
-pub use link::Link;
+pub use link::{Link, LinkAppearance};
 pub use styles::link_styles;
 
 #[cfg(feature = "preview")]

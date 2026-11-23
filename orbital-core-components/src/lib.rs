@@ -56,12 +56,12 @@ pub use copy_button::{write_clipboard_text, CopyButton};
 pub use data::{
     link_styles, Avatar, AvatarColor, AvatarConfig, AvatarGroup, AvatarGroupLayout,
     AvatarGroupSize, AvatarShape, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,
-    Image, ImageConfig, ImageFit, ImageShape, Link, List, ListItem, ListItemTrailing,
-    ListNavigationMode, ListSelectionMode, Persona, PersonaConfig, PersonaPrimaryText,
-    PersonaQuaternaryText, PersonaSecondaryText, PersonaSize, PersonaTertiaryText,
-    PersonaTextAlignment, PersonaTextPosition, ResolvedTimestamp, Table, TableBody, TableCell,
-    TableCellLayout, TableCellLayoutConfig, TableHeader, TableHeaderCell, TableHeaderCellConfig,
-    TableRow, Timestamp, TimestampHoverCard, TimestampStyle, TimestampValue,
+    Image, ImageConfig, ImageFit, ImageShape, Link, LinkAppearance, List, ListItem,
+    ListItemTrailing, ListNavigationMode, ListSelectionMode, Persona, PersonaConfig,
+    PersonaPrimaryText, PersonaQuaternaryText, PersonaSecondaryText, PersonaSize,
+    PersonaTertiaryText, PersonaTextAlignment, PersonaTextPosition, ResolvedTimestamp, Table,
+    TableBody, TableCell, TableCellLayout, TableCellLayoutConfig, TableHeader, TableHeaderCell,
+    TableHeaderCellConfig, TableRow, Timestamp, TimestampHoverCard, TimestampStyle, TimestampValue,
 };
 pub use diff_view::{diff_text, DiffHunk, DiffLayout, DiffLine, DiffLineKind, DiffSpan, DiffView};
 pub use divider::Divider;

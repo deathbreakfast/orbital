@@ -51,7 +51,7 @@ pub fn badge_styles() -> &'static str {
 }
 
 .orbital-badge--filled.orbital-badge--warning {
-    color: var(--orb-color-text-primary-static);
+    color: var(--orb-color-text-primary-static, #242424);
     background-color: var(--orb-color-palette-yellow-bg);
 }
 

@@ -28,12 +28,12 @@ pub fn resolve_series_color(
 /// Default series color CSS custom properties for chart roots.
 pub fn default_series_color_vars() -> &'static str {
     r#"
-    --orbital-chart-series-1: var(--orb-color-accent-primary, #2563eb);
-    --orbital-chart-series-2: var(--orb-color-accent-secondary, #7c3aed);
-    --orbital-chart-series-3: var(--orb-color-accent-tertiary, #059669);
-    --orbital-chart-series-4: var(--orb-color-accent-quaternary, #d97706);
-    --orbital-chart-series-5: var(--orb-color-accent-primary, #2563eb);
-    --orbital-chart-series-6: var(--orb-color-accent-secondary, #7c3aed);
+    --orbital-chart-series-1: var(--orb-color-brand-fg, #2563eb);
+    --orbital-chart-series-2: #7c3aed;
+    --orbital-chart-series-3: #059669;
+    --orbital-chart-series-4: #d97706;
+    --orbital-chart-series-5: var(--orb-color-brand-fg, #2563eb);
+    --orbital-chart-series-6: #7c3aed;
 "#
 }
 

@@ -343,7 +343,7 @@ impl ColorTheme {
             color_stroke_focus_2: "#000000".into(),
 
             color_palette_red_background_1: "#fdf7f6".into(),
-            color_palette_red_background_3: "#d54d30".into(),
+            color_palette_red_background_3: "#ce472a".into(),
             color_palette_red_foreground_1: "#c0462b".into(),
             color_palette_red_foreground_3: "#d54d30".into(),
             color_palette_red_border_1: "#f2c4ba".into(),
@@ -361,8 +361,8 @@ impl ColorTheme {
             color_palette_yellow_border_1: "#f7ffb1".into(),
 
             color_palette_dark_orange_background_1: "#fdf8f3".into(),
-            color_palette_dark_orange_background_3: "#db6600".into(),
-            color_palette_dark_orange_foreground_1: "#c55c00".into(),
+            color_palette_dark_orange_background_3: "#bd5800".into(),
+            color_palette_dark_orange_foreground_1: "#b75500".into(),
             color_palette_dark_orange_foreground_3: "#db6600".into(),
             color_palette_dark_orange_border_1: "#f6cea9".into(),
 
@@ -370,7 +370,7 @@ impl ColorTheme {
             color_status_success_foreground_1: "#0c7220".into(),
             color_status_success_border_1: "#9ed9aa".into(),
             color_status_warning_background_1: "#fffbf5".into(),
-            color_status_warning_foreground_3: "#c06f05".into(),
+            color_status_warning_foreground_3: "#a86104".into(),
             color_status_warning_border_1: "#ffdeb2".into(),
             color_status_danger_background_1: "#fdf4f3".into(),
             color_status_danger_foreground_1: "#b51d0a".into(),
@@ -473,7 +473,7 @@ impl ColorTheme {
             color_stroke_focus_2: "#ffffff".into(),
 
             color_palette_red_background_1: "#40180f".into(),
-            color_palette_red_background_3: "#d54d30".into(),
+            color_palette_red_background_3: "#ce472a".into(),
             color_palette_red_foreground_1: "#e68d7a".into(),
             color_palette_red_foreground_3: "#e68d7a".into(),
             color_palette_red_border_1: "#d54d30".into(),
@@ -491,7 +491,7 @@ impl ColorTheme {
             color_palette_yellow_border_1: "#e4fd00".into(),
 
             color_palette_dark_orange_background_1: "#411f00".into(),
-            color_palette_dark_orange_background_3: "#db6600".into(),
+            color_palette_dark_orange_background_3: "#bd5800".into(),
             color_palette_dark_orange_foreground_1: "#ec9f5b".into(),
             color_palette_dark_orange_foreground_3: "#ec9f5b".into(),
             color_palette_dark_orange_border_1: "#db6600".into(),

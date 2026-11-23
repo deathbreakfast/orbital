@@ -34,7 +34,7 @@ pub fn ReferenceLine(
 
     let stroke = style
         .color
-        .unwrap_or_else(|| "var(--orb-color-accent-primary, currentColor)".into());
+        .unwrap_or_else(|| "var(--orb-color-brand-fg, #2563eb)".into());
     let stroke_width = style.stroke_width.unwrap_or(1.5);
     let dash = style.dash_array.unwrap_or_else(|| "6 4".into());
     let opacity = style.opacity.unwrap_or(0.7);

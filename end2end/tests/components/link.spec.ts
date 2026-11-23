@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview, expectPreviewVariants } from "../lib/preview/navigation";
 import { expectComputedStyle, expectNonEmptyResolvedStyle } from "../lib/assertions/style";
+import { seriousAxeViolations, setPreviewTheme } from "../lib/preview/axe";
 test.describe("link primitive preview", () => {
   test("LK-01 default anchor link", async ({ page }) => {
     await openComponentPreview(page, "link");
@@ -39,5 +40,25 @@ test.describe("link primitive preview", () => {
     await expectNonEmptyResolvedStyle(page, "link-theme", "color", {
       childSelector: "a.orbital-link",
     });
+  });
+
+  test("LK-06 subtle link uses the primary text colour and passes axe contrast", async ({ page }) => {
+    await openComponentPreview(page, "link");
+    await expectPreviewVariants(page, ["link-subtle"]);
+    const link = page.getByTestId("link-subtle").locator("a.orbital-link--subtle");
+    await expect(link).toHaveText("Ada Lovelace");
+    for (const mode of ["dark", "light"] as const) {
+      await setPreviewTheme(page, mode);
+      const [color, textPrimary] = await link.evaluate((el) => {
+        const probe = document.createElement("span");
+        probe.style.color = "var(--orb-color-text-primary)";
+        el.parentElement!.appendChild(probe);
+        const expected = getComputedStyle(probe).color;
+        probe.remove();
+        return [getComputedStyle(el).color, expected];
+      });
+      expect(color, mode).toBe(textPrimary);
+      expect(await seriousAxeViolations(page, "[data-testid='link-subtle']"), mode).toEqual([]);
+    }
   });
 });

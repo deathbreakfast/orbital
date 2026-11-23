@@ -41,7 +41,7 @@ pub fn timeline_chip_strong_color(event: &PlannedEvent) -> String {
     match (&event.color, event.tone) {
         (Some(color), _) => color.clone(),
         (None, Some(tone)) => tone.tokens().border.to_string(),
-        (None, None) => "var(--orb-color-accent-primary, #2563eb)".to_string(),
+        (None, None) => "var(--orb-color-brand-fg, #2563eb)".to_string(),
     }
 }
 

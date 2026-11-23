@@ -196,8 +196,8 @@ pub fn scheduler_calendar_styles() -> &'static str {
     padding: 0 var(--orb-space-inline-xs, 0.25rem);
     font-size: var(--orb-font-size-xs, 0.75rem);
     border-radius: var(--orb-radius-sm, 0.25rem);
-    background: color-mix(in srgb, var(--orb-color-accent-primary, #2563eb) 12%, transparent);
-    border-inline-start: 3px solid var(--orb-color-accent-primary, #2563eb);
+    background: color-mix(in srgb, var(--orb-color-brand-fg, #2563eb) 12%, transparent);
+    border-inline-start: 3px solid var(--orb-color-brand-fg, #2563eb);
     color: var(--orb-color-text-primary, inherit);
     line-height: 1.4;
     overflow: hidden;
@@ -243,7 +243,7 @@ pub fn scheduler_calendar_styles() -> &'static str {
     font-size: var(--orb-font-size-xs, 0.75rem);
     border-radius: var(--orb-radius-sm, 0.25rem);
     background: var(--orb-color-surface-canvas, #fff);
-    border: 1px solid var(--orb-color-accent-primary, #2563eb);
+    border: 1px solid var(--orb-color-brand-fg, #2563eb);
     box-shadow: var(--orb-shadow-md, 0 4px 12px rgba(0, 0, 0, 0.12));
     color: var(--orb-color-text-primary, inherit);
     line-height: 1.4;

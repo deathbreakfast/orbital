@@ -65,11 +65,11 @@ test.describe("badge primitive preview", () => {
     await expect(page.getByTestId("badge-nav").locator(".orbital-badge")).toHaveText("3");
   });
 
-  test("BD-A1: brand and warning badges pass axe contrast in light and dark", async ({ page }) => {
+  test("BD-A1: brand, warning and semantic color badges pass axe contrast in light and dark", async ({ page }) => {
     await openComponentPreview(page, "badge");
     for (const mode of ["dark", "light"] as const) {
       await setPreviewTheme(page, mode);
-      for (const testId of ["badge-appearance", "badge-warning"]) {
+      for (const testId of ["badge-appearance", "badge-warning", "badge-colors"]) {
         await page.getByTestId(testId).scrollIntoViewIfNeeded();
         expect(await seriousAxeViolations(page, `[data-testid='${testId}']`), `${mode} ${testId}`).toEqual([]);
       }

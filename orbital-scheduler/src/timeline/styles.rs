@@ -322,7 +322,7 @@ pub fn scheduler_timeline_styles() -> &'static str {
     box-sizing: border-box;
     width: 14px;
     height: 14px;
-    border: 2px solid var(--orb-color-accent-primary, #2563eb);
+    border: 2px solid var(--orb-color-brand-fg, #2563eb);
     transform: rotate(45deg);
 }
 

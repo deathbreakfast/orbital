@@ -25,7 +25,7 @@ use orbital_macros::component_doc;
 ///
 /// ## Do's
 ///
-/// * Pull colors from `--orb-accent-*` theme tokens via the default palette when possible.
+/// * Use the default palette, which starts from the theme brand colour, when possible.
 /// * Use ordinal `color_scale` on the category axis for consistent bar tints.
 /// * Document color meaning in the legend when semantic color carries status.
 ///
