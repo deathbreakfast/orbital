@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use leptos::{ev, html, prelude::*};
-use orbital_base_components::FieldInjection;
+use orbital_base_components::{textarea_event_value, FieldInjection};
 use orbital_macros::component_doc;
 use orbital_style::inject_style;
 
@@ -299,7 +299,10 @@ pub fn CodeEditor(
     };
 
     let on_input = move |ev: ev::Event| {
-        value.set(event_target_value(&ev));
+        let Some(text) = textarea_event_value(&ev) else {
+            return;
+        };
+        value.set(text);
         refresh_completions();
     };
 
