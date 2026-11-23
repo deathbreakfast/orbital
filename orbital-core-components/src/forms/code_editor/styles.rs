@@ -182,7 +182,9 @@ pub fn code_editor_styles() -> &'static str {
 }
 
 .orbital-code-editor__message {
-    color: var(--orb-color-status-danger-fg);
+    padding-left: var(--orb-space-inline-sm);
+    border-left: var(--orb-stroke-thick) solid var(--orb-color-status-danger-fg);
+    color: var(--orb-color-text-primary);
     font-family: var(--orb-type-family-sans);
     font-size: var(--orb-type-size-xs);
     line-height: var(--orb-type-line-sm);
