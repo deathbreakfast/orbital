@@ -50,9 +50,12 @@ test.describe("board pattern preview", () => {
     const doing = board.getByTestId("board-default-lane-doing");
     await expect(board.getByTestId("board-default-lane-todo").getByTestId("board-default-card-tokens")).toBeVisible();
 
+    // Aim at the lane heading: the lane itself can be taller than the viewport.
+    const target = doing.getByText(/^Doing \(/);
+    await card.scrollIntoViewIfNeeded();
     const from = await card.boundingBox();
-    const to = await doing.boundingBox();
-    if (!from || !to) throw new Error("card or lane has no box");
+    const to = await target.boundingBox();
+    if (!from || !to) throw new Error("card or lane heading has no box");
     await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
     await page.mouse.down();
     await page.mouse.move(from.x + from.width / 2 + 10, from.y + from.height / 2 + 10, { steps: 5 });
