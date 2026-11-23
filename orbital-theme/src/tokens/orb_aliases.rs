@@ -352,6 +352,10 @@ impl ColorTheme {
                 self.color_neutral_foreground_static_inverted(),
             ),
             (
+                "--orb-color-text-primary-static",
+                self.color_neutral_foreground_static(),
+            ),
+            (
                 "--orb-color-text-disabled",
                 self.color_neutral_foreground_disabled(),
             ),

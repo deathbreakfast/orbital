@@ -155,7 +155,7 @@ pub fn DataTableFilterRuleEditor(
 
     view! {
         <div class="orbital-data-table__filter-rule-editor">
-            <Select bind=field attr:data-testid=field_testid appearance=SelectSize::Small>
+            <Select bind=field aria_label="Field" attr:data-testid=field_testid appearance=SelectSize::Small>
                 {move || {
                     columns
                         .get_value()
@@ -169,7 +169,7 @@ pub fn DataTableFilterRuleEditor(
                         .collect_view()
                 }}
             </Select>
-            <Select bind=operator_wire attr:data-testid=operator_testid appearance=SelectSize::Small>
+            <Select bind=operator_wire aria_label="Operator" attr:data-testid=operator_testid appearance=SelectSize::Small>
                 {move || {
                     operators
                         .get()
@@ -198,7 +198,7 @@ pub fn DataTableFilterRuleEditor(
                     let value_testid = format!("data-table-filter-rule-{idx}-value");
                     if let Some(choices) = choices.get() {
                         view! {
-                            <Select bind=value_text attr:data-testid=value_testid appearance=SelectSize::Small>
+                            <Select bind=value_text aria_label="Value" attr:data-testid=value_testid appearance=SelectSize::Small>
                                 <option value="">"Any value"</option>
                                 {choices
                                     .into_iter()
@@ -208,7 +208,7 @@ pub fn DataTableFilterRuleEditor(
                         }.into_any()
                     } else if col == ColumnType::Boolean {
                         view! {
-                            <Select bind=value_text attr:data-testid=value_testid appearance=SelectSize::Small>
+                            <Select bind=value_text aria_label="Value" attr:data-testid=value_testid appearance=SelectSize::Small>
                                 <option value="true">"True"</option>
                                 <option value="false">"False"</option>
                             </Select>

@@ -42,6 +42,28 @@ test.describe("board pattern preview", () => {
     await expect(page.getByTestId("board-move-log")).toHaveText("");
   });
 
+  test("BD-09 a real mouse drag moves the card and is not cancelled", async ({ page }) => {
+    await openComponentPreview(page, SLUG, "board-preview");
+    const board = page.getByTestId("board-default");
+    const live = board.getByTestId("board-default-live");
+    const card = board.getByTestId("board-default-card-tokens");
+    const doing = board.getByTestId("board-default-lane-doing");
+    await expect(board.getByTestId("board-default-lane-todo").getByTestId("board-default-card-tokens")).toBeVisible();
+
+    const from = await card.boundingBox();
+    const to = await doing.boundingBox();
+    if (!from || !to) throw new Error("card or lane has no box");
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(from.x + from.width / 2 + 10, from.y + from.height / 2 + 10, { steps: 5 });
+    await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 20 });
+    await page.mouse.up();
+
+    await expect(doing.getByTestId("board-default-card-tokens")).toBeVisible();
+    await expect(page.getByTestId("board-move-log")).toHaveText("Moved tokens to doing");
+    await expect(live).toHaveText(/^Moved .* to Doing$/);
+  });
+
   test("BD-03 keyboard move: Space, ArrowRight, Space", async ({ page }) => {
     await openComponentPreview(page, SLUG, "board-preview");
     const board = page.getByTestId("board-default");

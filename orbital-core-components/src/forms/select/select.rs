@@ -207,6 +207,9 @@ pub fn Select(
     /// Extra CSS class names merged onto the select wrapper span.
     #[prop(optional, into)]
     class: MaybeProp<String>,
+    /// Accessible name for the native `<select>` when there is no visible label.
+    #[prop(optional, into)]
+    aria_label: MaybeProp<String>,
     /// Native `<option>` elements defining the choices.
     children: Children,
 ) -> impl IntoView {
@@ -277,6 +280,7 @@ pub fn Select(
                 value=value.get_value()
                 disabled=disabled
                 aria_describedby=describedby
+                aria_label=aria_label
             >
                 {children()}
             </BaseSelect>

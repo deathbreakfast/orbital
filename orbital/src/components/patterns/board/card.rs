@@ -160,6 +160,9 @@ pub(super) fn BoardCardItem(
         let lane = column_id.with_value(|c| ctx.lane_index(c))?;
         Some(BoardDrag::pick(id.get_value(), label.get_value(), lane))
     };
+    // True while the current pick-up came from the keyboard. A mouse or touch drag
+    // can move focus mid-drag, so only a keyboard pick-up cancels on focusout.
+    let key_pick = StoredValue::new(false);
 
     let on_keydown = move |event: ev::KeyboardEvent| {
         if !movable {
@@ -187,7 +190,10 @@ pub(super) fn BoardCardItem(
         event.prevent_default();
         ctx.drag.set(state);
         match outcome {
-            BoardKeyOutcome::Picked => ctx.announce(announce_picked(&card_label)),
+            BoardKeyOutcome::Picked => {
+                key_pick.set_value(true);
+                ctx.announce(announce_picked(&card_label));
+            }
             BoardKeyOutcome::Over(index) => ctx.announce(announce_over(&ctx.lane_label(index))),
             BoardKeyOutcome::Moved(mv) => ctx.commit(mv, &card_label, true),
             BoardKeyOutcome::Cancelled => ctx.announce(ANNOUNCE_CANCELLED.to_string()),
@@ -195,9 +201,9 @@ pub(super) fn BoardCardItem(
         }
     };
 
-    // Tabbing away from a picked-up card cancels the move.
+    // Tabbing away from a card picked up with the keyboard cancels the move.
     let on_focusout = move |_: ev::FocusEvent| {
-        if picked_untracked() {
+        if key_pick.get_value() && picked_untracked() {
             ctx.drag.set(None);
             ctx.announce(ANNOUNCE_CANCELLED.to_string());
         }
@@ -211,6 +217,7 @@ pub(super) fn BoardCardItem(
             let _ = dt.set_data("text/plain", &id.get_value());
             dt.set_effect_allowed("move");
         }
+        key_pick.set_value(false);
         ctx.drag.set(pick());
     };
     let on_dragend = move |_: ev::DragEvent| {
@@ -239,6 +246,7 @@ pub(super) fn BoardCardItem(
             move || {
                 press_timer.set_value(None);
                 if let Some(drag) = pick() {
+                    key_pick.set_value(false);
                     ctx.announce(announce_picked(&drag.card_label));
                     ctx.drag.set(Some(drag));
                 }
