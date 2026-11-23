@@ -8,7 +8,7 @@ use orbital_style::inject_style;
 use super::completion::{
     apply_completion, byte_to_utf16, filter_completions, line_col, prefix_at, utf16_to_byte,
 };
-use super::grammar::{error_range, highlight, line_count, CodeGrammar};
+use super::grammar::{error_range, highlight, line_count, CodeGrammar, CodeSegment};
 use super::styles::code_editor_styles;
 
 static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
@@ -203,7 +203,6 @@ pub fn CodeEditor(
         uid.set(format!("orbital-code-editor-{n}"));
     });
     let listbox_id = move || format!("{}-listbox", uid.get());
-    let option_id = move |i: usize| format!("{}-option-{i}", uid.get());
     let message_id = move || format!("{}-message", uid.get());
 
     let grammar = StoredValue::new(grammar);
@@ -354,46 +353,10 @@ pub fn CodeEditor(
                 class:orbital-code-editor__frame--readonly=move || readonly.get()
                 style=frame_style
             >
-                <div class="orbital-code-editor__gutter" aria-hidden="true">
-                    {move || {
-                        let marked = error_line.get();
-                        (1..=lines.get())
-                            .map(|n| {
-                                view! {
-                                    <span
-                                        class="orbital-code-editor__line-number"
-                                        class:orbital-code-editor__line-number--error=marked
-                                            == Some(n)
-                                    >
-                                        {n}
-                                    </span>
-                                }
-                            })
-                            .collect_view()
-                    }}
-                </div>
+                <CodeEditorGutter lines=lines error_line=error_line />
                 <div class="orbital-code-editor__scroll">
                     <div class="orbital-code-editor__content">
-                        <pre class="orbital-code-editor__highlight" aria-hidden="true">
-                            {move || {
-                                segments
-                                    .get()
-                                    .into_iter()
-                                    .map(|segment| {
-                                        view! {
-                                            <span
-                                                class=segment.kind.class()
-                                                class:orbital-code-editor__error=segment.error
-                                            >
-                                                {segment.text}
-                                            </span>
-                                        }
-                                    })
-                                    .collect_view()
-                            }}
-                            // Keeps a trailing empty line as tall as the textarea's.
-                            " "
-                        </pre>
+                        <CodeEditorHighlight segments=segments />
                         <textarea
                             class="orbital-code-editor__input"
                             id=id
@@ -409,7 +372,7 @@ pub fn CodeEditor(
                             aria-autocomplete=move || (!readonly.get()).then_some("list")
                             aria-controls=listbox_id
                             aria-activedescendant=move || {
-                                is_open.get().then(|| option_id(active.get()))
+                                is_open.get().then(|| option_id(&listbox_id(), active.get()))
                             }
                             prop:value=move || value.get()
                             on:input=on_input
@@ -420,37 +383,12 @@ pub fn CodeEditor(
                         />
                     </div>
                 </div>
-                <ul
-                    class="orbital-code-editor__completions"
-                    id=listbox_id
-                    role="listbox"
-                    aria-label="Suggestions"
-                    hidden=move || !is_open.get()
-                >
-                    {move || {
-                        items
-                            .get()
-                            .into_iter()
-                            .enumerate()
-                            .map(|(i, item)| {
-                                view! {
-                                    <li
-                                        class="orbital-code-editor__option"
-                                        id=move || option_id(i)
-                                        role="option"
-                                        aria-selected=move || {
-                                            if active.get() == i { "true" } else { "false" }
-                                        }
-                                        on:mousedown=|ev: ev::MouseEvent| ev.prevent_default()
-                                        on:click=move |_| accept(i)
-                                    >
-                                        {item}
-                                    </li>
-                                }
-                            })
-                            .collect_view()
-                    }}
-                </ul>
+                <CodeEditorCompletions
+                    items=items
+                    active=active
+                    listbox_id=Signal::derive(listbox_id)
+                    on_accept=Callback::new(accept)
+                />
             </div>
             <div class="orbital-code-editor__message" id=message_id aria-live="polite">
                 {move || {
@@ -460,5 +398,114 @@ pub fn CodeEditor(
                 }}
             </div>
         </div>
+    }
+}
+
+/// Id of completion option `index` inside the list with id `listbox_id`.
+fn option_id(listbox_id: &str, index: usize) -> String {
+    format!("{listbox_id}-option-{index}")
+}
+
+/// Line numbers beside the text, with the error's line marked.
+#[component]
+fn CodeEditorGutter(
+    /// Number of lines in the text.
+    lines: Memo<usize>,
+    /// Line to mark as holding the error, counted from 1.
+    error_line: Memo<Option<usize>>,
+) -> impl IntoView {
+    view! {
+        <div class="orbital-code-editor__gutter" aria-hidden="true">
+            {move || {
+                let marked = error_line.get();
+                (1..=lines.get())
+                    .map(|n| {
+                        view! {
+                            <span
+                                class="orbital-code-editor__line-number"
+                                class:orbital-code-editor__line-number--error=marked == Some(n)
+                            >
+                                {n}
+                            </span>
+                        }
+                    })
+                    .collect_view()
+            }}
+        </div>
+    }
+}
+
+/// Highlighted copy of the text that sits under the transparent textarea.
+#[component]
+fn CodeEditorHighlight(
+    /// Highlighted runs of the text, in order.
+    segments: Memo<Vec<CodeSegment>>,
+) -> impl IntoView {
+    view! {
+        <pre class="orbital-code-editor__highlight" aria-hidden="true">
+            {move || {
+                segments
+                    .get()
+                    .into_iter()
+                    .map(|segment| {
+                        view! {
+                            <span
+                                class=segment.kind.class()
+                                class:orbital-code-editor__error=segment.error
+                            >
+                                {segment.text}
+                            </span>
+                        }
+                    })
+                    .collect_view()
+            }}
+            // Keeps a trailing empty line as tall as the textarea's.
+            " "
+        </pre>
+    }
+}
+
+/// Completion list under the caret line; hidden while it has no items.
+#[component]
+fn CodeEditorCompletions(
+    /// Names to offer; empty hides the list.
+    items: RwSignal<Vec<String>>,
+    /// Index of the highlighted name.
+    active: RwSignal<usize>,
+    /// Id of the list, referenced by the textarea's `aria-controls`.
+    listbox_id: Signal<String>,
+    /// Inserts the name at the given index.
+    on_accept: Callback<usize>,
+) -> impl IntoView {
+    view! {
+        <ul
+            class="orbital-code-editor__completions"
+            id=listbox_id
+            role="listbox"
+            aria-label="Suggestions"
+            hidden=move || items.with(Vec::is_empty)
+        >
+            {move || {
+                items
+                    .get()
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, item)| {
+                        view! {
+                            <li
+                                class="orbital-code-editor__option"
+                                id=move || option_id(&listbox_id.get(), i)
+                                role="option"
+                                aria-selected=move || if active.get() == i { "true" } else { "false" }
+                                on:mousedown=|ev: ev::MouseEvent| ev.prevent_default()
+                                on:click=move |_| on_accept.run(i)
+                            >
+                                {item}
+                            </li>
+                        }
+                    })
+                    .collect_view()
+            }}
+        </ul>
     }
 }
