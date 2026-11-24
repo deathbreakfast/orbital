@@ -71,7 +71,7 @@ static NEXT_SELECT_ID: AtomicUsize = AtomicUsize::new(0);
 /// use crate::{CurrencyCode, CurrencyInput, Field};
 /// let price = RwSignal::new("1234.56".to_string());
 /// view! {
-///     <div data-testid="currency-input-basic">
+///     <div data-testid="currency-input-preview">
 ///         <Field label="Price">
 ///             <CurrencyInput bind=price currency=RwSignal::new(CurrencyCode::USD) />
 ///         </Field>

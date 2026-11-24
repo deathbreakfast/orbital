@@ -4,7 +4,7 @@ import { openComponentPreview } from "../lib/preview/navigation";
 test.describe("currency-input preview", () => {
   test("CI-01: symbol sits before the amount for en-US and after it for de-DE", async ({ page }) => {
     await openComponentPreview(page, "currency-input");
-    const basic = page.getByTestId("currency-input-basic");
+    const basic = page.getByTestId("currency-input-preview");
     await expect(basic.locator(".orbital-input__prefix")).toHaveText("$");
     await expect(basic.locator(".orbital-input__suffix")).toHaveCount(0);
     await expect(basic.getByLabel("Price")).toHaveValue("1,234.56");
@@ -16,7 +16,7 @@ test.describe("currency-input preview", () => {
 
   test("CI-02: focus shows the plain number and blur formats it", async ({ page }) => {
     await openComponentPreview(page, "currency-input");
-    const input = page.getByTestId("currency-input-basic").getByLabel("Price");
+    const input = page.getByTestId("currency-input-preview").getByLabel("Price");
     await input.focus();
     await expect(input).toHaveValue("1234.56");
     await input.fill("1234.5");
@@ -37,7 +37,7 @@ test.describe("currency-input preview", () => {
 
   test("CI-04: pasted text is normalised", async ({ page }) => {
     await openComponentPreview(page, "currency-input");
-    const input = page.getByTestId("currency-input-basic").getByLabel("Price");
+    const input = page.getByTestId("currency-input-preview").getByLabel("Price");
     await input.focus();
     await input.fill("$7,654.32");
     await expect(input).toHaveValue("7654.32");
@@ -47,7 +47,7 @@ test.describe("currency-input preview", () => {
 
   test("CI-05: an unreadable edit is rejected and the last good text stays", async ({ page }) => {
     await openComponentPreview(page, "currency-input");
-    const input = page.getByTestId("currency-input-basic").getByLabel("Price");
+    const input = page.getByTestId("currency-input-preview").getByLabel("Price");
     await input.focus();
     await input.fill("12.34");
     await expect(input).toHaveValue("12.34");
@@ -79,7 +79,7 @@ test.describe("currency-input preview", () => {
     await negative.focus();
     await negative.fill("-3.5");
     await expect(negative).toHaveValue("-3.5");
-    const basic = page.getByTestId("currency-input-basic").getByLabel("Price");
+    const basic = page.getByTestId("currency-input-preview").getByLabel("Price");
     await basic.focus();
     await basic.fill("1");
     await basic.pressSequentially("-");
