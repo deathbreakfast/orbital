@@ -7,6 +7,7 @@ const mobileSpecs = [
   "**/mobile-overlays.spec.ts",
   "**/layout-responsive.spec.ts",
   "**/data-table-cursor.spec.ts",
+  "**/chip-selector.spec.ts",
 ];
 
 export default defineConfig({

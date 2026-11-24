@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { openComponentPreview } from "../lib/preview/navigation";
 import { clickMenuTriggerInPreview, hoverMenuTriggerInPreview, expectOverlayAnchoredNearTrigger, expectOverlayInViewport, expectOverlayNonZeroSize } from "../lib/preview/overlays";
 test.describe("menu primitive preview", () => {
@@ -165,5 +166,17 @@ test.describe("menu primitive preview", () => {
     await page.getByRole("menuitem", { name: "Rename" }).click();
     const dialog = page.getByRole("dialog", { name: "Rename" });
     await expect(dialog.getByRole("textbox")).toBeFocused();
+  });
+
+  test("MN-15: menu items sit directly under role=menu", async ({ page }) => {
+    await openComponentPreview(page, "menu");
+    await clickMenuTriggerInPreview(page, "menu-preview", "Actions");
+    const menu = page.getByRole("menu");
+    await expect(menu.getByRole("menuitem", { name: "Edit" })).toBeVisible();
+    const results = await new AxeBuilder({ page })
+      .include(".orbital-menu")
+      .withRules(["aria-required-children", "aria-required-parent"])
+      .analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
   });
 });

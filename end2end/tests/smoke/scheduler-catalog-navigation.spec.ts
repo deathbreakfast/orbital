@@ -105,24 +105,35 @@ test.describe("scheduler catalog navigation regressions", () => {
     const x = box!.x + box!.width / 2;
     const y = box!.y + box!.height / 2;
 
+    // PreviewCatalogNav resets its open folders to the current route's ancestors in an effect
+    // that can land after the destination page is already visible. Wait for that reset (the
+    // timeline folder, open on the previous page, closes) so it can't undo the expansion below.
+    const nav = page.getByTestId("preview-catalog-nav");
+    await expect(nav.getByRole("button", { name: "Event Timeline", exact: true })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+
     await page.mouse.move(x, y);
     await page.mouse.down();
     await page.mouse.move(x, y + 60, { steps: 8 });
-    // DOM click avoids Playwright actionability checks while the drag gesture holds the pointer.
-    const nav = page.getByTestId("preview-catalog-nav");
+    // DOM clicks avoid Playwright actionability checks while the drag gesture holds the pointer.
     const timeline = nav.getByRole("link", {
       name: "Scheduler Event Timeline",
       exact: true,
     });
-    if (!(await timeline.isVisible())) {
+    await expect(async () => {
       for (const folder of ["Scheduling", "Event Timeline"]) {
         const btn = nav.getByRole("button", { name: folder, exact: true });
-        if ((await btn.count()) > 0 && (await btn.getAttribute("aria-expanded")) !== "true") {
-          await btn.click();
+        if ((await btn.getAttribute("aria-expanded", { timeout: 1_000 })) !== "true") {
+          await btn.evaluate((el) => (el as HTMLButtonElement).click());
         }
       }
-    }
+      await expect(timeline).toBeVisible({ timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
     await timeline.evaluate((el) => (el as HTMLAnchorElement).click());
+    // Release the pointer only after the hop has happened, so the drag ends on the new page.
+    await expect(page).toHaveURL(/\/scheduler-timeline$/);
     await page.mouse.up();
 
     await expect(page.getByTestId("scheduler-timeline-preview")).toBeVisible();

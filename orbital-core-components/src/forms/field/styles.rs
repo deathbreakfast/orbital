@@ -24,7 +24,9 @@ pub fn field_styles() -> &'static str {
     min-width: 10ch;
 }
 
-.orbital-field__label {
+/* `:not(.sr-only)`: a hidden label must keep `.sr-only`'s zero padding and negative margin
+   whichever stylesheet is injected last; same specificity, so order would decide. */
+.orbital-field__label:not(.sr-only) {
     margin-bottom: var(--orb-space-block-2xs);
     padding-bottom: var(--orb-space-block-2xs);
     padding-top: var(--orb-space-block-2xs);
@@ -35,7 +37,7 @@ pub fn field_styles() -> &'static str {
     grid-template-rows: auto auto auto 1fr;
 }
 
-.orbital-field--horizontal > .orbital-field__label {
+.orbital-field--horizontal > .orbital-field__label:not(.sr-only) {
     grid-row-end: -1;
     grid-row-start: 1;
 

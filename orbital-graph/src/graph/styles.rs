@@ -1,4 +1,5 @@
-//! Stylesheet for `Graph` and `GraphLegend` (stable `orbital-graph*` class names).
+//! Stylesheet for `Graph`, `GraphToolbar`, `GraphMinimap` and `GraphLegend`
+//! (stable `orbital-graph*` class names).
 
 /// Compiled graph stylesheet. Theme tokens only, so light and dark follow the
 /// theme provider.
@@ -15,7 +16,29 @@ pub(crate) const GRAPH_STYLES: &str = r#"
     touch-action: none;
 }
 
+.orbital-graph__grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: background-size 150ms ease, background-position 150ms ease;
+}
+
+.orbital-graph__grid--dots {
+    background-image: radial-gradient(circle at 1px 1px, var(--orb-graph-grid) 1px, transparent 1.5px);
+}
+
+.orbital-graph__grid--lines {
+    background-image:
+        linear-gradient(to right, var(--orb-graph-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--orb-graph-grid) 1px, transparent 1px);
+}
+
+.orbital-graph--panning .orbital-graph__grid {
+    transition: none;
+}
+
 .orbital-graph__svg {
+    position: relative;
     display: block;
     width: 100%;
     height: 100%;
@@ -139,7 +162,89 @@ pub(crate) const GRAPH_STYLES: &str = r#"
     opacity: 0.15;
 }
 
+.orbital-graph__toolbar {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 1;
+    display: flex;
+    pointer-events: none;
+}
+
+.orbital-graph__toolbar > * {
+    pointer-events: auto;
+}
+
+.orbital-graph-toolbar {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--orb-color-border-subtle);
+    border-radius: 8px;
+    background: var(--orb-color-surface-canvas);
+}
+
+.orbital-graph__minimap-slot {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 1;
+}
+
+.orbital-graph-minimap {
+    width: 180px;
+    height: 120px;
+    border: 1px solid var(--orb-color-border-default);
+    border-radius: 6px;
+    background: var(--orb-color-surface-canvas);
+    cursor: pointer;
+    touch-action: none;
+    overflow: hidden;
+}
+
+.orbital-graph-minimap svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.orbital-graph-minimap__shape {
+    fill: var(--orb-color-brand-bg-subtle);
+    stroke: var(--orb-color-brand-stroke);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+}
+
+.orbital-graph-minimap__view {
+    fill: var(--orb-color-border-focus);
+    fill-opacity: 0.12;
+    stroke: var(--orb-color-border-focus);
+    stroke-width: 1.5px;
+}
+
+.orbital-graph-legend--collapsible {
+    position: relative;
+}
+
+.orbital-graph-legend__panel {
+    margin-top: 4px;
+}
+
+.orbital-graph-toolbar .orbital-graph-legend--collapsible {
+    max-width: 100%;
+}
+
+.orbital-graph-toolbar .orbital-graph-legend__panel {
+    max-width: min(420px, 100%);
+}
+
+.orbital-graph-legend__panel[hidden] {
+    display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .orbital-graph__grid,
     .orbital-graph__viewport,
     .orbital-graph__node,
     .orbital-graph__edge {

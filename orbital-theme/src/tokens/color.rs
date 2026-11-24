@@ -156,26 +156,26 @@ impl ColorTheme {
         let mut theme = Self::light();
         theme.color_brand_background = Self::shade(brand_colors, 80);
         theme.color_brand_background_2 = Self::shade(brand_colors, 160);
-        theme.color_brand_background_hover = Self::shade(brand_colors, 70);
+        theme.color_brand_background_hover = Self::shade(brand_colors, 60);
         theme.color_brand_background_pressed = Self::shade(brand_colors, 40);
         theme.color_brand_foreground_1 = Self::shade(brand_colors, 80);
         theme.color_brand_foreground_2 = Self::shade(brand_colors, 70);
-        theme.color_brand_foreground_link = Self::shade(brand_colors, 70);
+        theme.color_brand_foreground_link = Self::shade(brand_colors, 80);
         theme.color_brand_foreground_link_hover = Self::shade(brand_colors, 60);
         theme.color_brand_foreground_link_pressed = Self::shade(brand_colors, 40);
         theme.color_brand_stroke_1 = Self::shade(brand_colors, 80);
         theme.color_brand_stroke_2 = Self::shade(brand_colors, 140);
         theme.color_brand_stroke_2_contrast = Self::shade(brand_colors, 140);
         theme.color_compound_brand_background = Self::shade(brand_colors, 80);
-        theme.color_compound_brand_background_hover = Self::shade(brand_colors, 70);
+        theme.color_compound_brand_background_hover = Self::shade(brand_colors, 60);
         theme.color_compound_brand_background_pressed = Self::shade(brand_colors, 60);
         theme.color_compound_brand_foreground_1 = Self::shade(brand_colors, 80);
-        theme.color_compound_brand_foreground_1_hover = Self::shade(brand_colors, 70);
+        theme.color_compound_brand_foreground_1_hover = Self::shade(brand_colors, 60);
         theme.color_compound_brand_foreground_1_pressed = Self::shade(brand_colors, 60);
         theme.color_compound_brand_stroke = Self::shade(brand_colors, 80);
         theme.color_compound_brand_stroke_pressed = Self::shade(brand_colors, 60);
         theme.color_neutral_foreground_2_brand_hover = Self::shade(brand_colors, 80);
-        theme.color_neutral_foreground_2_brand_pressed = Self::shade(brand_colors, 70);
+        theme.color_neutral_foreground_2_brand_pressed = Self::shade(brand_colors, 60);
         theme.color_neutral_foreground_2_brand_selected = Self::shade(brand_colors, 80);
         theme
     }
@@ -239,7 +239,7 @@ impl ColorTheme {
             color_neutral_foreground_2_hover: "#232425".into(),
             color_neutral_foreground_2_pressed: "#232425".into(),
             color_neutral_foreground_2_brand_hover: "#1a6f94".into(),
-            color_neutral_foreground_2_brand_pressed: "#1e82ae".into(),
+            color_neutral_foreground_2_brand_pressed: "#155b79".into(),
             color_neutral_foreground_2_brand_selected: "#1a6f94".into(),
             color_neutral_foreground_3: "#5d6265".into(),
             color_neutral_foreground_4: "#6c7174".into(),
@@ -262,17 +262,17 @@ impl ColorTheme {
             color_neutral_stencil_2: "#fafafa".into(),
 
             color_compound_brand_foreground_1: "#1a6f94".into(),
-            color_compound_brand_foreground_1_hover: "#1e82ae".into(),
+            color_compound_brand_foreground_1_hover: "#155b79".into(),
             color_compound_brand_foreground_1_pressed: "#1a6f93".into(),
 
             color_compound_brand_background: "#1a6f94".into(),
-            color_compound_brand_background_hover: "#1e82ae".into(),
+            color_compound_brand_background_hover: "#155b79".into(),
             color_compound_brand_background_pressed: "#1a6f93".into(),
             color_compound_brand_stroke: "#1a6f94".into(),
             color_compound_brand_stroke_pressed: "#1a6f93".into(),
 
             color_brand_background: "#1a6f94".into(),
-            color_brand_background_hover: "#1e82ae".into(),
+            color_brand_background_hover: "#155b79".into(),
             color_brand_background_pressed: "#11485f".into(),
             color_brand_background_2: "#f6fbfd".into(),
             color_brand_foreground_1: "#1a6f94".into(),
@@ -280,7 +280,7 @@ impl ColorTheme {
             color_brand_stroke_1: "#1a6f94".into(),
             color_brand_stroke_2: "#d4edf7".into(),
             color_brand_stroke_2_contrast: "#d4edf7".into(),
-            color_brand_foreground_link: "#1e82ae".into(),
+            color_brand_foreground_link: "#1a6f94".into(),
             color_brand_foreground_link_hover: "#1a6f93".into(),
             color_brand_foreground_link_pressed: "#11485f".into(),
 
@@ -467,6 +467,73 @@ impl ColorTheme {
             shadow16: "0 0 3px rgba(0,0,0,0.22), 0 8px 18px rgba(0,0,0,0.26)".into(),
             shadow28: "0 0 3px rgba(0,0,0,0.22), 0 14px 30px rgba(0,0,0,0.26)".into(),
             shadow64: "0 0 8px rgba(0,0,0,0.22), 0 32px 68px rgba(0,0,0,0.26)".into(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ColorTheme;
+
+    fn luminance(hex: &str) -> f64 {
+        let hex = hex.trim_start_matches('#');
+        let hex = if hex.len() == 3 {
+            hex.chars().flat_map(|c| [c, c]).collect::<String>()
+        } else {
+            hex.to_string()
+        };
+        let channel = |i: usize| {
+            let c = f64::from(u8::from_str_radix(&hex[i..i + 2], 16).unwrap()) / 255.0;
+            if c <= 0.03928 {
+                c / 12.92
+            } else {
+                ((c + 0.055) / 1.055).powf(2.4)
+            }
+        };
+        0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
+    }
+
+    fn contrast(a: &str, b: &str) -> f64 {
+        let (la, lb) = (luminance(a), luminance(b));
+        (la.max(lb) + 0.05) / (la.min(lb) + 0.05)
+    }
+
+    /// Links on the canvas and page backgrounds, and white text on the primary
+    /// button at rest and on hover, meet WCAG AA (4.5:1) in both themes.
+    #[test]
+    fn brand_text_pairs_meet_aa_happy() {
+        for (name, theme) in [("light", ColorTheme::light()), ("dark", ColorTheme::dark())] {
+            let pairs = [
+                (
+                    "link on canvas",
+                    &theme.color_brand_foreground_link,
+                    &theme.color_neutral_background_1,
+                ),
+                (
+                    "link on page",
+                    &theme.color_brand_foreground_link,
+                    &theme.color_neutral_background_3,
+                ),
+                (
+                    "on-brand on brand",
+                    &theme.color_neutral_foreground_on_brand,
+                    &theme.color_brand_background,
+                ),
+                (
+                    "on-brand on brand hover",
+                    &theme.color_neutral_foreground_on_brand,
+                    &theme.color_brand_background_hover,
+                ),
+                (
+                    "on-brand on brand pressed",
+                    &theme.color_neutral_foreground_on_brand,
+                    &theme.color_brand_background_pressed,
+                ),
+            ];
+            for (pair, fg, bg) in pairs {
+                let ratio = contrast(fg, bg);
+                assert!(ratio >= 4.5, "{name} {pair}: {fg} on {bg} is {ratio:.2}:1");
+            }
         }
     }
 }
