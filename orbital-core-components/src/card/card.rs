@@ -262,26 +262,22 @@ fn resolve_surface(
 ///     <div data-testid="card-fill">
 ///         <Grid config=GridConfig::with_gaps(2, 12, 12)>
 ///             <GridItem>
-///                 <div data-testid="card-fill-short" style="height: 100%;">
-///                     <Card fill=true>
-///                         <CardHeader>
-///                             <Subtitle1>"Owns"</Subtitle1>
-///                         </CardHeader>
-///                         <CardContent>"One short line."</CardContent>
-///                     </Card>
-///                 </div>
+///                 <Card fill=true>
+///                     <CardHeader>
+///                         <Subtitle1>"Owns"</Subtitle1>
+///                     </CardHeader>
+///                     <CardContent>"One short line."</CardContent>
+///                 </Card>
 ///             </GridItem>
 ///             <GridItem>
-///                 <div data-testid="card-fill-tall" style="height: 100%;">
-///                     <Card fill=true>
-///                         <CardHeader>
-///                             <Subtitle1>"Requests"</Subtitle1>
-///                         </CardHeader>
-///                         <CardContent>
-///                             "A longer body that wraps onto several lines, so this card is taller than its neighbour. The shorter card stretches to match it. Extra copy keeps the difference obvious at every width."
-///                         </CardContent>
-///                     </Card>
-///                 </div>
+///                 <Card fill=true>
+///                     <CardHeader>
+///                         <Subtitle1>"Requests"</Subtitle1>
+///                     </CardHeader>
+///                     <CardContent>
+///                         "A longer body that wraps onto several lines, so this card is taller than its neighbour. The shorter card stretches to match it. Extra copy keeps the difference obvious at every width."
+///                     </CardContent>
+///                 </Card>
 ///             </GridItem>
 ///         </Grid>
 ///     </div>

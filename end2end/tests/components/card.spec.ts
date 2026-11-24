@@ -28,8 +28,8 @@ test.describe("card surface preview", () => {
     await openComponentPreview(page, "card");
     const wrap = page.getByTestId("card-fill");
     await wrap.scrollIntoViewIfNeeded();
-    const short = wrap.getByTestId("card-fill-short").locator(".orbital-card").first();
-    const tall = wrap.getByTestId("card-fill-tall").locator(".orbital-card").first();
+    const short = wrap.locator(".orbital-card").nth(0);
+    const tall = wrap.locator(".orbital-card").nth(1);
     await expect(short).toBeVisible();
     await expect(tall).toBeVisible();
     const shortBox = await short.boundingBox();
