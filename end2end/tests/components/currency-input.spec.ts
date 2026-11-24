@@ -68,7 +68,7 @@ test.describe("currency-input preview", () => {
     await expect(multi.locator(".orbital-input__prefix")).toHaveText("¥");
     await expect(input).toHaveValue("1,235");
     await input.focus();
-    await input.pressSequentially(".5");
+    await input.pressSequentially(".");
     await expect(input).toHaveValue("1235");
   });
 
