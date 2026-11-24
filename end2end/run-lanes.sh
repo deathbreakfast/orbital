@@ -6,6 +6,7 @@
 #   ./run-lanes.sh                       full run, LANES lanes (default from lanes.conf)
 #   ./run-lanes.sh -g "<title regex>"    targeted: one server, one lane
 #   ./run-lanes.sh --project phone a.spec.ts b.spec.ts
+#   ./run-lanes.sh -g "<title>" --pw-arg --repeat-each=20   extra Playwright flag (repeatable)
 #   ./run-lanes.sh --serial              one server, every test in order (baseline)
 #
 # Options: --no-build, --no-install, --out DIR. lanes.conf may set BASE_PATH
@@ -26,12 +27,13 @@ source "${LANES_CONF:-$here/lanes.conf}"
 if [ -n "${REPO_ROOT:-}" ]; then root=$(cd "$here/$REPO_ROOT" && pwd); else root=$(git -C "$here" rev-parse --show-toplevel); fi
 [ -d "$root" ] || { echo "run-lanes: can't find the repo root" >&2; exit 2; }
 
-build=1 install=1 serial=0 filter=() pw_project=() files=()
+build=1 install=1 serial=0 filter=() pw_project=() files=() pw_extra=()
 out=${LANES_OUT:-}
 while [ $# -gt 0 ]; do
   case $1 in
     -g|--grep) filter+=(--grep "$2"); shift 2 ;;
     --project) pw_project+=(--project "$2"); shift 2 ;;
+    --pw-arg) pw_extra+=("$2"); shift 2 ;;
     --serial) serial=1; shift ;;
     --no-build) build=0; shift ;;
     --no-install) install=0; shift ;;
@@ -147,7 +149,7 @@ run_lane() {
         PLAYWRIGHT_JSON_OUTPUT_FILE="$o/results.json" \
       timeout --kill-after=30 "$budget" \
       npx playwright test --workers=1 --retries=0 --reporter=list,json --output="$o/test-results" \
-        "${args[@]}" "${filter[@]}" "${pw_project[@]}" "${files[@]}" >"$o/playwright.log" 2>&1
+        "${args[@]}" "${filter[@]}" "${pw_project[@]}" "${pw_extra[@]}" "${files[@]}" >"$o/playwright.log" 2>&1
     rc=$?
     [ $rc = 124 ] && echo "run-lanes: lane $i passed its ${budget}s budget and was stopped" >>"$o/playwright.log"
   else
