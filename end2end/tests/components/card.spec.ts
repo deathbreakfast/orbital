@@ -20,7 +20,26 @@ test.describe("card surface preview", () => {
       "card-raised",
       "card-nested",
       "card-solid",
+      "card-fill",
     ]);
+  });
+
+  test("fill cards in a two-column grid end at the same height", async ({ page }) => {
+    await openComponentPreview(page, "card");
+    const wrap = page.getByTestId("card-fill");
+    await wrap.scrollIntoViewIfNeeded();
+    const short = wrap.getByTestId("card-fill-short").locator(".orbital-card").first();
+    const tall = wrap.getByTestId("card-fill-tall").locator(".orbital-card").first();
+    await expect(short).toBeVisible();
+    await expect(tall).toBeVisible();
+    const shortBox = await short.boundingBox();
+    const tallBox = await tall.boundingBox();
+    expect(shortBox).not.toBeNull();
+    expect(tallBox).not.toBeNull();
+    const columns = Math.abs(shortBox!.y - tallBox!.y) < 1;
+    if (columns) {
+      expect(Math.abs(shortBox!.height - tallBox!.height)).toBeLessThan(1);
+    }
   });
 
   test("default card is outlined and flat", async ({ page }) => {

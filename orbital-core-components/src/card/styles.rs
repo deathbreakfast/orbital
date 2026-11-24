@@ -10,6 +10,13 @@ pub fn card_layout_styles() -> (&'static str, CardLayoutClassNames) {
             flex-direction: column;
         }
 
+        // Opt-in via `Card fill`: the card takes the height of its parent, such as a stretched
+        // [`GridItem`](crate::GridItem).
+        .orbital-card-fill {
+            height: 100%;
+            box-sizing: border-box;
+        }
+
         .orbital-card-inner {
             box-sizing: border-box;
             width: var(--orbital-card-width, 100%);
@@ -27,12 +34,14 @@ pub fn card_layout_styles() -> (&'static str, CardLayoutClassNames) {
         style_sheet,
         CardLayoutClassNames {
             inner: class_names.orbital_card_inner.to_string(),
+            fill: class_names.orbital_card_fill.to_string(),
         },
     )
 }
 
 pub struct CardLayoutClassNames {
     pub inner: String,
+    pub fill: String,
 }
 
 pub fn card_bleed_styles() -> &'static str {
