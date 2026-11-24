@@ -118,8 +118,9 @@ pub use scroll_area::ScrollArea;
 pub use space::{Space, SpaceConfig, SpaceGap};
 pub use stack::{Stack, StackConfig};
 pub use tag::{
-    InteractionTag, InteractionTagPrimary, SecondaryActionTag, Tag, TagAppearance, TagGroup,
-    TagPicker, TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerOption,
+    ChipBadge, ChipOption, ChipSelector, ChipSelectorMode, ChipSelectorVariant, InteractionTag,
+    InteractionTagPrimary, SecondaryActionTag, Tag, TagAppearance, TagGroup, TagPicker,
+    TagPickerBind, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerOption,
     TagPickerOptionGroup, TagPickerSize, TagSize,
 };
 
@@ -238,8 +239,8 @@ pub use space::SPACE_PREVIEW_REGISTRATION;
 pub use stack::STACK_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use tag::{
-    INTERACTIONTAG_PREVIEW_REGISTRATION, TAGGROUP_PREVIEW_REGISTRATION,
-    TAGPICKER_PREVIEW_REGISTRATION, TAG_PREVIEW_REGISTRATION,
+    CHIPSELECTOR_PREVIEW_REGISTRATION, INTERACTIONTAG_PREVIEW_REGISTRATION,
+    TAGGROUP_PREVIEW_REGISTRATION, TAGPICKER_PREVIEW_REGISTRATION, TAG_PREVIEW_REGISTRATION,
 };
 
 #[cfg(feature = "preview")]

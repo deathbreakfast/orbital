@@ -1,3 +1,4 @@
+#![recursion_limit = "512"]
 //! Orbital Graph lays out dependency graphs: which column and row each node
 //! goes in, the box around each group, and right-angled lines between nodes.
 //!
