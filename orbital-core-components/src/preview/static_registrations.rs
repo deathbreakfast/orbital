@@ -57,6 +57,8 @@ use crate::forms::combobox::COMBOBOX_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::compound_button::COMPOUNDBUTTON_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::forms::currency_input::CURRENCYINPUT_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::forms::date_picker::DATEPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::dropdown::DROPDOWN_PREVIEW_REGISTRATION;
@@ -196,6 +198,7 @@ orbital_macros::preview_registrations! {
     &SWITCH_PREVIEW_REGISTRATION,
     &SLIDER_PREVIEW_REGISTRATION,
     &NUMERICSTEPPER_PREVIEW_REGISTRATION,
+    &CURRENCYINPUT_PREVIEW_REGISTRATION,
     &TEXTAREA_PREVIEW_REGISTRATION,
     &MARKDOWNEDITOR_PREVIEW_REGISTRATION,
     &SEARCHBOX_PREVIEW_REGISTRATION,
