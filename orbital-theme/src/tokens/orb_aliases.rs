@@ -205,6 +205,8 @@ impl ColorTheme {
             ),
             ("--orb-color-border-default", self.color_neutral_stroke_1()),
             ("--orb-color-border-subtle", self.color_neutral_stroke_2()),
+            // Background dots and lines of orbital-graph's canvas.
+            ("--orb-graph-grid", self.color_neutral_stroke_1()),
         ];
         for (orb, value) in surfaces {
             emit_orb(css_vars, orb, value);

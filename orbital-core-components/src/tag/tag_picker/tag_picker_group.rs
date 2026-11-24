@@ -34,6 +34,7 @@ pub fn TagPickerGroup(
         let tag_picker = tag_picker.clone();
         move |value: String| {
             tag_picker.remove_selected_option(value);
+            tag_picker.focus_input();
         }
     };
 

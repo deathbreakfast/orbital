@@ -2,7 +2,7 @@
 
 Layered layout for dependency graphs: columns by how deep each node waits, Brandes–Köpf placement that keeps chains straight and centres a node on what it leads to, a box per group, stubs for nodes from outside the group, and right-angled lines that never pass behind a node.
 
-The layout returns positions and line points and draws nothing. The `Graph` and `GraphLegend` components draw it as SVG.
+The layout returns positions and line points and draws nothing. The `Graph` component draws it as SVG on a dot-grid canvas, with `GraphToolbar`, `GraphMinimap` and `GraphLegend` for zoom, overview and filtering.
 
 ## Quick start
 
@@ -33,7 +33,7 @@ Use `default-features = false` unless you want the preview pages; turn on `ssr` 
 - `layout(&GraphInput, &LayoutOptions) -> GraphLayout`
 - Input: `GraphInput`, `GraphNode`, `GraphEdge` (`from` is the blocker, `to` waits), `GraphGroup`, `NodeSize`
 - Output: `NodePlacement`, `GroupBox`, `EdgeRoute`, `Point`, plus `broken_cycles`, `dropped` and `truncated` for input the layout had to repair, and `crossings` for the line crossings left after ordering
-- Components: `Graph`, `GraphLegend`, with `GraphNodeView`, `GraphFill`, `GraphLegendItem`, `GraphLegendLine` and `GraphHandle`
+- Components: `Graph`, `GraphToolbar`, `GraphMinimap`, `GraphLegend`, with `GraphNodeView`, `GraphFill`, `GraphBackground`, `GraphLegendItem`, `GraphLegendLine` and `GraphHandle`
 
 ## Placement
 
