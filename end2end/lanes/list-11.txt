@@ -89,3 +89,11 @@
 [component-preview] › components/board.spec.ts › board pattern preview › BD-06 empty lane and custom count
 [component-preview] › components/board.spec.ts › board pattern preview › BD-07 lanes scroll sideways at 390px without page overflow
 [component-preview] › components/board.spec.ts › board pattern preview › BD-08 axe clean in dark and light
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-01: symbol sits before the amount for en-US and after it for de-DE
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-02: focus shows the plain number and blur formats it
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-03: de-DE types with a decimal comma and formats with dot groups
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-04: pasted text is normalised
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-05: an unreadable edit is rejected and the last good text stays
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-06: the currency select changes the symbol and decimals
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-07: minus is accepted only when allowed
+[component-preview] › components/currency-input.spec.ts › currency-input preview › CI-08: disabled currency input blocks editing

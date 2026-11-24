@@ -6,6 +6,7 @@ pub mod checkbox;
 pub mod color_picker;
 pub mod combobox;
 pub mod compound_button;
+pub mod currency_input;
 pub mod date_picker;
 pub mod datetime_bridge;
 pub mod dropdown;
@@ -47,6 +48,9 @@ pub use combobox::{
     Combobox, ComboboxAppearance, ComboboxBind, ComboboxOption, ComboboxOptionGroup,
 };
 pub use compound_button::{CompoundButton, CompoundButtonIconPosition};
+pub use currency_input::{
+    CurrencyCode, CurrencyInput, CurrencyInputAppearance, CurrencyInputBind, CurrencyLocale,
+};
 pub use date_picker::{DatePicker, DatePickerAppearance, DatePickerBind};
 pub use dropdown::Dropdown;
 pub use emoji_picker::{default_emojis, Emoji, EmojiPicker, EmojiPickerButton, EmojiPickerRef};
@@ -105,6 +109,8 @@ pub use color_picker::COLORPICKER_PREVIEW_REGISTRATION;
 pub use combobox::COMBOBOX_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use compound_button::COMPOUNDBUTTON_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+pub use currency_input::CURRENCYINPUT_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use date_picker::DATEPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
