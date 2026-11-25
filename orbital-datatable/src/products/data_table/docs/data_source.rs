@@ -63,6 +63,7 @@ use orbital_macros::component_doc;
 /// | [`DataTableSource::Client`] | In-memory rows; engine sorts/filters/paginates locally |
 /// | [`DataTableSource::Server`] | `fetcher` + `page_size` for server-driven paging |
 /// | [`ServerFetchPolicy`] | Stale-response suppression and optional dedupe on server fetches |
+/// | [`DataTableErrorView`](crate::DataTableErrorView) | Replaces the default load-error view (error text and Try again) shown when a paged fetch fails |
 /// | [`PagingMode::Paged`] | Footer page controls (default) |
 /// | [`PagingMode::InfiniteScroll`] | Load more rows near scroll bottom |
 /// | [`PagingMode::None`] | No pagination chrome |
@@ -151,6 +152,69 @@ use orbital_macros::component_doc;
 ///             columns=vec![DataTableColumnDef::new("name", "Name"), DataTableColumnDef::new("role", "Role")]
 ///         >
 ///             <DataTableEmptyView slot>"No items yet."</DataTableEmptyView>
+///         </DataTable>
+///     </div>
+/// }
+/// ```
+///
+///
+/// ## Load error
+/// When the fetcher returns an error, the rows area shows it with a Try again button in
+/// place of "No rows"; the toolbar, search and filters stay. Try again sends the same
+/// request again. This fetcher always fails, so each click adds one to the call count.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::{DataTable, DataTableColumnDef, DataTableSource, PagingMode};
+/// use crate::preview::fixtures::paged_records::mock_failing_server_source;
+/// let calls = RwSignal::new(0u32);
+/// view! {
+///     <div data-testid="data-table-error-preview">
+///         <DataTable
+///             data_source=mock_failing_server_source(5, calls)
+///             paging=PagingMode::Paged
+///             columns=vec![
+///                 DataTableColumnDef::new("name", "Name"),
+///                 DataTableColumnDef::new("role", "Role"),
+///             ]
+///         />
+///         <p>"Fetcher calls: " <span data-testid="data-table-error-calls">{move || calls.get()}</span></p>
+///     </div>
+/// }
+/// ```
+///
+///
+/// ## Custom load error
+/// A [`DataTableErrorView`](crate::DataTableErrorView) slot replaces the default MessageBar. Read the error with
+/// [`DataTableTableState::load_error`](crate::DataTableTableState::load_error) and fetch again with
+/// [`DataTableTableState::retry_load`](crate::DataTableTableState::retry_load), both from
+/// [`use_data_table_table_state`](crate::use_data_table_table_state).
+/// <!-- preview -->
+/// ```rust,ignore
+/// use crate::{
+///     use_data_table_table_state, DataTable, DataTableColumnDef, DataTableErrorView,
+///     DataTableSource, PagingMode,
+/// };
+/// use crate::preview::fixtures::paged_records::mock_failing_server_source;
+/// use orbital_core_components::{Button, Text};
+/// let calls = RwSignal::new(0u32);
+/// view! {
+///     <div data-testid="data-table-error-custom-preview">
+///         <DataTable
+///             data_source=mock_failing_server_source(5, calls)
+///             paging=PagingMode::Paged
+///             columns=vec![DataTableColumnDef::new("name", "Name")]
+///         >
+///             <DataTableErrorView slot>
+///                 {move || {
+///                     let state = use_data_table_table_state();
+///                     view! {
+///                         <div data-testid="custom-error">
+///                             <Text>"Couldn't load runs: " {move || state.load_error().unwrap_or_default()}</Text>
+///                             <Button on_click=Callback::new(move |_| state.retry_load())>"Reload runs"</Button>
+///                         </div>
+///                     }
+///                 }}
+///             </DataTableErrorView>
 ///         </DataTable>
 ///     </div>
 /// }

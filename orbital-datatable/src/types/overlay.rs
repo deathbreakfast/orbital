@@ -1,10 +1,13 @@
-/// Overlay state for loading, empty, and no-results views.
+/// Overlay state for loading, empty, no-results and load-error views.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OverlayState {
     None,
     Loading,
     Empty,
     NoResults,
+    /// The last server page fetch failed; see
+    /// [`DataTableTableState::load_error`](crate::types::DataTableTableState::load_error).
+    Error,
 }
 
 /// What the table shows while it loads rows.

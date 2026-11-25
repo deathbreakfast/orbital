@@ -59,6 +59,10 @@ pub struct DataTableTableState {
     pub server_loading: RwSignal<bool>,
     /// True after the first server page (or infinite-scroll first page) has settled.
     pub server_ever_loaded: RwSignal<bool>,
+    /// Text of the last failed server page fetch; cleared when a fetch succeeds.
+    pub server_error: RwSignal<Option<String>>,
+    /// Bumped by [`Self::retry_load`] to fetch the current page again.
+    pub server_retry: RwSignal<u32>,
     pub paging: PagingMode,
     pub selected: RwSignal<std::collections::HashSet<String>>,
     pub selection_anchor: RwSignal<Option<String>>,
@@ -1165,13 +1169,25 @@ impl DataTableTableState {
             return OverlayState::None;
         }
 
-        if loading {
-            return OverlayState::Loading;
-        }
-        if self.processed.get().is_empty() {
-            return self.empty_overlay();
-        }
-        OverlayState::None
+        settled_overlay_state(
+            loading,
+            self.server_error.with(Option::is_some),
+            !self.processed.get().is_empty(),
+            || self.empty_overlay(),
+        )
+    }
+
+    /// Why the last server page fetch failed, while that failure is the latest result.
+    ///
+    /// Read it inside a [`DataTableErrorView`](crate::DataTableErrorView) slot through
+    /// [`use_data_table_table_state`](crate::use_data_table_table_state).
+    pub fn load_error(&self) -> Option<String> {
+        self.server_error.get()
+    }
+
+    /// Fetch the current page again with the same request (the error view's Try again).
+    pub fn retry_load(&self) {
+        self.server_retry.update(|n| *n = n.wrapping_add(1));
     }
 
     /// Empty or no-match, for a table with no rows to show.
@@ -1264,9 +1280,63 @@ fn empty_overlay_state(server: bool, source_rows: usize, filtered: bool) -> Over
     }
 }
 
+/// Overlay for a paged or client table: loading first, then a failed fetch, then no rows.
+///
+/// A failed fetch shows [`OverlayState::Error`] in place of the rows only, so the toolbar,
+/// search and filters stay usable.
+fn settled_overlay_state(
+    loading: bool,
+    failed: bool,
+    has_rows: bool,
+    empty: impl FnOnce() -> OverlayState,
+) -> OverlayState {
+    if loading {
+        OverlayState::Loading
+    } else if failed {
+        OverlayState::Error
+    } else if has_rows {
+        OverlayState::None
+    } else {
+        empty()
+    }
+}
+
 #[cfg(test)]
 mod empty_overlay_tests {
-    use super::{empty_overlay_state, OverlayState};
+    use super::{empty_overlay_state, settled_overlay_state, OverlayState};
+
+    #[test]
+    fn failed_fetch_shows_error_instead_of_empty_or_no_results() {
+        let empty = || OverlayState::Empty;
+        assert_eq!(
+            settled_overlay_state(false, true, false, empty),
+            OverlayState::Error
+        );
+        assert_eq!(
+            settled_overlay_state(false, true, false, || OverlayState::NoResults),
+            OverlayState::Error
+        );
+        assert_eq!(
+            settled_overlay_state(false, false, false, empty),
+            OverlayState::Empty
+        );
+    }
+
+    #[test]
+    fn loading_wins_over_a_previous_error() {
+        assert_eq!(
+            settled_overlay_state(true, true, false, || OverlayState::Empty),
+            OverlayState::Loading
+        );
+    }
+
+    #[test]
+    fn rows_without_error_show_no_overlay() {
+        assert_eq!(
+            settled_overlay_state(false, false, true, || OverlayState::Empty),
+            OverlayState::None
+        );
+    }
 
     #[test]
     fn server_filter_with_no_matches_shows_no_results() {

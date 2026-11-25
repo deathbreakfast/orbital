@@ -103,6 +103,7 @@ pub fn DataTableRoot(
         empty_view,
         no_results_view,
         loading_view,
+        error_view,
         row_detail: _,
     } = slots;
 
@@ -125,6 +126,8 @@ pub fn DataTableRoot(
     let server_cursors = StoredValue::new(CursorTrail::default());
     let server_loading = RwSignal::new(false);
     let server_ever_loaded = RwSignal::new(false);
+    let server_error = RwSignal::new(None::<String>);
+    let server_retry = RwSignal::new(0u32);
     let selected = RwSignal::new(init.selection.clone());
     let selection_anchor = RwSignal::new(init.selection.iter().next().cloned());
     let cell_selection = RwSignal::new(CellSelection::default());
@@ -276,6 +279,8 @@ pub fn DataTableRoot(
         server_cursors,
         server_loading,
         server_ever_loaded,
+        server_error,
+        server_retry,
         paging,
         selected,
         selection_anchor,
@@ -515,6 +520,7 @@ pub fn DataTableRoot(
     if server_paged {
         if let Some(fetcher) = data_source.get_value().server_fetcher() {
             let fetcher_stored = StoredValue::new(fetcher);
+            let last_retry = StoredValue::new(0u32);
 
             Effect::new(move |_| {
                 let _ = quick_search.get();
@@ -540,6 +546,12 @@ pub fn DataTableRoot(
                 let _ = quick_search.get();
                 let _ = page_size.get();
                 let refresh = refresh_signal.get();
+                // Try again re-sends the same request, so it must get past the dedupe.
+                let retry = server_retry.get();
+                if last_retry.get_value() != retry {
+                    last_retry.set_value(retry);
+                    fetch_coordinator.update(|c| c.clear_dedupe());
+                }
                 let offset = server_offset.get();
                 let limit = page_size.get() as u32;
                 let fetcher = fetcher_stored.get_value();
@@ -589,9 +601,12 @@ pub fn DataTableRoot(
                             );
                             table_state.sync_processed_dataset_server_page();
                             server_ever_loaded.set(true);
+                            server_error.set(None);
                             render_key.update(|k| *k += 1);
                         }
-                        Err(_) if coordinator_is_current(fetch_coordinator, gen) => {
+                        Err(err) if coordinator_is_current(fetch_coordinator, gen) => {
+                            // Keep the error so the rows area says why it's empty.
+                            server_error.set(Some(err.to_string()));
                             server_has_more.set(false);
                             processed.set(Vec::new());
                             table_state.sync_processed_dataset_server_page();
@@ -771,6 +786,7 @@ pub fn DataTableRoot(
                                 empty_view=empty_view
                                 no_results_view=no_results_view
                                 loading_view=loading_view
+                                error_view=error_view
                             />
                         </div>
                         {match footer_slot {

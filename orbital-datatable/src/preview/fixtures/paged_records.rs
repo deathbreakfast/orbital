@@ -73,6 +73,22 @@ pub fn mock_empty_server_source(page_size: u32) -> crate::DataTableSource {
     crate::DataTableSource::Server { fetcher, page_size }
 }
 
+/// A server source whose fetcher always fails, counting each call in `calls`.
+///
+/// Drives the load-error preview: the table shows the error and Try again, and each Try
+/// again adds one to `calls`.
+pub fn mock_failing_server_source(page_size: u32, calls: RwSignal<u32>) -> crate::DataTableSource {
+    let fetcher: crate::PageFetcher = Arc::new(move |_request: PageRequest| {
+        calls.update(|n| *n += 1);
+        Box::pin(async {
+            Err(ServerFnError::new(
+                "The run store didn't answer (503). Nothing was changed.",
+            ))
+        }) as Pin<Box<dyn Future<Output = Result<Page<DataRecord>, ServerFnError>> + Send>>
+    });
+    crate::DataTableSource::Server { fetcher, page_size }
+}
+
 /// Scope the cursor preview fingerprints its cursors with.
 const CURSOR_PREVIEW_SCOPE: &str = "data-table-cursor-preview";
 

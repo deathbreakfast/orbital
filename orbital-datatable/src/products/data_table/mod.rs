@@ -66,13 +66,13 @@ use orbital_theme::Direction;
 
 use crate::types::{
     AggregationModel, AggregationPosition, DataTableColumnDef, DataTableColumnGroupDef,
-    DataTableEmptyView, DataTableEvents, DataTableFeatures, DataTableFilter, DataTableFooterSlot,
-    DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState, DataTableLoadingStyle,
-    DataTableLoadingView, DataTableLocale, DataTableNoResultsView, DataTablePivotModel,
-    DataTableRowDetail, DataTableRowGrouping, DataTableRowModel, DataTableSelectionMode,
-    DataTableSlots, DataTableSort, DataTableSource, DataTableToolbarConfig, DataTableToolbarEnd,
-    DataTableToolbarSlot, EditMode, GetRowId, GetTreePath, ListViewConfig, PaginationDisplayFormat,
-    PaginationState, PagingMode, RowDetailView, ServerFetchPolicy,
+    DataTableEmptyView, DataTableErrorView, DataTableEvents, DataTableFeatures, DataTableFilter,
+    DataTableFooterSlot, DataTableHandle, DataTableHeaderChromeConfig, DataTableInitialState,
+    DataTableLoadingStyle, DataTableLoadingView, DataTableLocale, DataTableNoResultsView,
+    DataTablePivotModel, DataTableRowDetail, DataTableRowGrouping, DataTableRowModel,
+    DataTableSelectionMode, DataTableSlots, DataTableSort, DataTableSource, DataTableToolbarConfig,
+    DataTableToolbarEnd, DataTableToolbarSlot, EditMode, GetRowId, GetTreePath, ListViewConfig,
+    PaginationDisplayFormat, PaginationState, PagingMode, RowDetailView, ServerFetchPolicy,
 };
 
 fn default_page_size_options() -> Option<Vec<u32>> {
@@ -410,6 +410,10 @@ pub fn DataTable(
     /// Custom loading overlay — nest with `<DataTableLoadingView slot>`.
     #[prop(optional)]
     data_table_loading_view: Option<DataTableLoadingView>,
+    /// Custom load-error view in place of the rows when the server fetch fails — nest with
+    /// `<DataTableErrorView slot>`. Defaults to a MessageBar with the error and Try again.
+    #[prop(optional)]
+    data_table_error_view: Option<DataTableErrorView>,
     /// Client-controlled loading state for overlay display.
     #[prop(optional)]
     loading: Option<RwSignal<bool>>,
@@ -527,6 +531,7 @@ pub fn DataTable(
         data_table_empty_view,
         data_table_no_results_view,
         data_table_loading_view,
+        data_table_error_view,
         data_table_row_detail,
     );
     let row_detail = StoredValue::new(slots.row_detail_view(row_detail));

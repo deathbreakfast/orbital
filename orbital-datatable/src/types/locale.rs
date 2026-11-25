@@ -23,6 +23,10 @@ pub struct DataTableLocale {
     pub no_results: String,
     /// Loading overlay label.
     pub loading: String,
+    /// Title of the default load-error view when the server fetch fails.
+    pub load_failed: String,
+    /// Button in the default load-error view that fetches the page again.
+    pub retry: String,
     /// Infinite scroll end-of-list message.
     pub infinite_end: String,
     /// Quick search input placeholder.
@@ -38,6 +42,8 @@ impl Default for DataTableLocale {
             no_rows: "No rows".to_string(),
             no_results: "No rows match your filters.".to_string(),
             loading: "Loading".to_string(),
+            load_failed: "Couldn't load rows".to_string(),
+            retry: "Try again".to_string(),
             infinite_end: "End of list".to_string(),
             quick_search_placeholder: "Search".to_string(),
         }
