@@ -2,8 +2,29 @@
 //! textarea's line metrics, the auto-grow fallback, and where the caret sits
 //! for the @ list.
 
+use leptos::{
+    html,
+    prelude::{GetUntracked, NodeRef},
+};
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlTextAreaElement};
+
+/// The textarea inside the editor's Write panel, once it's mounted.
+pub(super) fn textarea_in(write: NodeRef<html::Div>) -> Option<HtmlTextAreaElement> {
+    write
+        .get_untracked()?
+        .query_selector("textarea")
+        .ok()??
+        .dyn_into::<HtmlTextAreaElement>()
+        .ok()
+}
+
+/// The textarea's selection as UTF-16 offsets `(start, end)`.
+pub(super) fn selection(textarea: &HtmlTextAreaElement) -> (u32, u32) {
+    let start = textarea.selection_start().ok().flatten().unwrap_or(0);
+    let end = textarea.selection_end().ok().flatten().unwrap_or(start);
+    (start, end)
+}
 
 /// Sizes read from the textarea's computed style, in px.
 #[derive(Clone, Copy, Debug)]

@@ -1,47 +1,24 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-use leptos::{
-    ev, html, leptos_dom::helpers::WindowListenerHandle, prelude::*, task::spawn_local_scoped,
-};
-use orbital_base_components::{ComponentRef, Handler, TextareaRef, UploadFileList};
+use leptos::{ev, html, prelude::*};
+use orbital_base_components::{ComponentRef, TextareaRef};
 use orbital_macros::component_doc;
-use orbital_markdown::{render_to_html, OrbitalMarkdownOptions, RenderContext};
+use orbital_markdown::OrbitalMarkdownOptions;
 use orbital_style::inject_style;
-use send_wrapper::SendWrapper;
-use wasm_bindgen::{closure::Closure, JsCast};
 
-use super::dom::{
-    caret_position, fit_to_content, keep_caret_in_view, set_manual_height, supports_field_sizing,
-    Metrics,
-};
-use super::edit_ops::{
-    active_mention, insert_image, insert_link, insert_table, number_lines, prefix_lines,
-    replace_mention, start_mention, wrap_selection, MentionToken, TextEdit,
-};
-use super::providers::{ImageUploadHandler, MentionCandidate, MentionKind, MentionProvider};
+use super::dom::{selection, textarea_in};
+use super::edit_ops::{insert_image, insert_table, TextEdit};
+use super::grip::HeightGrip;
+use super::height::HeightControl;
+use super::image_dialog::ImageDialog;
+use super::mentions::{MentionHandle, MentionPicker};
+use super::preview::PreviewPanel;
+use super::providers::{ImageUploadHandler, MentionProvider};
 use super::styles::markdown_editor_styles;
+use super::table_picker::TablePicker;
 use super::toolbar::{MarkdownAction, MarkdownEditorToolbar};
-use crate::overlay::FloatingPanel;
-use crate::{
-    link_styles, Button, ButtonAppearance, ButtonType, Caption1, Dialog, DialogActions, DialogBody,
-    DialogContent, DialogSurface, DialogTitle, Field, FormHint, Input, InputAppearance, Persona,
-    PersonaConfig, PersonaSecondaryText, PersonaSize, Tab, TabList, Textarea, TextareaAppearance,
-    Upload, UploadConfig,
-};
+use crate::{link_styles, Tab, TabList, Textarea, TextareaAppearance};
 
 const WRITE_TAB: &str = "write";
 const PREVIEW_TAB: &str = "preview";
-const LINK_PLACEHOLDER_URL: &str = "https://";
-/// Size grid of the Insert table picker: rows (header included) by columns.
-const TABLE_ROWS: usize = 6;
-const TABLE_COLS: usize = 8;
-/// Letters typed after `@` before the provider is asked.
-const MENTION_MIN_QUERY: usize = 2;
-/// Below this editor width (px) the toolbar keeps Bold, Italic, Link and @ and
-/// moves the rest into More.
-const COMPACT_WIDTH: i32 = 520;
-
-static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 
 /// MarkdownEditor is the Markdown composer: a Write tab with a format toolbar
 /// and @mentions, and a Preview tab that shows the result before saving.
@@ -299,678 +276,73 @@ pub fn MarkdownEditor(
     let over_limit = Memo::new(move |_| {
         max_chars.is_some_and(|max| value.with(|text| text.chars().count() > max))
     });
-    let has_mentions = mentions.is_some();
-    let provider = StoredValue::new(mentions);
     let mut render_options = render_options.unwrap_or_default();
-    render_options.enable_mention_refs |= has_mentions;
+    render_options.enable_mention_refs |= mentions.is_some();
     let show_image = render_options.enable_images;
-    let editor_id = NEXT_EDITOR_ID.fetch_add(1, Ordering::Relaxed);
-    let list_id = StoredValue::new(format!("orbital-markdown-editor-{editor_id}-mentions"));
 
-    let write_ref = NodeRef::<html::Div>::new();
-    let textarea_el = move || {
-        write_ref
-            .get_untracked()?
-            .query_selector("textarea")
-            .ok()??
-            .dyn_into::<web_sys::HtmlTextAreaElement>()
-            .ok()
-    };
-    let selection = move || {
-        let textarea = textarea_el()?;
-        let start = textarea.selection_start().ok().flatten().unwrap_or(0);
-        let end = textarea.selection_end().ok().flatten().unwrap_or(start);
-        Some((start, end))
-    };
-
-    // Textarea doesn't take these attributes, so set them on its element.
-    Effect::new(move |_| {
-        let Some(textarea) = write_ref.get().and(textarea_el()) else {
-            return;
-        };
-        _ = textarea.set_attribute("rows", &rows.to_string());
-        match aria_label.get() {
-            Some(label) => _ = textarea.set_attribute("aria-label", &label),
-            None => _ = textarea.remove_attribute("aria-label"),
-        }
-        if over_limit.get() {
-            _ = textarea.set_attribute("aria-invalid", "true");
-        } else {
-            _ = textarea.remove_attribute("aria-invalid");
-        }
-    });
-
-    // Write the edit into the textarea and the bound value, then restore its selection.
-    let commit = move |edit: TextEdit| {
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        textarea.set_value(&edit.text);
-        value.set(edit.text);
-        let restore = move || {
-            _ = textarea.focus();
-            _ = textarea.set_selection_range(edit.sel_start, edit.sel_end);
-        };
-        restore();
-        // The bound value re-renders after this handler; put the selection back after it.
-        request_animation_frame(restore);
-    };
-
-    // ---- Height: auto-grow, the grip, and the Preview height ----
-
-    // A height set with the grip, in px. `None` follows the content.
-    let manual_height = RwSignal::new(None::<f64>);
-    // Whether the text fitted the manual height when it was set; only then does
-    // outgrowing it hand control back to auto-grow.
-    let manual_fit = StoredValue::new(false);
-    let textarea_height = RwSignal::new(0.0_f64);
-    let panel_height = RwSignal::new(0.0_f64);
-    let dragging = RwSignal::new(false);
-    let drag_start = StoredValue::new(None::<(f64, f64)>);
-
-    Effect::new(move |_| {
-        value.track();
-        write_ref.track();
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        if auto_grow
-            && manual_height.get_untracked().is_some()
-            && manual_fit.get_value()
-            && textarea.scroll_height() > textarea.client_height() + 1
-        {
-            set_manual_height(&textarea, None);
-            manual_height.set(None);
-        }
-        if auto_grow && manual_height.get_untracked().is_none() && !supports_field_sizing() {
-            fit_to_content(&textarea);
-        }
-        let focused = document()
-            .active_element()
-            .is_some_and(|el| el.is_same_node(Some(&textarea)));
-        if focused {
-            if let Some(write) = write_ref.get_untracked() {
-                keep_caret_in_view(&textarea, &write);
-            }
-        }
-    });
-
-    // Track the textarea's height while Write shows, so Preview can match it, and
-    // the editor's width for the compact toolbar.
-    // The SendWrapper is made only in the browser: leptos-axum can drop a streamed
-    // page's owner on another thread, and dropping a SendWrapper there panics.
     let root_ref = NodeRef::<html::Div>::new();
-    let compact = RwSignal::new(false);
-    let observer =
-        StoredValue::new(None::<SendWrapper<(web_sys::ResizeObserver, Closure<dyn FnMut()>)>>);
-    Effect::new(move |_| {
-        let (Some(root), Some(write)) = (root_ref.get(), write_ref.get()) else {
-            return;
-        };
-        if observer.with_value(Option::is_some) {
-            return;
-        }
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        let measure = {
-            let textarea = textarea.clone();
-            let root = root.clone();
-            move || {
-                let width = root.offset_width();
-                let narrow = width > 0 && width < COMPACT_WIDTH;
-                if compact.get_untracked() != narrow {
-                    compact.set(narrow);
-                }
-                let height = f64::from(textarea.offset_height());
-                if height > 0.0 {
-                    textarea_height.set(height);
-                    panel_height.set(f64::from(write.offset_height()));
-                }
-            }
-        };
-        let on_resize = Closure::<dyn FnMut()>::new(measure);
-        if let Ok(resize) = web_sys::ResizeObserver::new(on_resize.as_ref().unchecked_ref()) {
-            resize.observe(&root);
-            resize.observe(&textarea);
-            observer.set_value(Some(SendWrapper::new((resize, on_resize))));
-        }
-    });
-    on_cleanup(move || {
-        if let Some(tracking) = observer.try_update_value(Option::take).flatten() {
-            tracking.0.disconnect();
-        }
-    });
+    let write_ref = NodeRef::<html::Div>::new();
+    sync_textarea_attributes(write_ref, rows, aria_label, over_limit);
+    let commit = Callback::new(move |edit: TextEdit| commit_edit(write_ref, value, edit));
 
-    let resize_to = move |height: f64| {
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        let height = Metrics::read(&textarea).clamp(height);
-        set_manual_height(&textarea, Some(height));
-        manual_height.set(Some(height));
-        manual_fit.set_value(textarea.scroll_height() <= textarea.client_height() + 1);
-    };
-    let fit_text = move || {
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        set_manual_height(&textarea, None);
-        manual_height.set(None);
-        if auto_grow && !supports_field_sizing() {
-            fit_to_content(&textarea);
-        }
-    };
-    let metrics = move || {
-        textarea_height.track();
-        textarea_el().map(|textarea| Metrics::read(&textarea))
-    };
-    let height_lines = move || {
-        let height = textarea_height.get();
-        metrics().map(|m| m.lines(height))
-    };
+    let height = HeightControl::new(write_ref, auto_grow);
+    height.follow_content(value);
+    height.observe(root_ref);
+    let mentions = MentionHandle::new(mentions, write_ref, disabled, commit);
 
-    let on_grip_pointerdown = move |ev: ev::PointerEvent| {
-        if disabled.get_untracked() || ev.button() != 0 {
-            return;
-        }
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        ev.prevent_default();
-        if let Some(grip) = ev
-            .current_target()
-            .and_then(|target| target.dyn_into::<web_sys::HtmlElement>().ok())
-        {
-            _ = grip.set_pointer_capture(ev.pointer_id());
-            _ = grip.focus();
-        }
-        drag_start.set_value(Some((
-            f64::from(ev.client_y()),
-            f64::from(textarea.offset_height()),
-        )));
-        dragging.set(true);
-    };
-    let on_grip_pointermove = move |ev: ev::PointerEvent| {
-        if let Some((start_y, start_height)) = drag_start.get_value() {
-            resize_to(start_height + f64::from(ev.client_y()) - start_y);
-        }
-    };
-    let end_drag = move || {
-        drag_start.set_value(None);
-        dragging.set(false);
-    };
-    let on_grip_keydown = move |ev: ev::KeyboardEvent| {
-        if disabled.get_untracked() {
-            return;
-        }
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        let m = Metrics::read(&textarea);
-        let current = f64::from(textarea.offset_height());
-        let step = if ev.shift_key() { 5.0 } else { 1.0 } * m.line;
-        match ev.key().as_str() {
-            "ArrowDown" => resize_to(current + step),
-            "ArrowUp" => resize_to(current - step),
-            "Home" => resize_to(m.min),
-            "End" => resize_to(m.max),
-            "Enter" => fit_text(),
-            _ => return,
-        }
-        ev.prevent_default();
-        ev.stop_propagation();
-    };
-
-    // ---- @mentions ----
-
-    let mention_token = RwSignal::new(None::<MentionToken>);
-    let mention_query = Memo::new(move |_| {
-        mention_token.with(|token| token.as_ref().map(|token| token.query.clone()))
-    });
-    let mention_results = RwSignal::new(Vec::<MentionCandidate>::new());
-    let mention_searching = RwSignal::new(false);
-    let mention_active = RwSignal::new(0_usize);
-    let mention_pos = RwSignal::new((0.0_f64, 0.0_f64));
-    // The `@` the writer closed the list on with Escape; it stays closed for that token.
-    let mention_dismissed = StoredValue::new(None::<u32>);
-    let search_seq = StoredValue::new(0_u64);
-
-    let close_mentions = move || {
-        search_seq.update_value(|seq| *seq += 1);
-        if mention_token.with_untracked(Option::is_some) {
-            mention_token.set(None);
-        }
-        if !mention_results.with_untracked(Vec::is_empty) {
-            mention_results.set(Vec::new());
-        }
-        if mention_searching.get_untracked() {
-            mention_searching.set(false);
-        }
-    };
-
-    let refresh_mentions = move || {
-        if !has_mentions {
-            return;
-        }
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        let caret = textarea.selection_end().ok().flatten().unwrap_or(0);
-        let start = textarea.selection_start().ok().flatten().unwrap_or(caret);
-        // The value signal can lag the input event, so read the element.
-        let token = (start == caret && !disabled.get_untracked())
-            .then(|| active_mention(&textarea.value(), caret))
-            .flatten();
-        let Some(token) = token else {
-            mention_dismissed.set_value(None);
-            close_mentions();
-            return;
-        };
-        if mention_dismissed.get_value() == Some(token.start) {
-            return;
-        }
-        mention_dismissed.set_value(None);
-        if let Some(pos) = write_ref
-            .get_untracked()
-            .and_then(|write| caret_position(&textarea, &write, token.end))
-        {
-            mention_pos.set(pos);
-        }
-        let query_changed = mention_token.with_untracked(|current| {
-            current.as_ref().map(|current| current.query.as_str()) != Some(token.query.as_str())
-        });
-        let query = token.query.clone();
-        mention_token.set(Some(token));
-        if !query_changed {
-            return;
-        }
-        mention_active.set(0);
-        search_seq.update_value(|seq| *seq += 1);
-        if query.chars().count() < MENTION_MIN_QUERY {
-            mention_results.set(Vec::new());
-            mention_searching.set(false);
-            return;
-        }
-        let Some(search) = provider.get_value() else {
-            return;
-        };
-        let seq = search_seq.get_value();
-        mention_searching.set(true);
-        spawn_local_scoped(async move {
-            let mut found = search.search(query).await;
-            if search_seq.try_get_value() != Some(seq) {
-                return;
-            }
-            found.sort_by_key(|candidate| candidate.kind == MentionKind::Team);
-            mention_active.try_set(0);
-            mention_results.try_set(found);
-            mention_searching.try_set(false);
-        });
-    };
-
-    let pick_mention = move |index: usize| {
-        let Some(candidate) = mention_results.with_untracked(|found| found.get(index).cloned())
-        else {
-            return;
-        };
-        let Some(token) = mention_token.get_untracked() else {
-            return;
-        };
-        let edit =
-            value.with_untracked(|text| replace_mention(text, &token, &candidate.markdown()));
-        close_mentions();
-        commit(edit);
-    };
-
-    let show_active_mention = move |index: usize| {
-        mention_active.set(index);
-        let id = list_id.with_value(|id| format!("{id}-{index}"));
-        if let Some(option) = document().get_element_by_id(&id) {
-            let options = web_sys::ScrollIntoViewOptions::new();
-            options.set_block(web_sys::ScrollLogicalPosition::Nearest);
-            option.scroll_into_view_with_scroll_into_view_options(&options);
-        }
-    };
-
-    // Keep the textarea's ARIA in step with the list.
-    Effect::new(move |_| {
-        let open = mention_token.with(Option::is_some);
-        let count = mention_results.with(Vec::len);
-        let active = mention_active.get();
-        write_ref.track();
-        if !has_mentions {
-            return;
-        }
-        let Some(textarea) = textarea_el() else {
-            return;
-        };
-        _ = textarea.set_attribute("aria-autocomplete", "list");
-        if open && count > 0 {
-            list_id.with_value(|id| {
-                _ = textarea.set_attribute("aria-controls", id);
-                _ = textarea.set_attribute(
-                    "aria-activedescendant",
-                    &format!("{id}-{}", active.min(count - 1)),
-                );
-            });
-        } else {
-            _ = textarea.remove_attribute("aria-controls");
-            _ = textarea.remove_attribute("aria-activedescendant");
-        }
-    });
-
-    // ---- Insert image and Insert table ----
-
+    // Image and table insert at the selection the writer had when they opened.
     let saved_selection = StoredValue::new((0_u32, 0_u32));
     let image_open = RwSignal::new(false);
-    let image_url = RwSignal::new(String::new());
-    let image_alt = RwSignal::new(String::new());
-    let image_error = RwSignal::new(None::<String>);
-    let uploading = RwSignal::new(false);
-    let upload = StoredValue::new(on_upload_image);
-
-    let insert_image_now = move || {
-        let url = image_url.with_untracked(|url| url.trim().to_string());
-        if url.is_empty() {
-            return;
-        }
-        let alt = image_alt.with_untracked(|alt| alt.trim().to_string());
-        image_open.set(false);
-        let (start, end) = saved_selection.get_value();
-        let edit = value.with_untracked(|text| insert_image(text, start, end, &alt, &url));
-        commit(edit);
-    };
-
     let table_open = RwSignal::new(false);
-    let table_size = RwSignal::new((1_usize, 1_usize));
-    let table_ref = NodeRef::<html::Div>::new();
-    let focus_table_cell = move |(row, col): (usize, usize)| {
-        let cell = table_ref
-            .get_untracked()
-            .and_then(|panel| {
-                panel
-                    .query_selector(&format!("[data-cell='{row}-{col}']"))
-                    .ok()
-            })
-            .flatten()
-            .and_then(|cell| cell.dyn_into::<web_sys::HtmlElement>().ok());
-        if let Some(cell) = cell {
-            _ = cell.focus();
-        }
-    };
-    let close_table = move |refocus: bool| {
-        table_open.set(false);
-        if refocus {
-            if let Some(textarea) = textarea_el() {
-                _ = textarea.focus();
-            }
-        }
-    };
-    let insert_table_now = move |(rows, cols): (usize, usize)| {
-        table_open.set(false);
+    let insert_at_saved = move |make: &dyn Fn(&str, u32, u32) -> TextEdit| {
         let (start, end) = saved_selection.get_value();
-        let edit = value.with_untracked(|text| insert_table(text, start, end, rows, cols));
-        commit(edit);
+        commit.run(value.with_untracked(|text| make(text, start, end)));
     };
-    let on_table_keydown = move |ev: ev::KeyboardEvent| {
-        let (row, col) = table_size.get_untracked();
-        let next = match ev.key().as_str() {
-            "ArrowRight" => (row, (col + 1).min(TABLE_COLS)),
-            "ArrowLeft" => (row, col.saturating_sub(1).max(1)),
-            "ArrowDown" => ((row + 1).min(TABLE_ROWS), col),
-            "ArrowUp" => (row.saturating_sub(1).max(1), col),
-            "Escape" => {
-                ev.prevent_default();
-                ev.stop_propagation();
-                close_table(true);
-                return;
-            }
-            _ => return,
-        };
-        ev.prevent_default();
-        table_size.set(next);
-        focus_table_cell(next);
-    };
-
-    // Close the table picker on a press outside it.
-    let outside_press = StoredValue::new(None::<WindowListenerHandle>);
-    Effect::new(move |_| {
-        if outside_press.with_value(Option::is_some) {
-            return;
-        }
-        outside_press.set_value(Some(window_event_listener(ev::pointerdown, move |ev| {
-            if !table_open.get_untracked() {
-                return;
-            }
-            let inside = table_ref.get_untracked().is_some_and(|panel| {
-                ev.target()
-                    .and_then(|target| target.dyn_into::<web_sys::Node>().ok())
-                    .is_some_and(|node| panel.contains(Some(&node)))
-            });
-            if !inside {
-                table_open.set(false);
-            }
-        })));
+    let on_image = Callback::new(move |(url, alt): (String, String)| {
+        insert_at_saved(&|text, start, end| insert_image(text, start, end, &alt, &url));
     });
-    on_cleanup(move || {
-        if let Some(handle) = outside_press.try_update_value(Option::take).flatten() {
-            handle.remove();
+    let on_table = Callback::new(move |(rows, cols): (usize, usize)| {
+        insert_at_saved(&|text, start, end| insert_table(text, start, end, rows, cols));
+    });
+    let focus_textarea = Callback::new(move |()| {
+        if let Some(textarea) = textarea_in(write_ref) {
+            _ = textarea.focus();
         }
     });
-
-    // ---- Toolbar and shortcuts ----
 
     let apply = move |action: MarkdownAction| {
-        if disabled.get_untracked() {
-            return;
-        }
-        let Some((start, end)) = selection() else {
+        let Some(textarea) = textarea_in(write_ref).filter(|_| !disabled.get_untracked()) else {
             return;
         };
-        let edit = match action {
-            MarkdownAction::Image => {
-                saved_selection.set_value((start, end));
-                image_url.set(String::new());
-                image_alt.set(String::new());
-                image_error.set(None);
-                image_open.set(true);
-                return;
-            }
-            MarkdownAction::Table => {
-                saved_selection.set_value((start, end));
-                table_size.set((1, 1));
-                table_open.set(true);
-                request_animation_frame(move || focus_table_cell((1, 1)));
-                return;
-            }
-            MarkdownAction::Mention => {
-                if !has_mentions {
-                    return;
+        let (start, end) = selection(&textarea);
+        match action {
+            MarkdownAction::Image => image_open.set(true),
+            MarkdownAction::Table => table_open.set(true),
+            MarkdownAction::Mention if mentions.enabled() => mentions.start(),
+            _ => {
+                if let Some(edit) = value.with_untracked(|text| action.edit(text, start, end)) {
+                    commit.run(edit);
                 }
-                let edit = value.with_untracked(|text| start_mention(text, start, end));
-                commit(edit);
-                refresh_mentions();
-                return;
             }
-            MarkdownAction::Bold => {
-                value.with_untracked(|text| wrap_selection(text, start, end, "**"))
-            }
-            MarkdownAction::Italic => {
-                value.with_untracked(|text| wrap_selection(text, start, end, "_"))
-            }
-            MarkdownAction::Strikethrough => {
-                value.with_untracked(|text| wrap_selection(text, start, end, "~~"))
-            }
-            MarkdownAction::Link => {
-                value.with_untracked(|text| insert_link(text, start, end, LINK_PLACEHOLDER_URL))
-            }
-            MarkdownAction::BulletedList => {
-                value.with_untracked(|text| prefix_lines(text, start, end, "- "))
-            }
-            MarkdownAction::NumberedList => {
-                value.with_untracked(|text| number_lines(text, start, end))
-            }
-        };
-        commit(edit);
+        }
+        saved_selection.set_value((start, end));
     };
-
     let on_keydown = move |ev: ev::KeyboardEvent| {
-        if let Some(token) = mention_token.get_untracked() {
-            let count = mention_results.with_untracked(Vec::len);
-            let plain = !(ev.ctrl_key() || ev.meta_key() || ev.alt_key() || ev.shift_key());
-            match ev.key().as_str() {
-                "ArrowDown" if count > 0 => {
-                    ev.prevent_default();
-                    show_active_mention((mention_active.get_untracked() + 1) % count);
-                    return;
-                }
-                "ArrowUp" if count > 0 => {
-                    ev.prevent_default();
-                    show_active_mention((mention_active.get_untracked() + count - 1) % count);
-                    return;
-                }
-                "Enter" | "Tab" if count > 0 && plain => {
-                    ev.prevent_default();
-                    pick_mention(mention_active.get_untracked().min(count - 1));
-                    return;
-                }
-                "Escape" => {
-                    ev.prevent_default();
-                    ev.stop_propagation();
-                    mention_dismissed.set_value(Some(token.start));
-                    close_mentions();
-                    return;
-                }
-                _ => {}
-            }
-        }
-        if !(ev.ctrl_key() || ev.meta_key()) || ev.alt_key() {
+        if mentions.handle_keydown(&ev) {
             return;
         }
-        let action = if ev.shift_key() {
-            match ev.code().as_str() {
-                "KeyX" => MarkdownAction::Strikethrough,
-                "Digit8" => MarkdownAction::BulletedList,
-                "Digit7" => MarkdownAction::NumberedList,
-                _ => return,
-            }
-        } else {
-            match ev.key().to_ascii_lowercase().as_str() {
-                "b" => MarkdownAction::Bold,
-                "i" => MarkdownAction::Italic,
-                "k" => MarkdownAction::Link,
-                _ => return,
-            }
-        };
-        ev.prevent_default();
-        apply(action);
+        if let Some(action) = MarkdownAction::from_shortcut(&ev) {
+            ev.prevent_default();
+            apply(action);
+        }
     };
     let on_keyup = move |ev: ev::KeyboardEvent| {
         if matches!(
             ev.key().as_str(),
             "ArrowLeft" | "ArrowRight" | "Home" | "End"
         ) {
-            refresh_mentions();
+            mentions.refresh();
         }
-    };
-
-    let render_options = StoredValue::new(render_options);
-    let preview_html = Memo::new(move |_| {
-        value.with(|text| {
-            render_options
-                .with_value(|options| render_to_html(text, options, &RenderContext::default()))
-        })
-    });
-    // Preview takes the Write panel's last height, so switching tabs doesn't move the page.
-    let preview_style = move || {
-        let height = panel_height.get();
-        (height > 0.0).then(|| format!("height: {height}px; min-height: 0"))
-    };
-
-    let mention_row = move |index: usize, candidate: MentionCandidate| {
-        let id = list_id.with_value(|id| format!("{id}-{index}"));
-        let config = PersonaConfig {
-            size: PersonaSize::Small,
-            ..PersonaConfig::named(candidate.label.clone())
-        };
-        let persona = match candidate.secondary {
-            Some(secondary) => view! {
-                <Persona config=config>
-                    <PersonaSecondaryText slot>{secondary}</PersonaSecondaryText>
-                </Persona>
-            }
-            .into_any(),
-            None => view! { <Persona config=config /> }.into_any(),
-        };
-        view! {
-            <div
-                id=id
-                role="option"
-                class="orbital-markdown-editor__mention-option"
-                class:orbital-markdown-editor__mention-option--active=move || {
-                    mention_active.get() == index
-                }
-                aria-selected=move || (mention_active.get() == index).to_string()
-                on:mousedown=|ev| ev.prevent_default()
-                on:mouseenter=move |_| mention_active.set(index)
-                on:click=move |_| pick_mention(index)
-            >
-                {persona}
-            </div>
-        }
-    };
-    let mention_body = move || {
-        let query = mention_query.get().unwrap_or_default();
-        let status = |text: String| {
-            view! {
-                <div class="orbital-markdown-editor__mention-status" role="status">
-                    <Caption1>{text}</Caption1>
-                </div>
-            }
-            .into_any()
-        };
-        if query.chars().count() < MENTION_MIN_QUERY {
-            return status("Type two or more letters to find people and teams".to_string());
-        }
-        let found = mention_results.get();
-        if found.is_empty() {
-            return if mention_searching.get() {
-                status("Searching…".to_string())
-            } else {
-                status(format!("No one matches “{query}”"))
-            };
-        }
-        let group = |kind: MentionKind, label: &'static str| {
-            let rows: Vec<_> = found
-                .iter()
-                .enumerate()
-                .filter(|(_, candidate)| candidate.kind == kind)
-                .map(|(index, candidate)| mention_row(index, candidate.clone()))
-                .collect();
-            (!rows.is_empty()).then(|| {
-                view! {
-                    <div role="group" aria-label=label>
-                        <div class="orbital-markdown-editor__mention-group" aria-hidden="true">
-                            <Caption1>{label}</Caption1>
-                        </div>
-                        {rows}
-                    </div>
-                }
-            })
-        };
-        view! {
-            <div
-                id=list_id.get_value()
-                role="listbox"
-                aria-label="People and teams"
-                class="orbital-markdown-editor__mention-list"
-            >
-                {group(MentionKind::Person, "People")}
-                {group(MentionKind::Team, "Teams")}
-            </div>
-        }
-        .into_any()
     };
 
     let root_style = format!(
@@ -981,7 +353,7 @@ pub fn MarkdownEditor(
         <div
             class="orbital-markdown-editor"
             class:orbital-markdown-editor--auto-grow=auto_grow
-            class:orbital-markdown-editor--compact=move || compact.get()
+            class:orbital-markdown-editor--compact=move || height.compact.get()
             node_ref=root_ref
             style=root_style
             data-testid=move || testid.get()
@@ -995,63 +367,10 @@ pub fn MarkdownEditor(
                     <MarkdownEditorToolbar
                         disabled=disabled
                         show_image=show_image
-                        show_mention=has_mentions
+                        show_mention=mentions.enabled()
                         on_action=Callback::new(apply)
                     />
-                    <Show when=move || table_open.get()>
-                        <div
-                            class="orbital-markdown-editor__table-picker"
-                            role="dialog"
-                            aria-label="Insert table"
-                            node_ref=table_ref
-                            on:keydown=on_table_keydown
-                        >
-                            <FloatingPanel body_class="orbital-markdown-editor__table-body">
-                                <div
-                                    class="orbital-markdown-editor__table-grid"
-                                    role="group"
-                                    aria-label="Table size, rows by columns"
-                                >
-                                    {(1..=TABLE_ROWS)
-                                        .map(|row| {
-                                            view! {
-                                                <div class="orbital-markdown-editor__table-row">
-                                                    {(1..=TABLE_COLS)
-                                                        .map(|col| {
-                                                            view! {
-                                                                <button
-                                                                    type="button"
-                                                                    class="orbital-markdown-editor__table-cell"
-                                                                    class:orbital-markdown-editor__table-cell--on=move || {
-                                                                        let (rows, cols) = table_size.get();
-                                                                        row <= rows && col <= cols
-                                                                    }
-                                                                    tabindex=move || {
-                                                                        if table_size.get() == (row, col) { "0" } else { "-1" }
-                                                                    }
-                                                                    data-cell=format!("{row}-{col}")
-                                                                    aria-label=format!("{row} by {col} table")
-                                                                    on:mouseenter=move |_| table_size.set((row, col))
-                                                                    on:focus=move |_| table_size.set((row, col))
-                                                                    on:click=move |_| insert_table_now((row, col))
-                                                                ></button>
-                                                            }
-                                                        })
-                                                        .collect_view()}
-                                                </div>
-                                            }
-                                        })
-                                        .collect_view()}
-                                </div>
-                                <span class="orbital-markdown-editor__table-size" aria-live="polite">
-                                    {move || {
-                                        let (rows, cols) = table_size.get();
-                                        format!("{rows} × {cols}")
-                                    }}
-                                </span>
-                            </FloatingPanel>
-                        </div>
-                    </Show>
+                    <TablePicker open=table_open on_pick=on_table on_escape=focus_textarea />
                 </div>
             </div>
             <div
@@ -1059,9 +378,9 @@ pub fn MarkdownEditor(
                 hidden=move || is_preview.get()
                 on:keydown=on_keydown
                 on:keyup=on_keyup
-                on:input=move |_| refresh_mentions()
-                on:click=move |_| refresh_mentions()
-                on:focusout=move |_| close_mentions()
+                on:input=move |_| mentions.refresh()
+                on:click=move |_| mentions.refresh()
+                on:focusout=move |_| mentions.close()
                 node_ref=write_ref
             >
                 <Textarea
@@ -1073,76 +392,11 @@ pub fn MarkdownEditor(
                         ..Default::default()
                     }
                 />
-                {resizable
-                    .then(|| {
-                        view! {
-                            <div
-                                class="orbital-markdown-editor__grip"
-                                role="separator"
-                                aria-orientation="horizontal"
-                                aria-label="Resize editor height"
-                                tabindex=move || if disabled.get() { "-1" } else { "0" }
-                                aria-disabled=move || disabled.get().then_some("true")
-                                aria-valuemin=rows.to_string()
-                                aria-valuemax=move || metrics().map(|m| m.lines(m.max).to_string())
-                                aria-valuenow=move || height_lines().map(|lines| lines.to_string())
-                                aria-valuetext=move || height_lines().map(|lines| format!("{lines} lines"))
-                                on:pointerdown=on_grip_pointerdown
-                                on:pointermove=on_grip_pointermove
-                                on:pointerup=move |_| end_drag()
-                                on:pointercancel=move |_| end_drag()
-                                on:keydown=on_grip_keydown
-                                on:dblclick=move |_| {
-                                    if !disabled.get_untracked() {
-                                        fit_text();
-                                    }
-                                }
-                            ></div>
-                            <Show when=move || dragging.get()>
-                                <span class="orbital-markdown-editor__grip-chip" aria-hidden="true">
-                                    {move || height_lines().map(|lines| format!("{lines} lines"))}
-                                </span>
-                            </Show>
-                        }
-                    })}
-                <Show when=move || mention_token.with(Option::is_some)>
-                    <div
-                        class="orbital-markdown-editor__mentions"
-                        style=move || {
-                            let (left, top) = mention_pos.get();
-                            format!(
-                                "--orbital-markdown-editor-caret-left: {left}px; --orbital-markdown-editor-caret-top: {top}px"
-                            )
-                        }
-                    >
-                        <FloatingPanel body_class="orbital-markdown-editor__mention-body">
-                            {mention_body}
-                            <div class="orbital-markdown-editor__mention-hint" aria-hidden="true">
-                                <Caption1>"↑ ↓ to move · Enter or Tab to pick · Esc to close"</Caption1>
-                            </div>
-                        </FloatingPanel>
-                    </div>
-                </Show>
+                {resizable.then(|| view! { <HeightGrip height=height rows=rows disabled=disabled /> })}
+                <MentionPicker handle=mentions />
             </div>
             <Show when=move || is_preview.get()>
-                <Show
-                    when=move || !preview_html.with(String::is_empty)
-                    fallback=move || {
-                        view! {
-                            <div class="orbital-markdown-editor__preview" style=preview_style>
-                                <span class="orbital-markdown-editor__empty">
-                                    "Nothing to preview"
-                                </span>
-                            </div>
-                        }
-                    }
-                >
-                    <div
-                        class="orbital-markdown-editor__preview orbital-markdown"
-                        style=preview_style
-                        inner_html=move || preview_html.get()
-                    />
-                </Show>
+                <PreviewPanel value=value options=render_options.clone() height=height.panel_height />
             </Show>
             {max_chars
                 .map(|max| {
@@ -1155,98 +409,49 @@ pub fn MarkdownEditor(
                         </span>
                     }
                 })}
-            <Dialog open=image_open>
-                <DialogSurface>
-                    <DialogBody>
-                        <DialogTitle>"Insert image"</DialogTitle>
-                        <DialogContent>
-                            <Show when=move || image_open.get()>
-                                <div class="orbital-markdown-editor__image-form">
-                                    <Field label="Image URL" name="image-url">
-                                        <Input
-                                            bind=image_url
-                                            appearance=InputAppearance {
-                                                placeholder: "https://".into(),
-                                                ..Default::default()
-                                            }
-                                        />
-                                    </Field>
-                                    <Field label="Alt text" name="image-alt">
-                                        <Input bind=image_alt />
-                                    </Field>
-                                    <FormHint>
-                                        "Screen readers read this, and it shows if the image doesn't load."
-                                    </FormHint>
-                                    {upload
-                                        .with_value(Option::is_some)
-                                        .then(|| {
-                                            view! {
-                                                <Upload
-                                                    config=UploadConfig::accept("image/*")
-                                                    on_change=Handler::on(move |files: UploadFileList| {
-                                                        let Some(file) = files.get(0) else {
-                                                            return;
-                                                        };
-                                                        let Some(handler) = upload.get_value() else {
-                                                            return;
-                                                        };
-                                                        image_error.set(None);
-                                                        uploading.set(true);
-                                                        spawn_local_scoped(async move {
-                                                            match handler.upload(file).await {
-                                                                Ok(url) => _ = image_url.try_set(url),
-                                                                Err(message) => _ = image_error.try_set(Some(message)),
-                                                            }
-                                                            uploading.try_set(false);
-                                                        });
-                                                    })
-                                                >
-                                                    <Button
-                                                        button_type=ButtonType::Button
-                                                        icon=icondata::AiUploadOutlined
-                                                        loading=uploading
-                                                    >
-                                                        "Upload image"
-                                                    </Button>
-                                                </Upload>
-                                            }
-                                        })}
-                                    {move || {
-                                        image_error
-                                            .get()
-                                            .map(|message| {
-                                                view! {
-                                                    <div class="orbital-markdown-editor__image-error" role="alert">
-                                                        <Caption1>{message}</Caption1>
-                                                    </div>
-                                                }
-                                            })
-                                    }}
-                                </div>
-                            </Show>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                appearance=ButtonAppearance::Secondary
-                                on_click=Callback::new(move |_| image_open.set(false))
-                            >
-                                "Cancel"
-                            </Button>
-                            <Button
-                                appearance=ButtonAppearance::Primary
-                                disabled=Signal::derive(move || {
-                                    image_url.with(|url| url.trim().is_empty())
-                                })
-                                on_click=Callback::new(move |_| insert_image_now())
-                            >
-                                "Insert"
-                            </Button>
-                        </DialogActions>
-                    </DialogBody>
-                </DialogSurface>
-            </Dialog>
+            <ImageDialog open=image_open upload=on_upload_image on_insert=on_image />
         </div>
     }
+}
+
+/// Textarea doesn't take these attributes, so set them on its element.
+fn sync_textarea_attributes(
+    write_ref: NodeRef<html::Div>,
+    rows: u32,
+    aria_label: MaybeProp<String>,
+    over_limit: Memo<bool>,
+) {
+    Effect::new(move |_| {
+        let Some(textarea) = write_ref.get().and(textarea_in(write_ref)) else {
+            return;
+        };
+        _ = textarea.set_attribute("rows", &rows.to_string());
+        match aria_label.get() {
+            Some(label) => _ = textarea.set_attribute("aria-label", &label),
+            None => _ = textarea.remove_attribute("aria-label"),
+        }
+        if over_limit.get() {
+            _ = textarea.set_attribute("aria-invalid", "true");
+        } else {
+            _ = textarea.remove_attribute("aria-invalid");
+        }
+    });
+}
+
+/// Write the edit into the textarea and the bound value, then restore its selection.
+fn commit_edit(write_ref: NodeRef<html::Div>, value: RwSignal<String>, edit: TextEdit) {
+    let Some(textarea) = textarea_in(write_ref) else {
+        return;
+    };
+    textarea.set_value(&edit.text);
+    value.set(edit.text);
+    let restore = move || {
+        _ = textarea.focus();
+        _ = textarea.set_selection_range(edit.sel_start, edit.sel_end);
+    };
+    restore();
+    // The bound value re-renders after this handler; put the selection back after it.
+    request_animation_frame(restore);
 }
 
 /// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib markdown_editor`.
