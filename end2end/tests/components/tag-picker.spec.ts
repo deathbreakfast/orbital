@@ -91,6 +91,46 @@ test.describe("tag-picker primitive preview", () => {
     await expect(input).toHaveValue("");
   });
 
+  test("TP-13: Space types into the input and filters a two-word option", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-08").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-08");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.click();
+    await input.pressSequentially("fresh pro");
+    await expect(input).toHaveValue("fresh pro");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
+    await expect(wrapper.locator(".orbital-tag-picker-option")).toHaveText(["Fresh Produce"]);
+  });
+
+  test("TP-14: a two-word query with no match selects nothing", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-08").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-08");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.click();
+    await input.pressSequentially("zzz qqq");
+    await expect(input).toHaveValue("zzz qqq");
+    await expect(wrapper.locator(".orbital-tag-picker-option")).toHaveCount(0);
+    await input.press("Enter");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
+  });
+
+  test("TP-15: tabbing into the input and typing opens the list", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-08").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-08");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.focus();
+    await input.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(input).toBeFocused();
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await page.keyboard.type("r");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+    await expect(wrapper.locator(".orbital-tag-picker-option").first()).toBeVisible();
+  });
+
   test("TP-09: clicking an action option runs its callback without selecting", async ({ page }) => {
     await openComponentPreview(page, "tag-picker");
     await page.getByTestId("TP-09").scrollIntoViewIfNeeded();

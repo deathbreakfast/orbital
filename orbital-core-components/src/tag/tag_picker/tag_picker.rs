@@ -30,6 +30,7 @@ use crate::Icon;
 /// # API notes
 ///
 /// - [`TagPickerInput`] carries `role="combobox"`, `aria-expanded` and `aria-controls`. Give it a name with a [`Field`](crate::Field) label, or its `aria_label` prop outside a field.
+/// - Space types a space in the input, so multi-word searches work; Enter selects the highlighted option.
 ///
 /// # Best Practices
 ///
@@ -288,7 +289,7 @@ use crate::Icon;
 ///             </TagPickerControl>
 ///             {move || {
 ///                 let q = query.get().to_ascii_lowercase();
-///                 ["Groceries", "Gas", "Rent"]
+///                 ["Groceries", "Gas", "Rent", "Fresh Produce"]
 ///                     .into_iter()
 ///                     .filter(|name| name.to_ascii_lowercase().contains(&q))
 ///                     .map(|name| view! { <TagPickerOption value=name.to_string() text=name /> })
@@ -473,7 +474,20 @@ pub fn TagPicker(
     let on_keydown = {
         let tag_picker_injection = tag_picker_injection.clone();
         let active_descendant_controller = active_descendant_controller.clone();
-        move |e| {
+        move |e: ev::KeyboardEvent| {
+            // Space is text while the input has focus, so multi-word searches work.
+            if e.code() == "Space" && !e.alt_key() && !e.ctrl_key() && !e.meta_key() {
+                let target = e.target();
+                let in_input = input_ref.get_untracked().is_some_and(|el| {
+                    target.as_ref().is_some_and(|t| {
+                        let el: &web_sys::EventTarget = el.as_ref();
+                        t == el
+                    })
+                });
+                if in_input {
+                    return;
+                }
+            }
             let tag_picker_injection = tag_picker_injection.clone();
             listbox_keyboard_event(
                 e,

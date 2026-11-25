@@ -64,6 +64,7 @@ use crate::{
 ///     ChipOption::new("billing", "billing"),
 ///     ChipOption::new("security", "security"),
 ///     ChipOption::new("docs", "docs"),
+///     ChipOption::new("fresh-tag", "Fresh Tag"),
 /// ]);
 /// let panel_mount = NodeRef::<leptos::html::Div>::new();
 /// view! {
