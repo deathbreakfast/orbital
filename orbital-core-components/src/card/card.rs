@@ -251,6 +251,39 @@ fn resolve_surface(
 /// }
 /// ```
 ///
+/// ## Fill the row
+/// `fill` makes a card take the height of its parent, so side-by-side cards in a [`Grid`](crate::Grid)
+/// end level even when their content differs. Where the grid collapses to one column, `fill` has no
+/// visible effect.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Card, CardContent, CardHeader, Grid, GridConfig, GridItem, Subtitle1};
+/// view! {
+///     <div data-testid="card-fill">
+///         <Grid config=GridConfig::with_gaps(2, 12, 12)>
+///             <GridItem>
+///                 <Card fill=true>
+///                     <CardHeader>
+///                         <Subtitle1>"Owns"</Subtitle1>
+///                     </CardHeader>
+///                     <CardContent>"One short line."</CardContent>
+///                 </Card>
+///             </GridItem>
+///             <GridItem>
+///                 <Card fill=true>
+///                     <CardHeader>
+///                         <Subtitle1>"Requests"</Subtitle1>
+///                     </CardHeader>
+///                     <CardContent>
+///                         "A longer body that wraps onto several lines, so this card is taller than its neighbour. The shorter card stretches to match it. Extra copy keeps the difference obvious at every width."
+///                     </CardContent>
+///                 </Card>
+///             </GridItem>
+///         </Grid>
+///     </div>
+/// }
+/// ```
+///
 /// ## Solid surface
 /// Borderless solid surface with a resting shadow, the look cards had before outlined became
 /// the default.
@@ -292,6 +325,11 @@ pub fn Card(
     /// Row gap between stacked slot regions. Set [`FlexGap::Size(0)`] for flush sections separated only by [`CardSectionBorder`](crate::CardSectionBorder).
     #[prop(default = FlexGap::Medium)]
     gap: FlexGap,
+    /// Fill the parent's height (`height: 100%`). Use it on cards in a [`Grid`](crate::Grid) row
+    /// so the shorter one stretches to the taller one. Default false: the card keeps its content
+    /// height.
+    #[prop(optional)]
+    fill: bool,
     /// Compound slot regions — [`CardHeader`], [`CardMedia`], [`CardPreview`], [`CardContent`], [`CardButtonArea`], and [`CardFooter`] in document order.
     children: Children,
 ) -> impl IntoView {
@@ -302,13 +340,19 @@ pub fn Card(
     );
     provide_context(InsideCard(true));
     let (layout_sheet, layout_classes) = card_layout_styles();
+    let fill_class = layout_classes.fill.clone();
     let root_class = Signal::derive(move || {
         let extra = class.get().unwrap_or_default();
-        if extra.is_empty() {
-            "orbital-card".to_string()
-        } else {
-            format!("orbital-card {extra}")
+        let mut classes = String::from("orbital-card");
+        if fill {
+            classes.push(' ');
+            classes.push_str(&fill_class);
         }
+        if !extra.is_empty() {
+            classes.push(' ');
+            classes.push_str(&extra);
+        }
+        classes
     });
 
     view! {
@@ -343,6 +387,23 @@ mod tests {
             "{html}"
         );
         assert!(html.contains("data-material-elevation=\"flat\""), "{html}");
+    }
+
+    #[test]
+    fn card_ssr_fill_adds_the_fill_class() {
+        let html = render(|| {
+            view! { <Card fill=true><CardContent>"Body"</CardContent></Card> }.into_any()
+        });
+        let fill = card_layout_styles().1.fill;
+        assert!(html.contains(&fill), "{html}");
+    }
+
+    #[test]
+    fn card_ssr_default_has_no_fill_class() {
+        let html = render(|| view! { <Card><CardContent>"Body"</CardContent></Card> }.into_any());
+        let fill = card_layout_styles().1.fill;
+        // The stylesheet text names the class; only the root's class attribute must not.
+        assert!(!html.contains(&format!("orbital-card {fill}")), "{html}");
     }
 
     #[test]
