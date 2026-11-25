@@ -418,8 +418,14 @@ pub fn TagPicker(
     let options = StoredValue::new(HashMap::<String, TagPickerOptionEntry>::new());
     let listbox_id = StoredValue::new(format!("orbital-tag-picker-listbox-{}", new_field_id()));
 
-    let (set_listbox, active_descendant_controller) =
-        use_active_descendant(|el| el.class_list().contains("orbital-tag-picker-option"));
+    // Arrow keys skip disabled options; they stay in the list, announced through
+    // `aria-disabled`.
+    let (set_listbox, active_descendant_controller) = use_active_descendant(|el| {
+        el.class_list().contains("orbital-tag-picker-option")
+            && !el
+                .class_list()
+                .contains("orbital-tag-picker-option--disabled")
+    });
 
     let tag_picker_control_injection =
         TagPickerControlInjection(active_descendant_controller.clone());

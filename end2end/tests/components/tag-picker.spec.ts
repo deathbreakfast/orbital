@@ -54,6 +54,22 @@ test.describe("tag-picker primitive preview", () => {
     await expect(wrapper.locator(".orbital-tag")).toHaveCount(0);
   });
 
+  test("TP-05b: arrow keys skip the disabled option", async ({ page }) => {
+    await openComponentPreview(page, "tag-picker");
+    await page.getByTestId("TP-05").scrollIntoViewIfNeeded();
+    const wrapper = page.getByTestId("TP-05");
+    const input = wrapper.locator("input[role='combobox']");
+    await input.click();
+    await input.press("ArrowDown");
+    await input.press("ArrowDown");
+    const active = wrapper.locator(".orbital-tag-picker-option[data-activedescendant-focusvisible]");
+    await expect(active).toHaveCount(1);
+    await expect(active).toHaveText("Open");
+    await input.press("Enter");
+    await expect(wrapper.locator(".orbital-tag")).toHaveCount(1);
+    await expect(wrapper.locator(".orbital-tag")).toHaveText("Open");
+  });
+
   test("TP-06: option groups render grouped labels", async ({ page }) => {
     await openComponentPreview(page, "tag-picker");
     await page.getByTestId("TP-06").scrollIntoViewIfNeeded();

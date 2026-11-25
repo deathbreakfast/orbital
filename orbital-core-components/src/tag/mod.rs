@@ -7,7 +7,7 @@ mod tag_picker;
 mod types;
 
 pub use chip_selector::{
-    ChipBadge, ChipOption, ChipSelector, ChipSelectorMode, ChipSelectorVariant,
+    ChipBadge, ChipOption, ChipOptionGroup, ChipSelector, ChipSelectorMode, ChipSelectorVariant,
 };
 pub use interaction_tag::{InteractionTag, InteractionTagPrimary, SecondaryActionTag};
 pub use tag::Tag;

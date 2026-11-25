@@ -208,5 +208,12 @@ pub fn tag_picker_styles() -> &'static str {
     font-weight: var(--orb-type-weight-semibold);
     color: var(--orb-color-text-tertiary);
 }
+
+.orbital-tag-picker-option-group__caption {
+    display: block;
+    padding: 0 var(--orb-space-inline-sm) var(--orb-space-block-snudge);
+    font-size: var(--orb-type-size-xs);
+    color: var(--orb-color-text-tertiary);
+}
 "#
 }

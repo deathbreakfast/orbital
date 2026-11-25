@@ -5,11 +5,12 @@ use orbital_style::inject_style;
 use std::collections::HashMap;
 
 use super::styles::chip_selector_styles;
-use super::types::{ChipOption, ChipSelectorMode, ChipSelectorVariant};
+use super::types::{ChipOption, ChipOptionGroup, ChipSelectorMode, ChipSelectorVariant};
 use crate::{
     Avatar, AvatarColor, AvatarConfig, Badge, BadgeAppearance, BadgeSize, Link, Persona,
     PersonaConfig, PersonaSecondaryText, PersonaSize, Tag, TagAppearance, TagPicker, TagPickerBind,
-    TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerOption, TagPickerSize,
+    TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerOption, TagPickerOptionGroup,
+    TagPickerSize,
 };
 
 /// Field that holds its values as chips inside the input: the one selector for record
@@ -26,16 +27,27 @@ use crate::{
 /// - A record field that links to other records: tags, projects, milestones, blocking tasks
 /// - Picking people or teams, with avatars, for an owner or assignees
 /// - Any multi-value field whose values must stay visible and removable in place
+/// - A people picker that lists recent picks above search results, with sections per
+///   directory and rows that can't be picked (already a member, excluded)
 ///
 /// # Usage
 ///
 /// 1. Build a `Vec<ChipOption>` from your records (key, text, and optional `href`, `secondary` or `badge`).
 /// 2. Bind the selected keys with a `RwSignal<Vec<String>>`.
 /// 3. Set `mode`, `variant` and the placeholders for the field.
+/// 4. To split the list into sections, pass `groups` as [`ChipOptionGroup`]s, each with
+///    a header and an optional caption. Ungrouped `options` stay above them.
+/// 5. Mark an option `.disabled()` to show it without letting anyone pick it, and say
+///    why on its second line.
 ///
 /// Chip labels come from `options`. When you load options per search with `on_search`,
 /// the selector remembers every option it has seen, so chips keep their text; make sure
-/// preselected values are in the first `options` you pass.
+/// preselected values are in the first `options` or `groups` you pass.
+///
+/// The input is the only tab stop. Arrow keys move through the options and skip
+/// disabled ones, Enter picks, and Escape closes the list. Each section is a group
+/// named by its header, with its caption as the description; disabled options carry
+/// `aria-disabled="true"` and a muted colour.
 ///
 /// # Best Practices
 ///
@@ -44,12 +56,14 @@ use crate::{
 /// * Give an `empty_placeholder` that says what goes in the field ("No tags. Search or create one")
 /// * Set `href` so a chip opens the record it names
 /// * Wrap the selector in [`crate::Field`] for a visible label
+/// * Give a disabled option a second line that says why it can't be picked
 ///
 /// ## Don'ts
 ///
 /// * Do not use for a single free-text value; use [`crate::Input`]
 /// * Do not put `data-testid` on the component; wrap it with a native element
 /// * Do not hand-compose a [`crate::TagPicker`] for record fields; this keeps every field the same
+/// * Do not leave out an option someone might look for because it can't be picked; show it disabled
 ///
 /// # Examples
 ///
@@ -243,6 +257,75 @@ use crate::{
 ///     </div>
 /// }
 /// ```
+///
+/// ## Grouped options
+/// `groups` splits the list into titled sections: recent picks first, then directory results with a caption that says where they came from. Typing filters every section and hides any section left empty. The badge after each row shows the kind of record.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{BadgeColor, ChipOption, ChipOptionGroup, ChipSelector, ChipSelectorVariant};
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let groups = Signal::stored(vec![
+///     ChipOptionGroup::new(
+///         "Recent",
+///         vec![
+///             ChipOption::new("theo", "Theo Brandt").secondary("theo@acme.test"),
+///             ChipOption::new("payments", "Payments")
+///                 .secondary("4 members")
+///                 .badge("Team", BadgeColor::Subtle),
+///         ],
+///     ),
+///     ChipOptionGroup::new(
+///         "Acme directory",
+///         vec![
+///             ChipOption::new("paula", "Paula Mendes").secondary("paula@acme.test"),
+///             ChipOption::new("lena", "Lena Kovac")
+///                 .secondary("lena@partner.test")
+///                 .badge("Guest", BadgeColor::Warning),
+///         ],
+///     )
+///     .caption("From Google Workspace"),
+/// ]);
+/// let panel_mount = NodeRef::<leptos::html::Div>::new();
+/// view! {
+///     <div data-testid="chip-selector-groups" node_ref=panel_mount>
+///         <ChipSelector
+///             bind=selected
+///             groups
+///             variant=ChipSelectorVariant::Persona
+///             placeholder="Add people or teams"
+///             aria_label="Members"
+///             panel_mount=Some(panel_mount)
+///         />
+///     </div>
+/// }
+/// ```
+///
+/// ## Disabled options
+/// `.disabled()` keeps an option in the list but stops it being picked, here people who are already members. Arrow keys skip it, and its second line says why.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{ChipOption, ChipSelector, ChipSelectorVariant};
+/// let selected = RwSignal::new(Vec::<String>::new());
+/// let options = Signal::stored(vec![
+///     ChipOption::new("theo", "Theo Brandt").secondary("Already a member").disabled(),
+///     ChipOption::new("paula", "Paula Mendes").secondary("Person"),
+///     ChipOption::new("lena", "Lena Kovac").secondary("Already a member").disabled(),
+///     ChipOption::new("ines", "Ines Okafor").secondary("Person"),
+/// ]);
+/// let panel_mount = NodeRef::<leptos::html::Div>::new();
+/// view! {
+///     <div data-testid="chip-selector-disabled" node_ref=panel_mount>
+///         <ChipSelector
+///             bind=selected
+///             options
+///             variant=ChipSelectorVariant::Persona
+///             placeholder="Add members"
+///             aria_label="Members"
+///             panel_mount=Some(panel_mount)
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Inputs",
     preview_slug = "chip-selector",
@@ -258,9 +341,15 @@ pub fn ChipSelector(
     #[prop(optional, into)]
     bind: FormBind<Vec<String>>,
     /// Choices for the option list, and the labels for the chips. Update it from
-    /// `on_search` to load options as the user types.
-    #[prop(into)]
+    /// `on_search` to load options as the user types. Listed above any `groups`.
+    /// Defaults to none.
+    #[prop(optional, into)]
     options: Signal<Vec<ChipOption>>,
+    /// Titled sections of the option list, each with a header and an optional
+    /// caption, listed after `options` in order. A section with no option matching
+    /// the typed text is hidden. Defaults to none.
+    #[prop(optional, into)]
+    groups: Signal<Vec<ChipOptionGroup>>,
     /// `Multiple` (default) keeps any number of chips; `Single` keeps one and
     /// replaces it on the next pick.
     #[prop(optional, into)]
@@ -301,20 +390,31 @@ pub fn ChipSelector(
     // Every option seen so far, so chips keep their labels when `options` is
     // replaced by the results of another search.
     let known = StoredValue::new(HashMap::<String, ChipOption>::new());
-    let current = Memo::new(move |_| {
-        let options = options.get();
+    let remember = move |options: &[ChipOption]| {
         known.update_value(|known| {
-            for option in &options {
+            for option in options {
                 known.insert(option.value.clone(), option.clone());
             }
         });
+    };
+    let current = Memo::new(move |_| {
+        let options = options.get();
+        remember(&options);
         options
+    });
+    let current_groups = Memo::new(move |_| {
+        let groups = groups.get();
+        for group in &groups {
+            remember(&group.options);
+        }
+        groups
     });
     let selected = Memo::new({
         let bind = bind.clone();
         move |_| {
             // Read (not just track) so the memo runs and fills `known` first.
             current.with(|_| ());
+            current_groups.with(|_| ());
             let values = bind.get();
             known.with_value(|known| {
                 values
@@ -399,12 +499,27 @@ pub fn ChipSelector(
                 <TagPickerControl slot>{control()}</TagPickerControl>
                 {move || {
                     let q = query.get().to_lowercase();
-                    current
+                    let ungrouped = current
                         .get()
                         .into_iter()
                         .filter(|option| matches_query(option, &q))
                         .map(|option| option_row(option, persona))
-                        .collect_view()
+                        .collect_view();
+                    let grouped = visible_groups(current_groups.get(), &q)
+                        .into_iter()
+                        .map(|group| {
+                            view! {
+                                <TagPickerOptionGroup label=group.header caption=group.caption>
+                                    {group
+                                        .options
+                                        .into_iter()
+                                        .map(|option| option_row(option, persona))
+                                        .collect_view()}
+                                </TagPickerOptionGroup>
+                            }
+                        })
+                        .collect_view();
+                    (ungrouped, grouped)
                 }}
             </TagPicker>
         </div>
@@ -419,6 +534,18 @@ fn matches_query(option: &ChipOption, query: &str) -> bool {
             .secondary
             .as_ref()
             .is_some_and(|secondary| secondary.to_lowercase().contains(query))
+}
+
+/// The groups with only their options that match the lowercased query, dropping
+/// groups left empty so no header sits over nothing.
+fn visible_groups(groups: Vec<ChipOptionGroup>, query: &str) -> Vec<ChipOptionGroup> {
+    groups
+        .into_iter()
+        .filter_map(|mut group| {
+            group.options.retain(|option| matches_query(option, query));
+            (!group.options.is_empty()).then_some(group)
+        })
+        .collect()
 }
 
 // Neutral avatars, as in the mocks. `Colorful` can land on crimson, whose white
@@ -482,18 +609,32 @@ fn chip_content(option: ChipOption, persona: bool) -> impl IntoView {
 fn option_row(option: ChipOption, persona: bool) -> impl IntoView {
     let value = option.value.clone();
     let text = option.text.clone();
+    let disabled = option.disabled;
+    let badge = option.badge.clone().map(|badge| {
+        view! {
+            <span class="orbital-chip-selector__option-badge">
+                <Badge appearance=BadgeAppearance::Tint size=BadgeSize::Small color=badge.color>
+                    {badge.text}
+                </Badge>
+            </span>
+        }
+    });
     if persona {
         Either::Left(view! {
-            <TagPickerOption value text>{persona_view(option)}</TagPickerOption>
+            <TagPickerOption value text disabled>
+                {persona_view(option)}
+                {badge}
+            </TagPickerOption>
         })
     } else {
         let secondary = option.secondary.map(|secondary| {
             view! { <span class="orbital-chip-selector__option-secondary">{secondary}</span> }
         });
         Either::Right(view! {
-            <TagPickerOption value text>
+            <TagPickerOption value text disabled>
                 <span>{option.text}</span>
                 {secondary}
+                {badge}
             </TagPickerOption>
         })
     }
@@ -510,6 +651,29 @@ mod tests {
         assert!(matches_query(&option, "pay"));
         assert!(matches_query(&option, "acme"));
         assert!(!matches_query(&option, "theo"));
+    }
+
+    #[test]
+    fn visible_groups_keep_matching_options_and_drop_empty_groups() {
+        let groups = vec![
+            ChipOptionGroup::new(
+                "Recent",
+                vec![
+                    ChipOption::new("theo", "Theo Brandt"),
+                    ChipOption::new("lena", "Lena Kovac"),
+                ],
+            ),
+            ChipOptionGroup::new("Directory", vec![ChipOption::new("paula", "Paula Mendes")])
+                .caption("From Google Workspace"),
+        ];
+        assert!(visible_groups(groups.clone(), "") == groups);
+
+        let theo = visible_groups(groups.clone(), "theo");
+        assert_eq!(theo.len(), 1);
+        assert_eq!(theo[0].header, "Recent");
+        assert_eq!(theo[0].options.len(), 1);
+
+        assert!(visible_groups(groups, "nobody").is_empty());
     }
 }
 
