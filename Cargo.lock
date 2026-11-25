@@ -2222,6 +2222,7 @@ dependencies = [
  "palette",
  "parcel_selectors",
  "pulldown-cmark",
+ "send_wrapper",
  "turf",
  "wasm-bindgen",
  "wasm-bindgen-futures",

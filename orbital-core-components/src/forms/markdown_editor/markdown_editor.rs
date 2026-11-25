@@ -1,10 +1,13 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use leptos::{ev, html, leptos_dom::helpers::WindowListenerHandle, prelude::*, task::spawn_local};
+use leptos::{
+    ev, html, leptos_dom::helpers::WindowListenerHandle, prelude::*, task::spawn_local_scoped,
+};
 use orbital_base_components::{ComponentRef, Handler, TextareaRef, UploadFileList};
 use orbital_macros::component_doc;
 use orbital_markdown::{render_to_html, OrbitalMarkdownOptions, RenderContext};
 use orbital_style::inject_style;
+use send_wrapper::SendWrapper;
 use wasm_bindgen::{closure::Closure, JsCast};
 
 use super::dom::{
@@ -34,6 +37,9 @@ const TABLE_ROWS: usize = 6;
 const TABLE_COLS: usize = 8;
 /// Letters typed after `@` before the provider is asked.
 const MENTION_MIN_QUERY: usize = 2;
+/// Below this editor width (px) the toolbar keeps Bold, Italic, Link and @ and
+/// moves the rest into More.
+const COMPACT_WIDTH: i32 = 520;
 
 static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 
@@ -105,7 +111,7 @@ static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 ///     ..Default::default()
 /// };
 /// view! {
-///     <div data-testid="markdown-editor-preview">
+///     <div data-testid="markdown-editor-preview" style="width: 100%">
 ///         <MarkdownEditor
 ///             value=value
 ///             aria_label="Runbook"
@@ -135,7 +141,7 @@ static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 ///     .collect::<Vec<_>>()
 /// });
 /// view! {
-///     <div data-testid="markdown-editor-mentions">
+///     <div data-testid="markdown-editor-mentions" style="width: 100%">
 ///         <MarkdownEditor value=value aria_label="Reply" mentions=people />
 ///     </div>
 /// }
@@ -147,7 +153,7 @@ static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 /// ```rust
 /// let value = RwSignal::new(String::new());
 /// view! {
-///     <div data-testid="markdown-editor-compact">
+///     <div data-testid="markdown-editor-compact" style="width: 100%">
 ///         <MarkdownEditor value=value aria_label="Quick reply" rows=3 auto_grow=false />
 ///     </div>
 /// }
@@ -159,7 +165,7 @@ static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 /// ```rust
 /// let value = RwSignal::new("Short summary".to_string());
 /// view! {
-///     <div data-testid="markdown-editor-limit">
+///     <div data-testid="markdown-editor-limit" style="width: 100%">
 ///         <MarkdownEditor value=value aria_label="Summary" max_chars=40 rows=3 />
 ///     </div>
 /// }
@@ -172,7 +178,7 @@ static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 /// use crate::Field;
 /// let value = RwSignal::new(String::new());
 /// view! {
-///     <div data-testid="markdown-editor-field">
+///     <div data-testid="markdown-editor-field" style="width: 100%">
 ///         <Field label="Description" name="description">
 ///             <MarkdownEditor value=value placeholder="Describe the task" />
 ///         </Field>
@@ -186,7 +192,7 @@ static NEXT_EDITOR_ID: AtomicUsize = AtomicUsize::new(0);
 /// ```rust
 /// let value = RwSignal::new("Locked while saving".to_string());
 /// view! {
-///     <div data-testid="markdown-editor-disabled">
+///     <div data-testid="markdown-editor-disabled" style="width: 100%">
 ///         <MarkdownEditor value=value aria_label="Locked notes" disabled=true />
 ///     </div>
 /// }
@@ -389,10 +395,16 @@ pub fn MarkdownEditor(
         }
     });
 
-    // Track the textarea's height while Write shows, so Preview can match it.
-    let observer = StoredValue::new_local(None::<(web_sys::ResizeObserver, Closure<dyn FnMut()>)>);
+    // Track the textarea's height while Write shows, so Preview can match it, and
+    // the editor's width for the compact toolbar.
+    // The SendWrapper is made only in the browser: leptos-axum can drop a streamed
+    // page's owner on another thread, and dropping a SendWrapper there panics.
+    let root_ref = NodeRef::<html::Div>::new();
+    let compact = RwSignal::new(false);
+    let observer =
+        StoredValue::new(None::<SendWrapper<(web_sys::ResizeObserver, Closure<dyn FnMut()>)>>);
     Effect::new(move |_| {
-        let Some(write) = write_ref.get() else {
+        let (Some(root), Some(write)) = (root_ref.get(), write_ref.get()) else {
             return;
         };
         if observer.with_value(Option::is_some) {
@@ -403,7 +415,13 @@ pub fn MarkdownEditor(
         };
         let measure = {
             let textarea = textarea.clone();
+            let root = root.clone();
             move || {
+                let width = root.offset_width();
+                let narrow = width > 0 && width < COMPACT_WIDTH;
+                if compact.get_untracked() != narrow {
+                    compact.set(narrow);
+                }
                 let height = f64::from(textarea.offset_height());
                 if height > 0.0 {
                     textarea_height.set(height);
@@ -413,13 +431,14 @@ pub fn MarkdownEditor(
         };
         let on_resize = Closure::<dyn FnMut()>::new(measure);
         if let Ok(resize) = web_sys::ResizeObserver::new(on_resize.as_ref().unchecked_ref()) {
+            resize.observe(&root);
             resize.observe(&textarea);
-            observer.set_value(Some((resize, on_resize)));
+            observer.set_value(Some(SendWrapper::new((resize, on_resize))));
         }
     });
     on_cleanup(move || {
-        if let Some((resize, _)) = observer.try_update_value(Option::take).flatten() {
-            resize.disconnect();
+        if let Some(tracking) = observer.try_update_value(Option::take).flatten() {
+            tracking.0.disconnect();
         }
     });
 
@@ -578,7 +597,7 @@ pub fn MarkdownEditor(
         };
         let seq = search_seq.get_value();
         mention_searching.set(true);
-        spawn_local(async move {
+        spawn_local_scoped(async move {
             let mut found = search.search(query).await;
             if search_seq.try_get_value() != Some(seq) {
                 return;
@@ -962,6 +981,8 @@ pub fn MarkdownEditor(
         <div
             class="orbital-markdown-editor"
             class:orbital-markdown-editor--auto-grow=auto_grow
+            class:orbital-markdown-editor--compact=move || compact.get()
+            node_ref=root_ref
             style=root_style
             data-testid=move || testid.get()
         >
@@ -1171,7 +1192,7 @@ pub fn MarkdownEditor(
                                                         };
                                                         image_error.set(None);
                                                         uploading.set(true);
-                                                        spawn_local(async move {
+                                                        spawn_local_scoped(async move {
                                                             match handler.upload(file).await {
                                                                 Ok(url) => _ = image_url.try_set(url),
                                                                 Err(message) => _ = image_error.try_set(Some(message)),
@@ -1225,5 +1246,41 @@ pub fn MarkdownEditor(
                 </DialogSurface>
             </Dialog>
         </div>
+    }
+}
+
+/// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib markdown_editor`.
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::*;
+    use orbital_theme::OrbitalThemeProvider;
+
+    /// A streamed page's owner can be cleaned up on another tokio worker. A
+    /// server render must not leave anything behind that panics when dropped
+    /// off its thread.
+    #[test]
+    fn server_render_drops_cleanly_on_another_thread() {
+        let owner = std::thread::spawn(|| {
+            // The workspace test build also enables leptos csr, so Effects need an executor.
+            let _ = any_spawner::Executor::init_futures_executor();
+            let owner = Owner::new();
+            let html = owner.with(|| {
+                let value = RwSignal::new("**hi** @pri".to_string());
+                let people = MentionProvider::new(|_query: String| async { Vec::new() });
+                view! {
+                    <OrbitalThemeProvider>
+                        <MarkdownEditor value=value aria_label="Notes" mentions=people />
+                    </OrbitalThemeProvider>
+                }
+                .to_html()
+            });
+            assert!(html.contains("orbital-markdown-editor"));
+            owner
+        })
+        .join()
+        .expect("render thread");
+        std::thread::spawn(move || drop(owner))
+            .join()
+            .expect("dropping the owner on another thread must not panic");
     }
 }

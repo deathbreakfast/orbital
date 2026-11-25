@@ -11,7 +11,6 @@ pub fn markdown_editor_styles() -> &'static str {
     gap: var(--orb-space-block-xs);
     width: 100%;
     min-width: 0;
-    container: orbital-markdown-editor / inline-size;
 }
 
 .orbital-markdown-editor__header {
@@ -254,20 +253,18 @@ pub fn markdown_editor_styles() -> &'static str {
     color: var(--orb-color-status-danger-fg);
 }
 
-@container orbital-markdown-editor (max-width: 519.98px) {
-    .orbital-markdown-editor__extra {
-        display: none;
-    }
+.orbital-markdown-editor--compact .orbital-markdown-editor__extra {
+    display: none;
+}
 
-    .orbital-markdown-editor__more {
-        display: inline-flex;
-    }
+.orbital-markdown-editor--compact .orbital-markdown-editor__more {
+    display: inline-flex;
+}
 
-    .orbital-markdown-editor__mentions {
-        left: 0;
-        right: 0;
-        width: auto;
-    }
+.orbital-markdown-editor--compact .orbital-markdown-editor__mentions {
+    left: 0;
+    right: 0;
+    width: auto;
 }
 "#
 }

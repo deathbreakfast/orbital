@@ -105,7 +105,7 @@ impl MarkdownAction {
 /// Icon buttons above the Write panel, in four groups. Pressing a button
 /// doesn't take focus, so the textarea keeps its caret and selection. Below
 /// 520px of editor width only Bold, Italic, Link and @ stay; the rest move
-/// into a More menu (the CSS container query in `styles.rs`).
+/// into a More menu (the editor sets `orbital-markdown-editor--compact`).
 #[component]
 pub(super) fn MarkdownEditorToolbar(
     disabled: Signal<bool>,
