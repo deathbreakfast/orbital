@@ -179,7 +179,15 @@ pub fn use_anchor_position(
             }
             let current_placement = panel_placement.get_untracked();
             if let Some(anchor_offset) =
-                resolve_anchor_offset(current_placement, &target_rect, &content_rect, arrow_height)
+                // A panel mounted in a container can be clipped by it, so only a
+                // viewport-fixed panel flips to the roomier side.
+                resolve_anchor_offset(
+                    current_placement,
+                    &target_rect,
+                    &content_rect,
+                    arrow_height,
+                    viewport_fixed,
+                )
             {
                 if auto_height {
                     if let Some(max_height) = anchor_offset.max_height {

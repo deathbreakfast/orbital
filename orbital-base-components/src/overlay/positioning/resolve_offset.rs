@@ -6,8 +6,8 @@ use web_sys::DomRect;
 use crate::overlay::placement::Placement;
 
 /// Minimum remaining space (px) required to accept a clamped preferred placement
-/// instead of flipping to another side. A clamped vertical placement also flips
-/// when the opposite side has more room.
+/// instead of flipping to another side. With `flip_to_roomier`, a clamped
+/// vertical placement also flips when the opposite side has more room.
 const MIN_CLAMP_SPACE: f64 = 48.0;
 
 pub struct AnchorOffset {
@@ -51,6 +51,7 @@ pub fn resolve_anchor_offset(
     target_rect: &DomRect,
     content_rect: &DomRect,
     arrow_height: Option<f64>,
+    flip_to_roomier: bool,
 ) -> Option<AnchorOffset> {
     let vw = window_inner_width()?;
     let vh = window_inner_height()?;
@@ -61,10 +62,15 @@ pub fn resolve_anchor_offset(
         arrow_height,
         vw,
         vh,
+        flip_to_roomier,
     )
 }
 
 /// Pure placement solver — preferred clamp/shift, then flip, then viewport-safe must.
+///
+/// `flip_to_roomier` lets a clamped vertical placement flip to the side with more
+/// room. Pass `false` when the panel sits in a container that may clip it, since
+/// the viewport space this solver sees isn't the space the panel really has.
 pub fn resolve_anchor_offset_in_viewport(
     preferred: Placement,
     target: Rect,
@@ -72,6 +78,7 @@ pub fn resolve_anchor_offset_in_viewport(
     arrow_height: Option<f64>,
     viewport_w: f64,
     viewport_h: f64,
+    flip_to_roomier: bool,
 ) -> Option<AnchorOffset> {
     use Placement::*;
     let candidates = match preferred {
@@ -100,6 +107,7 @@ pub fn resolve_anchor_offset_in_viewport(
             viewport_w,
             viewport_h,
             must,
+            flip_to_roomier,
         ) {
             return Some(offset);
         }
@@ -115,12 +123,21 @@ fn try_placement(
     vw: f64,
     vh: f64,
     must: bool,
+    flip_to_roomier: bool,
 ) -> Option<AnchorOffset> {
     use Placement::*;
     match placement {
-        TopStart | Top | TopEnd => {
-            placement_vertical(placement, target, content, arrow_height, vw, vh, must, true)
-        }
+        TopStart | Top | TopEnd => placement_vertical(
+            placement,
+            target,
+            content,
+            arrow_height,
+            vw,
+            vh,
+            must,
+            flip_to_roomier,
+            true,
+        ),
         BottomStart | Bottom | BottomEnd => placement_vertical(
             placement,
             target,
@@ -129,6 +146,7 @@ fn try_placement(
             vw,
             vh,
             must,
+            flip_to_roomier,
             false,
         ),
         RightStart | Right | RightEnd => {
@@ -155,6 +173,7 @@ fn placement_vertical(
     vw: f64,
     vh: f64,
     must: bool,
+    flip_to_roomier: bool,
     prefer_top: bool,
 ) -> Option<AnchorOffset> {
     let arrow = arrow_height.unwrap_or_default();
@@ -164,7 +183,9 @@ fn placement_vertical(
         let space_above = target.top.max(0.0);
         if raw_top < 0.0 {
             let space_below = (vh - target.bottom() - arrow).max(0.0);
-            if !must && (space_above < MIN_CLAMP_SPACE || space_below > space_above) {
+            if !must
+                && (space_above < MIN_CLAMP_SPACE || (flip_to_roomier && space_below > space_above))
+            {
                 return None;
             }
             // Clamp into the viewport rather than placing above y=0.
@@ -177,7 +198,9 @@ fn placement_vertical(
         let space_below = (vh - target_bottom).max(0.0);
         if target_bottom + content.height > vh {
             let space_above = (target.top - arrow).max(0.0);
-            if !must && (space_below < MIN_CLAMP_SPACE || space_above > space_below) {
+            if !must
+                && (space_below < MIN_CLAMP_SPACE || (flip_to_roomier && space_above > space_below))
+            {
                 return None;
             }
             (target_bottom, Some((space_below - 1.0).max(0.0)))
@@ -389,6 +412,7 @@ mod tests {
             None,
             390.0,
             844.0,
+            true,
         )
         .expect("placement");
         assert_eq!(offset.placement, Bottom);
@@ -407,6 +431,7 @@ mod tests {
             None,
             390.0,
             600.0,
+            true,
         )
         .expect("placement");
         assert_eq!(offset.placement, Bottom);
@@ -433,11 +458,37 @@ mod tests {
             None,
             1280.0,
             720.0,
+            true,
         )
         .expect("placement");
         assert_eq!(offset.placement, Top);
         assert!(offset.top >= 0.0);
         assert!(offset.top + 300.0 <= 628.0);
+    }
+
+    #[test]
+    fn mounted_panel_near_viewport_foot_keeps_clamping() {
+        let offset = resolve_anchor_offset_in_viewport(
+            Bottom,
+            Rect {
+                top: 628.0,
+                left: 400.0,
+                width: 320.0,
+                height: 32.0,
+            },
+            Rect {
+                top: 0.0,
+                left: 0.0,
+                width: 320.0,
+                height: 300.0,
+            },
+            None,
+            1280.0,
+            720.0,
+            false,
+        )
+        .expect("placement");
+        assert_eq!(offset.placement, Bottom);
     }
 
     #[test]
@@ -459,6 +510,7 @@ mod tests {
             None,
             1280.0,
             720.0,
+            true,
         )
         .expect("placement");
         assert_eq!(offset.placement, Bottom);
@@ -484,6 +536,7 @@ mod tests {
             None,
             390.0,
             844.0,
+            true,
         )
         .expect("placement");
         assert_eq!(offset.placement, Bottom);
@@ -512,6 +565,7 @@ mod tests {
             None,
             375.0,
             500.0,
+            true,
         )
         .expect("placement");
         assert!(offset.top >= 0.0);
