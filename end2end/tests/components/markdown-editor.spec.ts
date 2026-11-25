@@ -392,7 +392,7 @@ test.describe("markdown editor preview", () => {
     await expect(root.locator(".orbital-markdown-editor__mentions")).toHaveCount(0);
   });
 
-  test("ME-20: with no people provider there's no @ button and @ opens nothing", async ({
+  test("ME-20: with no people provider the @ button is gone and @ opens nothing", async ({
     page,
   }) => {
     await openComponentPreview(page, "markdown-editor");
