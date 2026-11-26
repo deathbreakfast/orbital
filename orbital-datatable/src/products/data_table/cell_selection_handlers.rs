@@ -1,7 +1,6 @@
 use leptos::prelude::*;
 
 use crate::engine::{extend_to, selection_to_tsv, set_anchor};
-use crate::io::write_clipboard_text;
 use crate::types::{CellCoord, DataTableTableState};
 
 /// Clipboard copy/paste keyboard shortcuts for cell selection mode.
@@ -23,7 +22,9 @@ pub fn handle_clipboard_keys(
         let columns = state.visible_export_columns();
         if let Some(tsv) = selection_to_tsv(&rows, &columns, &row_ids, &fields, &selection) {
             ev.prevent_default();
-            write_clipboard_text(&tsv);
+            leptos::task::spawn_local_scoped(async move {
+                orbital_core_components::write_clipboard_text(&tsv).await;
+            });
         }
     }
 

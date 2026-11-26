@@ -27,6 +27,12 @@ pub struct DataTableLocale {
     pub infinite_end: String,
     /// Quick search input placeholder.
     pub quick_search_placeholder: String,
+    /// Filter panel button that applies the drafted rules.
+    pub filter_apply: String,
+    /// Filter panel button that clears every filter rule.
+    pub filter_clear: String,
+    /// Filter panel button that adds another rule (multi-filter only).
+    pub filter_add_rule: String,
 }
 
 impl Default for DataTableLocale {
@@ -40,6 +46,9 @@ impl Default for DataTableLocale {
             loading: "Loading".to_string(),
             infinite_end: "End of list".to_string(),
             quick_search_placeholder: "Search".to_string(),
+            filter_apply: "Apply".to_string(),
+            filter_clear: "Clear".to_string(),
+            filter_add_rule: "Add filter".to_string(),
         }
     }
 }
@@ -93,6 +102,14 @@ mod tests {
             locale.format_pagination_range(1, 5, 5, true),
             "1–5 of more than 5"
         );
+    }
+
+    #[test]
+    fn filter_panel_labels_default_to_english() {
+        let locale = DataTableLocale::default();
+        assert_eq!(locale.filter_apply, "Apply");
+        assert_eq!(locale.filter_clear, "Clear");
+        assert_eq!(locale.filter_add_rule, "Add filter");
     }
 
     #[test]

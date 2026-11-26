@@ -57,4 +57,20 @@ test.describe("data-table list view", () => {
     await preview.getByTestId("data-table-list-select-1").click({ force: true });
     await expect(preview.getByTestId("data-table-list-view-log")).toHaveText("");
   });
+
+  test("switches to cards below the breakpoint without horizontal scroll", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openComponentPreview(page, "data-table-advanced", "data-table-list-breakpoint-preview");
+    const preview = page.getByTestId("data-table-list-breakpoint-preview");
+    await preview.scrollIntoViewIfNeeded();
+    const scroll = preview.getByTestId("data-table-scroll");
+
+    await expect(preview.getByTestId("data-table-list-card-1")).toBeVisible();
+    await expect(scroll).not.toHaveClass(/orbital-scroll-area--horizontal/);
+    expect(await scroll.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(preview.locator("tbody tr[data-testid^='data-table-row-']")).toHaveCount(2);
+    await expect(scroll).toHaveClass(/orbital-scroll-area--horizontal/);
+  });
 });

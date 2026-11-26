@@ -155,9 +155,14 @@ pub fn data_table_styles() -> &'static str {
     width: 100%;
 }
 
+/* A definite width keeps table-layout: fixed in force (browsers fall back to auto layout
+   for max-content), so columns take their <col> widths instead of their header content.
+   Fixed layout makes the table as wide as the larger of its width and the column total,
+   so width: 0 means "the column total". Not width: 100%: inside the horizontal scroll
+   area's max-content wrapper a percentage width blows the table up to ~1,000,000px. */
 .orbital-data-table__scroll .orbital-table {
     table-layout: fixed;
-    width: max-content;
+    width: 0;
     min-width: 100%;
 }
 
@@ -346,6 +351,13 @@ pub fn data_table_styles() -> &'static str {
     gap: var(--orb-space-inline-xs);
     min-width: 0;
     flex: 1;
+}
+
+.orbital-data-table__header-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .orbital-data-table__header-drag-handle,
@@ -551,6 +563,14 @@ pub fn data_table_styles() -> &'static str {
 .orbital-data-table th {
     padding-block: var(--orbital-data-table-cell-padding-block);
     padding-inline: var(--orbital-data-table-cell-padding-inline);
+}
+
+/* Reorder, detail and selection columns have fixed widths (the pinned offsets and the
+   <colgroup> use them), so their controls sit centered with no inline padding. */
+.orbital-data-table td.orbital-data-table__leading-cell,
+.orbital-data-table th.orbital-data-table__leading-cell {
+    padding-inline: 0;
+    text-align: center;
 }
 
 .orbital-data-table__filter-panel {

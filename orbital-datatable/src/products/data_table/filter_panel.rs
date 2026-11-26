@@ -8,6 +8,7 @@ use orbital_core_components::{
 use super::filter_rule_editor::{
     default_operator_for, draft_to_rule, rule_to_draft, DataTableFilterRuleEditor,
 };
+use crate::core::use_data_table_context;
 use crate::engine::operator_to_wire;
 use crate::types::{
     ColumnType, DataTableColumnDef, DataTableFeatures, DataTableFilter, DataTableTableState,
@@ -144,6 +145,7 @@ fn DataTableFilterPanelContent(
     collect_rules: impl Fn() -> Vec<crate::types::FilterRule> + Clone + Send + Sync + 'static,
 ) -> impl IntoView {
     let dismiss = expect_context::<OverlayDismiss>();
+    let locale = use_data_table_context().locale.get_value();
 
     let apply_filter = {
         let collect_rules = collect_rules.clone();
@@ -212,15 +214,15 @@ fn DataTableFilterPanelContent(
                     on_click=Callback::new(move |_| rule_count.update(|c| *c = (*c + 1).min(3)))
                     attr:data-testid="data-table-filter-add-rule"
                 >
-                    "Add filter"
+                    {locale.filter_add_rule.clone()}
                 </Button>
             })}
             <div class="orbital-data-table__filter-panel-actions">
                 <Button appearance=ButtonAppearance::Primary on_click=apply_filter>
-                    "Apply"
+                    {locale.filter_apply.clone()}
                 </Button>
                 <Button appearance=ButtonAppearance::Subtle on_click=clear_filter>
-                    "Clear"
+                    {locale.filter_clear.clone()}
                 </Button>
             </div>
         </div>

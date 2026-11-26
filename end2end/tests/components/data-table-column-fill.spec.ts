@@ -86,6 +86,23 @@ test.describe("data-table column fill", () => {
     expect(Math.abs((await widths(preview))[0] - dragged)).toBeLessThanOrEqual(1);
   });
 
+  test("refilled columns narrower than their header content keep the table inside its container", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const preview = await openFill(page);
+    await expectFilled(preview);
+    const container = await containerWidth(preview);
+    const [before] = await widths(preview);
+    // Leave 60px for each other column: above their 50px minimum, below the width of a
+    // header label plus its menu button, which the browser used to refuse to shrink past.
+    await dragFirstHandle(page, preview, container - 120 - before);
+    await expect.poll(async () => (await widths(preview))[1]).toBeLessThan(70);
+    await expectFilled(preview);
+    const scroll = preview.getByTestId("data-table-scroll");
+    expect(await scroll.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+  });
+
   test("fills the container in dark mode with readable headers", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     const preview = await openFill(page);

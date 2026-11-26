@@ -1,5 +1,7 @@
 use leptos::prelude::*;
-use orbital_core_components::{Button, ButtonAppearance, Checkbox, TableCell, TableHeaderCell};
+use orbital_core_components::{
+    Button, ButtonAppearance, ButtonSize, Checkbox, TableCell, TableHeaderCell,
+};
 
 use super::row_reorder::{
     begin_row_drag_ghost, clear_row_drag_ghost, move_row_drag_ghost_on_event,
@@ -25,9 +27,9 @@ fn pinned_left_style(left_px: f64, width_px: f64, pinning: bool) -> String {
 
 fn pinned_left_class(pinning: bool) -> String {
     if pinning {
-        "orbital-data-table__pinned-left".to_string()
+        "orbital-data-table__leading-cell orbital-data-table__pinned-left".to_string()
     } else {
-        String::new()
+        "orbital-data-table__leading-cell".to_string()
     }
 }
 
@@ -166,13 +168,21 @@ pub fn detail_toggle_cell(
     view! {
         <TableCell class=class style=style>
             <span data-testid=testid>
+                // Icon-only and small so the toggle fits the fixed-width detail column.
                 <Button
                     appearance=ButtonAppearance::Subtle
+                    size=ButtonSize::Small
+                    icon=Signal::derive(move || {
+                        Some(if expanded.get() {
+                            icondata::AiDownOutlined
+                        } else {
+                            icondata::AiRightOutlined
+                        })
+                    })
                     attr:aria-label=format!("Toggle row {row_id}")
+                    attr:aria-expanded=move || expanded.get().to_string()
                     on:click=move |_| state.toggle_detail_row(&toggle_id)
-                >
-                    {move || if expanded.get() { "▼" } else { "▶" }}
-                </Button>
+                />
             </span>
         </TableCell>
     }

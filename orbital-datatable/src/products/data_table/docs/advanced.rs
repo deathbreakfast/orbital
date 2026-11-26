@@ -202,6 +202,42 @@ use orbital_macros::component_doc;
 ///     </div>
 /// }
 /// ```
+///
+///
+/// ## List view below a breakpoint
+/// `ListViewConfig::with_breakpoint_px` keeps the table on wide screens and switches to cards
+/// below the breakpoint, without horizontal scroll.
+/// <!-- preview -->
+/// ```rust,ignore
+/// use std::collections::HashMap;
+/// use crate::{DataTable, DataTableColumnDef, DataTableFeatures, DataTableRowModel, ListViewConfig, PagingMode};
+/// let items = RwSignal::new(vec![
+///     DataTableRowModel::from_text_cells("1", HashMap::from([
+///         ("name".into(), "Ada Lovelace".into()),
+///         ("role".into(), "Engineer".into()),
+///     ])),
+///     DataTableRowModel::from_text_cells("2", HashMap::from([
+///         ("name".into(), "Grace Hopper".into()),
+///         ("role".into(), "Scientist".into()),
+///     ])),
+/// ]);
+/// view! {
+///     <div data-testid="data-table-list-breakpoint-preview" style="width: 100%;">
+///         <DataTable
+///             features=DataTableFeatures::LIST_VIEW
+///             list_view=ListViewConfig::new("name")
+///                 .with_secondary_fields(vec!["role".into()])
+///                 .with_breakpoint_px(600)
+///             paging=PagingMode::None
+///             columns=vec![
+///                 DataTableColumnDef::new("name", "Name"),
+///                 DataTableColumnDef::new("role", "Role"),
+///             ]
+///             items=items
+///         />
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Data Table",
     group_priority = 90,
