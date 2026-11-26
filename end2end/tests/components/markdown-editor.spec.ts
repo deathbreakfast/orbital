@@ -330,7 +330,7 @@ test.describe("markdown editor preview", () => {
 
     // Escape closes the picker and hands focus back to the textarea.
     await root.getByRole("button", { name: "Insert table", exact: true }).click();
-    await expect(picker).toBeVisible();
+    await expect(picker.getByRole("button", { name: "1 by 1 table" })).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(picker).toBeHidden();
     await expect(textarea).toBeFocused();

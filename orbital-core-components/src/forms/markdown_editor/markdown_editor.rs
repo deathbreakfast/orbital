@@ -443,15 +443,29 @@ fn commit_edit(write_ref: NodeRef<html::Div>, value: RwSignal<String>, edit: Tex
     let Some(textarea) = textarea_in(write_ref) else {
         return;
     };
-    textarea.set_value(&edit.text);
-    value.set(edit.text);
-    let restore = move || {
-        _ = textarea.focus();
-        _ = textarea.set_selection_range(edit.sel_start, edit.sel_end);
+    let TextEdit {
+        text,
+        sel_start,
+        sel_end,
+    } = edit;
+    textarea.set_value(&text);
+    let restore = {
+        let textarea = textarea.clone();
+        move || {
+            _ = textarea.focus();
+            _ = textarea.set_selection_range(sel_start, sel_end);
+        }
     };
     restore();
-    // The bound value re-renders after this handler; put the selection back after it.
-    request_animation_frame(restore);
+    // The bound value re-renders after this handler; put the selection back after it,
+    // unless the text changed again in the meantime.
+    let expected = text.clone();
+    value.set(text);
+    request_animation_frame(move || {
+        if textarea.value() == expected {
+            restore();
+        }
+    });
 }
 
 /// Server-render tests: `cargo test -p orbital-core-components --features ssr --lib markdown_editor`.

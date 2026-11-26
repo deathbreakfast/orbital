@@ -41,7 +41,9 @@ pub(super) fn TablePicker(
     Effect::new(move |_| {
         if open.get() {
             size.set((1, 1));
-            request_animation_frame(move || focus_cell((1, 1)));
+            // The panel is in the DOM by now; the frame covers a late render.
+            focus_cell((1, 1));
+            request_animation_frame(move || focus_cell(size.get_untracked()));
         }
     });
     close_on_outside_press(open, panel_ref);
