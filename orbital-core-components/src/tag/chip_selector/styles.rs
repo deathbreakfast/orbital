@@ -47,5 +47,14 @@ pub fn chip_selector_styles() -> &'static str {
     color: var(--orb-color-text-secondary);
     font-size: var(--orb-type-size-xs);
 }
+
+.orbital-chip-selector__option-badge {
+    display: inline-flex;
+    margin-left: auto;
+}
+
+.orbital-chip-selector__option-secondary + .orbital-chip-selector__option-badge {
+    margin-left: 0;
+}
 "#
 }

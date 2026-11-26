@@ -12,8 +12,12 @@ pub struct ChipOption {
     pub href: Option<String>,
     /// Second line under the name in the Persona variant, such as "Person" or "Team".
     pub secondary: Option<String>,
-    /// Small badge after the chip's text, such as a task's status.
+    /// Small badge after the text on the chip and on the option row, such as a
+    /// task's status or a kind ("Team", "Guest").
     pub badge: Option<ChipBadge>,
+    /// Shown in the option list but can't be picked, such as someone who is already
+    /// a member. Arrow keys skip it and screen readers announce it as unavailable.
+    pub disabled: bool,
 }
 
 impl ChipOption {
@@ -25,6 +29,7 @@ impl ChipOption {
             href: None,
             secondary: None,
             badge: None,
+            disabled: false,
         }
     }
 
@@ -40,12 +45,48 @@ impl ChipOption {
         self
     }
 
-    /// Adds a badge after the chip's text.
+    /// Adds a badge after the text on the chip and on the option row.
     pub fn badge(mut self, text: impl Into<String>, color: BadgeColor) -> Self {
         self.badge = Some(ChipBadge {
             text: text.into(),
             color,
         });
+        self
+    }
+
+    /// Keeps the option in the list but stops it being picked. Say why on the
+    /// second line, such as "Already a member".
+    pub fn disabled(mut self) -> Self {
+        self.disabled = true;
+        self
+    }
+}
+
+/// A titled section of a [`ChipSelector`](super::ChipSelector) option list, such as
+/// "Recent" or one directory a search came from.
+#[derive(Clone, PartialEq)]
+pub struct ChipOptionGroup {
+    /// Heading above the section, and its accessible name.
+    pub header: String,
+    /// Muted line under the heading, such as where the results came from.
+    pub caption: Option<String>,
+    /// The section's choices.
+    pub options: Vec<ChipOption>,
+}
+
+impl ChipOptionGroup {
+    /// A section with a heading and its choices.
+    pub fn new(header: impl Into<String>, options: Vec<ChipOption>) -> Self {
+        Self {
+            header: header.into(),
+            caption: None,
+            options,
+        }
+    }
+
+    /// Adds a muted line under the heading.
+    pub fn caption(mut self, caption: impl Into<String>) -> Self {
+        self.caption = Some(caption.into());
         self
     }
 }

@@ -11,6 +11,8 @@ const EXAMPLES = [
   "chip-selector-single",
   "chip-selector-persona",
   "chip-selector-persona-multi",
+  "chip-selector-groups",
+  "chip-selector-disabled",
 ];
 
 // The default example's wrapper is chip-selector-default, not the helper's
@@ -23,6 +25,8 @@ const chips = (wrapper: Locator) => wrapper.locator(".orbital-tag");
 const input = (wrapper: Locator) => wrapper.locator("input[role='combobox']");
 const option = (wrapper: Locator, name: string) =>
   wrapper.locator(".orbital-tag-picker-option", { hasText: name });
+const activeOption = (wrapper: Locator) =>
+  wrapper.locator(".orbital-tag-picker-option[data-activedescendant-focusvisible]");
 
 test.describe("chip-selector preview", () => {
   test("CS-01: picking an option adds an outlined chip inside the input", async ({ page }) => {
@@ -162,6 +166,84 @@ test.describe("chip-selector preview", () => {
     await input(wrapper).click();
     await option(wrapper, "Theo Brandt").click();
     await expect(chips(wrapper)).toHaveCount(2);
+  });
+
+  test("CS-11: groups show a header and caption, are named by the header, and pick into chips", async ({
+    page,
+  }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-groups");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).click();
+    const recent = wrapper.getByRole("group", { name: "Recent" });
+    const directory = wrapper.getByRole("group", { name: "Acme directory" });
+    await expect(recent).toBeVisible();
+    await expect(directory).toBeVisible();
+    await expect(directory).toHaveAccessibleDescription("From Google Workspace");
+    await expect(directory.locator(".orbital-tag-picker-option-group__caption")).toHaveText(
+      "From Google Workspace",
+    );
+    await expect(recent.getByRole("option")).toHaveCount(2);
+    await expect(directory.getByRole("option")).toHaveCount(2);
+    // Kind badges show on the option rows.
+    await expect(option(wrapper, "Lena Kovac").locator(".orbital-badge")).toHaveText("Guest");
+    await option(wrapper, "Paula Mendes").click();
+    await expect(chips(wrapper)).toHaveCount(1);
+    await expect(chips(wrapper)).toContainText("Paula Mendes");
+  });
+
+  test("CS-12: typing hides groups with no match, and a query matching nothing shows no group", async ({
+    page,
+  }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-groups");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).click();
+    await input(wrapper).pressSequentially("paula");
+    await expect(wrapper.getByRole("group", { name: "Acme directory" })).toBeVisible();
+    await expect(wrapper.getByRole("group", { name: "Recent" })).toHaveCount(0);
+    await expect(wrapper.locator(".orbital-tag-picker-option-group__label", { hasText: "Recent" })).toHaveCount(0);
+    await expect(wrapper.getByRole("option")).toHaveCount(1);
+    await input(wrapper).fill("");
+    await input(wrapper).pressSequentially("nobody-here");
+    await expect(wrapper.locator(".orbital-tag-picker-option-group")).toHaveCount(0);
+    await expect(wrapper.getByRole("option")).toHaveCount(0);
+    await expect(chips(wrapper)).toHaveCount(0);
+  });
+
+  test("CS-13: arrow keys skip disabled options and Enter picks the next enabled one", async ({
+    page,
+  }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-disabled");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).click();
+    await expect(option(wrapper, "Theo Brandt")).toHaveAttribute("aria-disabled", "true");
+    await expect(option(wrapper, "Lena Kovac")).toHaveAttribute("aria-disabled", "true");
+    await expect(option(wrapper, "Paula Mendes")).toHaveAttribute("aria-disabled", "false");
+    // Theo is first in the list but disabled, so the first stop is Paula.
+    await input(wrapper).press("ArrowDown");
+    await expect(activeOption(wrapper)).toHaveCount(1);
+    await expect(activeOption(wrapper)).toContainText("Paula Mendes");
+    // Lena is disabled, so the next stop is Ines.
+    await input(wrapper).press("ArrowDown");
+    await expect(activeOption(wrapper)).toContainText("Ines Okafor");
+    await input(wrapper).press("ArrowUp");
+    await expect(activeOption(wrapper)).toContainText("Paula Mendes");
+    await input(wrapper).press("Enter");
+    await expect(chips(wrapper)).toHaveCount(1);
+    await expect(chips(wrapper)).toContainText("Paula Mendes");
+  });
+
+  test("CS-14: clicking a disabled option adds no chip", async ({ page }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-disabled");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).click();
+    await expect(option(wrapper, "Theo Brandt")).toHaveClass(/orbital-tag-picker-option--disabled/);
+    await option(wrapper, "Theo Brandt").click({ force: true });
+    await expect(chips(wrapper)).toHaveCount(0);
+    await expect(option(wrapper, "Theo Brandt")).toHaveAttribute("aria-selected", "false");
   });
 
   test("CS-A1: axe clean in dark and light at 390px and desktop", async ({ page }) => {
