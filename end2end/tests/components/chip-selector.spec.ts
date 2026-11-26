@@ -54,6 +54,57 @@ test.describe("chip-selector preview", () => {
     await expect(option(wrapper, "billing")).toHaveCount(0);
   });
 
+  test("CS-11: Space types into the input and filters a two-word name", async ({ page }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-default");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).click();
+    await input(wrapper).pressSequentially("Fresh Tag");
+    await expect(input(wrapper)).toHaveValue("Fresh Tag");
+    await expect(chips(wrapper)).toHaveCount(0);
+    await expect(option(wrapper, "Fresh Tag")).toBeVisible();
+    await expect(option(wrapper, "billing")).toHaveCount(0);
+    await input(wrapper).press("ArrowDown");
+    await input(wrapper).press("Enter");
+    await expect(chips(wrapper)).toHaveText("Fresh Tag");
+  });
+
+  test("CS-12: a two-word query with no match shows no options and adds no chip", async ({ page }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-default");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).click();
+    await input(wrapper).pressSequentially("zzz qqq");
+    await expect(input(wrapper)).toHaveValue("zzz qqq");
+    await expect(wrapper.locator(".orbital-tag-picker-option")).toHaveCount(0);
+    await input(wrapper).press("Enter");
+    await expect(chips(wrapper)).toHaveCount(0);
+  });
+
+  test("CS-13: Space in the closed, empty input types a space and adds no chip", async ({ page }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-default");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).focus();
+    await input(wrapper).press("Space");
+    await expect(input(wrapper)).toHaveValue(" ");
+    await expect(chips(wrapper)).toHaveCount(0);
+  });
+
+  test("CS-14: tabbing into the input and typing opens the list", async ({ page }) => {
+    await openChipSelector(page);
+    const wrapper = page.getByTestId("chip-selector-default");
+    await wrapper.scrollIntoViewIfNeeded();
+    await input(wrapper).focus();
+    await input(wrapper).press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(input(wrapper)).toBeFocused();
+    await expect(input(wrapper)).toHaveAttribute("aria-expanded", "false");
+    await page.keyboard.type("f");
+    await expect(input(wrapper)).toHaveAttribute("aria-expanded", "true");
+    await expect(option(wrapper, "Fresh Tag")).toBeVisible();
+  });
+
   test("CS-03: chips link to their record and each has a remove button", async ({ page }) => {
     await openChipSelector(page);
     const wrapper = page.getByTestId("chip-selector-linked");
