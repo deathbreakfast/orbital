@@ -3,6 +3,7 @@ pub mod auto_complete;
 pub mod button_group;
 pub mod calendar;
 pub mod checkbox;
+pub mod code_editor;
 pub mod color_picker;
 pub mod combobox;
 pub mod compound_button;
@@ -42,6 +43,7 @@ pub use calendar::{
     CalendarMonthButtonProps, CalendarMonthButtonRenderer, CalendarWeekdayHeader,
 };
 pub use checkbox::Checkbox;
+pub use code_editor::{CodeEditor, CodeEditorError, CodeGrammar, CodeTokenKind};
 pub use color_picker::{ColorPicker, ColorPickerAppearance, ColorPickerBind};
 pub use combobox::{
     Combobox, ComboboxAppearance, ComboboxBind, ComboboxOption, ComboboxOptionGroup,
@@ -99,6 +101,8 @@ pub use button_group::BUTTONGROUP_PREVIEW_REGISTRATION;
 pub use calendar::CALENDAR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use checkbox::CHECKBOX_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
+pub use code_editor::CODEEDITOR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 pub use color_picker::COLORPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
