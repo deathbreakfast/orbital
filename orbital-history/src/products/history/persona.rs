@@ -54,15 +54,21 @@ pub fn HistoryEntryPersona(
 #[cfg(all(test, feature = "ssr"))]
 mod standalone_tests {
     use chrono::TimeZone;
+    use orbital_theme::OrbitalThemeProvider;
 
     use super::*;
     use crate::{HistoryEntryRowSkeleton, HistoryTimelineSkeleton, HistoryTimestamp};
 
-    fn render(view: impl FnOnce() -> AnyView) -> String {
+    fn render(view: impl FnOnce() -> AnyView + Send + 'static) -> String {
         // The workspace test build also enables leptos csr, so Effects need an executor.
         let _ = any_spawner::Executor::init_futures_executor();
         let owner = Owner::new();
-        owner.with(|| view().to_html())
+        // Persona and Timestamp open overlays that expect the theme context.
+        owner.with(|| {
+            view! { <OrbitalThemeProvider>{view()}</OrbitalThemeProvider> }
+                .into_any()
+                .to_html()
+        })
     }
 
     fn at() -> DateTime<Utc> {
