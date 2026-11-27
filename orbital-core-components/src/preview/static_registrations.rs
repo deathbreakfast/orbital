@@ -51,6 +51,8 @@ use crate::forms::calendar::CALENDAR_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::checkbox::CHECKBOX_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
+use crate::forms::code_editor::CODEEDITOR_PREVIEW_REGISTRATION;
+#[cfg(feature = "preview")]
 use crate::forms::color_picker::COLORPICKER_PREVIEW_REGISTRATION;
 #[cfg(feature = "preview")]
 use crate::forms::combobox::COMBOBOX_PREVIEW_REGISTRATION;
@@ -200,6 +202,7 @@ orbital_macros::preview_registrations! {
     &NUMERICSTEPPER_PREVIEW_REGISTRATION,
     &TEXTAREA_PREVIEW_REGISTRATION,
     &MARKDOWNEDITOR_PREVIEW_REGISTRATION,
+    &CODEEDITOR_PREVIEW_REGISTRATION,
     &SEARCHBOX_PREVIEW_REGISTRATION,
     &DROPDOWN_PREVIEW_REGISTRATION,
     &EMOJIPICKER_PREVIEW_REGISTRATION,
