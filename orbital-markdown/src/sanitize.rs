@@ -3,10 +3,12 @@ use std::collections::{HashMap, HashSet};
 /// Sanitize HTML with optional image and citation-ref tags.
 ///
 /// `image_url_schemes`, when set, further restricts `<img src>` to those schemes.
+/// `allow_relative_images` false drops scheme-less `<img src>` values.
 pub fn sanitize_html(
     html: &str,
     allow_images: bool,
     image_url_schemes: Option<&[String]>,
+    allow_relative_images: bool,
 ) -> String {
     let mut tags: HashSet<&str> = [
         "p",
@@ -83,6 +85,7 @@ pub fn sanitize_html(
             ("th" | "td", "style") => cell_alignment(value).map(Into::into),
             ("img", "src") => match (&image_schemes, url_scheme(value)) {
                 (Some(schemes), Some(scheme)) if !schemes.contains(&scheme) => None,
+                (_, None) if !allow_relative_images => None,
                 _ => Some(value.into()),
             },
             _ => Some(value.into()),

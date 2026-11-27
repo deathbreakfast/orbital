@@ -543,6 +543,35 @@ use crate::{DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle
 ///     </div>
 /// }
 /// ```
+///
+/// ## Removed as it opens
+/// A dialog can leave the page in the same moment it opens, for example when a route change unmounts its parent. Here the button opens the dialog and removes it before the next frame; focus handling stops quietly and focus stays where it was.
+/// <!-- preview -->
+/// ```rust
+/// use crate::Button;
+/// use leptos::leptos_dom::helpers::set_timeout;
+/// use std::time::Duration;
+/// let open = RwSignal::new(false);
+/// let mounted = RwSignal::new(true);
+/// view! {
+///     <div data-testid="dialog-removed-on-open">
+///         <Button on_click=Callback::new(move |_| {
+///             mounted.set(true);
+///             open.set(true);
+///             set_timeout(move || mounted.set(false), Duration::ZERO);
+///         })>"Open and remove"</Button>
+///         <Show when=move || mounted.get()>
+///             <Dialog open=open>
+///                 <DialogSurface>
+///                     <DialogBody>
+///                         <DialogContent>"Removed before it mounts"</DialogContent>
+///                     </DialogBody>
+///                 </DialogSurface>
+///             </Dialog>
+///         </Show>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Feedback",
     preview_slug = "dialog",

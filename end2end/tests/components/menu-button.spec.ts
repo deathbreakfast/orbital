@@ -45,4 +45,15 @@ test.describe("menu-button primitive preview", () => {
       page.getByTestId("menu-button-preview").locator(".orbital-menu-button__chevron"),
     ).toBeVisible();
   });
+
+  test("MB-06: icon-only trigger is named and opens its menu", async ({ page }) => {
+    await openComponentPreview(page, "menu-button");
+    const root = page.getByTestId("menu-button-icon");
+    await root.scrollIntoViewIfNeeded();
+    const trigger = root.getByRole("button", { name: "More actions" });
+    await expect(trigger).toBeVisible();
+    await expect(root.locator(".orbital-menu-button__chevron")).toHaveCount(0);
+    await trigger.click();
+    await expect(page.getByRole("menuitem", { name: "Rename" })).toBeVisible();
+  });
 });
