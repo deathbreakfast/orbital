@@ -74,7 +74,7 @@ pub fn FocusTrap(
                     if !disabled && e.code() == "Escape" {
                         on_esc.run(e);
                     } else if e.key() == "Tab" {
-                        if let Some(root) = scope.and_then(|s| s.get_untracked()) {
+                        if let Some(root) = scope.and_then(|s| s.try_get_untracked().flatten()) {
                             focus::wrap_tab(&root, &e);
                         }
                     }
@@ -259,14 +259,16 @@ mod focus {
     }
 
     /// Waits for `scope` to connect, moves focus in, and parks a `LateFocus` in
-    /// `late` when only the surface could be focused.
+    /// `late` when only the surface could be focused. Stops when the overlay is
+    /// disposed before it mounts.
     pub(super) fn move_in_when_mounted(
         scope: NodeRef<html::Div>,
         late: StoredValue<Option<SendWrapper<LateFocus>>>,
         frame: u8,
     ) {
-        request_animation_frame(move || match scope.get_untracked() {
-            Some(root) if root.is_connected() => {
+        request_animation_frame(move || match scope.try_get_untracked() {
+            None => {}
+            Some(Some(root)) if root.is_connected() => {
                 if matches!(move_in(&root), Landing::Surface) {
                     if let Some(watch) = LateFocus::watch(&root) {
                         late.try_set_value(Some(SendWrapper::new(watch)));

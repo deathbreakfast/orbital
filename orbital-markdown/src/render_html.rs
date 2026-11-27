@@ -54,6 +54,7 @@ pub fn render_to_html(
         &html,
         options.enable_images,
         options.image_url_schemes.as_deref(),
+        options.allow_relative_images,
     );
 
     html = expand_placeholders(&html);
@@ -129,6 +130,7 @@ mod tests {
                 enable_mention_refs: false,
                 enable_images: false,
                 image_url_schemes: None,
+                allow_relative_images: true,
                 citation_style: CitationLinkStyle::discussion(),
                 mention_style: Default::default(),
             },
@@ -158,6 +160,7 @@ mod tests {
                 enable_mention_refs: true,
                 enable_images: false,
                 image_url_schemes: None,
+                allow_relative_images: true,
                 citation_style: CitationLinkStyle::history(),
                 mention_style: crate::MentionLinkStyle::history(),
             },
@@ -205,6 +208,33 @@ mod tests {
     fn image_schemes_keep_relative_src() {
         let s = Some(&["https"][..]);
         assert!(render_images("![a](/files/a.png)", s).contains("src=\"/files/a.png\""));
+    }
+
+    #[test]
+    fn relative_images_dropped_when_disallowed() {
+        let render = |md: &str| {
+            render_to_html(
+                md,
+                &OrbitalMarkdownOptions {
+                    enable_images: true,
+                    image_url_schemes: Some(vec!["https".into()]),
+                    allow_relative_images: false,
+                    ..Default::default()
+                },
+                &RenderContext::default(),
+            )
+        };
+        for url in ["/files/a.png", "a.png", "../a.png", "//x.test/a.png"] {
+            let html = render(&format!("![a]({url})"));
+            assert!(!html.contains("src="), "{url} kept: {html}");
+        }
+        assert!(render("![a](https://x.test/a.png)").contains("src=\"https://x.test/a.png\""));
+    }
+
+    #[test]
+    fn relative_images_kept_by_default() {
+        assert!(OrbitalMarkdownOptions::default().allow_relative_images);
+        assert!(render_images("![a](a.png)", None).contains("src=\"a.png\""));
     }
 
     #[test]
