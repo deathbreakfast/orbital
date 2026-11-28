@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { openComponentPreview, expectPreviewVariants } from "../lib/preview/navigation";
+import { openComponentPreview, expectPreviewVariants, scrollIntoPreviewView } from "../lib/preview/navigation";
 test.describe("date-time-field preview behaviors", () => {
   test("renders preview page", async ({ page }) => {
     await openComponentPreview(page, "date-time-field");
@@ -23,6 +23,7 @@ test.describe("date-time-field preview behaviors", () => {
     const timeSegments = wrapper.locator(".orb-time-field__segment");
     await expect(dateSegments).toHaveCount(3, { timeout: 30_000 });
     await expect(timeSegments).toHaveCount(3);
+    await scrollIntoPreviewView(dateSegments.first());
     await dateSegments.nth(0).fill("06");
     await dateSegments.nth(1).fill("14");
     await dateSegments.nth(2).fill("2025");

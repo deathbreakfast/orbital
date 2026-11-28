@@ -631,9 +631,9 @@ test.describe("graph canvas", () => {
     const scope = await graphIn(page, "graph-background");
     await expect(scope.locator(".orbital-graph")).toHaveAttribute("data-background", "lines");
     const grid = scope.locator(".orbital-graph__grid");
-    expect(await grid.evaluate((el) => getComputedStyle(el).backgroundImage)).toContain(
-      "linear-gradient",
-    );
+    await expect
+      .poll(() => grid.evaluate((el) => getComputedStyle(el).backgroundImage))
+      .toContain("linear-gradient");
     const token = () =>
       grid.evaluate((el) => getComputedStyle(el).getPropertyValue("--orb-graph-grid").trim());
     const light = await token();
