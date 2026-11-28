@@ -1,5 +1,5 @@
 use crate::types::ServerFetchPolicy;
-use leptos::prelude::{RwSignal, Update, WithUntracked};
+use leptos::prelude::{RwSignal, ServerFnError, Update, WithUntracked};
 use orbital_paging::PageRequest;
 
 /// Tracks server fetch generations and optional request deduplication.
@@ -35,6 +35,18 @@ impl ServerFetchCoordinator {
     }
 }
 
+/// The text a load-error view shows for a failed page fetch.
+///
+/// A server function's own message comes back without the framework's
+/// "error running server function:" prefix, so the view reads like the server's
+/// answer. Other failures (request, response, decoding) keep their full text.
+pub fn load_error_message(err: &ServerFnError) -> String {
+    match err {
+        ServerFnError::ServerError(message) => message.clone(),
+        other => other.to_string(),
+    }
+}
+
 /// Run [`ServerFetchCoordinator::begin`] and return its result.
 pub fn coordinator_begin(
     coordinator: RwSignal<ServerFetchCoordinator>,
@@ -67,6 +79,17 @@ mod tests {
 
     use super::*;
     use orbital_paging::PageRequest;
+
+    #[test]
+    fn load_error_message_drops_the_server_function_prefix() {
+        let err = ServerFnError::new("The run store didn't answer (503).");
+        assert_eq!(
+            load_error_message(&err),
+            "The run store didn't answer (503)."
+        );
+        let request = ServerFnError::Request("connection reset".into());
+        assert_eq!(load_error_message(&request), request.to_string());
+    }
 
     #[test]
     fn response_after_unmount_is_not_current() {

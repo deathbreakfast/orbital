@@ -25,7 +25,9 @@ use super::width_observer::use_table_width;
 use crate::core::{provide_chart_binding, use_data_table_context, DataTableProvider};
 use crate::engine::build_page_request;
 use crate::engine::ExportRowScope;
-use crate::engine::{coordinator_begin, coordinator_is_current, ServerFetchCoordinator};
+use crate::engine::{
+    coordinator_begin, coordinator_is_current, load_error_message, ServerFetchCoordinator,
+};
 #[cfg(feature = "hydrate")]
 use crate::engine::{
     scroll_dimensions, scroll_offset_for_column, scroll_offset_for_row, set_scroll_left,
@@ -606,7 +608,7 @@ pub fn DataTableRoot(
                         }
                         Err(err) if coordinator_is_current(fetch_coordinator, gen) => {
                             // Keep the error so the rows area says why it's empty.
-                            server_error.set(Some(err.to_string()));
+                            server_error.set(Some(load_error_message(&err)));
                             server_has_more.set(false);
                             processed.set(Vec::new());
                             table_state.sync_processed_dataset_server_page();

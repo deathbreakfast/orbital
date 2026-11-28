@@ -62,7 +62,9 @@ pub use scroll::{
     scroll_offset_for_row, set_scroll_left, set_scroll_top, ScrollAlignment,
 };
 pub use select::{range_select, toggle_selection};
-pub use server_fetch::{coordinator_begin, coordinator_is_current, ServerFetchCoordinator};
+pub use server_fetch::{
+    coordinator_begin, coordinator_is_current, load_error_message, ServerFetchCoordinator,
+};
 pub use server_query::{build_page_request, operator_from_wire, operator_to_wire};
 #[cfg(feature = "preview")]
 pub use server_query::{page_from_processed, process_server_rows};
