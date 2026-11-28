@@ -11,12 +11,12 @@ pub fn chart_styles() -> &'static str {
     box-sizing: border-box;
     min-width: 120px;
     min-height: 120px;
-    --orbital-chart-series-1: var(--orb-color-accent-primary, #2563eb);
-    --orbital-chart-series-2: var(--orb-color-accent-secondary, #7c3aed);
-    --orbital-chart-series-3: var(--orb-color-accent-tertiary, #059669);
-    --orbital-chart-series-4: var(--orb-color-accent-quaternary, #d97706);
-    --orbital-chart-series-5: var(--orb-color-accent-primary, #2563eb);
-    --orbital-chart-series-6: var(--orb-color-accent-secondary, #7c3aed);
+    --orbital-chart-series-1: var(--orb-color-brand-fg, #2563eb);
+    --orbital-chart-series-2: #7c3aed;
+    --orbital-chart-series-3: #059669;
+    --orbital-chart-series-4: #d97706;
+    --orbital-chart-series-5: var(--orb-color-brand-fg, #2563eb);
+    --orbital-chart-series-6: #7c3aed;
     --orbital-chart-inset: 40px;
     --orbital-chart-tick-font-size: var(--orb-font-size-sm, 0.8125rem);
     --orbital-chart-legend-gap: var(--orb-space-block-md, 0.75rem);

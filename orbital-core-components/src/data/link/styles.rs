@@ -69,5 +69,11 @@ span.orbital-link,
     text-decoration-line: underline;
     text-decoration-color: var(--orb-color-border-focus);
 }
+
+.orbital-link--subtle:not(.orbital-link--disabled),
+.orbital-link--subtle:not(.orbital-link--disabled):hover,
+.orbital-link--subtle:not(.orbital-link--disabled):active {
+    color: var(--orb-color-text-primary);
+}
 "#
 }

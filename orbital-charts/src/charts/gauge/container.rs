@@ -63,8 +63,7 @@ pub fn GaugeContainer(
         motion.as_ref(),
         prefers_reduced.get_untracked(),
     );
-    let fill_color =
-        value_color.unwrap_or_else(|| "var(--orb-color-accent-primary, #2563eb)".into());
+    let fill_color = value_color.unwrap_or_else(|| "var(--orb-color-brand-fg, #2563eb)".into());
 
     let layout = Memo::new(move |_| {
         resolve_gauge_layout(width, height, &geometry, value, value_min, value_max)

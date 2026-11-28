@@ -5,6 +5,16 @@ use orbital_style::inject_style;
 
 use super::styles::link_styles;
 
+/// Text colour of a [`Link`].
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum LinkAppearance {
+    /// Brand link colour.
+    #[default]
+    Default,
+    /// Primary text colour, underlined on hover.
+    Subtle,
+}
+
 /// Styled anchor for navigation and inline references.
 ///
 /// With `href`, renders an anchor; without `href`, renders a button (or `span` when `span` is true). Use `inline` when the link sits in body copy. For in-page section scroll-spy rails use [`Anchor`](crate::Anchor) — not `Link`.
@@ -15,7 +25,7 @@ use super::styles::link_styles;
 ///
 /// # Usage
 ///
-/// 1. Pass `href="#path"` for anchor navigation. 2. Set `inline=true` for underlined links embedded in copy. 3. Set `disabled=true` to dim and block interaction. 4. Omit `href` for button-style links that trigger actions.
+/// 1. Pass `href="#path"` for anchor navigation. 2. Set `inline=true` for underlined links embedded in copy. 3. Set `disabled=true` to dim and block interaction. 4. Omit `href` for button-style links that trigger actions. 5. Set `appearance=LinkAppearance::Subtle` to draw the link in the primary text colour, for names and titles on tinted cards where the brand link colour is too light.
 ///
 /// # Best Practices
 ///
@@ -92,6 +102,18 @@ use super::styles::link_styles;
 ///     </div>
 /// }
 /// ```
+///
+/// ## Subtle link
+/// Subtle links use the primary text colour and underline on hover, so they stay readable on grey or tinted surfaces.
+/// <!-- preview -->
+/// ```rust
+/// use crate::{Link, LinkAppearance};
+/// view! {
+///     <div data-testid="link-subtle" style="padding: 8px; background: var(--orb-color-surface-subtle);">
+///         <Link href="#profile" appearance=LinkAppearance::Subtle>"Ada Lovelace"</Link>
+///     </div>
+/// }
+/// ```
 #[component_doc(
     category = "Data Display",
     preview_slug = "link",
@@ -118,10 +140,24 @@ pub fn Link(
     /// Keeps focusable styling when disabled (for tooltips on disabled links).
     #[prop(optional)]
     disabled_focusable: bool,
+    /// Text colour: `Default` uses the brand link colour, `Subtle` the primary text colour.
+    #[prop(optional)]
+    appearance: LinkAppearance,
     /// Link label or inline elements.
     children: Children,
 ) -> impl IntoView {
     inject_style("orbital-link", link_styles());
+
+    let class = MaybeProp::derive(move || {
+        let extra = class.get();
+        match appearance {
+            LinkAppearance::Default => extra,
+            LinkAppearance::Subtle => Some(match extra {
+                Some(extra) => format!("orbital-link--subtle {extra}"),
+                None => "orbital-link--subtle".to_string(),
+            }),
+        }
+    });
 
     let href = href.map(Signal::<String>::from);
     let inline = Signal::from(inline);

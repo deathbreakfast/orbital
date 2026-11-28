@@ -370,6 +370,49 @@ mod tests {
         }
     }
 
+    /// Severe tint badges, filled danger/severe badges, colorful avatars and status warnings.
+    #[test]
+    fn palette_pairs_meet_aa() {
+        for (label, c) in [
+            ("light", Theme::light().color),
+            ("dark", Theme::dark().color),
+        ] {
+            let orange_fg = c.color_palette_dark_orange_foreground_1();
+            assert_aa(
+                &format!("{label} orange tint"),
+                orange_fg,
+                c.color_palette_dark_orange_background_1(),
+            );
+            assert_aa(
+                &format!("{label} orange on canvas"),
+                orange_fg,
+                c.color_neutral_background_1(),
+            );
+            let on_brand = c.color_neutral_foreground_on_brand();
+            assert_aa(
+                &format!("{label} filled red"),
+                on_brand,
+                c.color_palette_red_background_3(),
+            );
+            assert_aa(
+                &format!("{label} filled orange"),
+                on_brand,
+                c.color_palette_dark_orange_background_3(),
+            );
+            let warning_fg = c.color_status_warning_foreground_3();
+            assert_aa(
+                &format!("{label} status warning"),
+                warning_fg,
+                c.color_status_warning_background_1(),
+            );
+            assert_aa(
+                &format!("{label} status warning on canvas"),
+                warning_fg,
+                c.color_neutral_background_1(),
+            );
+        }
+    }
+
     #[test]
     fn branded_themes_meet_aa_for_brand_text() {
         for seed in ["#4a89dc", "#1e82ae", "#ff0000", "#e4fd00", "#0a2540"] {

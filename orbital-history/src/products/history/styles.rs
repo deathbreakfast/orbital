@@ -80,12 +80,12 @@ pub fn history_styles() -> &'static str {
 
 .orbital-history__diff-old {
     text-decoration: line-through;
-    color: var(--orb-color-foreground-muted, inherit);
+    color: var(--orb-color-text-secondary);
     opacity: 0.75;
 }
 
 .orbital-history__diff-new {
-    color: var(--orb-color-foreground-accent, inherit);
+    color: var(--orb-color-brand-fg);
     font-weight: 600;
 }
 

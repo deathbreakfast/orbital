@@ -176,10 +176,6 @@ test.describe("chip-selector preview", () => {
         // The light theme's link token is 4.32:1 on white everywhere, not only
         // here; Magnon task 907a1086-d8d4-4898-89b0-da01d3240c35 fixes the token.
         if (excludeLinks) axe = axe.exclude(".orbital-chip-selector a.orbital-link");
-        // Badge's Brand tint text (brand-fg-secondary) is 4.14:1 on its light
-        // background in every Badge, not only here; follow-up
-        // avatar-badge-contrast fixes the token.
-        if (excludeLinks) axe = axe.exclude(".orbital-chip-selector .orbital-badge--tint.orbital-badge--brand");
         const results = await axe.analyze();
         for (const v of results.violations) {
           if (v.impact !== "critical" && v.impact !== "serious") continue;

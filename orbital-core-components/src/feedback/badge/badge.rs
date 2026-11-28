@@ -59,7 +59,7 @@ use super::styles::badge_styles;
 /// ```
 ///
 /// ## Semantic colors
-/// Map badge color to success, warning, danger, or informative semantics for status labels.
+/// Map badge color to success, warning, danger, severe, or informative semantics for status labels.
 /// <!-- preview -->
 /// ```rust
 /// use crate::{Badge, BadgeAppearance, BadgeColor};
@@ -69,6 +69,8 @@ use super::styles::badge_styles;
 ///         <Badge appearance=Signal::from(BadgeAppearance::Filled) color=Signal::from(BadgeColor::Warning)>"Warn"</Badge>
 ///         <Badge appearance=Signal::from(BadgeAppearance::Filled) color=Signal::from(BadgeColor::Danger)>"Err"</Badge>
 ///         <Badge appearance=Signal::from(BadgeAppearance::Filled) color=Signal::from(BadgeColor::Informative)>"Info"</Badge>
+///         <Badge appearance=Signal::from(BadgeAppearance::Filled) color=Signal::from(BadgeColor::Severe)>"Severe"</Badge>
+///         <Badge appearance=Signal::from(BadgeAppearance::Tint) color=Signal::from(BadgeColor::Severe)>"Severe"</Badge>
 ///     </div>
 /// }
 /// ```
