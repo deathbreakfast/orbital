@@ -26,10 +26,12 @@ test.describe("spinner primitive preview", () => {
   test("SP-03: large spinner indicator is taller than default", async ({ page }) => {
     await openComponentPreview(page, "spinner");
     await page.getByTestId("spinner-large").scrollIntoViewIfNeeded();
+    // offsetHeight ignores the rotate animation; the bounding box of a spinning ring
+    // grows by up to sqrt(2) depending on the frame it is sampled at.
     const defaultH = await page.getByTestId("spinner-preview").locator(".orbital-spinner__spinner")
-      .evaluate((el) => el.getBoundingClientRect().height);
+      .evaluate((el) => (el as HTMLElement).offsetHeight);
     const largeH = await page.getByTestId("spinner-large").locator(".orbital-spinner__spinner")
-      .evaluate((el) => el.getBoundingClientRect().height);
+      .evaluate((el) => (el as HTMLElement).offsetHeight);
     expect(largeH).toBeGreaterThan(defaultH);
   });
 
@@ -38,8 +40,8 @@ test.describe("spinner primitive preview", () => {
     await page.getByTestId("spinner-sizes").scrollIntoViewIfNeeded();
     const tiny = page.getByTestId("spinner-size-tiny").locator(".orbital-spinner__spinner");
     const huge = page.getByTestId("spinner-size-huge").locator(".orbital-spinner__spinner");
-    const tinyH = await tiny.evaluate((el) => el.getBoundingClientRect().height);
-    const hugeH = await huge.evaluate((el) => el.getBoundingClientRect().height);
+    const tinyH = await tiny.evaluate((el) => (el as HTMLElement).offsetHeight);
+    const hugeH = await huge.evaluate((el) => (el as HTMLElement).offsetHeight);
     expect(hugeH).toBeGreaterThan(tinyH);
   });
 

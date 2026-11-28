@@ -21,4 +21,9 @@ export async function waitForPreviewShell(page: import("@playwright/test").Page)
   await page.waitForLoadState("domcontentloaded");
   await expect(page.getByTestId("preview-catalog-shell")).toBeVisible({ timeout: 10_000 });
   await page.waitForLoadState("networkidle");
+  // networkidle fires once the wasm is downloaded, but compiling and hydrating it can
+  // finish later on a loaded box; input typed before then is reset by hydration.
+  await expect(page.locator("html")).toHaveAttribute("data-orbital-hydrated", "true", {
+    timeout: 30_000,
+  });
 }
