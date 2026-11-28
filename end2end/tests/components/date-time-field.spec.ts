@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview, expectPreviewVariants, scrollIntoPreviewView } from "../lib/preview/navigation";
+import { fillSegment } from "../lib/preview/forms";
 test.describe("date-time-field preview behaviors", () => {
   test("renders preview page", async ({ page }) => {
     await openComponentPreview(page, "date-time-field");
@@ -24,12 +25,12 @@ test.describe("date-time-field preview behaviors", () => {
     await expect(dateSegments).toHaveCount(3, { timeout: 30_000 });
     await expect(timeSegments).toHaveCount(3);
     await scrollIntoPreviewView(dateSegments.first());
-    await dateSegments.nth(0).fill("06");
-    await dateSegments.nth(1).fill("14");
-    await dateSegments.nth(2).fill("2025");
-    await timeSegments.nth(0).fill("09");
-    await timeSegments.nth(1).fill("30");
-    await timeSegments.nth(2).fill("AM");
+    await fillSegment(dateSegments.nth(0), "06");
+    await fillSegment(dateSegments.nth(1), "14");
+    await fillSegment(dateSegments.nth(2), "2025");
+    await fillSegment(timeSegments.nth(0), "09");
+    await fillSegment(timeSegments.nth(1), "30");
+    await fillSegment(timeSegments.nth(2), "AM");
     await timeSegments.nth(2).blur();
 
     await expect(value).not.toHaveText("none");
