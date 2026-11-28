@@ -4,7 +4,7 @@ use orbital_core_components::{
     MessageBarTitle, Spinner, SpinnerSize,
 };
 
-use crate::core::{use_data_table_context, DataTableContext};
+use crate::core::{use_data_table_context, DataTableContext, DataTableTableStateProvider};
 use crate::types::{
     DataTableEmptyView, DataTableErrorView, DataTableLoadingView, DataTableNoResultsView,
     DataTableTableState, OverlayState,
@@ -116,7 +116,15 @@ fn render_error_overlay(
     ctx: &DataTableContext,
 ) -> AnyView {
     if let Some(slot) = error_view {
-        return (slot.children)().into_any();
+        // The slot reads `load_error` and calls `retry_load` through
+        // `use_data_table_table_state`, so it needs the state in context.
+        let children = slot.children.clone();
+        return view! {
+            <DataTableTableStateProvider state=state>
+                {children()}
+            </DataTableTableStateProvider>
+        }
+        .into_any();
     }
     let locale = ctx.locale.get_value();
     let title = locale.load_failed.clone();
