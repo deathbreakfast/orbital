@@ -59,7 +59,10 @@ pub use input::{
     InputSuffix,
 };
 pub use label::Label;
-pub use markdown_editor::{MarkdownEditor, OrbitalMarkdownOptions};
+pub use markdown_editor::{
+    ImageUploadHandler, MarkdownEditor, MentionCandidate, MentionKind, MentionProvider,
+    OrbitalMarkdownOptions,
+};
 pub use menu_button::MenuButton;
 pub use numeric_stepper::{
     NumericStepper, NumericStepperAppearance, NumericStepperBind, NumericStepperSize,

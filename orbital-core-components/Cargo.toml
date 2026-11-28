@@ -32,10 +32,11 @@ orbital-motion = { path = "../orbital-motion", version = "0.1.4", default-featur
 orbital-markdown = { path = "../orbital-markdown", version = "0.1.4" }
 wasm-bindgen = { workspace = true }
 wasm-bindgen-futures = { workspace = true }
-web-sys = { version = "0.3", features = ["Clipboard", "Document", "DomRect", "Element", "Event", "EventTarget", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement", "KeyboardEvent", "MouseEvent", "Navigator", "PointerEvent", "ResizeObserver", "Window"] }
+web-sys = { version = "0.3", features = ["Clipboard", "css", "CssStyleDeclaration", "Document", "DomRect", "Element", "Event", "EventTarget", "File", "FileList", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement", "KeyboardEvent", "MouseEvent", "Navigator", "Node", "PointerEvent", "ResizeObserver", "ScrollIntoViewOptions", "ScrollLogicalPosition", "Window"] }
 inventory = { version = "0.3", optional = true }
 pulldown-cmark = { version = "0.13.6", optional = true }
 palette = "0.7"
+send_wrapper = "0.6"
 
 [dev-dependencies]
 any_spawner = { version = "0.3", features = ["futures-executor"] }
