@@ -1,4 +1,4 @@
-use leptos::{either::Either, html, prelude::*};
+use leptos::{context::Provider, either::Either, html, prelude::*};
 use orbital_motion::{
     resolve_presence_motion, resolve_presence_motion_derived, MotionSlot, OrbitalPresence,
     PresenceMotion,
@@ -9,6 +9,7 @@ use crate::overlay::{
 };
 use crate::Handler;
 
+use super::parts::DrawerTitleId;
 use super::sizes::{
     drawer_presence_motion, drawer_size_css, DrawerModalType, DrawerPosition, DrawerSize,
 };
@@ -30,6 +31,7 @@ pub fn BaseOverlayDrawer(
 ) -> impl IntoView {
     let open_drawer = RwSignal::new(open.get_untracked());
     let open_signal = open.signal();
+    let title_id = RwSignal::new(None::<String>);
 
     Effect::new(move |_| {
         open_drawer.set(open.get());
@@ -98,13 +100,14 @@ pub fn BaseOverlayDrawer(
                                 move || drawer_size_css(size.get(), position.get()),
                             )
                             role="dialog"
+                            aria-labelledby=move || title_id.get()
                             aria-modal=if modal_type == DrawerModalType::Modal {
                                 "true"
                             } else {
                                 "false"
                             }
                         >
-                            {children()}
+                            <Provider value=DrawerTitleId(title_id)>{children()}</Provider>
                         </div>
                     </OrbitalPresence>
                 </div>

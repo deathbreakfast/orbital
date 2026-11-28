@@ -1,5 +1,10 @@
 use leptos::prelude::*;
 
+/// Lets a drawer title name its dialog: the overlay provides the signal, the
+/// title writes its heading id into it, and the dialog reads it for `aria-labelledby`.
+#[derive(Clone, Copy)]
+pub(crate) struct DrawerTitleId(pub RwSignal<Option<String>>);
+
 #[component]
 pub fn BaseDrawerHeader(
     #[prop(optional, into)] class: MaybeProp<String>,
@@ -33,6 +38,11 @@ pub fn BaseDrawerHeaderTitle(
     #[prop(optional)] drawer_header_title_action: Option<DrawerHeaderTitleAction>,
     children: Children,
 ) -> impl IntoView {
+    let heading_id = crate::new_field_id();
+    if let Some(DrawerTitleId(title_id)) = use_context::<DrawerTitleId>() {
+        title_id.set(Some(heading_id.clone()));
+        on_cleanup(move || title_id.set(None));
+    }
     view! {
         <div
             class=move || {
@@ -45,7 +55,7 @@ pub fn BaseDrawerHeaderTitle(
                 parts.join(" ")
             }
         >
-            <h2 class="orbital-drawer-header-title__heading">{children()}</h2>
+            <h2 class="orbital-drawer-header-title__heading" id=heading_id>{children()}</h2>
             {drawer_header_title_action.map(|action| {
                 view! {
                     <div class="orbital-drawer-header-title__action">
