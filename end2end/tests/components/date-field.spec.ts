@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { openComponentPreview, expectPreviewVariants } from "../lib/preview/navigation";
+import { fillSegment } from "../lib/preview/forms";
 test.describe("date-field preview behaviors", () => {
   test("renders preview page", async ({ page }) => {
     await openComponentPreview(page, "date-field");
@@ -23,13 +24,15 @@ test.describe("date-field preview behaviors", () => {
     const day = wrapper.getByTestId("date-field-segment-day");
     const year = wrapper.getByTestId("date-field-segment-year");
 
+    // A complete segment moves focus to the next one by itself, so wait for that
+    // instead of pressing Tab on top of it.
     await month.click();
-    await month.fill("06");
-    await month.press("Tab");
-    await day.fill("14");
-    await day.press("Tab");
-    await year.fill("2025");
-    await year.press("Tab");
+    await fillSegment(month, "06");
+    await expect(day).toBeFocused();
+    await fillSegment(day, "14");
+    await expect(year).toBeFocused();
+    await fillSegment(year, "2025");
+    await year.blur();
 
     await expect(value).not.toHaveText("none");
   });
