@@ -15,6 +15,7 @@ pub struct DataTableSlots {
     pub empty_view: Option<DataTableEmptyView>,
     pub no_results_view: Option<DataTableNoResultsView>,
     pub loading_view: Option<DataTableLoadingView>,
+    pub error_view: Option<DataTableErrorView>,
     pub row_detail: Option<DataTableRowDetail>,
 }
 
@@ -27,6 +28,7 @@ impl DataTableSlots {
         empty_view: Option<DataTableEmptyView>,
         no_results_view: Option<DataTableNoResultsView>,
         loading_view: Option<DataTableLoadingView>,
+        error_view: Option<DataTableErrorView>,
         row_detail: Option<DataTableRowDetail>,
     ) -> Self {
         Self {
@@ -36,6 +38,7 @@ impl DataTableSlots {
             empty_view,
             no_results_view,
             loading_view,
+            error_view,
             row_detail,
         }
     }
@@ -124,6 +127,19 @@ pub struct DataTableNoResultsView {
 /// Shown while server data is fetching or when the client `loading` prop is true.
 #[slot]
 pub struct DataTableLoadingView {
+    pub(crate) children: ChildrenFn,
+}
+
+/// Custom load-error view. Pass `<DataTableErrorView slot>` as a child of [`crate::DataTable`].
+///
+/// Shown in place of the rows when the server fetcher's last page request failed. The
+/// toolbar, search and filters stay. Inside the slot, read the error with
+/// [`DataTableTableState::load_error`](crate::types::DataTableTableState::load_error) and fetch
+/// again with [`DataTableTableState::retry_load`](crate::types::DataTableTableState::retry_load),
+/// both through [`crate::use_data_table_table_state`]. Without the slot the table shows a
+/// MessageBar with the error text and a Try again button.
+#[slot]
+pub struct DataTableErrorView {
     pub(crate) children: ChildrenFn,
 }
 

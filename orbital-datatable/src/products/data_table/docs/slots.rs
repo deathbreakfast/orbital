@@ -18,14 +18,14 @@ use crate::{
 ///
 /// - Adding a page's own controls (saved searches, a filter button, quick toggles) to the
 ///   default toolbar's search row with [`DataTableToolbarEnd`].
-/// - Replacing the default toolbar, footer, or loading/empty overlays.
+/// - Replacing the default toolbar, footer, or loading/empty/load-error overlays.
 /// - Custom expandable row detail panels via [`DataTableRowDetail`].
 ///
 /// # Usage
 ///
 /// Nest slot children on [`DataTable`]: [`DataTableToolbarEnd`], [`DataTableToolbarSlot`], [`DataTableFooterSlot`],
-/// [`DataTableEmptyView`], [`DataTableNoResultsView`], [`DataTableLoadingView`], and
-/// [`DataTableRowDetail`]. Wire side effects through [`DataTableEvents`] and read table
+/// [`DataTableEmptyView`], [`DataTableNoResultsView`], [`DataTableLoadingView`],
+/// [`DataTableErrorView`], and [`DataTableRowDetail`]. Wire side effects through [`DataTableEvents`] and read table
 /// state with [`use_data_table_table_state`].
 ///
 /// # Examples
